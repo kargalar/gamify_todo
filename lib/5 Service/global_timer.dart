@@ -35,6 +35,7 @@ class GlobalTimer {
           // ? schedule notification ile çakışmaması için "-"
           id: -taskModel.id,
           currentDuration: taskModel.currentDuration!,
+          remainingDuration: taskModel.remainingDuration!,
           title: taskModel.title,
           isCountDown: false,
         );
@@ -71,6 +72,7 @@ class GlobalTimer {
         NotificationService().showTimerNotification(
           id: -storeItemModel.id,
           currentDuration: storeItemModel.currentDuration!,
+          remainingDuration: null,
           title: storeItemModel.title,
           isCountDown: true,
         );

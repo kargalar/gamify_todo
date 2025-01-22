@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:gamify_todo/1%20Core/extensions.dart';
 import 'package:gamify_todo/1%20Core/helper.dart';
 import 'package:gamify_todo/5%20Service/locale_keys.g.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -45,6 +46,7 @@ class NotificationService {
       description: 'Timer for tasks',
       importance: Importance.max,
       playSound: false,
+      showBadge: false,
     );
 
     // Kanalları oluştur
@@ -106,29 +108,16 @@ class NotificationService {
       tz.local,
     );
 
-    if (isAlarm) {
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        desc,
-        scheduledTZDate,
-        notificationDetails(isAlarm),
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
-    } else {
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        desc,
-        scheduledTZDate,
-        notificationDetails(isAlarm),
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
-    }
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      desc,
+      scheduledTZDate,
+      notificationDetails(isAlarm),
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
   }
 
   Future<void> notificaitonTest() async {
@@ -175,7 +164,7 @@ class NotificationService {
             ? [
                 const AndroidNotificationAction(
                   'stop_alarm',
-                  'Stop Alarm',
+                  '⏹️ STOP ALARM',
                   cancelNotification: true,
                   showsUserInterface: true,
                 )
@@ -191,17 +180,19 @@ class NotificationService {
     );
   }
 
+  // TODO: gliba farklı android versiyonlarında bildirim panelinden kaydırarak silinme özelliğini kapatma işlevi çalışmıyor.
   Future<void> showTimerNotification({
     required int id,
     required String title,
     required Duration currentDuration,
+    required Duration? remainingDuration,
     required bool isCountDown,
   }) async {
     await flutterLocalNotificationsPlugin.show(
       // ? schedule notification ile çakışmaması için "-"
       -id,
       title,
-      "Timer active",
+      remainingDuration != null ? "Target Duration: ${remainingDuration.textShort3()}" : "Timer active",
       NotificationDetails(
         android: AndroidNotificationDetails(
           'task_timer',
@@ -216,7 +207,11 @@ class NotificationService {
           usesChronometer: true,
           chronometerCountDown: isCountDown,
           when: isCountDown ? DateTime.now().millisecondsSinceEpoch + currentDuration.inMilliseconds : DateTime.now().millisecondsSinceEpoch - currentDuration.inMilliseconds,
-          visibility: NotificationVisibility.public,
+          visibility: NotificationVisibility.private,
+          onlyAlertOnce: true,
+          fullScreenIntent: true,
+          category: AndroidNotificationCategory.service,
+          silent: true,
         ),
       ),
     );
