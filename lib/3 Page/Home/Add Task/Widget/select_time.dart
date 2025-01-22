@@ -5,7 +5,6 @@ import 'package:gamify_todo/2%20General/app_colors.dart';
 import 'package:gamify_todo/5%20Service/locale_keys.g.dart';
 import 'package:gamify_todo/5%20Service/notification_services.dart';
 import 'package:gamify_todo/6%20Provider/add_task_provider.dart';
-import 'package:gamify_todo/6%20Provider/task_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -37,7 +36,7 @@ class _SelectTimeState extends State<SelectTime> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                context.watch<AddTaskProvider>().selectedTime?.to12Hours() ?? LocaleKeys.NotSelected.tr(),
+                context.watch<AddTaskProvider>().selectedTime?.to24Hours() ?? LocaleKeys.SelectTime.tr(),
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -47,20 +46,22 @@ class _SelectTimeState extends State<SelectTime> {
           ),
         ),
         onTap: () async {
-          final TimeOfDay? selectedTime = await Helper().selectTime(context);
+          final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
 
           if (selectedTime != null) {
-            if (addTaskProvider.editTask != null) {
-              if (!(await NotificationService().requestNotificationPermissions())) return;
-
-              addTaskProvider.updateTime(selectedTime);
-              TaskProvider().checkNotification(addTaskProvider.editTask!);
+            if (await NotificationService().requestNotificationPermissions()) {
+              if (addTaskProvider.isAlarmOn) return;
               addTaskProvider.isNotificationOn = true;
             } else {
-              addTaskProvider.updateTime(selectedTime);
-              addTaskProvider.isNotificationOn = true;
+              addTaskProvider.isNotificationOn = false;
+              addTaskProvider.isAlarmOn = false;
             }
+          } else {
+            addTaskProvider.isNotificationOn = false;
+            addTaskProvider.isAlarmOn = false;
           }
+
+          addTaskProvider.updateTime(selectedTime);
         },
       ),
     );

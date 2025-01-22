@@ -3,7 +3,6 @@ import 'package:gamify_todo/1%20Core/helper.dart';
 import 'package:gamify_todo/2%20General/app_colors.dart';
 import 'package:gamify_todo/5%20Service/notification_services.dart';
 import 'package:gamify_todo/6%20Provider/add_task_provider.dart';
-import 'package:gamify_todo/6%20Provider/task_provider.dart';
 import 'package:provider/provider.dart';
 
 class NotificationStatus extends StatefulWidget {
@@ -54,44 +53,36 @@ class _NotificationStatusState extends State<NotificationStatus> {
 
   Future changeNotificationStatus() async {
     if (addTaskProvider.selectedTime == null) {
-      final TimeOfDay? selectedTime = await Helper().selectTime(context);
+      final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
 
       if (selectedTime != null) {
-        if (addTaskProvider.editTask != null) {
-          if (!(await NotificationService().requestNotificationPermissions())) return;
-
-          addTaskProvider.updateTime(selectedTime);
-          TaskProvider().checkNotification(addTaskProvider.editTask!);
+        if (await NotificationService().requestNotificationPermissions()) {
+          if (addTaskProvider.isAlarmOn) return;
           addTaskProvider.isNotificationOn = true;
         } else {
-          addTaskProvider.updateTime(selectedTime);
-          addTaskProvider.isNotificationOn = true;
+          addTaskProvider.isNotificationOn = false;
+          addTaskProvider.isAlarmOn = false;
         }
+      } else {
+        addTaskProvider.isNotificationOn = false;
+        addTaskProvider.isAlarmOn = false;
       }
+
+      addTaskProvider.updateTime(selectedTime);
 
       setState(() {});
     } else {
       if (addTaskProvider.isNotificationOn) {
+        addTaskProvider.isNotificationOn = false;
+
         if (!(await NotificationService().requestAlarmPermission())) return;
 
-        if (addTaskProvider.editTask != null) {
-          NotificationService().cancelNotificationOrAlarm(addTaskProvider.editTask!.id);
-          TaskProvider().checkNotification(addTaskProvider.editTask!);
-        }
-
-        addTaskProvider.isNotificationOn = false;
         addTaskProvider.isAlarmOn = true;
       } else if (addTaskProvider.isAlarmOn) {
-        if (addTaskProvider.editTask != null) {
-          NotificationService().cancelNotificationOrAlarm(addTaskProvider.editTask!.id);
-        }
         addTaskProvider.isAlarmOn = false;
       } else {
         if (!(await NotificationService().requestNotificationPermissions())) return;
 
-        if (addTaskProvider.editTask != null) {
-          TaskProvider().checkNotification(addTaskProvider.editTask!);
-        }
         addTaskProvider.isNotificationOn = true;
       }
       setState(() {});

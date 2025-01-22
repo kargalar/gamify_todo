@@ -133,25 +133,25 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 const SizedBox(height: 10),
                 const SelectPriority(),
                 const SizedBox(height: 10),
-                if (addTaskProvider.editTask == null)
-                  const Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (addTaskProvider.editTask == null)
+                      const Expanded(
                         child: SelectDate(),
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          children: [
-                            SelectTime(),
-                            SizedBox(height: 5),
-                            NotificationStatus(),
-                          ],
-                        ),
+                    const SizedBox(
+                      width: 130,
+                      child: Column(
+                        children: [
+                          SelectTime(),
+                          SizedBox(height: 5),
+                          NotificationStatus(),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
