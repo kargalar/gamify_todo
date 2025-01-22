@@ -88,7 +88,7 @@ class _LineChart extends StatelessWidget {
         color: AppColors.main,
         barWidth: 3,
         isStrokeCapRound: true,
-        dotData: const FlDotData(show: false),
+        // dotData: const FlDotData(show: false),
         belowBarData: BarAreaData(
           show: true,
           color: AppColors.main.withValues(alpha: 0.2),
@@ -113,8 +113,8 @@ class _LineChart extends StatelessWidget {
     );
 
     // Round up to next multiple of 5 for better readability
-    maxHours = ((maxHours + 4.99) ~/ 5) * 5.0;
-    maxHours = maxHours < 5 ? 5 : maxHours;
+    maxHours = ((maxHours + 1.99) ~/ 2) * 2.0;
+    maxHours = maxHours < 2 ? 2 : maxHours;
 
     Widget bottomTitleWidgets(
       double value,
@@ -142,10 +142,8 @@ class _LineChart extends StatelessWidget {
     }
 
     Widget leftTitleWidgets(double value, TitleMeta meta) {
-      // Show values at 0%, 25%, 50%, 75%, and 100% of maxHours
-      double currentValue = (maxHours * value) / 4;
-
-      String hourText = '${currentValue.toStringAsFixed(0)}${LocaleKeys.h.tr()}';
+      // Show actual hour values based on the value parameter
+      String hourText = '${value.toStringAsFixed(0)}${LocaleKeys.h.tr()}';
 
       return Text(hourText,
           style: const TextStyle(
@@ -178,7 +176,7 @@ class _LineChart extends StatelessWidget {
               getTitlesWidget: leftTitleWidgets,
               showTitles: true,
               reservedSize: 40,
-              interval: maxHours / 4,
+              interval: (maxHours / 5),
             ),
           ),
           rightTitles: const AxisTitles(

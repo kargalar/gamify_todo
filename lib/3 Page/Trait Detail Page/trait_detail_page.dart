@@ -65,17 +65,25 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
 
     // related tasks
     TaskProvider().taskList.where((element) {
-      if (element.skillIDList != null && element.skillIDList!.contains(widget.traitModel.id)) {
-        if (element.routineID != null) {
-          relatedRoutines.add(element);
-        } else {
-          relatedTasks.add(element);
+      if ((element.skillIDList != null && element.skillIDList!.contains(widget.traitModel.id)) || (element.attributeIDList != null && element.attributeIDList!.contains(widget.traitModel.id))) {
+        // Süre hesaplama
+        Duration taskDuration = Duration.zero;
+        if (element.type == TaskTypeEnum.TIMER) {
+          taskDuration = element.currentDuration ?? Duration.zero;
+        } else if (element.type == TaskTypeEnum.COUNTER) {
+          int count = element.currentCount ?? 0;
+          taskDuration = (element.remainingDuration ?? Duration.zero) * count;
+        } else if (element.type == TaskTypeEnum.CHECKBOX && element.status == TaskStatusEnum.COMPLETED) {
+          taskDuration = element.remainingDuration ?? Duration.zero;
         }
-      } else if (element.attributeIDList != null && element.attributeIDList!.contains(widget.traitModel.id)) {
-        if (element.routineID != null) {
-          relatedRoutines.add(element);
-        } else {
-          relatedTasks.add(element);
+
+        // Süresi 0'dan büyük olanları listelere ekle
+        if (taskDuration > Duration.zero) {
+          if (element.routineID != null) {
+            relatedRoutines.add(element);
+          } else {
+            relatedTasks.add(element);
+          }
         }
       }
       return false;
@@ -297,24 +305,34 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                 color: AppColors.panelBackground2,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      task.title,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  Text(
+                                    task.title,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Text(
-                                    allTimeDuration.textShort2hour(),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: selectedColor,
-                                    ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        task.taskDate.toLocal().toString().split(' ')[0],
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        allTimeDuration.textShort2hour(),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -367,23 +385,34 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                 color: AppColors.panelBackground2,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      task.title,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  Text(
+                                    task.title,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                  Text(
-                                    allTimeDuration.textShort2hour(),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        task.taskDate.toLocal().toString().split(' ')[0],
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        allTimeDuration.textShort2hour(),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
