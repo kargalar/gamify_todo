@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:easy_localization/easy_localization.dart';
+import 'dart:typed_data';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -71,7 +72,7 @@ class NotificationService {
         title,
         desc,
         scheduledTZDate,
-        notificationDetails(),
+        notificationDetails(isAlarm),
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
@@ -82,7 +83,7 @@ class NotificationService {
         title,
         desc,
         scheduledTZDate,
-        notificationDetails(),
+        notificationDetails(isAlarm),
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
@@ -98,7 +99,7 @@ class NotificationService {
       "test",
       "test test test",
       scheduledDate,
-      notificationDetails(),
+      notificationDetails(false),
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -113,15 +114,20 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.cancel(id);
   }
 
-  NotificationDetails notificationDetails() {
-    return const NotificationDetails(
+  NotificationDetails notificationDetails(bool isAlarm) {
+    return NotificationDetails(
       android: AndroidNotificationDetails(
-        'task_completion',
-        'Task Completion',
-        channelDescription: 'Notifications for completed tasks',
+        isAlarm ? 'task_alarm' : 'task_completion',
+        isAlarm ? 'Task Alarm' : 'Task Completion',
+        channelDescription: isAlarm ? 'Alarms for tasks' : 'Notifications for completed tasks',
         importance: Importance.max,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
+        sound: isAlarm ? const RawResourceAndroidNotificationSound('alarm') : null,
+        playSound: true,
+        enableLights: true,
+        enableVibration: true,
+        vibrationPattern: isAlarm ? Int64List.fromList([0, 1000, 500, 1000, 500, 1000]) : null,
       ),
     );
   }
