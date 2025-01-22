@@ -34,7 +34,9 @@ class TaskProvider with ChangeNotifier {
 
     taskList.add(taskModel);
 
-    checkNotification(taskModel);
+    if (taskModel.time != null) {
+      checkNotification(taskModel);
+    }
 
     notifyListeners();
   }

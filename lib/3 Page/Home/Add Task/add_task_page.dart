@@ -56,7 +56,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       addTaskProvider.selectedTime = addTaskProvider.editTask!.time;
       addTaskProvider.selectedDate = addTaskProvider.editTask!.taskDate;
       addTaskProvider.isNotificationOn = addTaskProvider.editTask!.isNotificationOn;
-      addTaskProvider.isAlarmOn = addTaskProvider.editTask!.isNotificationOn;
+      addTaskProvider.isAlarmOn = addTaskProvider.editTask!.isAlarmOn;
       addTaskProvider.targetCount = addTaskProvider.editTask!.targetCount ?? 1;
       addTaskProvider.taskDuration = addTaskProvider.editTask!.remainingDuration ?? const Duration(hours: 0, minutes: 0);
       addTaskProvider.selectedTaskType = addTaskProvider.editTask!.type;
