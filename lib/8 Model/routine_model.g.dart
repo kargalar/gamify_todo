@@ -31,7 +31,7 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       repeatDays: (fields[11] as List).cast<int>(),
       attirbuteIDList: (fields[12] as List?)?.cast<int>(),
       skillIDList: (fields[13] as List?)?.cast<int>(),
-      isCompleted: fields[14] as bool,
+      isArchived: fields[14] as bool,
       priority: fields[15] as int,
     );
   }
@@ -69,7 +69,7 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(13)
       ..write(obj.skillIDList)
       ..writeByte(14)
-      ..write(obj.isCompleted)
+      ..write(obj.isArchived)
       ..writeByte(15)
       ..write(obj.priority);
   }
@@ -78,9 +78,5 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RoutineModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is RoutineModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

@@ -172,13 +172,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   InkWell(
                     borderRadius: AppColors.borderRadiusAll,
                     onTap: () {
-                      if (addTaskProvider.editTask?.routineID == null) {
-                        taskProvider.deleteTask(addTaskProvider.editTask!);
-                      } else {
-                        taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
-                      }
+                      Helper().getDialog(
+                          message: "Are you sure delete?",
+                          onAccept: () {
+                            if (addTaskProvider.editTask?.routineID == null) {
+                              taskProvider.deleteTask(addTaskProvider.editTask!);
+                            } else {
+                              taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
+                            }
 
-                      NavigatorService().goBackNavbar();
+                            NavigatorService().goBackNavbar();
+                          });
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -262,7 +266,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           repeatDays: addTaskProvider.selectedDays,
           attirbuteIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
           skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
-          isCompleted: false,
+          isArchived: false,
           priority: addTaskProvider.priority,
         ),
       );

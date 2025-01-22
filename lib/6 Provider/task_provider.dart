@@ -66,7 +66,7 @@ class TaskProvider with ChangeNotifier {
       routine.repeatDays = selectedDays;
       routine.attirbuteIDList = taskModel.attributeIDList;
       routine.skillIDList = taskModel.skillIDList;
-      routine.isCompleted = taskModel.status == TaskStatusEnum.COMPLETED ? true : false;
+      routine.isArchived = taskModel.status == TaskStatusEnum.COMPLETED ? true : false;
       routine.priority = taskModel.priority;
 
       ServerManager().updateRoutine(routineModel: routine);
@@ -290,7 +290,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     List<TaskModel> tasks = routineList
-        .where((routine) => routine.repeatDays.contains(date.weekday - 1) && routine.startDate.isBeforeOrSameDay(date) && !routine.isCompleted)
+        .where((routine) => routine.repeatDays.contains(date.weekday - 1) && routine.startDate.isBeforeOrSameDay(date) && !routine.isArchived)
         .map((routine) => TaskModel(
               routineID: routine.id,
               title: routine.title,

@@ -35,7 +35,7 @@ class RoutineModel extends HiveObject {
   @HiveField(13)
   List<int>? skillIDList; // etki edecği yetenekler
   @HiveField(14)
-  bool isCompleted; // tamamlandı mı
+  bool isArchived; // tamamlandı mı
   @HiveField(15)
   int priority; // öncelik değeri (1: Yüksek, 2: Orta, 3: Düşük)
 
@@ -54,7 +54,7 @@ class RoutineModel extends HiveObject {
     required this.repeatDays,
     this.attirbuteIDList,
     this.skillIDList,
-    required this.isCompleted,
+    required this.isArchived,
     this.priority = 3,
   });
 
@@ -81,7 +81,7 @@ class RoutineModel extends HiveObject {
       repeatDays: (json['repeat_days'] as List).map((e) => int.parse(e.toString())).toList(),
       attirbuteIDList: json['attribute_id_list'] != null ? List<int>.from(json['attribute_id_list']) : null,
       skillIDList: json['skill_id_list'] != null ? List<int>.from(json['skill_id_list']) : null,
-      isCompleted: json['is_completed'],
+      isArchived: json['is_completed'],
       priority: json['priority'] ?? 3,
     );
   }
@@ -110,7 +110,7 @@ class RoutineModel extends HiveObject {
       'repeat_days': repeatDays,
       'attribute_id_list': attirbuteIDList,
       'skill_id_list': skillIDList,
-      'is_completed': isCompleted,
+      'is_completed': isArchived,
       'priority': priority,
     };
   }

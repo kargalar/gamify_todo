@@ -126,7 +126,7 @@ class TaskDetailViewModel {
   void loadRecentLogs() {
     // TODO: Implement actual log loading
     recentLogs = List.generate(
-      5,
+      10,
       (index) => TaskLog("14 november 2024 15:14", "1h 5m"),
     );
   }

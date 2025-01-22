@@ -148,7 +148,7 @@ class HiveService {
 
       for (DateTime date = lastLoginDate.add(const Duration(days: 1)); date.isBeforeOrSameDay(today); date = date.add(const Duration(days: 1))) {
         for (RoutineModel routine in TaskProvider().routineList) {
-          if (routine.repeatDays.contains(date.weekday) && routine.startDate.isBeforeOrSameDay(date) && !routine.isCompleted) {
+          if (routine.repeatDays.contains(date.weekday) && routine.startDate.isBeforeOrSameDay(date) && !routine.isArchived) {
             taskID++;
 
             final TaskModel task = TaskModel(
