@@ -13,8 +13,48 @@ class NotificationService {
   Future<void> init() async {
     tz.initializeTimeZones();
 
+    const AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    // Alarm kanalını özelleştir
+    const AndroidNotificationChannel alarmChannel = AndroidNotificationChannel(
+      'task_alarm',
+      'Task Alarm',
+      description: 'Alarms for tasks',
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      enableLights: true,
+      sound: RawResourceAndroidNotificationSound('alarm'),
+    );
+
+    const AndroidNotificationChannel scheduleChannel = AndroidNotificationChannel(
+      'task_schedule',
+      'Task Schedule',
+      description: 'Notification for schedule tasks',
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      enableLights: true,
+      sound: RawResourceAndroidNotificationSound('alarm'),
+    );
+
+    // Timer kanalını özelleştir
+    const AndroidNotificationChannel timerChannel = AndroidNotificationChannel(
+      'task_timer',
+      'Task Timer',
+      description: 'Timer for tasks',
+      importance: Importance.max,
+      playSound: false,
+    );
+
+    // Kanalları oluştur
+    final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.createNotificationChannel(alarmChannel);
+    await androidPlugin?.createNotificationChannel(scheduleChannel);
+    await androidPlugin?.createNotificationChannel(timerChannel);
+
     const InitializationSettings initializationSettings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: androidInitializationSettings,
     );
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -117,17 +157,66 @@ class NotificationService {
   NotificationDetails notificationDetails(bool isAlarm) {
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        isAlarm ? 'task_alarm' : 'task_completion',
-        isAlarm ? 'Task Alarm' : 'Task Completion',
-        channelDescription: isAlarm ? 'Alarms for tasks' : 'Notifications for completed tasks',
+        isAlarm ? 'task_alarm' : 'task_schedule',
+        isAlarm ? 'Task Alarm' : 'Task Schedule',
+        channelDescription: isAlarm ? 'Alarms for tasks' : 'Notification for schedule tasks',
         importance: Importance.max,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
         sound: isAlarm ? const RawResourceAndroidNotificationSound('alarm') : null,
-        playSound: true,
         enableLights: true,
         enableVibration: true,
         vibrationPattern: isAlarm ? Int64List.fromList([0, 1000, 500, 1000, 500, 1000]) : null,
+        ongoing: isAlarm,
+        autoCancel: false,
+        fullScreenIntent: isAlarm,
+        category: AndroidNotificationCategory.alarm,
+        actions: isAlarm
+            ? [
+                const AndroidNotificationAction(
+                  'stop_alarm',
+                  'Stop Alarm',
+                  cancelNotification: true,
+                  showsUserInterface: true,
+                )
+              ]
+            : null,
+        onlyAlertOnce: false,
+        timeoutAfter: isAlarm ? null : const Duration(seconds: 10).inMilliseconds,
+        audioAttributesUsage: isAlarm ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
+        playSound: true,
+        ticker: isAlarm ? 'Alarm is active' : null,
+        visibility: NotificationVisibility.public,
+      ),
+    );
+  }
+
+  Future<void> showTimerNotification({
+    required int id,
+    required String title,
+    required Duration currentDuration,
+    required bool isCountDown,
+  }) async {
+    await flutterLocalNotificationsPlugin.show(
+      id,
+      title,
+      "Timer active",
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'task_timer',
+          'Task Timer',
+          channelDescription: 'Timer for tasks',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+          playSound: false,
+          ongoing: true,
+          autoCancel: false,
+          usesChronometer: true,
+          chronometerCountDown: isCountDown,
+          when: isCountDown ? DateTime.now().millisecondsSinceEpoch + currentDuration.inMilliseconds : DateTime.now().millisecondsSinceEpoch - currentDuration.inMilliseconds,
+          visibility: NotificationVisibility.public,
+        ),
       ),
     );
   }

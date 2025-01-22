@@ -31,6 +31,13 @@ class GlobalTimer {
       // Timer başlatıldığında zamanı kaydet
       final prefs = await SharedPreferences.getInstance();
       if (taskModel.isTimerActive!) {
+        NotificationService().showTimerNotification(
+          id: taskModel.id,
+          currentDuration: taskModel.currentDuration!,
+          title: taskModel.title,
+          isCountDown: false,
+        );
+
         final now = DateTime.now().toIso8601String();
         await prefs.setString('task_last_update_${taskModel.id}', now);
         await prefs.setString('task_last_progress_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
@@ -59,6 +66,13 @@ class GlobalTimer {
       // Timer başlatıldığında zamanı kaydet
       final prefs = await SharedPreferences.getInstance();
       if (storeItemModel.isTimerActive!) {
+        NotificationService().showTimerNotification(
+          id: storeItemModel.id,
+          currentDuration: storeItemModel.currentDuration!,
+          title: storeItemModel.title,
+          isCountDown: true,
+        );
+
         final now = DateTime.now().toIso8601String();
         await prefs.setString('item_last_update_${storeItemModel.id}', now);
         await prefs.setString('item_last_progress_${storeItemModel.id}', storeItemModel.currentDuration!.inSeconds.toString());
