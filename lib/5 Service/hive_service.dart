@@ -7,6 +7,7 @@ import 'package:gamify_todo/5%20Service/locale_keys.g.dart';
 import 'package:gamify_todo/5%20Service/navigator_service.dart';
 import 'package:gamify_todo/6%20Provider/task_provider.dart';
 import 'package:gamify_todo/6%20Provider/store_provider.dart';
+import 'package:gamify_todo/6%20Provider/trait_provider.dart';
 import 'package:gamify_todo/7%20Enum/task_status_enum.dart';
 import 'package:gamify_todo/7%20Enum/task_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -422,10 +423,16 @@ class HiveService {
             TaskProvider().taskList.add(task);
           }
 
-          // Update last task id in SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          // Update last ids SharedPreferences
           if (TaskProvider().taskList.isNotEmpty) {
-            final prefs = await SharedPreferences.getInstance();
             await prefs.setInt("last_task_id", TaskProvider().taskList.map((e) => e.id).reduce((max, id) => max > id ? max : id));
+          }
+          if (TaskProvider().routineList.isNotEmpty) {
+            await prefs.setInt("last_routine_id", TaskProvider().routineList.map((e) => e.id).reduce((max, id) => max > id ? max : id));
+          }
+          if (TraitProvider().traitList.isNotEmpty) {
+            await prefs.setInt("last_trait_id", TraitProvider().traitList.map((e) => e.id).reduce((max, id) => max > id ? max : id));
           }
 
           // Refresh providers

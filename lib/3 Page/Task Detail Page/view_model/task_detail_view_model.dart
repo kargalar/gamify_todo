@@ -60,9 +60,13 @@ class TaskDetailViewModel {
       attributeBars.addAll(
         taskModel.attributeIDList!.map((e) {
           final trait = TraitProvider().traitList.firstWhere((element) => element.id == e);
+
+          // Calculate progress for attribute
+          double progress = calculateTraitProgress(e);
+
           return ProgressBar(
             title: trait.title,
-            progress: 0.2,
+            progress: progress,
             color: trait.color,
             icon: trait.icon,
           );
@@ -74,15 +78,49 @@ class TaskDetailViewModel {
       skillBars.addAll(
         taskModel.skillIDList!.map((e) {
           final trait = TraitProvider().traitList.firstWhere((element) => element.id == e);
+
+          // Calculate progress for skill
+          double progress = calculateTraitProgress(e);
+
           return ProgressBar(
             title: trait.title,
-            progress: 0.7,
+            progress: progress,
             color: trait.color,
             icon: trait.icon,
           );
         }),
       );
     }
+  }
+
+  // TODO:
+  double calculateTraitProgress(int traitId) {
+    Duration totalDuration = Duration.zero;
+    Duration completedDuration = Duration.zero;
+
+    for (var task in TaskProvider().taskList) {
+      bool hasThisTrait = (task.attributeIDList?.contains(traitId) ?? false) || (task.skillIDList?.contains(traitId) ?? false);
+
+      if (hasThisTrait) {
+        Duration taskDuration;
+        if (task.type == TaskTypeEnum.TIMER) {
+          taskDuration = task.remainingDuration ?? Duration.zero;
+        } else if (task.type == TaskTypeEnum.COUNTER) {
+          taskDuration = (task.remainingDuration ?? Duration.zero) * (task.targetCount ?? 1);
+        } else {
+          taskDuration = task.remainingDuration ?? Duration.zero;
+        }
+
+        totalDuration += taskDuration;
+
+        if (task.status == TaskStatusEnum.COMPLETED) {
+          completedDuration += taskDuration;
+        }
+      }
+    }
+
+    if (totalDuration == Duration.zero) return 0.0;
+    return completedDuration.inSeconds / totalDuration.inSeconds;
   }
 
   void loadRecentLogs() {
