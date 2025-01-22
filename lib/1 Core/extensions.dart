@@ -104,7 +104,7 @@ extension DurationFormatting on Duration {
   String toLevel() {
     // TODO direkt her 15 saat 1 lvl olmasın. 1.1x olarak daha zorlaşsın mesela lvl atlamak veya 10,20,35,50,70,100 gibi manuel kontrol
 
-    return "${inHours ~/ 15} LVL";
+    return "${inHours ~/ 10} LVL";
   }
 
   Duration operator /(int value) {
