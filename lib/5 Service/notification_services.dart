@@ -198,7 +198,8 @@ class NotificationService {
     required bool isCountDown,
   }) async {
     await flutterLocalNotificationsPlugin.show(
-      id,
+      // ? schedule notification ile çakışmaması için "-"
+      -id,
       title,
       "Timer active",
       NotificationDetails(

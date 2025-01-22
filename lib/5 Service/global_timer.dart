@@ -32,7 +32,8 @@ class GlobalTimer {
       final prefs = await SharedPreferences.getInstance();
       if (taskModel.isTimerActive!) {
         NotificationService().showTimerNotification(
-          id: taskModel.id,
+          // ? schedule notification ile çakışmaması için "-"
+          id: -taskModel.id,
           currentDuration: taskModel.currentDuration!,
           title: taskModel.title,
           isCountDown: false,
@@ -59,6 +60,7 @@ class GlobalTimer {
         await prefs.remove('task_last_progress_${taskModel.id}');
 
         NotificationService().cancelNotificationOrAlarm(taskModel.id);
+        NotificationService().cancelNotificationOrAlarm(-taskModel.id);
       }
     } else if (storeItemModel != null) {
       storeItemModel.isTimerActive = !storeItemModel.isTimerActive!;
@@ -67,7 +69,7 @@ class GlobalTimer {
       final prefs = await SharedPreferences.getInstance();
       if (storeItemModel.isTimerActive!) {
         NotificationService().showTimerNotification(
-          id: storeItemModel.id,
+          id: -storeItemModel.id,
           currentDuration: storeItemModel.currentDuration!,
           title: storeItemModel.title,
           isCountDown: true,
@@ -92,6 +94,7 @@ class GlobalTimer {
         await prefs.remove('item_last_update_${storeItemModel.id}');
         await prefs.remove('item_last_progress_${storeItemModel.id}');
 
+        NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
         NotificationService().cancelNotificationOrAlarm(storeItemModel.id);
       }
     }
