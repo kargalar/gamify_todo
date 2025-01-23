@@ -224,6 +224,8 @@ class HiveService {
     TaskProvider().routineList.clear();
     TaskProvider().updateItems();
 
+    TraitProvider().traitList.clear;
+
     StoreProvider().storeItemList.clear();
     StoreProvider().setStateItems();
 
