@@ -192,7 +192,7 @@ class NotificationService {
       // ? schedule notification ile çakışmaması için "-"
       -id,
       title,
-      remainingDuration != null ? "Target Duration: ${remainingDuration.textShort3()}" : "Timer active",
+      remainingDuration != null ? "Target Duration: ${remainingDuration.textShort2hour()}" : "Timer active",
       NotificationDetails(
         android: AndroidNotificationDetails(
           'task_timer',

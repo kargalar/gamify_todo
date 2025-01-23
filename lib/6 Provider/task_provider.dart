@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/1%20Core/extensions.dart';
 import 'package:gamify_todo/1%20Core/helper.dart';
+import 'package:gamify_todo/5%20Service/global_timer.dart';
 import 'package:gamify_todo/5%20Service/notification_services.dart';
 import 'package:gamify_todo/5%20Service/server_manager.dart';
 import 'package:gamify_todo/5%20Service/home_widget_service.dart';
@@ -83,12 +84,22 @@ class TaskProvider with ChangeNotifier {
           task.time = taskModel.time;
           task.priority = taskModel.priority;
 
+          if (task.isTimerActive != null && task.isTimerActive!) {
+            GlobalTimer().startStopTimer(taskModel: task);
+          }
+
+          checkNotification(task);
+
           ServerManager().updateTask(taskModel: task);
         }
       }
     } else {
       final index = taskList.indexWhere((element) => element.id == taskModel.id);
       taskList[index] = taskModel;
+
+      if (taskModel.isTimerActive != null && taskModel.isTimerActive!) {
+        GlobalTimer().startStopTimer(taskModel: taskModel);
+      }
 
       checkNotification(taskModel);
 

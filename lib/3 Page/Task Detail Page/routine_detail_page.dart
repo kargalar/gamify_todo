@@ -43,7 +43,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.taskModel.title + (routine.isArchived ? " (Archived)" : "")),
+        title: Text(widget.taskModel.title + (widget.taskModel.status == TaskStatusEnum.ARCHIVED ? " (Archived)" : "")),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => NavigatorService().back(),
@@ -80,7 +80,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       ),
       body: SingleChildScrollView(
         child: IgnorePointer(
-          ignoring: routine.isArchived,
+          ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

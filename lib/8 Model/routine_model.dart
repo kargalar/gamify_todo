@@ -81,7 +81,7 @@ class RoutineModel extends HiveObject {
       repeatDays: (json['repeat_days'] as List).map((e) => int.parse(e.toString())).toList(),
       attirbuteIDList: json['attribute_id_list'] != null ? List<int>.from(json['attribute_id_list']) : null,
       skillIDList: json['skill_id_list'] != null ? List<int>.from(json['skill_id_list']) : null,
-      isArchived: json['is_completed'],
+      isArchived: json['is_archived'],
       priority: json['priority'] ?? 3,
     );
   }

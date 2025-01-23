@@ -33,7 +33,7 @@ class GlobalTimer {
       if (taskModel.isTimerActive!) {
         NotificationService().showTimerNotification(
           // ? schedule notification ile çakışmaması için "-"
-          id: -taskModel.id,
+          id: taskModel.id,
           currentDuration: taskModel.currentDuration!,
           remainingDuration: taskModel.remainingDuration!,
           title: taskModel.title,
@@ -49,7 +49,7 @@ class GlobalTimer {
           // scheduled notification
           final scheduledDate = DateTime.now().add(taskModel.remainingDuration! - taskModel.currentDuration!);
           NotificationService().scheduleNotification(
-            id: taskModel.id,
+            id: taskModel.id + 100000,
             title: LocaleKeys.task_completed_title.tr(args: [taskModel.title]),
             desc: LocaleKeys.task_completed_desc.tr(args: [taskModel.remainingDuration!.textLongDynamicWithoutZero()]),
             scheduledDate: scheduledDate,
@@ -60,8 +60,8 @@ class GlobalTimer {
         await prefs.remove('task_last_update_${taskModel.id}');
         await prefs.remove('task_last_progress_${taskModel.id}');
 
-        NotificationService().cancelNotificationOrAlarm(taskModel.id);
         NotificationService().cancelNotificationOrAlarm(-taskModel.id);
+        NotificationService().cancelNotificationOrAlarm(taskModel.id + 100000);
       }
     } else if (storeItemModel != null) {
       storeItemModel.isTimerActive = !storeItemModel.isTimerActive!;
@@ -70,7 +70,7 @@ class GlobalTimer {
       final prefs = await SharedPreferences.getInstance();
       if (storeItemModel.isTimerActive!) {
         NotificationService().showTimerNotification(
-          id: -storeItemModel.id,
+          id: storeItemModel.id,
           currentDuration: storeItemModel.currentDuration!,
           remainingDuration: null,
           title: storeItemModel.title,
@@ -85,7 +85,7 @@ class GlobalTimer {
           // scheduled notification
           final scheduledDate = DateTime.now().add(storeItemModel.currentDuration!);
           NotificationService().scheduleNotification(
-            id: storeItemModel.id,
+            id: storeItemModel.id + 100000,
             title: LocaleKeys.item_expired_title.tr(args: [storeItemModel.title]),
             desc: LocaleKeys.item_expired_desc.tr(),
             scheduledDate: scheduledDate,
@@ -97,7 +97,7 @@ class GlobalTimer {
         await prefs.remove('item_last_progress_${storeItemModel.id}');
 
         NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
-        NotificationService().cancelNotificationOrAlarm(storeItemModel.id);
+        NotificationService().cancelNotificationOrAlarm(storeItemModel.id + 100000);
       }
     }
 

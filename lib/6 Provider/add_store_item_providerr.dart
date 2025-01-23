@@ -26,7 +26,7 @@ class AddStoreItemProvider with ChangeNotifier {
   }
 
   void updateItem(ItemModel existingItem) {
-    StoreProvider().updateItem(
+    StoreProvider().editItem(
       ItemModel(
         id: existingItem.id,
         title: taskNameController.text,

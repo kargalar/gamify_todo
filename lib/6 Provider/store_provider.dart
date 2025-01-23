@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gamify_todo/5%20Service/global_timer.dart';
 import 'package:gamify_todo/5%20Service/server_manager.dart';
 import 'package:gamify_todo/7%20Enum/task_type_enum.dart';
 import 'package:gamify_todo/8%20Model/store_item_model.dart';
@@ -12,7 +13,7 @@ class StoreProvider with ChangeNotifier {
   }
 
   StoreProvider._internal();
-// ?? - kredi ve itemler - ye düşebilecek ama bu disipinden eksilmesine sebep oalcak
+// ?? - kredi ve itemler - ye düşebilecek ama bu disipindena eksilmesine sebep oalcak
   List<ItemModel> storeItemList = [
     ItemModel(
       id: 0,
@@ -50,12 +51,16 @@ class StoreProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateItem(ItemModel itemModel) async {
+  void editItem(ItemModel itemModel) async {
     await ServerManager().updateItem(itemModel: itemModel);
 
     final int index = storeItemList.indexWhere((element) => element.id == itemModel.id);
 
     storeItemList[index] = itemModel;
+
+    if (itemModel.isTimerActive != null && itemModel.isTimerActive!) {
+      GlobalTimer().startStopTimer(storeItemModel: itemModel);
+    }
 
     notifyListeners();
   }
