@@ -294,6 +294,7 @@ class TaskProvider with ChangeNotifier {
         .map((routine) => TaskModel(
               routineID: routine.id,
               title: routine.title,
+              description: routine.description,
               type: routine.type,
               taskDate: date,
               time: routine.time,

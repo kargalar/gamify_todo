@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:gamify_todo/1%20Core/extensions.dart';
 import 'package:gamify_todo/1%20Core/helper.dart';
+import 'package:gamify_todo/2%20General/accessible.dart';
 import 'package:gamify_todo/5%20Service/locale_keys.g.dart';
 import 'package:gamify_todo/5%20Service/navigator_service.dart';
 import 'package:gamify_todo/6%20Provider/task_provider.dart';
@@ -218,12 +219,6 @@ class HiveService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
 
-    // Reset last task id
-    await prefs.setInt("last_task_id", 0);
-
-    // Reset last login date to today
-    await prefs.setString('lastLoginDate', DateTime.now().toIso8601String());
-
     // Refresh providers
     TaskProvider().taskList.clear();
     TaskProvider().routineList.clear();
@@ -349,6 +344,17 @@ class HiveService {
       }
       allData[_taskBoxName] = taskMap;
 
+      // Export SharedPrefs
+      final prefs = await SharedPreferences.getInstance();
+      final sharedPrefsMap = {};
+
+      sharedPrefsMap["lastLoginDate"] = prefs.getString('lastLoginDate');
+      sharedPrefsMap["last_task_id"] = prefs.getInt('last_task_id');
+      sharedPrefsMap["last_routine_id"] = prefs.getInt('last_routine_id');
+      sharedPrefsMap["last_trait_id"] = prefs.getInt('last_trait_id');
+
+      allData["SharedPreferances"] = sharedPrefsMap;
+
       final jsonString = jsonEncode(allData);
       await file.writeAsString(jsonString);
 
@@ -386,7 +392,9 @@ class HiveService {
           final userBox = await _userBox;
           final userData = allData[_userBoxName] as Map<String, dynamic>;
           for (var entry in userData.entries) {
-            await userBox.put(int.parse(entry.key), UserModel.fromJson(entry.value));
+            final user = UserModel.fromJson(entry.value);
+            await userBox.put(int.parse(entry.key), user);
+            loginUser = user;
           }
 
           // Import items
@@ -402,7 +410,9 @@ class HiveService {
           final traitBox = await _traitBox;
           final traitData = allData[_traitBoxName] as Map<String, dynamic>;
           for (var entry in traitData.entries) {
-            await traitBox.put(int.parse(entry.key), TraitModel.fromJson(entry.value));
+            final trait = TraitModel.fromJson(entry.value);
+            await traitBox.put(int.parse(entry.key), trait);
+            TraitProvider().traitList.add(trait);
           }
 
           // Import routines
@@ -423,17 +433,17 @@ class HiveService {
             TaskProvider().taskList.add(task);
           }
 
+          // Import SharedPrefs
           final prefs = await SharedPreferences.getInstance();
-          // Update last ids SharedPreferences
-          if (TaskProvider().taskList.isNotEmpty) {
-            await prefs.setInt("last_task_id", TaskProvider().taskList.map((e) => e.id).reduce((max, id) => max > id ? max : id));
-          }
-          if (TaskProvider().routineList.isNotEmpty) {
-            await prefs.setInt("last_routine_id", TaskProvider().routineList.map((e) => e.id).reduce((max, id) => max > id ? max : id));
-          }
-          if (TraitProvider().traitList.isNotEmpty) {
-            await prefs.setInt("last_trait_id", TraitProvider().traitList.map((e) => e.id).reduce((max, id) => max > id ? max : id));
-          }
+          final sharedPrefsMap = allData["SharedPreferances"] as Map<String, dynamic>;
+
+          // ? last login data == bugün ise normal ver bugün değilse dün yap ( bu kayıtlı rutinleri taska döüştürmek için)
+          await prefs.setString('lastLoginDate', sharedPrefsMap["lastLoginDate"] != null && DateTime.parse(sharedPrefsMap["lastLoginDate"]).isSameDay(DateTime.now()) ? sharedPrefsMap["lastLoginDate"] : (DateTime.now().subtract(const Duration(days: 1))).toIso8601String());
+          await prefs.setInt('last_task_id', sharedPrefsMap["last_task_id"] ?? 0);
+          await prefs.setInt('last_routine_id', sharedPrefsMap["last_routine_id"] ?? 0);
+          await prefs.setInt('last_trait_id', sharedPrefsMap["last_trait_id"] ?? 0);
+
+          await createTasksFromRoutines();
 
           // Refresh providers
           TaskProvider().updateItems();

@@ -87,13 +87,14 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
-            _settingsOption(
-              title: LocaleKeys.Exit.tr(),
-              color: AppColors.red,
-              onTap: () {
-                NavigatorService().logout();
-              },
-            ),
+            // TODO: for with database accounts
+            // _settingsOption(
+            //   title: LocaleKeys.Exit.tr(),
+            //   color: AppColors.red,
+            //   onTap: () {
+            //     NavigatorService().logout();
+            //   },
+            // ),
           ],
         ),
       ),
