@@ -77,12 +77,12 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
           taskDuration = element.remainingDuration ?? Duration.zero;
         }
 
-        // Süresi 0'dan büyük olanları listelere ekle
+        // Süresi 0'dan büyük olanları listelere ekle. Yeniden eskiye doğru
         if (taskDuration > Duration.zero) {
           if (element.routineID != null) {
-            relatedRoutines.add(element);
+            relatedRoutines.insert(0, element);
           } else {
-            relatedTasks.add(element);
+            relatedTasks.insert(0, element);
           }
         }
       }
@@ -361,21 +361,30 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           itemCount: relatedRoutines.length,
                           itemBuilder: (context, index) {
                             final TaskModel task = relatedRoutines[index];
-                            Duration allTimeDuration = Duration.zero;
-                            int allTimeCount = 0;
+                            late final Duration taskDuraiton;
+                            // int allTimeCount = 0;
 
-                            for (var t in TaskProvider().taskList) {
-                              if (t.routineID == task.routineID) {
-                                if (t.type == TaskTypeEnum.TIMER) {
-                                  allTimeDuration += t.currentDuration!;
-                                } else if (t.type == TaskTypeEnum.COUNTER) {
-                                  allTimeCount += t.currentCount!;
-                                }
-                              }
-                            }
+                            // for (var t in TaskProvider().taskList) {
+                            //   if (t.routineID == task.routineID) {
+                            //     if (t.type == TaskTypeEnum.TIMER) {
+                            //       allTimeDuration += t.currentDuration!;
+                            //     } else if (t.type == TaskTypeEnum.COUNTER) {
+                            //       allTimeCount += t.currentCount!;
+                            //     }
+                            //   }
+                            // }
 
-                            if (task.type == TaskTypeEnum.COUNTER) {
-                              allTimeDuration += task.remainingDuration! * allTimeCount;
+                            // if (task.type == TaskTypeEnum.COUNTER) {
+                            //   allTimeDuration += task.remainingDuration! * allTimeCount;
+                            // }
+
+                            // task duration
+                            if (task.type == TaskTypeEnum.TIMER) {
+                              taskDuraiton = task.currentDuration!;
+                            } else if (task.type == TaskTypeEnum.COUNTER) {
+                              taskDuraiton = task.remainingDuration! * task.currentCount!;
+                            } else {
+                              taskDuraiton = task.remainingDuration!;
                             }
 
                             return Container(
@@ -407,7 +416,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                       ),
                                       const Spacer(),
                                       Text(
-                                        allTimeDuration.textShort2hour(),
+                                        taskDuraiton.textShort2hour(),
                                         style: const TextStyle(
                                           fontSize: 14,
                                         ),
