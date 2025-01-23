@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:gamify_todo/1%20Core/extensions.dart';
 import 'package:gamify_todo/1%20Core/helper.dart';
 import 'package:gamify_todo/2%20General/accessible.dart';
@@ -224,7 +225,7 @@ class HiveService {
     TaskProvider().routineList.clear();
     TaskProvider().updateItems();
 
-    TraitProvider().traitList.clear;
+    TraitProvider().traitList.clear();
 
     StoreProvider().storeItemList.clear();
     StoreProvider().setStateItems();
@@ -407,7 +408,7 @@ class HiveService {
             await itemBox.put(int.parse(entry.key), item);
             StoreProvider().storeItemList.add(item);
           }
-
+          debugPrint(TraitProvider().traitList.toString());
           // Import traits
           final traitBox = await _traitBox;
           final traitData = allData[_traitBoxName] as Map<String, dynamic>;
@@ -416,6 +417,7 @@ class HiveService {
             await traitBox.put(int.parse(entry.key), trait);
             TraitProvider().traitList.add(trait);
           }
+          debugPrint(TraitProvider().traitList.toString());
 
           // Import routines
           final routineBox = await _routineBox;

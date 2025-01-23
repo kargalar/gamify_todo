@@ -159,7 +159,13 @@ class _TaskItemState extends State<TaskItem> {
   }
 
   void taskAction() {
-    if (widget.taskModel.routineID != null && !widget.taskModel.taskDate.isBeforeOrSameDay(DateTime.now())) {
+    if (widget.taskModel.status == TaskStatusEnum.ARCHIVED) {
+      return Helper().getMessage(
+        status: StatusEnum.WARNING,
+        // TODO: localization
+        message: "Bu task arşivlendiği için etkileşimde bulunulamaz.",
+      );
+    } else if (widget.taskModel.routineID != null && !widget.taskModel.taskDate.isBeforeOrSameDay(DateTime.now())) {
       return Helper().getMessage(
         status: StatusEnum.WARNING,
         message: LocaleKeys.RoutineForFuture.tr(),
