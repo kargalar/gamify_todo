@@ -110,7 +110,7 @@ class RoutineModel extends HiveObject {
       'repeat_days': repeatDays,
       'attribute_id_list': attirbuteIDList,
       'skill_id_list': skillIDList,
-      'is_completed': isArchived,
+      'is_archived': isArchived,
       'priority': priority,
     };
   }
