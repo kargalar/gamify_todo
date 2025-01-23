@@ -128,7 +128,7 @@ class NotificationService {
       "test",
       "test test test",
       scheduledDate,
-      notificationDetails(false),
+      notificationDetails(true),
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
