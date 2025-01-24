@@ -51,7 +51,19 @@ class _AddTaskPageState extends State<AddTaskPage> {
     super.initState();
 
     if (widget.editTask != null) {
+      RoutineModel? routine;
       addTaskProvider.editTask = widget.editTask;
+      if (addTaskProvider.editTask!.routineID != null) {
+        routine = taskProvider.routineList.firstWhere((element) => element.id == widget.editTask!.routineID);
+
+        addTaskProvider.targetCount = routine.targetCount ?? 1;
+        addTaskProvider.taskDuration = routine.remainingDuration ?? const Duration(hours: 0, minutes: 0);
+        addTaskProvider.selectedDays = routine.repeatDays;
+      } else {
+        addTaskProvider.targetCount = addTaskProvider.editTask!.targetCount ?? 1;
+        addTaskProvider.taskDuration = addTaskProvider.editTask!.remainingDuration ?? const Duration(hours: 0, minutes: 0);
+        addTaskProvider.selectedDays = [];
+      }
 
       addTaskProvider.taskNameController.text = addTaskProvider.editTask!.title;
       addTaskProvider.descriptionController.text = addTaskProvider.editTask!.description ?? '';
@@ -59,10 +71,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       addTaskProvider.selectedDate = addTaskProvider.editTask!.taskDate;
       addTaskProvider.isNotificationOn = addTaskProvider.editTask!.isNotificationOn;
       addTaskProvider.isAlarmOn = addTaskProvider.editTask!.isAlarmOn;
-      addTaskProvider.targetCount = addTaskProvider.editTask!.targetCount ?? 1;
-      addTaskProvider.taskDuration = addTaskProvider.editTask!.remainingDuration ?? const Duration(hours: 0, minutes: 0);
       addTaskProvider.selectedTaskType = addTaskProvider.editTask!.type;
-      addTaskProvider.selectedDays = addTaskProvider.editTask!.routineID == null ? [] : taskProvider.routineList.firstWhere((element) => element.id == addTaskProvider.editTask!.routineID).repeatDays;
       addTaskProvider.selectedTraits =
           TraitProvider().traitList.where((element) => (addTaskProvider.editTask!.attributeIDList != null && addTaskProvider.editTask!.attributeIDList!.contains(element.id)) || (addTaskProvider.editTask!.skillIDList != null && addTaskProvider.editTask!.skillIDList!.contains(element.id))).toList();
       addTaskProvider.priority = addTaskProvider.editTask!.priority;
@@ -124,7 +133,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               children: [
-                if (addTaskProvider.editTask != null) ...[
+                if (addTaskProvider.editTask?.routineID == null) ...[
                   const SizedBox(height: 10),
                   EditProgressWidget.forTask(task: addTaskProvider.editTask!),
                 ],
@@ -171,7 +180,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                if (addTaskProvider.editTask == null || (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null)) const SelectDays(),
+                if (addTaskProvider.editTask == null || addTaskProvider.editTask?.routineID != null) const SelectDays(),
                 const SizedBox(height: 10),
                 const SelectTraitList(isSkill: false),
                 const SizedBox(height: 10),

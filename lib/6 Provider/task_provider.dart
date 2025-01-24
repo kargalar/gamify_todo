@@ -55,7 +55,7 @@ class TaskProvider with ChangeNotifier {
     required List<int> selectedDays,
   }) {
     if (taskModel.routineID != null) {
-      RoutineModel routine = routineList.where((element) => element.id == taskModel.routineID).first;
+      RoutineModel routine = routineList.firstWhere((element) => element.id == taskModel.routineID);
 
       routine.title = taskModel.title;
       routine.description = taskModel.description;
@@ -78,8 +78,8 @@ class TaskProvider with ChangeNotifier {
           task.description = taskModel.description;
           task.attributeIDList = taskModel.attributeIDList;
           task.skillIDList = taskModel.skillIDList;
-          task.remainingDuration = taskModel.remainingDuration;
-          task.targetCount = taskModel.targetCount;
+          task.remainingDuration = task.taskDate.isSameDay(DateTime.now()) ? taskModel.remainingDuration : task.remainingDuration;
+          task.targetCount = task.taskDate.isSameDay(DateTime.now()) ? taskModel.targetCount : task.targetCount;
           task.isNotificationOn = taskModel.isNotificationOn;
           task.time = taskModel.time;
           task.priority = taskModel.priority;

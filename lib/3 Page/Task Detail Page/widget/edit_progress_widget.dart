@@ -6,8 +6,6 @@ import 'package:gamify_todo/5%20Service/home_widget_service.dart';
 import 'package:gamify_todo/5%20Service/locale_keys.g.dart';
 import 'package:gamify_todo/5%20Service/notification_services.dart';
 import 'package:gamify_todo/5%20Service/server_manager.dart';
-import 'package:gamify_todo/6%20Provider/add_store_item_providerr.dart';
-import 'package:gamify_todo/6%20Provider/add_task_provider.dart';
 import 'package:gamify_todo/6%20Provider/store_provider.dart';
 import 'package:gamify_todo/6%20Provider/task_provider.dart';
 import 'package:gamify_todo/7%20Enum/task_status_enum.dart';
@@ -46,8 +44,6 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
   Duration? get currentDuration => isTask ? widget.taskModel!.currentDuration : widget.itemModel!.currentDuration;
   Duration? get targetDuration => isTask ? widget.taskModel!.remainingDuration : widget.itemModel!.addDuration;
 
-  late final dynamic provider = isTask ? context.read<AddStoreItemProvider>() : context.read<AddTaskProvider>();
-
   void updateProgress(value) {
     if (isTask) {
       late Duration progressDifference;
@@ -57,7 +53,7 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
 
         // Calculate progress difference for credit adjustment
         int difference = value - previousCount;
-        progressDifference = widget.taskModel!.remainingDuration! * difference ~/ context.read<AddTaskProvider>().targetCount;
+        progressDifference = widget.taskModel!.remainingDuration! * difference ~/ widget.taskModel!.targetCount!;
       } else {
         Duration previousDuration = widget.taskModel!.currentDuration ?? Duration.zero;
         widget.taskModel!.currentDuration = value;
@@ -78,9 +74,9 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
   void setCount(int value) {
     setState(() {
       if (isTask) {
-        if (value >= context.read<AddTaskProvider>().targetCount && widget.taskModel!.status != TaskStatusEnum.COMPLETED) {
+        if (value >= widget.taskModel!.targetCount! && widget.taskModel!.status != TaskStatusEnum.COMPLETED) {
           widget.taskModel!.status = TaskStatusEnum.COMPLETED;
-        } else if (value < context.read<AddTaskProvider>().targetCount && widget.taskModel!.status == TaskStatusEnum.COMPLETED) {
+        } else if (value < widget.taskModel!.targetCount! && widget.taskModel!.status == TaskStatusEnum.COMPLETED) {
           widget.taskModel!.status = null;
         }
       } else {
@@ -113,11 +109,6 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
       context.watch<TaskProvider>();
     } else {
       context.watch<StoreProvider>();
-    }
-    if (isTask) {
-      context.watch<AddTaskProvider>();
-    } else {
-      context.watch<AddStoreItemProvider>();
     }
 
     if (type == TaskTypeEnum.CHECKBOX) {
@@ -154,7 +145,7 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
           ),
           const SizedBox(width: 16),
           Text(
-            isTask ? "$currentCount / ${context.read<AddTaskProvider>().targetCount}" : "$currentCount",
+            isTask ? "$currentCount / ${widget.taskModel!.targetCount!}" : "$currentCount",
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(width: 16),
