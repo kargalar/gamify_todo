@@ -27,6 +27,13 @@ class AddTaskProvider with ChangeNotifier {
 
   void updatePriority(int value) {
     priority = value;
+
+    notifyListeners();
+  }
+
+  void updateTargetCount(int value) {
+    targetCount = value;
+
     notifyListeners();
   }
 }

@@ -23,6 +23,7 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       currentDuration: fields[3] as Duration?,
       addDuration: fields[4] as Duration?,
       currentCount: fields[5] as int?,
+      addCount: fields[8] as int?,
       isTimerActive: fields[6] as bool?,
       credit: fields[7] as int,
     );
@@ -31,7 +32,7 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
   @override
   void write(BinaryWriter writer, ItemModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       ..writeByte(6)
       ..write(obj.isTimerActive)
       ..writeByte(7)
-      ..write(obj.credit);
+      ..write(obj.credit)
+      ..writeByte(8)
+      ..write(obj.addCount);
   }
 
   @override

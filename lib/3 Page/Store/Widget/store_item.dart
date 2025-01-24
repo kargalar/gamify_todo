@@ -111,7 +111,7 @@ class _StoreItemState extends State<StoreItem> {
         if (widget.storeItemModel.type == TaskTypeEnum.TIMER) {
           widget.storeItemModel.currentDuration = widget.storeItemModel.currentDuration! + widget.storeItemModel.addDuration!;
         } else {
-          widget.storeItemModel.currentCount = widget.storeItemModel.currentCount! + 1;
+          widget.storeItemModel.currentCount = widget.storeItemModel.currentCount! + widget.storeItemModel.addCount!;
         }
 
         await ServerManager().updateUser(userModel: loginUser!);
@@ -132,7 +132,7 @@ class _StoreItemState extends State<StoreItem> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Center(
           child: Text(
-            "${widget.storeItemModel.credit == 0 ? LocaleKeys.Add.tr() : LocaleKeys.Buy.tr()} ${widget.storeItemModel.type == TaskTypeEnum.COUNTER ? LocaleKeys.OnePiece.tr() : widget.storeItemModel.addDuration?.textLongDynamicWithoutZero()} ",
+            "${widget.storeItemModel.credit == 0 ? LocaleKeys.Add.tr() : LocaleKeys.Buy.tr()} ${widget.storeItemModel.type == TaskTypeEnum.COUNTER ? LocaleKeys.OnePiece.tr(args: [widget.storeItemModel.addCount!.toString()]) : widget.storeItemModel.addDuration?.textLongDynamicWithoutZero()} ",
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,

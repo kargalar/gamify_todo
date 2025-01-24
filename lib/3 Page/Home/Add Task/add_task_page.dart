@@ -10,6 +10,7 @@ import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/notification_status.
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_date.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_days.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_priority.dart';
+import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_time.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_trait.dart';
@@ -159,6 +160,14 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   children: [
                     const DurationPickerWidget(),
                     if (addTaskProvider.editTask == null) const SelectTaskType(),
+                    if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
+                      const Column(
+                        children: [
+                          // TODO: localization
+                          Text("Target Count"),
+                          SelectTargetCount(),
+                        ],
+                      ),
                   ],
                 ),
                 const SizedBox(height: 10),

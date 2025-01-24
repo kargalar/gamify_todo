@@ -20,7 +20,9 @@ class ItemModel extends HiveObject {
   @HiveField(6)
   bool? isTimerActive; // timer aktif mi
   @HiveField(7)
-  int credit; // timer aktif mi
+  int credit;
+  @HiveField(8)
+  int? addCount;
 
   ItemModel({
     this.id = 0,
@@ -29,6 +31,7 @@ class ItemModel extends HiveObject {
     this.currentDuration,
     this.addDuration,
     this.currentCount,
+    this.addCount,
     this.isTimerActive,
     required this.credit,
   });
@@ -50,6 +53,7 @@ class ItemModel extends HiveObject {
       currentCount: json['current_count'],
       isTimerActive: json['is_timer_active'] ?? (type == TaskTypeEnum.TIMER ? false : null),
       credit: json['credit'],
+      addCount: json['add_count'],
     );
   }
 
@@ -71,6 +75,7 @@ class ItemModel extends HiveObject {
       'current_count': currentCount,
       'credit': credit,
       'is_timer_active': isTimerActive,
+      'add_count': addCount,
     };
   }
 }

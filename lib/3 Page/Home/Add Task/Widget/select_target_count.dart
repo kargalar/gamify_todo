@@ -18,31 +18,33 @@ class SelectTargetCount extends StatefulWidget {
 
 class _SelectTargetCountState extends State<SelectTargetCount> {
   late final dynamic provider = widget.isStore ? context.read<AddStoreItemProvider>() : context.read<AddTaskProvider>();
+  late int targetCount;
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isStore) {
+      targetCount = context.read<AddStoreItemProvider>().addCount;
+    } else {
+      targetCount = context.read<AddTaskProvider>().targetCount;
+    }
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         InkWell(
           borderRadius: AppColors.borderRadiusAll,
           onTap: () {
-            if (provider.targetCount > 1) {
-              setState(() {
-                provider.targetCount--;
-              });
+            if (targetCount > 1) {
+              provider.updateTargetCount(targetCount - 1);
             }
+            setState(() {});
           },
           onLongPress: () {
-            if (provider.targetCount > 20) {
-              setState(() {
-                provider.targetCount -= 20;
-              });
-            } else if (provider.targetCount > 1) {
-              setState(() {
-                provider.targetCount = 1;
-              });
+            if (targetCount > 20) {
+              provider.updateTargetCount(targetCount - 20);
+            } else {
+              provider.updateTargetCount(1);
             }
+            setState(() {});
           },
           child: Container(
             decoration: BoxDecoration(
@@ -61,7 +63,7 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
           ),
           padding: const EdgeInsets.all(5),
           child: Text(
-            provider.targetCount.toString(),
+            targetCount.toString(),
             style: const TextStyle(
               fontSize: 20,
             ),
@@ -70,14 +72,14 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
         InkWell(
           borderRadius: AppColors.borderRadiusAll,
           onTap: () {
-            setState(() {
-              provider.targetCount++;
-            });
+            provider.updateTargetCount(targetCount + 1);
+
+            setState(() {});
           },
           onLongPress: () {
-            setState(() {
-              provider.targetCount += 20;
-            });
+            provider.updateTargetCount(targetCount + 20);
+
+            setState(() {});
           },
           child: Container(
             decoration: BoxDecoration(

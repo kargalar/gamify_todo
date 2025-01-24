@@ -51,6 +51,7 @@ class ProfileViewModel extends ChangeNotifier {
     Map<int, int> dayCount = {};
 
     for (var task in TaskProvider().taskList) {
+      // TODO: belki burada -1 yazmak doğru olur. verileri kontrol et
       int weekday = task.taskDate.weekday;
       Duration taskDuration = task.remainingDuration!;
 

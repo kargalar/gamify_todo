@@ -6,7 +6,7 @@ import 'package:gamify_todo/8%20Model/store_item_model.dart';
 class AddStoreItemProvider with ChangeNotifier {
   // Widget variables
   TextEditingController taskNameController = TextEditingController();
-  int targetCount = 1;
+  int addCount = 1;
   Duration taskDuration = const Duration(hours: 0, minutes: 0);
   TaskTypeEnum selectedTaskType = TaskTypeEnum.COUNTER;
   int credit = 0;
@@ -20,6 +20,7 @@ class AddStoreItemProvider with ChangeNotifier {
         currentCount: selectedTaskType == TaskTypeEnum.COUNTER ? 0 : null,
         currentDuration: selectedTaskType == TaskTypeEnum.TIMER ? Duration.zero : null,
         addDuration: taskDuration,
+        addCount: addCount,
         isTimerActive: selectedTaskType == TaskTypeEnum.TIMER ? false : null,
       ),
     );
@@ -35,8 +36,15 @@ class AddStoreItemProvider with ChangeNotifier {
         currentCount: selectedTaskType == TaskTypeEnum.COUNTER ? existingItem.currentCount : null,
         currentDuration: selectedTaskType == TaskTypeEnum.TIMER ? existingItem.currentDuration : null,
         addDuration: taskDuration,
+        addCount: addCount,
         isTimerActive: selectedTaskType == TaskTypeEnum.TIMER ? existingItem.isTimerActive : null,
       ),
     );
+  }
+
+  void updateTargetCount(int value) {
+    addCount = value;
+
+    notifyListeners();
   }
 }

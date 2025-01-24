@@ -4,6 +4,7 @@ import 'package:gamify_todo/1%20Core/Enums/status_enum.dart';
 import 'package:gamify_todo/1%20Core/helper.dart';
 import 'package:gamify_todo/2%20General/app_colors.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/duraiton_picker.dart';
+import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:gamify_todo/3%20Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/3%20Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
@@ -114,12 +115,20 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                 const SizedBox(height: 10),
                 const SetCredit(),
                 const SizedBox(height: 10),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    DurationPickerWidget(isStore: true),
-                    SizedBox(width: 20),
-                    SelectTaskType(isStore: true),
+                    const DurationPickerWidget(isStore: true),
+                    const SizedBox(width: 20),
+                    if (widget.editItemModel == null) const SelectTaskType(isStore: true),
+                    if (widget.editItemModel != null && widget.editItemModel!.type == TaskTypeEnum.COUNTER)
+                      const Column(
+                        children: [
+                          // TODO: localization
+                          Text("Add Count"),
+                          SelectTargetCount(isStore: true),
+                        ],
+                      ),
                   ],
                 ),
                 const SizedBox(height: 20),

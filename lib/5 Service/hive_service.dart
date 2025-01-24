@@ -150,7 +150,7 @@ class HiveService {
 
       for (DateTime date = lastLoginDate.add(const Duration(days: 1)); date.isBeforeOrSameDay(today); date = date.add(const Duration(days: 1))) {
         for (RoutineModel routine in TaskProvider().routineList) {
-          if (routine.repeatDays.contains(date.weekday) && routine.startDate.isBeforeOrSameDay(date) && !routine.isArchived) {
+          if (routine.repeatDays.contains(date.weekday - 1) && routine.startDate.isBeforeOrSameDay(date) && !routine.isArchived) {
             taskID++;
 
             final TaskModel task = TaskModel(
@@ -174,8 +174,8 @@ class HiveService {
               isTimerActive: routine.type == TaskTypeEnum.TIMER ? false : null,
             );
 
-            TaskProvider().taskList.add(task);
             addTask(task);
+            TaskProvider().taskList.add(task);
 
             // TODO: schedule notification or alarm
           }
