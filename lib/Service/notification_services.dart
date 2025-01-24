@@ -10,6 +10,33 @@ import 'dart:typed_data';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
+    notificationCategories: [
+      DarwinNotificationCategory(
+        'demoCategory',
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.plain('id_1', 'Action 1'),
+          DarwinNotificationAction.plain(
+            'id_2',
+            'Action 2',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.destructive,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            'id_3',
+            'Action 3',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.foreground,
+            },
+          ),
+        ],
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+        },
+      )
+    ],
+  );
 
   Future<void> init() async {
     tz.initializeTimeZones();
@@ -55,8 +82,9 @@ class NotificationService {
     await androidPlugin?.createNotificationChannel(scheduleChannel);
     await androidPlugin?.createNotificationChannel(timerChannel);
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+    InitializationSettings initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
+      iOS: initializationSettingsDarwin,
     );
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
