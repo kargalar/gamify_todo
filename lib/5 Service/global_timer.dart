@@ -32,7 +32,6 @@ class GlobalTimer {
       final prefs = await SharedPreferences.getInstance();
       if (taskModel.isTimerActive!) {
         NotificationService().showTimerNotification(
-          // ? schedule notification ile çakışmaması için "-"
           id: taskModel.id,
           currentDuration: taskModel.currentDuration!,
           remainingDuration: taskModel.remainingDuration!,
@@ -41,8 +40,8 @@ class GlobalTimer {
         );
 
         final now = DateTime.now().toIso8601String();
-        await prefs.setString('task_last_update_${taskModel.id}', now);
-        await prefs.setString('task_last_progress_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
+        prefs.setString('task_last_update_${taskModel.id}', now);
+        prefs.setString('task_last_progress_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
 
         // birldirim ayarla
         if (taskModel.status != TaskStatusEnum.COMPLETED) {

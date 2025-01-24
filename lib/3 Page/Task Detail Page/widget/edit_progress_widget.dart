@@ -322,6 +322,7 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
     }
   }
 
+  // TODO: buradalar notificaitonService de yapılsın
   // check notifiaciaton status for task
   void _checkAndUpdateNotificationStatusForTask() {
     final task = widget.taskModel!;

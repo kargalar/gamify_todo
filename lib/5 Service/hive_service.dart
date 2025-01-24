@@ -26,6 +26,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class HiveService {
+  // TODO: singleton yap ve shared pefi de buradan çağır ??
+
   static const String _userBoxName = 'userBox';
   static const String _itemBoxName = 'itemBox';
   static const String _traitBoxName = 'traitBox';
