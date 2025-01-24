@@ -105,7 +105,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         appBar: AppBar(
           title: Text(addTaskProvider.editTask != null
               ? LocaleKeys.EditTask.tr()
-              : addTaskProvider.editTask?.routineID != null
+              : addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null
                   ? LocaleKeys.EditRoutine.tr()
                   : LocaleKeys.AddTask.tr()),
           leading: InkWell(
@@ -133,7 +133,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               children: [
-                if (addTaskProvider.editTask?.routineID == null) ...[
+                if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) ...[
                   const SizedBox(height: 10),
                   EditProgressWidget.forTask(task: addTaskProvider.editTask!),
                 ],
@@ -180,7 +180,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                if (addTaskProvider.editTask == null || addTaskProvider.editTask?.routineID != null) const SelectDays(),
+                if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null) const SelectDays(),
                 const SizedBox(height: 10),
                 const SelectTraitList(isSkill: false),
                 const SizedBox(height: 10),
@@ -193,7 +193,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       Helper().getDialog(
                           message: "Are you sure delete?",
                           onAccept: () {
-                            if (addTaskProvider.editTask?.routineID == null) {
+                            if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
                               taskProvider.deleteTask(addTaskProvider.editTask!);
                             } else {
                               taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
