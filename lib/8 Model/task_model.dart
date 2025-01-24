@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gamify_todo/1%20Core/extensions.dart';
 import 'package:gamify_todo/7%20Enum/task_status_enum.dart';
 import 'package:gamify_todo/7%20Enum/task_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -130,5 +131,23 @@ class TaskModel extends HiveObject {
       'priority': priority,
       'is_timer_active': isTimerActive,
     };
+  }
+}
+
+extension TaskModelExtension on TaskModel {
+  bool checkForThisDate(
+    DateTime date, {
+    required bool isRoutine,
+    required bool isCompleted,
+  }) {
+    bool isRoutineCheck() {
+      return isRoutine ? routineID != null : routineID == null;
+    }
+
+    bool isCompletedCheck() {
+      return isCompleted ? status == null || (type == TaskTypeEnum.TIMER && isTimerActive == true && isRoutineCheck()) : true;
+    }
+
+    return taskDate.isSameDay(date) && isRoutineCheck() && isCompletedCheck();
   }
 }

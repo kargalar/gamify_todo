@@ -63,7 +63,7 @@ class WeeklyRoutineView extends StatelessWidget {
   String _getDurationText(dynamic item) {
     if (item.remainingDuration == null) return 'Belirtilmemiş';
 
-    if (item.type == TaskTypeEnum.COUNTER && item.targetCount != null) {
+    if (item.type == TaskTypeEnum.COUNTER) {
       final totalMicroseconds = (item.remainingDuration as Duration).inMicroseconds * (item.targetCount as int);
       final totalDuration = Duration(microseconds: totalMicroseconds.toInt());
       return totalDuration.textShort2hour();
@@ -77,7 +77,7 @@ class WeeklyRoutineView extends StatelessWidget {
 
     for (var routine in routines) {
       if (routine.remainingDuration != null) {
-        if (routine.type == TaskTypeEnum.COUNTER && routine.targetCount != null) {
+        if (routine.type == TaskTypeEnum.COUNTER) {
           totalMicroseconds += (routine.remainingDuration as Duration).inMicroseconds * (routine.targetCount as int);
         } else {
           totalMicroseconds += (routine.remainingDuration as Duration).inMicroseconds;

@@ -274,9 +274,9 @@ class TaskProvider with ChangeNotifier {
   List<TaskModel> getTasksForDate(DateTime date) {
     List<TaskModel> tasks;
     if (!showCompleted) {
-      tasks = taskList.where((task) => task.taskDate.isSameDay(date) && task.routineID == null && task.status == null || (task.type == TaskTypeEnum.TIMER && task.isTimerActive == true && task.routineID == null)).toList();
+      tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: true)).toList();
     } else {
-      tasks = taskList.where((task) => task.taskDate.isSameDay(date) && task.routineID == null).toList();
+      tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: false)).toList();
     }
 
     sortTasksByPriorityAndTime(tasks);
@@ -286,9 +286,9 @@ class TaskProvider with ChangeNotifier {
   List<TaskModel> getRoutineTasksForDate(DateTime date) {
     List<TaskModel> tasks;
     if (!showCompleted) {
-      tasks = taskList.where((task) => task.taskDate.isSameDay(date) && task.routineID != null && task.status == null || (task.type == TaskTypeEnum.TIMER && task.isTimerActive == true && task.routineID != null)).toList();
+      tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: true, isCompleted: true)).toList();
     } else {
-      tasks = taskList.where((task) => task.taskDate.isSameDay(date) && task.routineID != null).toList();
+      tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: true, isCompleted: false)).toList();
     }
 
     sortTasksByPriorityAndTime(tasks);
@@ -301,7 +301,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     List<TaskModel> tasks = routineList
-        .where((routine) => routine.repeatDays.contains(date.weekday - 1) && routine.startDate.isBeforeOrSameDay(date) && !routine.isArchived)
+        .where((routine) => routine.isActiveForThisDate(date))
         .map((routine) => TaskModel(
               routineID: routine.id,
               title: routine.title,

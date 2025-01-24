@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gamify_todo/1%20Core/extensions.dart';
 import 'package:gamify_todo/7%20Enum/task_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -113,5 +114,11 @@ class RoutineModel extends HiveObject {
       'is_archived': isArchived,
       'priority': priority,
     };
+  }
+}
+
+extension RoutineModelExtension on RoutineModel {
+  bool isActiveForThisDate(DateTime date) {
+    return repeatDays.contains(date.weekday - 1) && startDate.isBeforeOrSameDay(date) && !isArchived;
   }
 }

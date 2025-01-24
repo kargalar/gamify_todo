@@ -15,7 +15,7 @@ class TaskCalendarPage extends StatelessWidget {
   String _getDurationText(TaskModel task) {
     if (task.remainingDuration == null) return 'Belirtilmemiş';
 
-    if (task.type == TaskTypeEnum.COUNTER && task.targetCount != null) {
+    if (task.type == TaskTypeEnum.COUNTER) {
       final totalMicroseconds = task.remainingDuration!.inMicroseconds * task.targetCount!;
       final totalDuration = Duration(microseconds: totalMicroseconds.toInt());
       return totalDuration.textShort2hour();
@@ -29,7 +29,7 @@ class TaskCalendarPage extends StatelessWidget {
 
     for (var task in tasks) {
       if (task.remainingDuration != null) {
-        if (task.type == TaskTypeEnum.COUNTER && task.targetCount != null) {
+        if (task.type == TaskTypeEnum.COUNTER) {
           totalMicroseconds += task.remainingDuration!.inMicroseconds * task.targetCount!;
         } else {
           totalMicroseconds += task.remainingDuration!.inMicroseconds;
