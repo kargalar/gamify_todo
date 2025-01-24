@@ -245,3 +245,10 @@ class NotificationService {
     );
   }
 }
+
+// timer başladığında arkada sessizce sabitlenecek bir bildirim gelecek. onu kapatamaması lazım. (öyle bir özellik yoksa olmayabilir)
+
+// alarmlı bildirimler.
+// stop alarm butonu iyi olur. tıklayınca alarmı susacak.
+
+// export import için izinleri kontrol et düzenle.
