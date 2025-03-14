@@ -180,7 +180,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null) const SelectDays(),
+                if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
                 const SizedBox(height: 10),
                 const SelectTraitList(isSkill: false),
                 const SizedBox(height: 10),
