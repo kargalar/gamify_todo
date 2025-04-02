@@ -41,6 +41,11 @@ class NotificationService {
   Future<void> init() async {
     tz.initializeTimeZones();
 
+    const WindowsInitializationSettings windowsIitializationSettings = WindowsInitializationSettings(
+      appName: 'Next Level',
+      appUserModelId: 'Next Level',
+      guid: '123e4567-e89b-12d3-a456-426614174000',
+    );
     const AndroidInitializationSettings androidInitializationSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // Alarm kanalını özelleştir
@@ -85,6 +90,7 @@ class NotificationService {
     InitializationSettings initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
       iOS: initializationSettingsDarwin,
+      windows: windowsIitializationSettings,
     );
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -142,7 +148,6 @@ class NotificationService {
       desc,
       scheduledTZDate,
       notificationDetails(isAlarm),
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
@@ -157,7 +162,6 @@ class NotificationService {
       "test test test",
       scheduledDate,
       notificationDetails(true),
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
@@ -205,6 +209,7 @@ class NotificationService {
         ticker: isAlarm ? 'Alarm is active' : null,
         visibility: NotificationVisibility.public,
       ),
+      windows: const WindowsNotificationDetails(),
     );
   }
 
