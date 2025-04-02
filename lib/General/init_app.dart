@@ -21,7 +21,7 @@ Future<void> initApp() async {
   // Theme
   AppColors.updateTheme(isDarkTheme: await ThemeProvider().getSavedTheme());
   // Hive Adapters
-  Helper().registerAdapters();
+  await Helper().registerAdapters();
 
   // Localization
   await EasyLocalization.ensureInitialized();

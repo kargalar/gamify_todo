@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
@@ -20,11 +22,15 @@ import 'package:gamify_todo/Core/Enums/status_enum.dart';
 import 'package:gamify_todo/Core/Widgets/sure_dialog.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class Helper {
-  void registerAdapters() {
-    Hive.initFlutter();
+  Future registerAdapters() async {
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final hivePath = '${appDocDir.path}/NextLevel';
+    await Directory(hivePath).create(recursive: true);
+    Hive.initFlutter(hivePath);
 
     Hive.registerAdapter(ColorAdapter());
     Hive.registerAdapter(DurationAdapter());

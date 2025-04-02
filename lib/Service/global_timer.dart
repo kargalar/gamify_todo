@@ -185,16 +185,21 @@ class GlobalTimer {
           final now = DateTime.now();
           final difference = now.difference(lastUpdate);
 
-          // Son güncelleme ile şimdiki zaman arasındaki farkı ekle
-          task.currentDuration = lastProgress + difference;
+          // Ensure we don't add negative time differences
+          if (difference.inSeconds > 0) {
+            // Son güncelleme ile şimdiki zaman arasındaki farkı ekle
+            task.currentDuration = lastProgress + difference;
 
-          // Son güncelleme zamanını güncelle
-          await prefs.setString('task_last_update_${task.id}', now.toIso8601String());
-          await prefs.setString('task_last_progress_${task.id}', task.currentDuration!.inSeconds.toString());
+            // Son güncelleme zamanını güncelle
+            await prefs.setString('task_last_update_${task.id}', now.toIso8601String());
+            await prefs.setString('task_last_progress_${task.id}', task.currentDuration!.inSeconds.toString());
 
-          ServerManager().updateTask(taskModel: task);
+            // Store the last known foreground timestamp
+            await prefs.setString('last_foreground_time', now.toIso8601String());
 
-          AppHelper().addCreditByProgress(difference);
+            ServerManager().updateTask(taskModel: task);
+            AppHelper().addCreditByProgress(difference);
+          }
         }
       }
       TaskProvider().updateItems();
