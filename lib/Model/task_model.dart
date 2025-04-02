@@ -44,6 +44,10 @@ class TaskModel extends HiveObject {
   TaskStatusEnum? status; // tamamlandı mı
   @HiveField(17)
   int priority; // öncelik değeri (1: Yüksek, 2: Orta, 3: Düşük)
+  @HiveField(18)
+  DateTime? lastUpdated; // son güncelleme zamanı (senkronizasyon için)
+  @HiveField(19)
+  String? firebaseId; // Firebase'deki belge ID'si
 
   TaskModel({
     this.id = 0,
@@ -64,6 +68,8 @@ class TaskModel extends HiveObject {
     this.skillIDList,
     this.status,
     this.priority = 3,
+    this.lastUpdated,
+    this.firebaseId,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
@@ -93,6 +99,8 @@ class TaskModel extends HiveObject {
       skillIDList: json['skill_id_list'] != null ? (json['skill_id_list'] as List).map((i) => i as int).toList() : null,
       status: json['status'] != null ? TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == json['status']) : null,
       priority: json['priority'] ?? 3,
+      lastUpdated: json['last_updated'] != null ? DateTime.parse(json['last_updated']) : null,
+      firebaseId: json['firebase_id'],
     );
 
     return taskModel;
@@ -130,6 +138,8 @@ class TaskModel extends HiveObject {
       'status': status?.toString().split('.').last,
       'priority': priority,
       'is_timer_active': isTimerActive,
+      'last_updated': lastUpdated?.toIso8601String(),
+      'firebase_id': firebaseId,
     };
   }
 }

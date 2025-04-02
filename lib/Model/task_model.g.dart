@@ -35,13 +35,15 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       skillIDList: (fields[15] as List?)?.cast<int>(),
       status: fields[16] as TaskStatusEnum?,
       priority: fields[17] as int,
+      lastUpdated: fields[18] as DateTime?,
+      firebaseId: fields[19] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -77,16 +79,16 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..writeByte(16)
       ..write(obj.status)
       ..writeByte(17)
-      ..write(obj.priority);
+      ..write(obj.priority)
+      ..writeByte(18)
+      ..write(obj.lastUpdated)
+      ..writeByte(19)
+      ..write(obj.firebaseId);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TaskModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is TaskModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

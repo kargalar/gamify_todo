@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "769104090883",
+    "project_id": "nextlevel-57a28",
+    "storage_bucket": "nextlevel-57a28.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769104090883:android:24f060a0850230757bbb36",
+        "android_client_info": {
+          "package_name": "app.nextLevel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPjn0Lf09xN-0P0FprkJfyCmsI4G6x6bs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769104090883:android:60e654e7873dc0047bbb36",
+        "android_client_info": {
+          "package_name": "app.nextlevel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPjn0Lf09xN-0P0FprkJfyCmsI4G6x6bs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

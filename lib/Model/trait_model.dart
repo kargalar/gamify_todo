@@ -18,6 +18,10 @@ class TraitModel extends HiveObject {
   TraitTypeEnum type;
   @HiveField(5)
   bool isArchived;
+  @HiveField(6)
+  DateTime? lastUpdated;
+  @HiveField(7)
+  String? firebaseId;
 
   TraitModel({
     this.id = 0,
@@ -26,6 +30,8 @@ class TraitModel extends HiveObject {
     required this.color,
     required this.type,
     this.isArchived = false,
+    this.lastUpdated,
+    this.firebaseId,
   });
 
   factory TraitModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +44,8 @@ class TraitModel extends HiveObject {
       color: Color(int.parse(json['color'].toString().replaceAll("#", ""), radix: 16)),
       type: type,
       isArchived: json['is_archived'],
+      lastUpdated: json['last_updated'] != null ? DateTime.parse(json['last_updated']) : null,
+      firebaseId: json['firebase_id'],
     );
   }
 
@@ -50,6 +58,8 @@ class TraitModel extends HiveObject {
       'color': color.value.toRadixString(16),
       'type': type.toString().split('.').last,
       'is_archived': isArchived,
+      'last_updated': lastUpdated?.toIso8601String(),
+      'firebase_id': firebaseId,
     };
   }
 }
