@@ -1,0 +1,1 @@
+C:\KARGALAR\Projeler\Flutter\gamify_todo\build\app\intermediates\cxx\Debug\1067a303\obj\arm64-v8a
