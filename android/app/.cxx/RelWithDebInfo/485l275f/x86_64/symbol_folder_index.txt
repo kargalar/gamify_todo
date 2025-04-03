@@ -1,0 +1,1 @@
+C:\KARGALAR\Projeler\Flutter\gamify_todo\build\app\intermediates\cxx\RelWithDebInfo\485l275f\obj\x86_64

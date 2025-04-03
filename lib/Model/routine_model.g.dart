@@ -33,13 +33,15 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       skillIDList: (fields[13] as List?)?.cast<int>(),
       isArchived: fields[14] as bool,
       priority: fields[15] as int,
-    );
+    )
+      ..lastUpdated = fields[16] as DateTime?
+      ..firebaseId = fields[17] as String?;
   }
 
   @override
   void write(BinaryWriter writer, RoutineModel obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -71,7 +73,11 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(14)
       ..write(obj.isArchived)
       ..writeByte(15)
-      ..write(obj.priority);
+      ..write(obj.priority)
+      ..writeByte(16)
+      ..write(obj.lastUpdated)
+      ..writeByte(17)
+      ..write(obj.firebaseId);
   }
 
   @override
