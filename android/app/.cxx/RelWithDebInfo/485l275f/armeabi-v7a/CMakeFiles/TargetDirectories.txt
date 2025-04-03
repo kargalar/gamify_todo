@@ -1,0 +1,2 @@
+C:/KARGALAR/Projeler/Flutter/gamify_todo/android/app/.cxx/RelWithDebInfo/485l275f/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/KARGALAR/Projeler/Flutter/gamify_todo/android/app/.cxx/RelWithDebInfo/485l275f/armeabi-v7a/CMakeFiles/rebuild_cache.dir
