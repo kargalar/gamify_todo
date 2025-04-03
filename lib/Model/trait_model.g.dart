@@ -23,15 +23,13 @@ class TraitModelAdapter extends TypeAdapter<TraitModel> {
       color: fields[3] as Color,
       type: fields[4] as TraitTypeEnum,
       isArchived: fields[5] as bool,
-      lastUpdated: fields[6] as DateTime?,
-      firebaseId: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TraitModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -43,16 +41,16 @@ class TraitModelAdapter extends TypeAdapter<TraitModel> {
       ..writeByte(4)
       ..write(obj.type)
       ..writeByte(5)
-      ..write(obj.isArchived)
-      ..writeByte(6)
-      ..write(obj.lastUpdated)
-      ..writeByte(7)
-      ..write(obj.firebaseId);
+      ..write(obj.isArchived);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is TraitModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TraitModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

@@ -39,10 +39,6 @@ class RoutineModel extends HiveObject {
   bool isArchived; // tamamlandı mı
   @HiveField(15)
   int priority; // öncelik değeri (1: Yüksek, 2: Orta, 3: Düşük)
-  @HiveField(16)
-  DateTime? lastUpdated;
-  @HiveField(17)
-  String? firebaseId;
 
   RoutineModel({
     this.id = 0,

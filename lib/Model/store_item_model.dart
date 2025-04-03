@@ -23,10 +23,6 @@ class ItemModel extends HiveObject {
   int credit;
   @HiveField(8)
   int? addCount;
-  @HiveField(9)
-  DateTime? lastUpdated;
-  @HiveField(10)
-  String? firebaseId;
 
   ItemModel({
     this.id = 0,
@@ -38,8 +34,6 @@ class ItemModel extends HiveObject {
     this.addCount,
     this.isTimerActive,
     required this.credit,
-    this.lastUpdated,
-    this.firebaseId,
   });
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
@@ -60,8 +54,6 @@ class ItemModel extends HiveObject {
       isTimerActive: json['is_timer_active'] ?? (type == TaskTypeEnum.TIMER ? false : null),
       credit: json['credit'],
       addCount: json['add_count'],
-      lastUpdated: json['last_updated'] != null ? DateTime.parse(json['last_updated']) : null,
-      firebaseId: json['firebase_id'],
     );
   }
 
@@ -84,8 +76,6 @@ class ItemModel extends HiveObject {
       'credit': credit,
       'is_timer_active': isTimerActive,
       'add_count': addCount,
-      'last_updated': lastUpdated?.toIso8601String(),
-      'firebase_id': firebaseId,
     };
   }
 }

@@ -26,15 +26,13 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       addCount: fields[8] as int?,
       isTimerActive: fields[6] as bool?,
       credit: fields[7] as int,
-      lastUpdated: fields[9] as DateTime?,
-      firebaseId: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ItemModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -52,16 +50,16 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       ..writeByte(7)
       ..write(obj.credit)
       ..writeByte(8)
-      ..write(obj.addCount)
-      ..writeByte(9)
-      ..write(obj.lastUpdated)
-      ..writeByte(10)
-      ..write(obj.firebaseId);
+      ..write(obj.addCount);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ItemModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ItemModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

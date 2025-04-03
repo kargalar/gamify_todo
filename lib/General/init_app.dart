@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,15 +11,10 @@ import 'package:gamify_todo/Service/notification_services.dart';
 import 'package:gamify_todo/Service/server_manager.dart';
 import 'package:gamify_todo/Service/home_widget_service.dart';
 import 'package:gamify_todo/Provider/theme_provider.dart';
-import 'package:gamify_todo/firebase_options.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> initApp() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
   // Orientation
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

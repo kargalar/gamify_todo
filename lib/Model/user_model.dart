@@ -6,27 +6,14 @@ part 'user_model.g.dart';
 class UserModel extends HiveObject {
   @HiveField(0)
   int id;
-
   @HiveField(1)
   String email;
-
   @HiveField(2)
   String password;
-
   @HiveField(3)
   Duration creditProgress;
-
   @HiveField(4)
   int userCredit;
-
-  @HiveField(5)
-  DateTime? lastUpdated;
-
-  @HiveField(6)
-  String? firebaseId;
-
-  @HiveField(7)
-  bool hasLocalChanges = false;
 
   UserModel({
     required this.id,
@@ -34,8 +21,6 @@ class UserModel extends HiveObject {
     required this.password,
     this.creditProgress = const Duration(hours: 0, minutes: 0, seconds: 0),
     this.userCredit = 0,
-    this.lastUpdated,
-    this.firebaseId,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
