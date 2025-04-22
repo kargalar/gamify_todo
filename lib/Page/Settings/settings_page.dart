@@ -70,13 +70,13 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
             ),
-            _settingsOption(
-              title: LocaleKeys.Help.tr(),
-              subtitle: LocaleKeys.HelpText.tr(),
-              onTap: () {
-                yardimDialog(context);
-              },
-            ),
+            // _settingsOption(
+            //   title: LocaleKeys.Help.tr(),
+            //   subtitle: LocaleKeys.HelpText.tr(),
+            //   onTap: () {
+            //     yardimDialog(context);
+            //   },
+            // ),
             _settingsOption(
               title: LocaleKeys.DataManagement.tr(),
               subtitle: LocaleKeys.DataManagementSubtitle.tr(),
