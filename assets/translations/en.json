@@ -100,5 +100,10 @@
     "DataManagement": "Data Management",
     "DataManagementSubtitle": "Backup or restore your data",
     "ExportData": "Backup Data",
-    "ImportData": "Restore from Backup"
+    "ImportData": "Restore from Backup",
+    "Subtasks": "Subtasks",
+    "AddSubtask": "Add Subtask",
+    "SubtaskEmpty": "Subtask cannot be empty.",
+    "HideSubtasks": "Hide subtasks",
+    "ShowSubtasks": "Show subtasks"
 }

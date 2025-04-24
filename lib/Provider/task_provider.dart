@@ -8,6 +8,7 @@ import 'package:gamify_todo/Service/home_widget_service.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Model/routine_model.dart';
+import 'package:gamify_todo/Model/subtask_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
 
 class TaskProvider with ChangeNotifier {
@@ -248,6 +249,48 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Subtask methods
+  void addSubtask(TaskModel taskModel, String subtaskTitle) {
+    taskModel.subtasks ??= [];
+
+    // Generate a unique ID for the subtask
+    int subtaskId = 1;
+    if (taskModel.subtasks!.isNotEmpty) {
+      subtaskId = taskModel.subtasks!.map((s) => s.id).reduce((a, b) => a > b ? a : b) + 1;
+    }
+
+    final subtask = SubTaskModel(
+      id: subtaskId,
+      title: subtaskTitle,
+    );
+
+    taskModel.subtasks!.add(subtask);
+    ServerManager().updateTask(taskModel: taskModel);
+
+    notifyListeners();
+  }
+
+  void removeSubtask(TaskModel taskModel, SubTaskModel subtask) {
+    if (taskModel.subtasks != null) {
+      taskModel.subtasks!.removeWhere((s) => s.id == subtask.id);
+      ServerManager().updateTask(taskModel: taskModel);
+
+      notifyListeners();
+    }
+  }
+
+  void toggleSubtaskCompletion(TaskModel taskModel, SubTaskModel subtask) {
+    if (taskModel.subtasks != null) {
+      final index = taskModel.subtasks!.indexWhere((s) => s.id == subtask.id);
+      if (index != -1) {
+        taskModel.subtasks![index].isCompleted = !taskModel.subtasks![index].isCompleted;
+        ServerManager().updateTask(taskModel: taskModel);
+
+        notifyListeners();
+      }
+    }
+  }
+
   // Öncelik ve zamana göre sıralama fonksiyonu
   void sortTasksByPriorityAndTime(List<TaskModel> tasks) {
     tasks.sort((a, b) {
@@ -319,6 +362,7 @@ class TaskProvider with ChangeNotifier {
               attributeIDList: routine.attirbuteIDList,
               skillIDList: routine.skillIDList,
               priority: routine.priority,
+              subtasks: [],
             ))
         .toList();
 

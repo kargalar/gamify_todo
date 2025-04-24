@@ -6,6 +6,7 @@ import 'package:gamify_todo/Core/helper.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/priority_line.dart';
+import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/subtask_list.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/title_and_decription.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/task_time.dart';
 import 'package:gamify_todo/Page/Home/Widget/task_slide_actions.dart';
@@ -73,6 +74,7 @@ class _TaskItemState extends State<TaskItem> {
                       ],
                     ),
                   ),
+                  if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) SubtaskList(taskModel: widget.taskModel),
                   PriorityLine(taskModel: widget.taskModel),
                 ],
               ),
@@ -179,6 +181,9 @@ class _TaskItemState extends State<TaskItem> {
       } else {
         widget.taskModel.status = null;
         AppHelper().addCreditByProgress(widget.taskModel.remainingDuration != null ? -widget.taskModel.remainingDuration! : null);
+
+        // Görev tamamlanmadı olarak işaretlendiğinde alt görevlerin durumu değişmez
+        // Alt görevler görünür hale gelecek (SubtaskList widget'ında didUpdateWidget metodu ile)
       }
 
       HomeWidgetService.updateTaskCount();
@@ -189,6 +194,7 @@ class _TaskItemState extends State<TaskItem> {
 
       if (widget.taskModel.currentCount! >= widget.taskModel.targetCount!) {
         widget.taskModel.status = TaskStatusEnum.COMPLETED;
+
         HomeWidgetService.updateTaskCount();
       }
     } else {

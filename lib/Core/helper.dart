@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gamify_todo/Core/Adapter/color_adapter.dart';
 import 'package:gamify_todo/Core/Adapter/duration_adapter.dart';
 import 'package:gamify_todo/Core/Adapter/time_of_day_adapter.dart';
+import 'package:gamify_todo/General/Adapter/subtask_model_adapter.dart';
 import 'package:gamify_todo/General/Adapter/task_status_enum_adapter.dart';
 import 'package:gamify_todo/General/Adapter/task_type_enum_adapter.dart';
 import 'package:gamify_todo/General/Adapter/trait_type_enum_adapter.dart';
@@ -41,6 +42,7 @@ class Helper {
     Hive.registerAdapter(TaskModelAdapter());
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(TraitModelAdapter());
+    Hive.registerAdapter(SubTaskModelAdapter());
     Hive.registerAdapter(TaskTypeEnumAdapter());
     Hive.registerAdapter(TraitTypeEnumAdapter());
     Hive.registerAdapter(TaskStatusEnumAdapter());

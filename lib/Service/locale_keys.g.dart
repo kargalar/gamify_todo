@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const Store = 'Store';
   static const Settings = 'Settings';
   static const SelectLanguage = 'SelectLanguage';
@@ -105,5 +105,9 @@ abstract class  LocaleKeys {
   static const DataManagementSubtitle = 'DataManagementSubtitle';
   static const ExportData = 'ExportData';
   static const ImportData = 'ImportData';
-
+  static const Subtasks = 'Subtasks';
+  static const AddSubtask = 'AddSubtask';
+  static const SubtaskEmpty = 'SubtaskEmpty';
+  static const HideSubtasks = 'HideSubtasks';
+  static const ShowSubtasks = 'ShowSubtasks';
 }

@@ -14,6 +14,7 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_target_count.dart
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_time.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_trait.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_manager.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_description.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
@@ -75,6 +76,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       addTaskProvider.selectedTraits =
           TraitProvider().traitList.where((element) => (addTaskProvider.editTask!.attributeIDList != null && addTaskProvider.editTask!.attributeIDList!.contains(element.id)) || (addTaskProvider.editTask!.skillIDList != null && addTaskProvider.editTask!.skillIDList!.contains(element.id))).toList();
       addTaskProvider.priority = addTaskProvider.editTask!.priority;
+      addTaskProvider.loadSubtasksFromTask(addTaskProvider.editTask!);
     } else {
       addTaskProvider.editTask = null;
 
@@ -90,6 +92,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       addTaskProvider.selectedDays.clear();
       addTaskProvider.selectedTraits.clear();
       addTaskProvider.priority = 3;
+      addTaskProvider.clearSubtasks();
     }
   }
 
@@ -182,6 +185,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 const SizedBox(height: 10),
                 if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
                 const SizedBox(height: 10),
+                const SubtaskManager(),
+                const SizedBox(height: 10),
                 const SelectTraitList(isSkill: false),
                 const SizedBox(height: 10),
                 const SelectTraitList(isSkill: true),
@@ -266,6 +271,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           attributeIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
           skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
           priority: addTaskProvider.priority,
+          subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
         ),
       );
     } else {
@@ -308,6 +314,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             attributeIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
             skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
             priority: addTaskProvider.priority,
+            subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
           ),
         );
       } else {
@@ -363,6 +370,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
           status: addTaskProvider.editTask!.status,
           priority: addTaskProvider.priority,
+          subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
         ),
       );
 

@@ -100,5 +100,10 @@
     "DataManagement": "Veri Yönetimi",
     "DataManagementSubtitle": "Verilerinizi yedekleyin veya geri yükleyin",
     "ExportData": "Verileri Yedekle",
-    "ImportData": "Yedekten Geri Yükle"
+    "ImportData": "Yedekten Geri Yükle",
+    "Subtasks": "Alt Görevler",
+    "AddSubtask": "Alt Görev Ekle",
+    "SubtaskEmpty": "Alt görev boş olamaz.",
+    "HideSubtasks": "Alt görevleri gizle",
+    "ShowSubtasks": "Alt görevleri göster"
 }

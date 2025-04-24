@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/Enum/task_type_enum.dart';
+import 'package:gamify_todo/Model/subtask_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'task_model.g.dart';
@@ -44,6 +45,8 @@ class TaskModel extends HiveObject {
   TaskStatusEnum? status; // tamamlandı mı
   @HiveField(17)
   int priority; // öncelik değeri (1: Yüksek, 2: Orta, 3: Düşük)
+  @HiveField(18)
+  List<SubTaskModel>? subtasks; // alt görevler
 
   TaskModel({
     this.id = 0,
@@ -64,6 +67,7 @@ class TaskModel extends HiveObject {
     this.skillIDList,
     this.status,
     this.priority = 3,
+    this.subtasks,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
@@ -93,6 +97,7 @@ class TaskModel extends HiveObject {
       skillIDList: json['skill_id_list'] != null ? (json['skill_id_list'] as List).map((i) => i as int).toList() : null,
       status: json['status'] != null ? TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == json['status']) : null,
       priority: json['priority'] ?? 3,
+      subtasks: json['subtasks'] != null ? SubTaskModel.fromJsonList(json['subtasks']) : null,
     );
 
     return taskModel;
@@ -130,6 +135,7 @@ class TaskModel extends HiveObject {
       'status': status?.toString().split('.').last,
       'priority': priority,
       'is_timer_active': isTimerActive,
+      'subtasks': subtasks?.map((subtask) => subtask.toJson()).toList(),
     };
   }
 }
