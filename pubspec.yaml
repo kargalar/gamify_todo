@@ -21,7 +21,7 @@ dependencies:
 
   # Font style
   google_fonts: ^6.1.0
-  
+
   # Notification
   flutter_local_notifications: ^19.0.0
   timezone: ^0.10.0
@@ -30,18 +30,18 @@ dependencies:
   hive_flutter: ^1.1.0
   hive_generator: ^2.0.1
   shared_preferences: ^2.3.3
-  
+
   # Svg support
   flutter_svg: ^2.0.9
 
   # State Management
   provider: ^6.1.2
   equatable: ^2.0.5
-  
+
   # Responsive
   flutter_screenutil: ^5.9.0
 
-  # GetX 
+  # GetX
   get: ^4.6.6
 
   # Splash Screen
@@ -99,11 +99,14 @@ dependencies:
   firebase_auth: ^5.5.2
   cloud_firestore: ^5.6.6
 
+  # URL Launcher
+  url_launcher: ^6.3.1
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  
+
   # Code Generation
   build_runner: ^2.4.8
 
@@ -144,7 +147,7 @@ flutter:
     - assets/logo/
     # Sounds
     - assets/sounds/
-  
+
   # fonts:
   #   - family: FacelogIcon
   #     fonts:

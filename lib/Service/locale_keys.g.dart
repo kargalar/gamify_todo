@@ -110,4 +110,7 @@ abstract class LocaleKeys {
   static const SubtaskEmpty = 'SubtaskEmpty';
   static const HideSubtasks = 'HideSubtasks';
   static const ShowSubtasks = 'ShowSubtasks';
+  static const Location = 'Location';
+  static const EnterLocation = 'EnterLocation';
+  static const ShowOnMap = 'ShowOnMap';
 }

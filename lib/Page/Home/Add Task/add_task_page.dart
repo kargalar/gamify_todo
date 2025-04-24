@@ -6,6 +6,7 @@ import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Core/helper.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/location_input.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/notification_status.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_date.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_days.dart';
@@ -68,6 +69,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
       addTaskProvider.taskNameController.text = addTaskProvider.editTask!.title;
       addTaskProvider.descriptionController.text = addTaskProvider.editTask!.description ?? '';
+      addTaskProvider.locationController.text = addTaskProvider.editTask!.location ?? '';
       addTaskProvider.selectedTime = addTaskProvider.editTask!.time;
       addTaskProvider.selectedDate = addTaskProvider.editTask!.taskDate;
       addTaskProvider.isNotificationOn = addTaskProvider.editTask!.isNotificationOn;
@@ -82,6 +84,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
       addTaskProvider.taskNameController.clear();
       addTaskProvider.descriptionController.clear();
+      addTaskProvider.locationController.clear();
       addTaskProvider.selectedTime = null;
       addTaskProvider.selectedDate = context.read<TaskProvider>().selectedDate;
       addTaskProvider.isNotificationOn = false;
@@ -144,6 +147,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 TaskName(autoFocus: addTaskProvider.editTask == null),
                 const SizedBox(height: 5),
                 const TaskDescription(),
+                const SizedBox(height: 10),
+                const LocationInput(),
                 const SizedBox(height: 10),
                 const SelectPriority(),
                 const SizedBox(height: 10),
@@ -272,6 +277,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
           priority: addTaskProvider.priority,
           subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
+          location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
         ),
       );
     } else {
@@ -315,6 +321,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
             priority: addTaskProvider.priority,
             subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
+            location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
           ),
         );
       } else {
@@ -371,6 +378,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           status: addTaskProvider.editTask!.status,
           priority: addTaskProvider.priority,
           subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
+          location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
         ),
       );
 

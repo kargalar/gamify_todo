@@ -9,6 +9,7 @@ class AddTaskProvider with ChangeNotifier {
   TaskModel? editTask;
   TextEditingController taskNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
   TimeOfDay? selectedTime;
   DateTime selectedDate = DateTime.now();
   bool isNotificationOn = false;
@@ -69,6 +70,10 @@ class AddTaskProvider with ChangeNotifier {
     } else {
       subtasks = [];
     }
+    notifyListeners();
+  }
+
+  void updateLocation() {
     notifyListeners();
   }
 }

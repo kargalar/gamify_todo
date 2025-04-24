@@ -105,5 +105,8 @@
     "AddSubtask": "Add Subtask",
     "SubtaskEmpty": "Subtask cannot be empty.",
     "HideSubtasks": "Hide subtasks",
-    "ShowSubtasks": "Show subtasks"
+    "ShowSubtasks": "Show subtasks",
+    "Location": "Location",
+    "EnterLocation": "Enter location",
+    "ShowOnMap": "Show on map"
 }

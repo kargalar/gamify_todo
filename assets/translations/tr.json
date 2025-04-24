@@ -105,5 +105,8 @@
     "AddSubtask": "Alt Görev Ekle",
     "SubtaskEmpty": "Alt görev boş olamaz.",
     "HideSubtasks": "Alt görevleri gizle",
-    "ShowSubtasks": "Alt görevleri göster"
+    "ShowSubtasks": "Alt görevleri göster",
+    "Location": "Konum",
+    "EnterLocation": "Konum girin",
+    "ShowOnMap": "Haritada göster"
 }

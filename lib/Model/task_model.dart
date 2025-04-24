@@ -47,6 +47,8 @@ class TaskModel extends HiveObject {
   int priority; // öncelik değeri (1: Yüksek, 2: Orta, 3: Düşük)
   @HiveField(18)
   List<SubTaskModel>? subtasks; // alt görevler
+  @HiveField(19)
+  String? location; // konum bilgisi
 
   TaskModel({
     this.id = 0,
@@ -68,6 +70,7 @@ class TaskModel extends HiveObject {
     this.status,
     this.priority = 3,
     this.subtasks,
+    this.location,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
@@ -98,6 +101,7 @@ class TaskModel extends HiveObject {
       status: json['status'] != null ? TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == json['status']) : null,
       priority: json['priority'] ?? 3,
       subtasks: json['subtasks'] != null ? SubTaskModel.fromJsonList(json['subtasks']) : null,
+      location: json['location'],
     );
 
     return taskModel;
@@ -136,6 +140,7 @@ class TaskModel extends HiveObject {
       'priority': priority,
       'is_timer_active': isTimerActive,
       'subtasks': subtasks?.map((subtask) => subtask.toJson()).toList(),
+      'location': location,
     };
   }
 }

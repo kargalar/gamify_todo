@@ -36,13 +36,14 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       status: fields[16] as TaskStatusEnum?,
       priority: fields[17] as int,
       subtasks: (fields[18] as List?)?.cast<SubTaskModel>(),
+      location: fields[19] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -80,16 +81,14 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..writeByte(17)
       ..write(obj.priority)
       ..writeByte(18)
-      ..write(obj.subtasks);
+      ..write(obj.subtasks)
+      ..writeByte(19)
+      ..write(obj.location);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TaskModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is TaskModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

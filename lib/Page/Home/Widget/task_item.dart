@@ -7,6 +7,7 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/priority_line.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/subtask_list.dart';
+import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/task_location.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/title_and_decription.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/task_time.dart';
 import 'package:gamify_todo/Page/Home/Widget/task_slide_actions.dart';
@@ -70,7 +71,12 @@ class _TaskItemState extends State<TaskItem> {
                         const SizedBox(width: 5),
                         TitleAndDescription(taskModel: widget.taskModel),
                         const SizedBox(width: 10),
-                        TaskTime(taskModel: widget.taskModel),
+                        Column(
+                          children: [
+                            TaskTime(taskModel: widget.taskModel),
+                            if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
+                          ],
+                        ),
                       ],
                     ),
                   ),
