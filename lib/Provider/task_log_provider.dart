@@ -36,11 +36,13 @@ class TaskLogProvider with ChangeNotifier {
       id: logId + 1,
       taskId: taskModel.id,
       routineId: taskModel.routineID,
-      logDate: customLogDate ?? DateTime.now(),
+      logDate: customLogDate ?? DateTime.now(), // DateTime.now() already includes seconds and milliseconds
       taskTitle: taskModel.title,
       duration: customDuration ?? (taskModel.type == TaskTypeEnum.TIMER ? taskModel.currentDuration : null),
       count: customCount ?? (taskModel.type == TaskTypeEnum.COUNTER ? taskModel.currentCount : null),
-      status: customStatus ?? taskModel.status ?? TaskStatusEnum.COMPLETED,
+      // Eğer customStatus açıkça null olarak verilmişse, bu checkbox'ın hiçbir durumunun seçili olmadığını gösterir
+      // Ancak UI'da bu, hiçbir durumun seçili olmadığını gösterecek
+      status: customStatus ?? taskModel.status,
     );
 
     await HiveService().addTaskLog(taskLog);

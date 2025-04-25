@@ -33,7 +33,7 @@ class _EditLogDialogState extends State<EditLogDialog> {
   int? count;
   int hours = 0;
   int minutes = 0;
-  TaskStatusEnum selectedStatus = TaskStatusEnum.COMPLETED;
+  TaskStatusEnum? selectedStatus = TaskStatusEnum.COMPLETED;
 
   bool isLoading = true;
 
@@ -281,13 +281,16 @@ class _EditLogDialogState extends State<EditLogDialog> {
   }
 
   Future<void> _updateLog() async {
-    // Seçilen tarih ve saati birleştir
+    // Seçilen tarih ve saati birleştir (saniye ve milisaniye ekleyerek)
+    final now = DateTime.now();
     final logDateTime = DateTime(
       selectedDate.year,
       selectedDate.month,
       selectedDate.day,
       selectedTime.hour,
       selectedTime.minute,
+      now.second,
+      now.millisecond,
     );
 
     // Task tipine göre ilerleme değerini ayarla

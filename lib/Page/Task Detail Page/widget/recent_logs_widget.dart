@@ -120,7 +120,7 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        log.status,
+                        log.status == "" ? "In Progress" : log.status,
                         style: const TextStyle(color: Colors.white, fontSize: 10),
                       ),
                     ),

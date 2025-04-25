@@ -206,7 +206,7 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
 
             TaskLogProvider().addTaskLog(
               widget.taskModel!,
-              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute, DateTime.now().second, DateTime.now().millisecond),
               customCount: difference, // Değişim miktarını logla (pozitif veya negatif)
               customStatus: value >= widget.taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
             );
@@ -246,7 +246,7 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
 
             TaskLogProvider().addTaskLog(
               widget.taskModel!,
-              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute, DateTime.now().second, DateTime.now().millisecond),
               customDuration: difference, // Değişim miktarını logla (pozitif veya negatif)
               customStatus: value >= widget.taskModel!.remainingDuration! ? TaskStatusEnum.COMPLETED : null,
             );
@@ -294,21 +294,21 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
           const SizedBox(height: 16),
           // Durum değiştirme butonları
           if (isTask)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 _buildStatusButton(
                   label: LocaleKeys.Completed.tr(),
                   status: TaskStatusEnum.COMPLETED,
                   color: AppColors.green,
                 ),
-                const SizedBox(width: 8),
                 _buildStatusButton(
                   label: LocaleKeys.Failed.tr(),
                   status: TaskStatusEnum.FAILED,
                   color: AppColors.red,
                 ),
-                const SizedBox(width: 8),
                 _buildStatusButton(
                   label: LocaleKeys.Cancelled.tr(),
                   status: TaskStatusEnum.CANCEL,
@@ -536,17 +536,19 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
       onPressed: () {
         if (!isTask) return;
 
-        // Eğer zaten seçili durum tıklanırsa, durumu sıfırla
+        // Eğer zaten seçili durum tıklanırsa, durumu sıfırla (null yap)
         if (isSelected) {
           widget.taskModel!.status = null;
 
           // TaskProvider'dan seçili tarihi al
           final selectedDate = TaskProvider().selectedDate;
+          final now = DateTime.now();
 
           // Log oluştur (durumu null olarak)
           TaskLogProvider().addTaskLog(
             widget.taskModel!,
-            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
+            // Burada null olarak gönderiyoruz - bu, checkbox'ın hiçbir durumunun seçili olmadığını gösterir
             customStatus: null,
           );
         } else {
@@ -554,11 +556,12 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
 
           // TaskProvider'dan seçili tarihi al
           final selectedDate = TaskProvider().selectedDate;
+          final now = DateTime.now();
 
           // Log oluştur
           TaskLogProvider().addTaskLog(
             widget.taskModel!,
-            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
             customStatus: status,
           );
         }

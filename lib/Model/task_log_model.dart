@@ -27,7 +27,7 @@ class TaskLogModel extends HiveObject {
   int? count; // Count for counter tasks
 
   @HiveField(7)
-  TaskStatusEnum status; // Status of the task when logged
+  TaskStatusEnum? status; // Status of the task when logged
 
   TaskLogModel({
     required this.id,
@@ -93,7 +93,7 @@ class TaskLogModel extends HiveObject {
       case TaskStatusEnum.ARCHIVED:
         return 'Archived';
       default:
-        return 'In Progress';
+        return ''; // Boş string döndür - hiçbir durum seçili değil
     }
   }
 

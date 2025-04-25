@@ -225,13 +225,16 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
   }
 
   Future<void> _addManualLog() async {
-    // Seçilen tarih ve saati birleştir
+    // Seçilen tarih ve saati birleştir (saniye ve milisaniye ekleyerek)
+    final now = DateTime.now();
     final logDateTime = DateTime(
       selectedDate.year,
       selectedDate.month,
       selectedDate.day,
       selectedTime.hour,
       selectedTime.minute,
+      now.second,
+      now.millisecond,
     );
 
     // Task tipine göre ilerleme değerini ayarla

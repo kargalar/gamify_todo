@@ -243,7 +243,7 @@ class TaskDetailViewModel with ChangeNotifier {
       }).toList();
     }
 
-    // Sort logs by date (newest first)
+    // Sort logs by date (newest first) with precise timestamp comparison including seconds and milliseconds
     logs.sort((a, b) => b.logDate.compareTo(a.logDate));
 
     // Convert to UI model
@@ -252,8 +252,8 @@ class TaskDetailViewModel with ChangeNotifier {
     for (int i = 0; i < logs.length && i < 10; i++) {
       final log = logs[i];
 
-      // Format the date
-      String formattedDate = DateFormat('d MMMM yyyy HH:mm').format(log.logDate);
+      // Format the date with seconds for precise time display
+      String formattedDate = DateFormat('d MMMM yyyy HH:mm:ss').format(log.logDate);
 
       // Format the duration or count as a difference
       String progressText = "";
