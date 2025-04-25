@@ -16,6 +16,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:gamify_todo/Model/user_model.dart';
 import 'package:gamify_todo/Model/store_item_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
+import 'package:gamify_todo/Model/task_log_model.dart';
 import 'package:gamify_todo/Model/trait_model.dart';
 import 'package:gamify_todo/Model/routine_model.dart';
 import 'package:path_provider/path_provider.dart';
@@ -33,12 +34,14 @@ class HiveService {
   static const String _traitBoxName = 'traitBox';
   static const String _routineBoxName = 'routineBox';
   static const String _taskBoxName = 'taskBox';
+  static const String _taskLogBoxName = 'taskLogBox';
 
   Future<Box<UserModel>> get _userBox async => await Hive.openBox<UserModel>(_userBoxName);
   Future<Box<ItemModel>> get _itemBox async => await Hive.openBox<ItemModel>(_itemBoxName);
   Future<Box<TraitModel>> get _traitBox async => await Hive.openBox<TraitModel>(_traitBoxName);
   Future<Box<RoutineModel>> get _routineBox async => await Hive.openBox<RoutineModel>(_routineBoxName);
   Future<Box<TaskModel>> get _taskBox async => await Hive.openBox<TaskModel>(_taskBoxName);
+  Future<Box<TaskLogModel>> get _taskLogBox async => await Hive.openBox<TaskLogModel>(_taskLogBoxName);
 
   // User methods
   Future<void> addUser(UserModel userModel) async {
@@ -140,6 +143,32 @@ class HiveService {
     await box.delete(id);
   }
 
+  // Task Log methods
+  Future<void> addTaskLog(TaskLogModel taskLogModel) async {
+    final box = await _taskLogBox;
+    await box.put(taskLogModel.id, taskLogModel);
+  }
+
+  Future<List<TaskLogModel>> getTaskLogs() async {
+    final box = await _taskLogBox;
+    return box.values.toList();
+  }
+
+  Future<List<TaskLogModel>> getTaskLogsByTaskId(int taskId) async {
+    final box = await _taskLogBox;
+    return box.values.where((log) => log.taskId == taskId).toList();
+  }
+
+  Future<List<TaskLogModel>> getTaskLogsByRoutineId(int routineId) async {
+    final box = await _taskLogBox;
+    return box.values.where((log) => log.routineId == routineId).toList();
+  }
+
+  Future<void> deleteTaskLog(int id) async {
+    final box = await _taskLogBox;
+    await box.delete(id);
+  }
+
   Future<void> createTasksFromRoutines() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final DateTime today = DateTime.now();
@@ -217,6 +246,9 @@ class HiveService {
 
     final box5 = await _taskBox;
     await box5.clear();
+
+    final box6 = await _taskLogBox;
+    await box6.clear();
 
     // Clear SharedPreferences
     final prefs = await SharedPreferences.getInstance();
@@ -349,6 +381,15 @@ class HiveService {
       }
       allData[_taskBoxName] = taskMap;
 
+      // Export task logs
+      final taskLogBox = await _taskLogBox;
+      final taskLogMap = {};
+      for (var key in taskLogBox.keys) {
+        final taskLog = taskLogBox.get(key);
+        if (taskLog != null) taskLogMap[key.toString()] = taskLog.toJson();
+      }
+      allData[_taskLogBoxName] = taskLogMap;
+
       // Export SharedPrefs
       final prefs = await SharedPreferences.getInstance();
       final sharedPrefsMap = {};
@@ -437,6 +478,16 @@ class HiveService {
             final task = TaskModel.fromJson(entry.value);
             await taskBox.put(int.parse(entry.key), task);
             TaskProvider().taskList.add(task);
+          }
+
+          // Import task logs if they exist
+          if (allData.containsKey(_taskLogBoxName)) {
+            final taskLogBox = await _taskLogBox;
+            final taskLogData = allData[_taskLogBoxName] as Map<String, dynamic>;
+            for (var entry in taskLogData.entries) {
+              final taskLog = TaskLogModel.fromJson(entry.value);
+              await taskLogBox.put(int.parse(entry.key), taskLog);
+            }
           }
 
           // Import SharedPrefs

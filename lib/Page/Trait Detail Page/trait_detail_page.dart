@@ -7,12 +7,14 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Service/navigator_service.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
+import 'package:gamify_todo/Provider/task_log_provider.dart';
 import 'package:gamify_todo/Provider/trait_provider.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Enum/trait_type_enum.dart';
 import 'package:gamify_todo/Model/task_model.dart';
 import 'package:gamify_todo/Model/trait_model.dart';
+import 'package:gamify_todo/Model/task_log_model.dart';
 import 'package:get/route_manager.dart';
 
 class TraitDetailPage extends StatefulWidget {
@@ -37,59 +39,134 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   List<TaskModel> relatedTasks = [];
   List<TaskModel> relatedRoutines = [];
 
+  void calculateTotalDurationFromLogs() {
+    // Tüm logları al
+    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
+
+    // Tüm taskları al
+    List<TaskModel> allTasks = TaskProvider().taskList;
+
+    // Trait ile ilgili taskları bul
+    List<TaskModel> tasksWithTrait = allTasks.where((task) {
+      return (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
+    }).toList();
+
+    // Toplam süreyi hesapla
+    totalDuration = Duration.zero;
+
+    // Her task için logları bul ve süreleri topla
+    for (var task in tasksWithTrait) {
+      // Bu task için logları bul
+      List<TaskLogModel> taskLogs = allLogs.where((log) => log.taskId == task.id).toList();
+
+      // Tamamlanmış loglar için süreyi hesapla
+      for (var log in taskLogs) {
+        if (log.status == TaskStatusEnum.COMPLETED) {
+          if (task.type == TaskTypeEnum.TIMER && log.duration != null) {
+            totalDuration += log.duration!;
+          } else if (task.type == TaskTypeEnum.COUNTER && log.count != null) {
+            totalDuration += (task.remainingDuration ?? Duration.zero) * log.count!;
+          } else if (task.type == TaskTypeEnum.CHECKBOX) {
+            totalDuration += task.remainingDuration ?? Duration.zero;
+          }
+        }
+      }
+    }
+  }
+
+  void findRelatedTasks() {
+    // Tüm taskları al
+    List<TaskModel> allTasks = TaskProvider().taskList;
+
+    // Tüm logları al
+    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
+
+    // Trait ile ilgili taskları bul
+    for (var task in allTasks) {
+      bool hasThisTrait = (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
+
+      if (hasThisTrait) {
+        // Bu task için logları bul
+        List<TaskLogModel> taskLogs = allLogs.where((log) => log.taskId == task.id).toList();
+
+        // Toplam süreyi hesapla
+        Duration taskDuration = Duration.zero;
+
+        for (var log in taskLogs) {
+          if (log.status == TaskStatusEnum.COMPLETED) {
+            if (task.type == TaskTypeEnum.TIMER && log.duration != null) {
+              taskDuration += log.duration!;
+            } else if (task.type == TaskTypeEnum.COUNTER && log.count != null) {
+              taskDuration += (task.remainingDuration ?? Duration.zero) * log.count!;
+            } else if (task.type == TaskTypeEnum.CHECKBOX) {
+              taskDuration += task.remainingDuration ?? Duration.zero;
+            }
+          }
+        }
+
+        // Süresi 0'dan büyük olanları listelere ekle
+        if (taskDuration > Duration.zero) {
+          if (task.routineID != null) {
+            relatedRoutines.add(task);
+          } else {
+            relatedTasks.add(task);
+          }
+        }
+      }
+    }
+
+    // Süreye göre sırala (büyükten küçüğe)
+    relatedTasks.sort((a, b) {
+      Duration aDuration = calculateTaskDuration(a);
+      Duration bDuration = calculateTaskDuration(b);
+      return bDuration.compareTo(aDuration);
+    });
+
+    relatedRoutines.sort((a, b) {
+      Duration aDuration = calculateTaskDuration(a);
+      Duration bDuration = calculateTaskDuration(b);
+      return bDuration.compareTo(aDuration);
+    });
+  }
+
+  Duration calculateTaskDuration(TaskModel task) {
+    // Tüm logları al
+    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
+
+    // Bu task için logları bul
+    List<TaskLogModel> taskLogs = allLogs.where((log) => log.taskId == task.id).toList();
+
+    // Toplam süreyi hesapla
+    Duration taskDuration = Duration.zero;
+
+    for (var log in taskLogs) {
+      if (log.status == TaskStatusEnum.COMPLETED) {
+        if (task.type == TaskTypeEnum.TIMER && log.duration != null) {
+          taskDuration += log.duration!;
+        } else if (task.type == TaskTypeEnum.COUNTER && log.count != null) {
+          taskDuration += (task.remainingDuration ?? Duration.zero) * log.count!;
+        } else if (task.type == TaskTypeEnum.CHECKBOX) {
+          taskDuration += task.remainingDuration ?? Duration.zero;
+        }
+      }
+    }
+
+    return taskDuration;
+  }
+
   @override
   void initState() {
+    super.initState();
+
     traitTitleController.text = widget.traitModel.title;
     traitIcon = widget.traitModel.icon;
     selectedColor = widget.traitModel.color;
 
-    // TODO: burada her seferinde tüm listeyi kontrol etmek yerine bir üst sayfada tek seferde listeyi kontrol ederken süreleri dağıtmak olabilir mi?
-    // bu trait ile bağlantılı taskların sürelerini topla
-    totalDuration = TaskProvider().taskList.fold(
-      Duration.zero,
-      (previousValue, element) {
-        if (((element.skillIDList != null && element.skillIDList!.contains(widget.traitModel.id)) || (element.attributeIDList != null && element.attributeIDList!.contains(widget.traitModel.id))) && element.remainingDuration != null) {
-          if (element.type == TaskTypeEnum.CHECKBOX && element.status != TaskStatusEnum.COMPLETED) {
-            return previousValue;
-          }
-          return previousValue +
-              (element.type == TaskTypeEnum.CHECKBOX
-                  ? element.remainingDuration!
-                  : element.type == TaskTypeEnum.COUNTER
-                      ? element.remainingDuration! * element.currentCount!
-                      : element.currentDuration!);
-        }
-        return previousValue;
-      },
-    );
+    // Log verilerine göre trait ile ilgili toplam süreyi hesapla
+    calculateTotalDurationFromLogs();
 
-    // related tasks
-    TaskProvider().taskList.where((element) {
-      if ((element.skillIDList != null && element.skillIDList!.contains(widget.traitModel.id)) || (element.attributeIDList != null && element.attributeIDList!.contains(widget.traitModel.id))) {
-        // Süre hesaplama
-        Duration taskDuration = Duration.zero;
-        if (element.type == TaskTypeEnum.TIMER) {
-          taskDuration = element.currentDuration ?? Duration.zero;
-        } else if (element.type == TaskTypeEnum.COUNTER) {
-          int count = element.currentCount ?? 0;
-          taskDuration = (element.remainingDuration ?? Duration.zero) * count;
-        } else if (element.type == TaskTypeEnum.CHECKBOX && element.status == TaskStatusEnum.COMPLETED) {
-          taskDuration = element.remainingDuration ?? Duration.zero;
-        }
-
-        // Süresi 0'dan büyük olanları listelere ekle. Yeniden eskiye doğru
-        if (taskDuration > Duration.zero) {
-          if (element.routineID != null) {
-            relatedRoutines.insert(0, element);
-          } else {
-            relatedTasks.insert(0, element);
-          }
-        }
-      }
-      return false;
-    }).toList();
-
-    super.initState();
+    // İlgili görevleri bul
+    findRelatedTasks();
   }
 
   @override
@@ -281,22 +358,8 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           itemCount: relatedTasks.length,
                           itemBuilder: (context, index) {
                             final TaskModel task = relatedTasks[index];
-                            Duration allTimeDuration = Duration.zero;
-                            int allTimeCount = 0;
-
-                            for (var t in TaskProvider().taskList) {
-                              if (t.routineID == task.routineID) {
-                                if (t.type == TaskTypeEnum.TIMER) {
-                                  allTimeDuration += t.currentDuration!;
-                                } else if (t.type == TaskTypeEnum.COUNTER) {
-                                  allTimeCount += t.currentCount!;
-                                }
-                              }
-                            }
-
-                            if (task.type == TaskTypeEnum.COUNTER) {
-                              allTimeDuration += task.remainingDuration! * allTimeCount;
-                            }
+                            // Log verilerine göre task süresini hesapla
+                            Duration taskDuration = calculateTaskDuration(task);
 
                             return Container(
                               margin: const EdgeInsets.only(bottom: 8),
@@ -327,7 +390,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                       ),
                                       const Spacer(),
                                       Text(
-                                        allTimeDuration.textShort2hour(),
+                                        taskDuration.textShort2hour(),
                                         style: const TextStyle(
                                           fontSize: 14,
                                         ),
@@ -361,31 +424,10 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           itemCount: relatedRoutines.length,
                           itemBuilder: (context, index) {
                             final TaskModel task = relatedRoutines[index];
-                            late final Duration taskDuraiton;
-                            // int allTimeCount = 0;
+                            // Log verilerine göre task süresini hesapla
+                            Duration taskDuration = calculateTaskDuration(task);
 
-                            // for (var t in TaskProvider().taskList) {
-                            //   if (t.routineID == task.routineID) {
-                            //     if (t.type == TaskTypeEnum.TIMER) {
-                            //       allTimeDuration += t.currentDuration!;
-                            //     } else if (t.type == TaskTypeEnum.COUNTER) {
-                            //       allTimeCount += t.currentCount!;
-                            //     }
-                            //   }
-                            // }
-
-                            // if (task.type == TaskTypeEnum.COUNTER) {
-                            //   allTimeDuration += task.remainingDuration! * allTimeCount;
-                            // }
-
-                            // task duration
-                            if (task.type == TaskTypeEnum.TIMER) {
-                              taskDuraiton = task.currentDuration!;
-                            } else if (task.type == TaskTypeEnum.COUNTER) {
-                              taskDuraiton = task.remainingDuration! * task.currentCount!;
-                            } else {
-                              taskDuraiton = task.remainingDuration!;
-                            }
+                            // Artık task duration hesaplaması calculateTaskDuration metodunda yapılıyor
 
                             return Container(
                               margin: const EdgeInsets.only(bottom: 8),
@@ -416,7 +458,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                       ),
                                       const Spacer(),
                                       Text(
-                                        taskDuraiton.textShort2hour(),
+                                        taskDuration.textShort2hour(),
                                         style: const TextStyle(
                                           fontSize: 14,
                                         ),

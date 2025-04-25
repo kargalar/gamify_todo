@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/Core/extensions.dart';
+import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/app_helper.dart';
 import 'package:gamify_todo/Service/home_widget_service.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
@@ -8,11 +9,14 @@ import 'package:gamify_todo/Service/notification_services.dart';
 import 'package:gamify_todo/Service/server_manager.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
+import 'package:gamify_todo/Provider/task_log_provider.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Model/store_item_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
+import 'package:gamify_todo/Model/task_log_model.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProgressWidget extends StatefulWidget {
   final TaskModel? taskModel;
@@ -38,11 +42,108 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
   bool _isIncrementing = false;
   bool _isDecrementing = false;
 
+  // TaskLogProvider'ı dinlemek için
+  late final TaskLogProvider _taskLogProvider = TaskLogProvider();
+
   bool get isTask => widget.taskModel != null;
   TaskTypeEnum get type => isTask ? widget.taskModel!.type : widget.itemModel!.type;
   int get currentCount => isTask ? widget.taskModel!.currentCount! : widget.itemModel!.currentCount!;
   Duration? get currentDuration => isTask ? widget.taskModel!.currentDuration : widget.itemModel!.currentDuration;
   Duration? get targetDuration => isTask ? widget.taskModel!.remainingDuration : widget.itemModel!.addDuration;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isTask) {
+      // Widget oluşturulduğunda loglardan ilerleme değerlerini al
+      _updateProgressFromLogs();
+
+      // TaskLogProvider'ı dinle
+      _taskLogProvider.addListener(_onTaskLogChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (isTask) {
+      // Listener'ı kaldır
+      _taskLogProvider.removeListener(_onTaskLogChanged);
+    }
+    super.dispose();
+  }
+
+  void _onTaskLogChanged() {
+    // TaskLogProvider değiştiğinde ilerleme değerlerini güncelle
+    _updateProgressFromLogs();
+  }
+
+  void _updateProgressFromLogs() {
+    if (!isTask) return;
+
+    // Task için logları al
+    List<TaskLogModel> logs = _taskLogProvider.getLogsByTaskId(widget.taskModel!.id);
+
+    if (logs.isEmpty) return;
+
+    // TaskProvider'dan seçili tarihi al
+    final selectedDate = TaskProvider().selectedDate;
+    final selectedDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+
+    // Sadece seçili tarihe ait logları filtrele
+    logs = logs.where((log) {
+      final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+      return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
+    }).toList();
+
+    if (logs.isEmpty) return;
+
+    // Logları tarihe göre sırala (en yenisi en üstte)
+    logs.sort((a, b) => b.logDate.compareTo(a.logDate));
+
+    // Toplam ilerlemeyi hesapla
+    int totalCount = 0;
+    Duration totalDuration = Duration.zero;
+
+    // Checkbox için en son durumu al (en yeni log)
+    if (widget.taskModel!.type == TaskTypeEnum.CHECKBOX && logs.isNotEmpty) {
+      // En yeni log (ilk eleman)
+      TaskLogModel latestLog = logs.first;
+
+      // Task durumunu güncelle
+      widget.taskModel!.status = latestLog.status;
+    }
+
+    // Tüm logları işle ve toplam değeri hesapla
+    for (var log in logs) {
+      if (widget.taskModel!.type == TaskTypeEnum.TIMER && log.duration != null) {
+        // Her log kendi başına bir artış olarak değerlendirilir
+        // Örneğin: +2h, +1h, +30m gibi
+        totalDuration += log.duration!;
+      } else if (widget.taskModel!.type == TaskTypeEnum.COUNTER && log.count != null) {
+        // Her log kendi başına bir artış olarak değerlendirilir
+        // Örneğin: +5, +1, -2 gibi
+        totalCount += log.count!;
+      }
+    }
+
+    // Task tipine göre ilerleme değerini güncelle
+    if (widget.taskModel!.type == TaskTypeEnum.TIMER) {
+      widget.taskModel!.currentDuration = totalDuration;
+    } else if (widget.taskModel!.type == TaskTypeEnum.COUNTER) {
+      widget.taskModel!.currentCount = totalCount;
+    }
+
+    // Sunucuya güncelleme gönder
+    ServerManager().updateTask(taskModel: widget.taskModel!);
+
+    // TaskProvider'ı güncelle (ana sayfadaki görev ilerlemesini güncellemek için)
+    TaskProvider().updateItems();
+
+    // Widget'ı güncelle
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   void updateProgress(value) {
     if (isTask) {
@@ -62,22 +163,54 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
         progressDifference = value - previousDuration;
       }
 
+      // Sunucuya güncelleme gönder
       ServerManager().updateTask(taskModel: widget.taskModel!);
+
+      // Kredi ekle
       AppHelper().addCreditByProgress(progressDifference);
 
+      // Ana sayfadaki görev sayısını güncelle
       HomeWidgetService.updateTaskCount();
+
+      // TaskProvider'ı güncelle (ana sayfadaki görev ilerlemesini güncellemek için)
+      TaskProvider().updateItems();
     } else {
       ServerManager().updateItem(itemModel: widget.itemModel!);
     }
   }
 
-  void setCount(int value) {
+  void setCount(int value) async {
+    // Önceki değeri kaydet
+    int previousCount = isTask ? (widget.taskModel!.currentCount ?? 0) : 0;
+
     setState(() {
       if (isTask) {
+        // Değer değiştiyse log oluştur
+        bool shouldCreateLog = value != previousCount;
+
         if (value >= widget.taskModel!.targetCount! && widget.taskModel!.status != TaskStatusEnum.COMPLETED) {
           widget.taskModel!.status = TaskStatusEnum.COMPLETED;
         } else if (value < widget.taskModel!.targetCount! && widget.taskModel!.status == TaskStatusEnum.COMPLETED) {
           widget.taskModel!.status = null;
+        }
+
+        // Değer değiştiyse log oluştur
+        if (shouldCreateLog) {
+          // Değişim miktarını hesapla
+          int difference = value - previousCount;
+
+          // Değişim miktarını log olarak kaydet (hem pozitif hem negatif değişimler için)
+          if (difference != 0) {
+            // TaskProvider'dan seçili tarihi al
+            final selectedDate = TaskProvider().selectedDate;
+
+            TaskLogProvider().addTaskLog(
+              widget.taskModel!,
+              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+              customCount: difference, // Değişim miktarını logla (pozitif veya negatif)
+              customStatus: value >= widget.taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
+            );
+          }
         }
       } else {
         widget.itemModel!.currentCount = value;
@@ -86,14 +219,45 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
     updateProgress(value);
   }
 
-  void setDuration(Duration value) {
+  void setDuration(Duration value) async {
+    // Önceki değeri kaydet
+    Duration previousDuration = isTask ? (widget.taskModel!.currentDuration ?? Duration.zero) : Duration.zero;
+
     setState(() {
       if (isTask) {
+        // Değer değiştiyse log oluştur
+        bool shouldCreateLog = value != previousDuration;
+
         if (value >= widget.taskModel!.remainingDuration! && widget.taskModel!.status != TaskStatusEnum.COMPLETED) {
           widget.taskModel!.status = TaskStatusEnum.COMPLETED;
         } else if (value < widget.taskModel!.remainingDuration! && widget.taskModel!.status == TaskStatusEnum.COMPLETED) {
           widget.taskModel!.status = null;
         }
+
+        // Değer değiştiyse log oluştur
+        if (shouldCreateLog) {
+          // Değişim miktarını hesapla
+          Duration difference = value - previousDuration;
+
+          // Değişim miktarını log olarak kaydet (hem pozitif hem negatif değişimler için)
+          if (difference.inSeconds != 0) {
+            // TaskProvider'dan seçili tarihi al
+            final selectedDate = TaskProvider().selectedDate;
+
+            TaskLogProvider().addTaskLog(
+              widget.taskModel!,
+              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+              customDuration: difference, // Değişim miktarını logla (pozitif veya negatif)
+              customStatus: value >= widget.taskModel!.remainingDuration! ? TaskStatusEnum.COMPLETED : null,
+            );
+
+            // Son loglanan süreyi SharedPreferences'a kaydet
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('last_logged_duration_${widget.taskModel!.id}', value.inSeconds.toString());
+            });
+          }
+        }
+
         _checkAndUpdateNotificationStatusForTask();
       } else {
         widget.itemModel!.currentDuration = value;
@@ -106,15 +270,53 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
   @override
   Widget build(BuildContext context) {
     if (isTask) {
+      // TaskProvider'ı dinle (seçili tarih değiştiğinde widget'ı güncelle)
       context.watch<TaskProvider>();
+
+      // TaskLogProvider'ı dinle (loglar değiştiğinde widget'ı güncelle)
+      context.watch<TaskLogProvider>();
+
+      // Seçili tarih değiştiğinde logları güncelle
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateProgressFromLogs();
+      });
     } else {
       context.watch<StoreProvider>();
     }
 
     if (type == TaskTypeEnum.CHECKBOX) {
-      return Text(
-        _getCheckboxStatus(),
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      return Column(
+        children: [
+          Text(
+            _getCheckboxStatus(),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          // Durum değiştirme butonları
+          if (isTask)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildStatusButton(
+                  label: LocaleKeys.Completed.tr(),
+                  status: TaskStatusEnum.COMPLETED,
+                  color: AppColors.green,
+                ),
+                const SizedBox(width: 8),
+                _buildStatusButton(
+                  label: LocaleKeys.Failed.tr(),
+                  status: TaskStatusEnum.FAILED,
+                  color: AppColors.red,
+                ),
+                const SizedBox(width: 8),
+                _buildStatusButton(
+                  label: LocaleKeys.Cancelled.tr(),
+                  status: TaskStatusEnum.CANCEL,
+                  color: AppColors.purple,
+                ),
+              ],
+            ),
+        ],
       );
     } else if (type == TaskTypeEnum.COUNTER) {
       return Row(
@@ -320,6 +522,64 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
       default:
         return LocaleKeys.InProgress.tr();
     }
+  }
+
+  // Durum değiştirme butonu
+  Widget _buildStatusButton({
+    required String label,
+    required TaskStatusEnum status,
+    required Color color,
+  }) {
+    final bool isSelected = isTask && widget.taskModel!.status == status;
+
+    return ElevatedButton(
+      onPressed: () {
+        if (!isTask) return;
+
+        // Eğer zaten seçili durum tıklanırsa, durumu sıfırla
+        if (isSelected) {
+          widget.taskModel!.status = null;
+
+          // TaskProvider'dan seçili tarihi al
+          final selectedDate = TaskProvider().selectedDate;
+
+          // Log oluştur (durumu null olarak)
+          TaskLogProvider().addTaskLog(
+            widget.taskModel!,
+            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+            customStatus: null,
+          );
+        } else {
+          widget.taskModel!.status = status;
+
+          // TaskProvider'dan seçili tarihi al
+          final selectedDate = TaskProvider().selectedDate;
+
+          // Log oluştur
+          TaskLogProvider().addTaskLog(
+            widget.taskModel!,
+            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute),
+            customStatus: status,
+          );
+        }
+
+        // Sunucuya güncelleme gönder
+        ServerManager().updateTask(taskModel: widget.taskModel!);
+
+        // TaskProvider'ı güncelle (ana sayfadaki görev durumunu güncellemek için)
+        TaskProvider().updateItems();
+
+        // Widget'ı güncelle
+        setState(() {});
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? color : color.withValues(alpha: 0.2),
+        foregroundColor: isSelected ? Colors.white : color,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        textStyle: const TextStyle(fontSize: 12),
+      ),
+      child: Text(label),
+    );
   }
 
   // TODO: buradalar notificaitonService de yapılsın

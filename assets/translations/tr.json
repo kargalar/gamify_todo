@@ -107,6 +107,16 @@
     "HideSubtasks": "Alt görevleri gizle",
     "ShowSubtasks": "Alt görevleri göster",
     "Location": "Konum",
-    "EnterLocation": "Konum girin",
-    "ShowOnMap": "Haritada göster"
+    "EnterLocation": "Konum gir",
+    "ShowOnMap": "Haritada göster",
+    "AddManualLog": "Manuel Kayıt Ekle",
+    "NoLogsYet": "Henüz kayıt yok",
+    "Date": "Tarih",
+    "Time": "Saat",
+    "Progress": "İlerleme",
+    "EnterCount": "Sayı girin",
+    "Hours": "Saat",
+    "CompletedTask": "Tamamlanan görev",
+    "EditLog": "Kaydı Düzenle",
+    "Status": "Durum"
 }

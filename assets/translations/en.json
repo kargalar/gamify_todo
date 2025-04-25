@@ -108,5 +108,15 @@
     "ShowSubtasks": "Show subtasks",
     "Location": "Location",
     "EnterLocation": "Enter location",
-    "ShowOnMap": "Show on map"
+    "ShowOnMap": "Show on map",
+    "AddManualLog": "Add Manual Log",
+    "NoLogsYet": "No logs yet",
+    "Date": "Date",
+    "Time": "Time",
+    "Progress": "Progress",
+    "EnterCount": "Enter count",
+    "Hours": "Hours",
+    "CompletedTask": "Completed task",
+    "EditLog": "Edit Log",
+    "Status": "Status"
 }

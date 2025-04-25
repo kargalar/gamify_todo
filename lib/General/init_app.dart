@@ -11,6 +11,7 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/notification_services.dart';
 import 'package:gamify_todo/Service/server_manager.dart';
 import 'package:gamify_todo/Service/home_widget_service.dart';
+import 'package:gamify_todo/Provider/task_log_provider.dart';
 import 'package:gamify_todo/Provider/theme_provider.dart';
 import 'package:gamify_todo/firebase_options.dart';
 import 'package:window_manager/window_manager.dart';
@@ -76,6 +77,9 @@ Future<void> initApp() async {
   // }
 
   loginUser = await ServerManager().getUser();
+
+  // Load task logs
+  await TaskLogProvider().loadTaskLogs();
 
   // Custom Error
   ErrorWidget.builder = (FlutterErrorDetails details) {

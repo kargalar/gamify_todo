@@ -34,96 +34,118 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
   late final routine = TaskProvider().routineList.firstWhere((r) => r.id == widget.taskModel.routineID);
 
   @override
-  Widget build(BuildContext context) {
-    context.watch<TaskProvider>();
-
-    //? burayı her sainye çalıştırarak (yukarıda watch sayesinde) sayfadaki istatistikleri canlı bir şekilde gösteriyorum. timer aktif iseveya galiba herhangi bir düzenleme yapıldığında. lakin performan sorunu olur mu. sanmıyorum.
+  void initState() {
+    super.initState();
     _viewModel = TaskDetailViewModel(widget.taskModel);
     _viewModel.initialize();
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.taskModel.title + (widget.taskModel.status == TaskStatusEnum.ARCHIVED ? " (Archived)" : "")),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => NavigatorService().back(),
-        ),
-        actions: [
-          if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
-            TextButton(
-              onPressed: () async {
-                await NavigatorService().goTo(
-                  AddTaskPage(editTask: widget.taskModel),
-                  transition: Transition.rightToLeft,
-                );
-              },
-              child: Text(LocaleKeys.Edit.tr()),
+  @override
+  void dispose() {
+    // ViewModel'i dispose et
+    _viewModel.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TaskProvider'ı dinle (seçili tarih değiştiğinde viewModel'i güncelle)
+    context.watch<TaskProvider>();
+
+    // Seçili tarih değiştiğinde viewModel'i güncelle
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewModel.loadRecentLogs();
+    });
+
+    // TaskDetailViewModel'i dinle
+    return AnimatedBuilder(
+      animation: _viewModel,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.taskModel.title + (widget.taskModel.status == TaskStatusEnum.ARCHIVED ? " (Archived)" : "")),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: () => NavigatorService().back(),
             ),
-          if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
-            TextButton(
-              onPressed: () async {
-                Helper().getDialog(
-                    message: "Are you sure delete?",
-                    onAccept: () {
-                      if (widget.taskModel.routineID == null) {
-                        TaskProvider().deleteTask(widget.taskModel);
-                      } else {
-                        TaskProvider().deleteRoutine(widget.taskModel.routineID!);
-                      }
-
-                      NavigatorService().goBackNavbar();
-                    });
-              },
-              child: Text(LocaleKeys.Delete.tr()),
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: IgnorePointer(
-          ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Current Progress
-                EditProgressWidget.forTask(task: widget.taskModel),
-                const SizedBox(height: 20),
-
-                // All Time Stats
-                AllTimeStatsWidget(
-                  viewModel: _viewModel,
-                  taskType: widget.taskModel.type,
+            actions: [
+              if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
+                TextButton(
+                  onPressed: () async {
+                    await NavigatorService().goTo(
+                      AddTaskPage(editTask: widget.taskModel),
+                      transition: Transition.rightToLeft,
+                    );
+                  },
+                  child: Text(LocaleKeys.Edit.tr()),
                 ),
-                const SizedBox(height: 20),
+              if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
+                TextButton(
+                  onPressed: () async {
+                    Helper().getDialog(
+                        message: "Are you sure delete?",
+                        onAccept: () {
+                          if (widget.taskModel.routineID == null) {
+                            TaskProvider().deleteTask(widget.taskModel);
+                          } else {
+                            TaskProvider().deleteRoutine(widget.taskModel.routineID!);
+                          }
 
-                // // Best Performance
-                // BestPerformanceWidget(viewModel: _viewModel),
-                // const SizedBox(height: 30),
+                          NavigatorService().goBackNavbar();
+                        });
+                  },
+                  child: Text(LocaleKeys.Delete.tr()),
+                ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: IgnorePointer(
+              ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Current Progress
+                    EditProgressWidget.forTask(task: widget.taskModel),
+                    const SizedBox(height: 20),
 
-                // Success Metrics
-                SuccessMetricsWidget(viewModel: _viewModel),
+                    // All Time Stats
+                    AllTimeStatsWidget(
+                      viewModel: _viewModel,
+                      taskType: widget.taskModel.type,
+                    ),
+                    const SizedBox(height: 20),
 
-                // Trait Progress
-                TraitProgressWidget(viewModel: _viewModel),
-                const SizedBox(height: 20),
+                    // // Best Performance
+                    // BestPerformanceWidget(viewModel: _viewModel),
+                    // const SizedBox(height: 30),
 
-                // Recent Logs
-                RecentLogsWidget(viewModel: _viewModel),
+                    // Success Metrics
+                    SuccessMetricsWidget(viewModel: _viewModel),
 
-                const SizedBox(height: 40),
+                    // Trait Progress
+                    TraitProgressWidget(viewModel: _viewModel),
+                    const SizedBox(height: 20),
 
-                // Archive Button
-                if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
-                  ArchiveButton(
-                    routine: routine,
-                    taskModel: widget.taskModel,
-                  ),
-              ],
+                    // Recent Logs
+                    RecentLogsWidget(viewModel: _viewModel),
+
+                    const SizedBox(height: 40),
+
+                    // Archive Button
+                    if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
+                      ArchiveButton(
+                        routine: routine,
+                        taskModel: widget.taskModel,
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

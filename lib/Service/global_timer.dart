@@ -119,6 +119,33 @@ class GlobalTimer {
               if (task.status != TaskStatusEnum.COMPLETED && task.currentDuration! >= task.remainingDuration!) {
                 task.status = TaskStatusEnum.COMPLETED;
                 HomeWidgetService.updateTaskCount();
+
+                // !! galiba burya gerek yok log sadece timer durdurulfuğunda oluşturluacak
+                //   // Timer tamamlandığında log oluştur
+                //   // Shared Preferences'dan timer başlangıç zamanını al
+                //   SharedPreferences.getInstance().then((prefs) {
+                //     String? timerStartTimeStr = prefs.getString('timer_start_time_${task.id}');
+
+                //     if (timerStartTimeStr != null) {
+                //       // Timer başlangıç zamanını hesapla
+                //       DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+
+                //       // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+                //       Duration timerRunDuration = DateTime.now().difference(timerStartTime);
+
+                //       // Sadece pozitif değişimleri logla
+                //       if (timerRunDuration.inSeconds > 0) {
+                //         TaskLogProvider().addTaskLog(
+                //           task,
+                //           customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
+                //         );
+
+                //         // Timer başlangıç zamanını temizle
+                //         prefs.remove('timer_start_time_${task.id}');
+                //         prefs.remove('timer_start_duration_${task.id}');
+                //       }
+                //     }
+                //   });
               }
 
               if (task.currentDuration!.inSeconds % 60 == 0) {

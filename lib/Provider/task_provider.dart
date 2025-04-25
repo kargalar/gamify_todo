@@ -10,6 +10,7 @@ import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Model/routine_model.dart';
 import 'package:gamify_todo/Model/subtask_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
+import 'package:gamify_todo/Provider/task_log_provider.dart';
 
 class TaskProvider with ChangeNotifier {
   // burayı singelton yaptım gayet de iyi oldu neden normalde de context den kullanıyoruz anlamadım. galiba "watch" için olabilir. sibelton kısmını global timer için yaptım.
@@ -165,6 +166,9 @@ class TaskProvider with ChangeNotifier {
 
   // iptal de kullanıcıya ceza yansıtılmayacak
   cancelTask(TaskModel taskModel) {
+    bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
+    bool wasCancelled = taskModel.status == TaskStatusEnum.CANCEL;
+
     if (taskModel.status == TaskStatusEnum.CANCEL) {
       if (taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) {
         taskModel.status = TaskStatusEnum.COMPLETED;
@@ -180,11 +184,23 @@ class TaskProvider with ChangeNotifier {
     ServerManager().updateTask(taskModel: taskModel);
     HomeWidgetService.updateTaskCount();
 
+    // Create a log entry if the status changed to or from COMPLETED
+    if (!wasCompleted && taskModel.status == TaskStatusEnum.COMPLETED) {
+      TaskLogProvider().addTaskLog(taskModel);
+    } else if (wasCompleted && taskModel.status != TaskStatusEnum.COMPLETED) {
+      // Task was uncompleted - could add a different type of log here if needed
+    } else if (!wasCancelled && taskModel.status == TaskStatusEnum.CANCEL) {
+      // Log cancellation
+      TaskLogProvider().addTaskLog(taskModel);
+    }
+
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
     notifyListeners();
   }
 
   failedTask(TaskModel taskModel) {
+    bool wasFailed = taskModel.status == TaskStatusEnum.FAILED;
+
     if (taskModel.status == TaskStatusEnum.FAILED) {
       taskModel.status = null;
     } else {
@@ -193,6 +209,11 @@ class TaskProvider with ChangeNotifier {
 
     ServerManager().updateTask(taskModel: taskModel);
     HomeWidgetService.updateTaskCount();
+
+    // Create a log entry if the task is marked as failed
+    if (!wasFailed && taskModel.status == TaskStatusEnum.FAILED) {
+      TaskLogProvider().addTaskLog(taskModel);
+    }
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
     notifyListeners();
@@ -238,6 +259,10 @@ class TaskProvider with ChangeNotifier {
 
     ServerManager().updateTask(taskModel: taskModel);
     HomeWidgetService.updateTaskCount();
+
+    // Create a log entry for the completed task
+    TaskLogProvider().addTaskLog(taskModel);
+
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
     // TODO: arşivden çıkar ekle
     notifyListeners();
@@ -283,8 +308,15 @@ class TaskProvider with ChangeNotifier {
     if (taskModel.subtasks != null) {
       final index = taskModel.subtasks!.indexWhere((s) => s.id == subtask.id);
       if (index != -1) {
-        taskModel.subtasks![index].isCompleted = !taskModel.subtasks![index].isCompleted;
+        bool wasCompleted = taskModel.subtasks![index].isCompleted;
+        taskModel.subtasks![index].isCompleted = !wasCompleted;
         ServerManager().updateTask(taskModel: taskModel);
+
+        // Alt görev tamamlandığında log oluştur
+        if (!wasCompleted) {
+          // Alt görev tamamlandı
+          TaskLogProvider().addTaskLog(taskModel);
+        }
 
         notifyListeners();
       }

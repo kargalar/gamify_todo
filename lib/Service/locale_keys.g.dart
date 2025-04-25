@@ -113,4 +113,14 @@ abstract class LocaleKeys {
   static const Location = 'Location';
   static const EnterLocation = 'EnterLocation';
   static const ShowOnMap = 'ShowOnMap';
+  static const AddManualLog = 'AddManualLog';
+  static const NoLogsYet = 'NoLogsYet';
+  static const Date = 'Date';
+  static const Time = 'Time';
+  static const Progress = 'Progress';
+  static const EnterCount = 'EnterCount';
+  static const Hours = 'Hours';
+  static const CompletedTask = 'CompletedTask';
+  static const EditLog = 'EditLog';
+  static const Status = 'Status';
 }

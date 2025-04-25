@@ -187,7 +187,9 @@ class WeeklyRoutineView extends StatelessWidget {
                                 );
 
                                 await NavigatorService().goTo(
-                                  RoutineDetailPage(taskModel: routineTask),
+                                  RoutineDetailPage(
+                                    taskModel: routineTask,
+                                  ),
                                   transition: Transition.rightToLeft,
                                 );
                               },
