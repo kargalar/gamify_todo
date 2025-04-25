@@ -34,7 +34,7 @@ class CategoryModel extends HiveObject {
     return {
       'id': id,
       'title': title,
-      'color': '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+      'color': '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
       'is_archived': isArchived,
     };
   }

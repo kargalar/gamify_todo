@@ -214,7 +214,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
           onPressed: () async {
             // Log oluştur
             await _addManualLog();
-            if (mounted) {
+            if (context.mounted) {
               Navigator.of(context).pop(true); // true döndürerek başarılı olduğunu belirtelim
             }
           },
