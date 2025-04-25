@@ -30,9 +30,11 @@ class TaskItem extends StatefulWidget {
   const TaskItem({
     super.key,
     required this.taskModel,
+    this.isRoutine = false,
   });
 
   final TaskModel taskModel;
+  final bool isRoutine;
 
   @override
   State<TaskItem> createState() => _TaskItemState();

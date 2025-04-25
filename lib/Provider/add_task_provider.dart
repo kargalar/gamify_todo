@@ -21,6 +21,7 @@ class AddTaskProvider with ChangeNotifier {
   List<TraitModel> selectedTraits = [];
   int priority = 3;
   List<SubTaskModel> subtasks = [];
+  int? categoryId;
 
   void updateTime(TimeOfDay? time) {
     selectedTime = time;
@@ -70,6 +71,11 @@ class AddTaskProvider with ChangeNotifier {
     } else {
       subtasks = [];
     }
+    notifyListeners();
+  }
+
+  void updateCategory(int? id) {
+    categoryId = id;
     notifyListeners();
   }
 

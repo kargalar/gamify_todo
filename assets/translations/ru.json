@@ -118,5 +118,17 @@
     "Hours": "Часы",
     "CompletedTask": "Завершенная задача",
     "EditLog": "Редактировать запись",
-    "Status": "Статус"
+    "Status": "Статус",
+    "Category": "Категория",
+    "Categories": "Категории",
+    "CreateCategory": "Создать категорию",
+    "EditCategory": "Редактировать категорию",
+    "CategoryName": "Название категории",
+    "CategoryNameEmpty": "Название категории не может быть пустым.",
+    "SelectColor": "Выбрать цвет",
+    "NoCategories": "Нет доступных категорий",
+    "NoCategory": "Без категории",
+    "CreateNewCategory": "Создать новую категорию",
+    "DeleteCategory": "Удалить категорию",
+    "DeleteCategoryConfirmation": "Вы уверены, что хотите удалить эту категорию?"
 }

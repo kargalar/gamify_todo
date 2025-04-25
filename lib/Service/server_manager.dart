@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:gamify_todo/Model/category_model.dart';
 import 'package:gamify_todo/Service/hive_service.dart';
 import 'package:gamify_todo/Model/routine_model.dart';
 import 'package:gamify_todo/Model/store_item_model.dart';
@@ -207,6 +208,11 @@ class ServerManager {
     // return (response.data as List).map((e) => TaskModel.fromJson(e)).toList();
   }
 
+  // get categories
+  Future<List<CategoryModel>> getCategories() async {
+    return await HiveService().getCategories();
+  }
+
 // -------------------
 
 // // add user
@@ -349,6 +355,22 @@ class ServerManager {
     prefs.setInt("last_task_id", taskModel.id);
 
     return taskModel.id;
+  }
+
+  // add category
+  Future<int> addCategory({
+    required CategoryModel categoryModel,
+  }) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int id = prefs.getInt("last_category_id") ?? 0;
+
+    categoryModel.id = id + 1;
+
+    HiveService().addCategory(categoryModel);
+
+    prefs.setInt("last_category_id", categoryModel.id);
+
+    return categoryModel.id;
 
     // return uniqueID;
 
@@ -437,6 +459,13 @@ class ServerManager {
     // checkRequest(response);
   }
 
+  // update category
+  Future<void> updateCategory({
+    required CategoryModel categoryModel,
+  }) async {
+    HiveService().updateCategory(categoryModel);
+  }
+
   // delete item
   Future<void> deleteItem({
     required int id,
@@ -499,6 +528,13 @@ class ServerManager {
     // );
 
     // checkRequest(response);
+  }
+
+  // delete category
+  Future<void> deleteCategory({
+    required CategoryModel categoryModel,
+  }) async {
+    HiveService().deleteCategory(categoryModel.id);
   }
 
   // trigger tasks !!!!! normalde bu kullanılmıyor. 00:00 olduğunda otomatik backendde yapılıyor. test etmek için böyle koyuldu.

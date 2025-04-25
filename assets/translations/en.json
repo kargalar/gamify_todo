@@ -118,5 +118,17 @@
     "Hours": "Hours",
     "CompletedTask": "Completed task",
     "EditLog": "Edit Log",
-    "Status": "Status"
+    "Status": "Status",
+    "Category": "Category",
+    "Categories": "Categories",
+    "CreateCategory": "Create Category",
+    "EditCategory": "Edit Category",
+    "CategoryName": "Category Name",
+    "CategoryNameEmpty": "Category name cannot be empty.",
+    "SelectColor": "Select Color",
+    "NoCategories": "No categories available",
+    "NoCategory": "No Category",
+    "CreateNewCategory": "Create New Category",
+    "DeleteCategory": "Delete Category",
+    "DeleteCategoryConfirmation": "Are you sure you want to delete this category?"
 }

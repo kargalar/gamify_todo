@@ -118,5 +118,17 @@
     "Hours": "Saat",
     "CompletedTask": "Tamamlanan görev",
     "EditLog": "Kaydı Düzenle",
-    "Status": "Durum"
+    "Status": "Durum",
+    "Category": "Kategori",
+    "Categories": "Kategoriler",
+    "CreateCategory": "Kategori Oluştur",
+    "EditCategory": "Kategori Düzenle",
+    "CategoryName": "Kategori Adı",
+    "CategoryNameEmpty": "Kategori adı boş olamaz.",
+    "SelectColor": "Renk Seç",
+    "NoCategories": "Kategori bulunamadı",
+    "NoCategory": "Kategori Yok",
+    "CreateNewCategory": "Yeni Kategori Oluştur",
+    "DeleteCategory": "Kategoriyi Sil",
+    "DeleteCategoryConfirmation": "Bu kategoriyi silmek istediğinizden emin misiniz?"
 }

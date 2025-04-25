@@ -37,13 +37,14 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       priority: fields[17] as int,
       subtasks: (fields[18] as List?)?.cast<SubTaskModel>(),
       location: fields[19] as String?,
+      categoryId: fields[20] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -83,7 +84,9 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..writeByte(18)
       ..write(obj.subtasks)
       ..writeByte(19)
-      ..write(obj.location);
+      ..write(obj.location)
+      ..writeByte(20)
+      ..write(obj.categoryId);
   }
 
   @override

@@ -118,5 +118,17 @@
     "Hours": "Heures",
     "CompletedTask": "Tâche terminée",
     "EditLog": "Modifier le journal",
-    "Status": "Statut"
+    "Status": "Statut",
+    "Category": "Catégorie",
+    "Categories": "Catégories",
+    "CreateCategory": "Créer une catégorie",
+    "EditCategory": "Modifier la catégorie",
+    "CategoryName": "Nom de la catégorie",
+    "CategoryNameEmpty": "Le nom de la catégorie ne peut pas être vide.",
+    "SelectColor": "Sélectionner une couleur",
+    "NoCategories": "Aucune catégorie disponible",
+    "NoCategory": "Pas de catégorie",
+    "CreateNewCategory": "Créer une nouvelle catégorie",
+    "DeleteCategory": "Supprimer la catégorie",
+    "DeleteCategoryConfirmation": "Êtes-vous sûr de vouloir supprimer cette catégorie?"
 }

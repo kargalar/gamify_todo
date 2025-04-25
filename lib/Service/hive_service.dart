@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Core/helper.dart';
 import 'package:gamify_todo/General/accessible.dart';
+import 'package:gamify_todo/Model/category_model.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Service/navigator_service.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
@@ -35,6 +36,7 @@ class HiveService {
   static const String _routineBoxName = 'routineBox';
   static const String _taskBoxName = 'taskBox';
   static const String _taskLogBoxName = 'taskLogBox';
+  static const String _categoryBoxName = 'categoryBox';
 
   Future<Box<UserModel>> get _userBox async => await Hive.openBox<UserModel>(_userBoxName);
   Future<Box<ItemModel>> get _itemBox async => await Hive.openBox<ItemModel>(_itemBoxName);
@@ -42,6 +44,7 @@ class HiveService {
   Future<Box<RoutineModel>> get _routineBox async => await Hive.openBox<RoutineModel>(_routineBoxName);
   Future<Box<TaskModel>> get _taskBox async => await Hive.openBox<TaskModel>(_taskBoxName);
   Future<Box<TaskLogModel>> get _taskLogBox async => await Hive.openBox<TaskLogModel>(_taskLogBoxName);
+  Future<Box<CategoryModel>> get _categoryBox async => await Hive.openBox<CategoryModel>(_categoryBoxName);
 
   // User methods
   Future<void> addUser(UserModel userModel) async {
@@ -140,6 +143,27 @@ class HiveService {
 
   Future<void> deleteTask(int id) async {
     final box = await _taskBox;
+    await box.delete(id);
+  }
+
+  // Category methods
+  Future<void> addCategory(CategoryModel categoryModel) async {
+    final box = await _categoryBox;
+    await box.put(categoryModel.id, categoryModel);
+  }
+
+  Future<List<CategoryModel>> getCategories() async {
+    final box = await _categoryBox;
+    return box.values.toList();
+  }
+
+  Future<void> updateCategory(CategoryModel categoryModel) async {
+    final box = await _categoryBox;
+    await box.put(categoryModel.id, categoryModel);
+  }
+
+  Future<void> deleteCategory(int id) async {
+    final box = await _categoryBox;
     await box.delete(id);
   }
 
@@ -249,6 +273,9 @@ class HiveService {
 
     final box6 = await _taskLogBox;
     await box6.clear();
+
+    final box7 = await _categoryBox;
+    await box7.clear();
 
     // Clear SharedPreferences
     final prefs = await SharedPreferences.getInstance();
@@ -390,6 +417,15 @@ class HiveService {
       }
       allData[_taskLogBoxName] = taskLogMap;
 
+      // Export categories
+      final categoryBox = await _categoryBox;
+      final categoryMap = {};
+      for (var key in categoryBox.keys) {
+        final category = categoryBox.get(key);
+        if (category != null) categoryMap[key.toString()] = category.toJson();
+      }
+      allData[_categoryBoxName] = categoryMap;
+
       // Export SharedPrefs
       final prefs = await SharedPreferences.getInstance();
       final sharedPrefsMap = {};
@@ -398,6 +434,7 @@ class HiveService {
       sharedPrefsMap["last_task_id"] = prefs.getInt('last_task_id');
       sharedPrefsMap["last_routine_id"] = prefs.getInt('last_routine_id');
       sharedPrefsMap["last_trait_id"] = prefs.getInt('last_trait_id');
+      sharedPrefsMap["last_category_id"] = prefs.getInt('last_category_id');
 
       allData["SharedPreferances"] = sharedPrefsMap;
 
@@ -478,6 +515,16 @@ class HiveService {
             final task = TaskModel.fromJson(entry.value);
             await taskBox.put(int.parse(entry.key), task);
             TaskProvider().taskList.add(task);
+          }
+
+          // Import categories if they exist
+          if (allData.containsKey(_categoryBoxName)) {
+            final categoryBox = await _categoryBox;
+            final categoryData = allData[_categoryBoxName] as Map<String, dynamic>;
+            for (var entry in categoryData.entries) {
+              final category = CategoryModel.fromJson(entry.value);
+              await categoryBox.put(int.parse(entry.key), category);
+            }
           }
 
           // Import task logs if they exist

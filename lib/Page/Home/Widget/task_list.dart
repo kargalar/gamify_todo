@@ -67,7 +67,10 @@ class _TaskListState extends State<TaskList> {
                       padding: const EdgeInsets.all(0),
                       itemCount: selectedDateRutinTaskList.length,
                       itemBuilder: (context, index) {
-                        return TaskItem(taskModel: selectedDateRutinTaskList[index]);
+                        return TaskItem(
+                          taskModel: selectedDateRutinTaskList[index],
+                          isRoutine: true,
+                        );
                       },
                     ),
                 ],
@@ -89,7 +92,10 @@ class _TaskListState extends State<TaskList> {
                     padding: const EdgeInsets.all(0),
                     itemCount: selectedDateGhostRutinTaskList.length,
                     itemBuilder: (context, index) {
-                      return TaskItem(taskModel: selectedDateGhostRutinTaskList[index]);
+                      return TaskItem(
+                        taskModel: selectedDateGhostRutinTaskList[index],
+                        isRoutine: true,
+                      );
                     },
                   ),
                 ],

@@ -10,6 +10,7 @@ import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Model/routine_model.dart';
 import 'package:gamify_todo/Model/subtask_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
+import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Provider/task_log_provider.dart';
 
 class TaskProvider with ChangeNotifier {
@@ -25,6 +26,12 @@ class TaskProvider with ChangeNotifier {
   List<RoutineModel> routineList = [];
 
   List<TaskModel> taskList = [];
+
+  // Load categories when tasks are loaded
+  Future<void> loadCategories() async {
+    final categories = await ServerManager().getCategories();
+    CategoryProvider().categoryList = categories;
+  }
 
   // TODO: saat 00:00:00 geçtikten sonra hala dünü gösterecek muhtemelen her ana sayfaya gidişte. bunu düzelt. yani değişken uygulama açıldığında belirlendiği için 12 den sonra değişmeyecek.
   DateTime selectedDate = DateTime.now();

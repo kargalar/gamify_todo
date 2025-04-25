@@ -9,6 +9,7 @@ import 'package:gamify_todo/Page/navbar_page_manager.dart';
 import 'package:gamify_todo/Service/product_localization.dart';
 import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Provider/navbar_provider.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
@@ -31,6 +32,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => AddStoreItemProvider()),
       ChangeNotifierProvider(create: (context) => TraitProvider()),
       ChangeNotifierProvider(create: (context) => TaskLogProvider()),
+      ChangeNotifierProvider(create: (context) => CategoryProvider()),
     ],
     child: ProductLocalization(child: const Main()),
   ));

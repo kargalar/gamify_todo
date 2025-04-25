@@ -39,6 +39,8 @@ class RoutineModel extends HiveObject {
   bool isArchived; // tamamlandı mı
   @HiveField(15)
   int priority; // öncelik değeri (1: Yüksek, 2: Orta, 3: Düşük)
+  @HiveField(16)
+  int? categoryId; // kategori id'si
 
   RoutineModel({
     this.id = 0,
@@ -57,6 +59,7 @@ class RoutineModel extends HiveObject {
     this.skillIDList,
     required this.isArchived,
     this.priority = 3,
+    this.categoryId,
   });
 
   factory RoutineModel.fromJson(Map<String, dynamic> json) {
@@ -84,6 +87,7 @@ class RoutineModel extends HiveObject {
       skillIDList: json['skill_id_list'] != null ? List<int>.from(json['skill_id_list']) : null,
       isArchived: json['is_archived'],
       priority: json['priority'] ?? 3,
+      categoryId: json['category_id'],
     );
   }
 
@@ -113,6 +117,7 @@ class RoutineModel extends HiveObject {
       'skill_id_list': skillIDList,
       'is_archived': isArchived,
       'priority': priority,
+      'category_id': categoryId,
     };
   }
 }

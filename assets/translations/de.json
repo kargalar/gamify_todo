@@ -118,5 +118,17 @@
     "Hours": "Stunden",
     "CompletedTask": "Abgeschlossene Aufgabe",
     "EditLog": "Eintrag bearbeiten",
-    "Status": "Status"
+    "Status": "Status",
+    "Category": "Kategorie",
+    "Categories": "Kategorien",
+    "CreateCategory": "Kategorie erstellen",
+    "EditCategory": "Kategorie bearbeiten",
+    "CategoryName": "Kategoriename",
+    "CategoryNameEmpty": "Kategoriename darf nicht leer sein.",
+    "SelectColor": "Farbe auswählen",
+    "NoCategories": "Keine Kategorien verfügbar",
+    "NoCategory": "Keine Kategorie",
+    "CreateNewCategory": "Neue Kategorie erstellen",
+    "DeleteCategory": "Kategorie löschen",
+    "DeleteCategoryConfirmation": "Sind Sie sicher, dass Sie diese Kategorie löschen möchten?"
 }
