@@ -33,7 +33,7 @@ class _EditLogDialogState extends State<EditLogDialog> {
   int? count;
   int hours = 0;
   int minutes = 0;
-  TaskStatusEnum? selectedStatus = TaskStatusEnum.COMPLETED;
+  TaskStatusEnum? selectedStatus; // Null olabilir (In Progress/None)
 
   bool isLoading = true;
 
@@ -153,12 +153,17 @@ class _EditLogDialogState extends State<EditLogDialog> {
             // Durum seçimi
             Text(LocaleKeys.Status.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            DropdownButtonFormField<TaskStatusEnum>(
+            DropdownButtonFormField<TaskStatusEnum?>(
               value: selectedStatus,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
               items: [
+                // Null değer için özel bir DropdownMenuItem
+                DropdownMenuItem<TaskStatusEnum?>(
+                  value: null,
+                  child: Text(LocaleKeys.InProgress.tr()),
+                ),
                 DropdownMenuItem(
                   value: TaskStatusEnum.COMPLETED,
                   child: Text(LocaleKeys.Completed.tr()),
@@ -173,11 +178,9 @@ class _EditLogDialogState extends State<EditLogDialog> {
                 ),
               ],
               onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    selectedStatus = value;
-                  });
-                }
+                setState(() {
+                  selectedStatus = value; // value null olabilir
+                });
               },
             ),
 
@@ -256,28 +259,38 @@ class _EditLogDialogState extends State<EditLogDialog> {
           child: Text(LocaleKeys.Cancel.tr()),
         ),
         ElevatedButton(
-          onPressed: () async {
-            // Log güncelle
-            await _updateLog();
-            if (mounted) {
-              Navigator.of(context).pop(true); // true döndürerek başarılı olduğunu belirtelim
-            }
+          onPressed: () {
+            // Önce log güncelleme işlemini başlat
+            _updateLogAndNavigate();
           },
           child: Text(LocaleKeys.Save.tr()),
         ),
         TextButton(
-          onPressed: () async {
-            // Log sil
-            await _deleteLog();
-            if (mounted) {
-              Navigator.of(context).pop(true); // true döndürerek başarılı olduğunu belirtelim
-            }
+          onPressed: () {
+            // Önce log silme işlemini başlat
+            _deleteLogAndNavigate();
           },
           style: TextButton.styleFrom(foregroundColor: Colors.red),
           child: Text(LocaleKeys.Delete.tr()),
         ),
       ],
     );
+  }
+
+  // Log güncelleme ve navigasyon işlemini birleştiren metod
+  Future<void> _updateLogAndNavigate() async {
+    await _updateLog();
+    if (mounted) {
+      Navigator.of(context).pop(true);
+    }
+  }
+
+  // Log silme ve navigasyon işlemini birleştiren metod
+  Future<void> _deleteLogAndNavigate() async {
+    await _deleteLog();
+    if (mounted) {
+      Navigator.of(context).pop(true);
+    }
   }
 
   Future<void> _updateLog() async {
@@ -307,6 +320,9 @@ class _EditLogDialogState extends State<EditLogDialog> {
     logModel.logDate = logDateTime;
     logModel.duration = duration;
     logModel.count = countValue;
+
+    // selectedStatus null olabilir (In Progress/None)
+    // ancak UI'da bu boş string olarak gösterilecek
     logModel.status = selectedStatus;
 
     await HiveService().addTaskLog(logModel);
