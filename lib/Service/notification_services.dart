@@ -1,11 +1,17 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Core/helper.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:gamify_todo/Service/navigator_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'dart:typed_data';
 
 class NotificationService {
@@ -93,11 +99,50 @@ class NotificationService {
       windows: windowsIitializationSettings,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    // Bildirime tıklandığında yapılacak işlemi tanımla
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        // Bildirime tıklandığında yapılacak işlemler
+        _handleNotificationTap(response.payload);
+      },
+    );
+  }
+
+  // Bildirime tıklandığında çağrılacak metod
+  void _handleNotificationTap(String? payload) {
+    if (payload != null) {
+      try {
+        // Payload'dan task ID'sini çıkar
+        final Map<String, dynamic> data = jsonDecode(payload);
+        final int taskId = data['taskId'];
+
+        // İlgili task'ı bul
+        final taskList = TaskProvider().taskList;
+        final taskIndex = taskList.indexWhere((task) => task.id == taskId);
+
+        if (taskIndex != -1) {
+          // Task detay sayfasına yönlendir
+          final task = taskList[taskIndex];
+          NavigatorService().goTo(
+            AddTaskPage(editTask: task),
+            transition: Transition.size,
+          );
+        }
+      } catch (e) {
+        debugPrint('Notification payload parsing error: $e');
+      }
+    }
   }
 
   Future<bool> requestNotificationPermissions() async {
-    final status = await Permission.notification.request();
+    // Önce mevcut izin durumunu kontrol et
+    var status = await Permission.notification.status;
+
+    // İzin verilmemişse iste
+    if (!status.isGranted) {
+      status = await Permission.notification.request();
+    }
 
     if (status.isGranted) {
       return true;
@@ -105,6 +150,12 @@ class NotificationService {
       Helper().getDialog(message: LocaleKeys.notification_permission_required.tr());
       return false;
     }
+  }
+
+  // İzinlerin verilip verilmediğini kontrol et (izin istemeden)
+  Future<bool> checkNotificationPermissions() async {
+    final status = await Permission.notification.status;
+    return status.isGranted;
   }
 
   Future<bool> requestAlarmPermission() async {
@@ -142,6 +193,9 @@ class NotificationService {
       tz.local,
     );
 
+    // Task ID'sini payload olarak ekle
+    final String payload = jsonEncode({'taskId': id});
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
@@ -150,20 +204,53 @@ class NotificationService {
       notificationDetails(isAlarm),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
+      payload: payload,
     );
   }
 
   Future<void> notificaitonTest() async {
-    final tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 1));
+    // Bildirim izinlerini kontrol et
+    bool hasPermission = await checkNotificationPermissions();
+    if (!hasPermission) {
+      hasPermission = await requestNotificationPermissions();
+      if (!hasPermission) {
+        debugPrint('Notification permission denied');
+        return;
+      }
+    }
+
+    // Test bildirimi için payload
+    final String payload = jsonEncode({'taskId': 0, 'isTest': true});
+
+    // Anlık bildirim gönder
+    await flutterLocalNotificationsPlugin.show(
+      99999, // Test için özel ID
+      "Bildirim Testi",
+      "Bu bir test bildirimidir. Bildirimler çalışıyor!",
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'task_schedule',
+          'Task Schedule',
+          channelDescription: 'Notification for schedule tasks',
+          importance: Importance.max,
+          priority: Priority.high,
+          playSound: true,
+        ),
+      ),
+      payload: payload,
+    );
+
+    // 5 saniye sonra zamanlanmış bildirim gönder
+    final tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      21232,
-      "test",
-      "test test test",
+      88888, // Test için farklı bir ID
+      "Zamanlanmış Bildirim Testi",
+      "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!",
       scheduledDate,
       notificationDetails(true),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
+      payload: payload,
     );
   }
 
@@ -221,6 +308,10 @@ class NotificationService {
     required Duration? remainingDuration,
     required bool isCountDown,
   }) async {
+    // Task ID'sini payload olarak ekle (negatif ID'yi pozitife çevir)
+    final int taskId = id < 0 ? -id : id;
+    final String payload = jsonEncode({'taskId': taskId});
+
     await flutterLocalNotificationsPlugin.show(
       // ? schedule notification ile çakışmaması için "-"
       -id,
@@ -247,6 +338,7 @@ class NotificationService {
           silent: true,
         ),
       ),
+      payload: payload,
     );
   }
 }

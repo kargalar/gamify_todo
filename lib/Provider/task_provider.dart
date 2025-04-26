@@ -155,18 +155,47 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Task durumu değiştiğinde bildirimleri kontrol et
+  void checkTaskStatusForNotifications(TaskModel taskModel) {
+    // Eğer task tamamlandıysa, iptal edildiyse veya başarısız olduysa bildirimleri iptal et
+    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED) {
+      // Task bildirimi iptal et
+      NotificationService().cancelNotificationOrAlarm(taskModel.id);
+
+      // Timer bildirimi iptal et (eğer varsa)
+      if (taskModel.type == TaskTypeEnum.TIMER) {
+        NotificationService().cancelNotificationOrAlarm(-taskModel.id);
+        NotificationService().cancelNotificationOrAlarm(taskModel.id + 100000);
+        NotificationService().cancelNotificationOrAlarm(taskModel.id + 200000);
+      }
+    } else {
+      // Task durumu null ise (aktif) ve bildirim ayarları açıksa bildirimi yeniden planla
+      checkNotification(taskModel);
+    }
+  }
+
   checkNotification(TaskModel taskModel) {
+    // Önce mevcut bildirimi iptal et
+    NotificationService().cancelNotificationOrAlarm(taskModel.id);
+
+    // Eğer task tamamlandıysa, iptal edildiyse veya başarısız olduysa bildirim oluşturma
+    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED) {
+      return;
+    }
+
+    // Bildirim veya alarm açıksa ve zaman ayarlanmışsa
     if (taskModel.time != null && (taskModel.isNotificationOn || taskModel.isAlarmOn)) {
-      if (taskModel.taskDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute, second: 0).isAfter(DateTime.now())) {
+      // Görev zamanı gelecekteyse bildirim planla
+      DateTime taskDateTime = taskModel.taskDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute, second: 0);
+
+      if (taskDateTime.isAfter(DateTime.now())) {
         NotificationService().scheduleNotification(
           id: taskModel.id,
           title: taskModel.title,
           desc: "Don't forget!",
-          scheduledDate: taskModel.taskDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute, second: 0),
+          scheduledDate: taskDateTime,
           isAlarm: taskModel.isAlarmOn,
         );
-      } else {
-        NotificationService().cancelNotificationOrAlarm(taskModel.id);
       }
     }
   }
@@ -190,6 +219,9 @@ class TaskProvider with ChangeNotifier {
 
     ServerManager().updateTask(taskModel: taskModel);
     HomeWidgetService.updateTaskCount();
+
+    // Bildirim durumunu kontrol et
+    checkTaskStatusForNotifications(taskModel);
 
     // Create a log entry if the status changed to or from COMPLETED
     if (!wasCompleted && taskModel.status == TaskStatusEnum.COMPLETED) {
@@ -216,6 +248,9 @@ class TaskProvider with ChangeNotifier {
 
     ServerManager().updateTask(taskModel: taskModel);
     HomeWidgetService.updateTaskCount();
+
+    // Bildirim durumunu kontrol et
+    checkTaskStatusForNotifications(taskModel);
 
     // Create a log entry if the task is marked as failed
     if (!wasFailed && taskModel.status == TaskStatusEnum.FAILED) {
@@ -266,6 +301,9 @@ class TaskProvider with ChangeNotifier {
 
     ServerManager().updateTask(taskModel: taskModel);
     HomeWidgetService.updateTaskCount();
+
+    // Bildirim durumunu kontrol et
+    checkTaskStatusForNotifications(taskModel);
 
     // Create a log entry for the completed task
     TaskLogProvider().addTaskLog(taskModel);

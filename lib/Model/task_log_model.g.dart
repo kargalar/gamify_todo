@@ -24,7 +24,7 @@ class TaskLogModelAdapter extends TypeAdapter<TaskLogModel> {
       taskTitle: fields[4] as String,
       duration: fields[5] as Duration?,
       count: fields[6] as int?,
-      status: fields[7] as TaskStatusEnum,
+      status: fields[7] as TaskStatusEnum?,
     );
   }
 

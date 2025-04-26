@@ -8,6 +8,7 @@ import 'package:gamify_todo/Service/server_manager.dart';
 import 'package:gamify_todo/Provider/navbar_provider.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
+import 'package:gamify_todo/Provider/task_log_provider.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/Model/store_item_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
@@ -120,32 +121,55 @@ class GlobalTimer {
                 task.status = TaskStatusEnum.COMPLETED;
                 HomeWidgetService.updateTaskCount();
 
-                // !! galiba burya gerek yok log sadece timer durdurulfuğunda oluşturluacak
-                //   // Timer tamamlandığında log oluştur
-                //   // Shared Preferences'dan timer başlangıç zamanını al
-                //   SharedPreferences.getInstance().then((prefs) {
-                //     String? timerStartTimeStr = prefs.getString('timer_start_time_${task.id}');
+                // Timer tamamlandığında bildirim gönder
+                NotificationService().showTimerNotification(
+                  id: task.id + 200000, // Farklı bir ID kullan
+                  title: LocaleKeys.task_completed_title.tr(args: [task.title]),
+                  currentDuration: task.currentDuration!,
+                  remainingDuration: task.remainingDuration!,
+                  isCountDown: false,
+                );
 
-                //     if (timerStartTimeStr != null) {
-                //       // Timer başlangıç zamanını hesapla
-                //       DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+                // Timer tamamlandığında log oluştur
+                // Shared Preferences'dan timer başlangıç zamanını al
+                SharedPreferences.getInstance().then((prefs) {
+                  String? timerStartTimeStr = prefs.getString('timer_start_time_${task.id}');
 
-                //       // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
-                //       Duration timerRunDuration = DateTime.now().difference(timerStartTime);
+                  if (timerStartTimeStr != null) {
+                    // Timer başlangıç zamanını hesapla
+                    DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
 
-                //       // Sadece pozitif değişimleri logla
-                //       if (timerRunDuration.inSeconds > 0) {
-                //         TaskLogProvider().addTaskLog(
-                //           task,
-                //           customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
-                //         );
+                    // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+                    Duration timerRunDuration = DateTime.now().difference(timerStartTime);
 
-                //         // Timer başlangıç zamanını temizle
-                //         prefs.remove('timer_start_time_${task.id}');
-                //         prefs.remove('timer_start_duration_${task.id}');
-                //       }
-                //     }
-                //   });
+                    // Sadece pozitif değişimleri logla
+                    if (timerRunDuration.inSeconds > 0) {
+                      TaskLogProvider().addTaskLog(
+                        task,
+                        customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
+                      );
+
+                      // Timer başlangıç zamanını temizle
+                      prefs.remove('timer_start_time_${task.id}');
+                      prefs.remove('timer_start_duration_${task.id}');
+                    }
+                  }
+                });
+
+                // Timer'ı durdur
+                task.isTimerActive = false;
+
+                // Tüm bildirimleri iptal et
+                NotificationService().cancelNotificationOrAlarm(task.id); // Normal task bildirimi
+                NotificationService().cancelNotificationOrAlarm(-task.id); // Timer bildirimi
+                NotificationService().cancelNotificationOrAlarm(task.id + 100000); // Zamanlanmış bildirim
+                NotificationService().cancelNotificationOrAlarm(task.id + 200000); // Tamamlanma bildirimi
+
+                // Veritabanını güncelle
+                ServerManager().updateTask(taskModel: task);
+
+                // Task Provider'a bildir
+                TaskProvider().checkTaskStatusForNotifications(task);
               }
 
               if (task.currentDuration!.inSeconds % 60 == 0) {

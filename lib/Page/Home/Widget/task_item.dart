@@ -250,6 +250,11 @@ class _TaskItemState extends State<TaskItem> {
 
     ServerManager().updateTask(taskModel: widget.taskModel);
 
+    // Task durumu değiştiyse bildirimleri kontrol et
+    if (widget.taskModel.status == TaskStatusEnum.COMPLETED || widget.taskModel.status == null) {
+      TaskProvider().checkTaskStatusForNotifications(widget.taskModel);
+    }
+
     // Log oluştur
     if (shouldCreateLog) {
       if (widget.taskModel.type == TaskTypeEnum.COUNTER) {

@@ -232,7 +232,10 @@ class HiveService {
             addTask(task);
             TaskProvider().taskList.add(task);
 
-            // TODO: schedule notification or alarm
+            // Bildirim veya alarm ayarla
+            if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
+              TaskProvider().checkNotification(task);
+            }
           }
         }
       }

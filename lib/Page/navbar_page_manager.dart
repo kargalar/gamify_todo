@@ -12,6 +12,7 @@ import 'package:gamify_todo/Service/global_timer.dart';
 import 'package:gamify_todo/Service/hive_service.dart';
 import 'package:gamify_todo/Service/home_widget_service.dart';
 import 'package:gamify_todo/Service/navigator_service.dart';
+import 'package:gamify_todo/Service/notification_services.dart';
 import 'package:gamify_todo/Service/server_manager.dart';
 import 'package:gamify_todo/Provider/navbar_provider.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
@@ -62,9 +63,20 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    // uygulama arkaplandayken timer düzgün çalışmadığı için bu kodu yazdım
+    // Uygulama arkaplandayken timer düzgün çalışmadığı için bu kodu yazdım
     if (state == AppLifecycleState.resumed) {
+      // Uygulama öne geldiğinde aktif timer'ları kontrol et
       await GlobalTimer().checkActiveTimerPref();
+
+      // Bildirim izinlerini kontrol et
+      await NotificationService().checkNotificationPermissions();
+
+      // Zamanlanmış görevleri kontrol et ve bildirimleri güncelle
+      for (var task in TaskProvider().taskList) {
+        if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
+          TaskProvider().checkNotification(task);
+        }
+      }
     }
   }
 
