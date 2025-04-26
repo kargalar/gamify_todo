@@ -7,6 +7,7 @@ import 'package:gamify_todo/Model/category_model.dart';
 import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:get/route_manager.dart';
+import 'package:provider/provider.dart';
 
 class CreateCategoryDialog extends StatefulWidget {
   final CategoryModel? categoryModel;
@@ -129,7 +130,7 @@ class _CreateCategoryDialogState extends State<CreateCategoryDialog> {
                             TextButton(
                               onPressed: () {
                                 Get.back();
-                                CategoryProvider().deleteCategory(widget.categoryModel!);
+                                context.read<CategoryProvider>().deleteCategory(widget.categoryModel!);
                                 Get.back();
                               },
                               child: Text(
@@ -260,18 +261,20 @@ class _CreateCategoryDialogState extends State<CreateCategoryDialog> {
       return;
     }
 
+    final categoryProvider = context.read<CategoryProvider>();
+
     if (widget.categoryModel == null) {
       // Create new category
       final newCategory = CategoryModel(
         title: categoryTitleController.text.trim(),
         color: selectedColor,
       );
-      CategoryProvider().addCategory(newCategory);
+      categoryProvider.addCategory(newCategory);
     } else {
       // Update existing category
       widget.categoryModel!.title = categoryTitleController.text.trim();
       widget.categoryModel!.color = selectedColor;
-      CategoryProvider().updateCategory(widget.categoryModel!);
+      categoryProvider.updateCategory(widget.categoryModel!);
     }
 
     Get.back();

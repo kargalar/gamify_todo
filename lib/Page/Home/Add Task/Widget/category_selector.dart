@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
+import 'package:gamify_todo/Model/category_model.dart';
 import 'package:gamify_todo/Page/Home/Widget/create_category_dialog.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Provider/category_provider.dart';
@@ -14,85 +15,116 @@ class CategorySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final addTaskProvider = context.watch<AddTaskProvider>();
-    final categoryProvider = CategoryProvider();
+    final categoryProvider = context.watch<CategoryProvider>();
     final activeCategories = categoryProvider.getActiveCategories();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4.0, bottom: 12.0),
-          child: Text(
-            LocaleKeys.Category.tr(),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 40,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                // No Category Chip
-                _buildCategoryChip(
-                  context: context,
-                  label: LocaleKeys.NoCategory.tr(),
-                  color: Colors.grey.shade300,
-                  isSelected: addTaskProvider.categoryId == null,
-                  onTap: () => addTaskProvider.updateCategory(null),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+              child: Text(
+                LocaleKeys.Category.tr(),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
-
-                // Category Chips
-                ...activeCategories.map((category) => _buildCategoryChip(
-                      context: context,
-                      label: category.title,
-                      color: category.color,
-                      isSelected: addTaskProvider.categoryId == category.id,
-                      onTap: () => addTaskProvider.updateCategory(category.id),
-                      onLongPress: () => Get.dialog(CreateCategoryDialog(categoryModel: category)),
-                    )),
-
-                // Add Category Button
-                _buildAddCategoryButton(context),
-              ],
+              ),
             ),
+            Padding(
+              padding: const EdgeInsets.only(right: 4.0, bottom: 8.0),
+              child: _buildAddCategoryButton(context),
+            ),
+          ],
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: AppColors.panelBackground.withValues(alpha: 0.3),
           ),
+          padding: const EdgeInsets.all(12),
+          child: activeCategories.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      LocaleKeys.NoCategory.tr(),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 10,
+                      children: [
+                        // Category Tags
+                        ...activeCategories.map((category) => _buildCategoryTag(
+                              context: context,
+                              category: category,
+                              isSelected: addTaskProvider.categoryId == category.id,
+                              onTap: () => addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id),
+                              onLongPress: () {
+                                Get.dialog(CreateCategoryDialog(categoryModel: category));
+                              },
+                            )),
+                      ],
+                    ),
+                  ],
+                ),
         ),
       ],
     );
   }
 
-  Widget _buildCategoryChip({
+  Widget _buildCategoryTag({
     required BuildContext context,
-    required String label,
-    required Color color,
+    required CategoryModel category,
     required bool isSelected,
     required VoidCallback onTap,
     VoidCallback? onLongPress,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+    final String label = category.title;
+    final Color color = category.color;
+
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        borderRadius: BorderRadius.circular(6),
+        child: Ink(
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
+            color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground,
+            borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: isSelected ? color : Colors.grey.shade300,
-              width: 1.5,
+              width: isSelected ? 1.5 : 1.0,
             ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.1),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (label != LocaleKeys.NoCategory.tr()) ...[
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Container(
                   width: 10,
                   height: 10,
@@ -101,17 +133,18 @@ class CategorySelector extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                 ),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? color : Colors.grey.shade700,
+                const SizedBox(width: 4),
+                Text(
+                  "#$label",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? color : Colors.grey.shade700,
+                    letterSpacing: 0.1,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -119,39 +152,24 @@ class CategorySelector extends StatelessWidget {
   }
 
   Widget _buildAddCategoryButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap: () => Get.dialog(const CreateCategoryDialog()),
+        onTap: () {
+          Get.dialog(const CreateCategoryDialog());
+        },
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppColors.main.withValues(alpha: 0.5),
-              width: 1.5,
-              style: BorderStyle.solid,
-            ),
+            color: AppColors.main.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.add,
-                size: 16,
-                color: AppColors.main,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                LocaleKeys.CreateNewCategory.tr(),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.main,
-                ),
-              ),
-            ],
+          child: Icon(
+            Icons.add,
+            size: 16,
+            color: AppColors.main,
           ),
         ),
       ),
