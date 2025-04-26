@@ -38,11 +38,22 @@ class _SchedulePageState extends State<SchedulePage> with SingleTickerProviderSt
       appBar: AppBar(
         title: const Text('Program'),
         leading: const BackButton(),
+        elevation: 0,
         bottom: TabBar(
           controller: _tabController,
+          indicatorColor: AppColors.blue,
+          indicatorWeight: 3,
+          labelColor: AppColors.blue,
+          unselectedLabelColor: Colors.grey,
           tabs: const [
-            Tab(text: 'Haftalık Rutinler'),
-            Tab(text: 'Görev Takvimi'),
+            Tab(
+              icon: Icon(Icons.repeat),
+              text: 'Haftalık Rutinler',
+            ),
+            Tab(
+              icon: Icon(Icons.calendar_month),
+              text: 'Görev Takvimi',
+            ),
           ],
         ),
       ),
@@ -94,140 +105,312 @@ class WeeklyRoutineView extends StatelessWidget {
     final routines = taskProvider.routineList;
     final weekDays = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
 
+    // Bugünün haftanın hangi günü olduğunu bul (1-7, Pazartesi-Pazar)
+    final today = DateTime.now().weekday;
+
     if (routines.isEmpty) {
-      return const Center(
-        child: Text('Henüz rutin eklenmemiş'),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.repeat, size: 48, color: AppColors.dirtyWhite),
+            const SizedBox(height: 16),
+            Text(
+              'Henüz rutin eklenmemiş',
+              style: TextStyle(fontSize: 16, color: AppColors.text),
+            ),
+          ],
+        ),
       );
     }
 
-    return SingleChildScrollView(
+    return ListView.builder(
       padding: const EdgeInsets.all(16),
-      child: Table(
-        border: TableBorder.all(
-          color: AppColors.text.withAlpha(51),
-          width: 1,
-        ),
-        children: [
-          // Header row
-          TableRow(
-            decoration: BoxDecoration(
-              color: AppColors.text.withAlpha(26),
-            ),
-            children: const [
-              TableCell(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Gün',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Rutinler',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // Day rows
-          ...List.generate(weekDays.length, (index) {
-            final dayRoutines = routines.where((routine) => routine.repeatDays.contains(index)).toList();
-            final totalDuration = _calculateTotalDuration(dayRoutines);
+      itemCount: weekDays.length,
+      itemBuilder: (context, index) {
+        final dayRoutines = routines.where((routine) => routine.repeatDays.contains(index)).toList();
+        final totalDuration = _calculateTotalDuration(dayRoutines);
+        final isToday = today - 1 == index; // today is 1-7, index is 0-6
 
-            return TableRow(
-              children: [
-                // Day name
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
+        if (dayRoutines.isEmpty) {
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            elevation: 0,
+            color: isToday ? AppColors.panelBackground2 : AppColors.panelBackground,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isToday ? AppColors.blue : AppColors.dirtyWhite,
+                width: isToday ? 2 : 1,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: isToday ? AppColors.blue : AppColors.panelBackground3,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        weekDays[index].substring(0, 2),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isToday ? AppColors.white : AppColors.text,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    weekDays[index],
+                    style: TextStyle(
+                      fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 16,
+                      color: isToday ? AppColors.blue : AppColors.text,
+                    ),
+                  ),
+                  const Spacer(),
+                  const Text(
+                    'Rutin yok',
+                    style: TextStyle(
+                      color: AppColors.dirtyWhite,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          elevation: 0,
+          color: isToday ? AppColors.panelBackground2 : AppColors.panelBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isToday ? AppColors.blue : AppColors.dirtyWhite,
+              width: isToday ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Day header
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: isToday ? AppColors.blue : AppColors.panelBackground3,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          weekDays[index].substring(0, 2),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isToday ? AppColors.white : AppColors.text,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           weekDays[index],
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        if (dayRoutines.isNotEmpty)
-                          Text(
-                            'Toplam: ${totalDuration.textShort2hour()}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.text.withAlpha(179),
-                            ),
+                          style: TextStyle(
+                            fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                            fontSize: 16,
+                            color: isToday ? AppColors.blue : AppColors.text,
                           ),
+                        ),
+                        Text(
+                          'Toplam: ${totalDuration.textShort2hour()}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.dirtyWhite,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.blue,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${dayRoutines.length} rutin',
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                // Routines for the day
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: dayRoutines
-                          .map(
-                            (routine) => InkWell(
-                              onTap: () async {
-                                final routineTask = taskProvider.taskList.firstWhere(
-                                  (task) => task.routineID == routine.id,
-                                  orElse: () => TaskModel(
-                                    title: routine.title,
-                                    type: routine.type,
-                                    taskDate: DateTime.now(),
-                                    isNotificationOn: routine.isNotificationOn,
-                                    isAlarmOn: routine.isAlarmOn,
-                                    routineID: routine.id,
-                                  ),
-                                );
+              ),
 
-                                await NavigatorService().goTo(
-                                  RoutineDetailPage(
-                                    taskModel: routineTask,
+              // Divider
+              const Divider(height: 1, thickness: 1, color: AppColors.dirtyWhite),
+
+              // Routines list
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: dayRoutines.length,
+                itemBuilder: (context, routineIndex) {
+                  final routine = dayRoutines[routineIndex];
+                  return InkWell(
+                    onTap: () async {
+                      final routineTask = taskProvider.taskList.firstWhere(
+                        (task) => task.routineID == routine.id,
+                        orElse: () => TaskModel(
+                          title: routine.title,
+                          type: routine.type,
+                          taskDate: DateTime.now(),
+                          isNotificationOn: routine.isNotificationOn,
+                          isAlarmOn: routine.isAlarmOn,
+                          routineID: routine.id,
+                        ),
+                      );
+
+                      await NavigatorService().goTo(
+                        RoutineDetailPage(
+                          taskModel: routineTask,
+                        ),
+                        transition: Transition.rightToLeft,
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          _buildTypeIcon(routine.type),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  routine.title,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  transition: Transition.rightToLeft,
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Row(
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
                                   children: [
-                                    const Icon(Icons.repeat, color: Colors.blue, size: 16),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(routine.title),
-                                          Text(
-                                            '${_getDurationText(routine)}${routine.time != null ? ' • ${routine.time!.hour}:${routine.time!.minute.toString().padLeft(2, '0')}' : ''}',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppColors.text.withAlpha(179),
-                                            ),
-                                          ),
-                                        ],
+                                    const Icon(
+                                      Icons.timer_outlined,
+                                      size: 12,
+                                      color: AppColors.dirtyWhite,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _getDurationText(routine),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.dirtyWhite,
                                       ),
                                     ),
+                                    if (routine.time != null) ...[
+                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.access_time,
+                                        size: 12,
+                                        color: AppColors.dirtyWhite,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${routine.time!.hour}:${routine.time!.minute.toString().padLeft(2, '0')}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.dirtyWhite,
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
-                              ),
+                              ],
                             ),
-                          )
-                          .toList(),
+                          ),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: AppColors.dirtyWhite,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          }),
-        ],
-      ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
+  }
+
+  Widget _buildTypeIcon(TaskTypeEnum type) {
+    switch (type) {
+      case TaskTypeEnum.CHECKBOX:
+        return Container(
+          width: 32,
+          height: 32,
+          decoration: const BoxDecoration(
+            color: AppColors.green,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.check_box_outlined,
+            color: AppColors.white,
+            size: 16,
+          ),
+        );
+      case TaskTypeEnum.COUNTER:
+        return Container(
+          width: 32,
+          height: 32,
+          decoration: const BoxDecoration(
+            color: AppColors.orange,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.add,
+            color: AppColors.white,
+            size: 16,
+          ),
+        );
+      case TaskTypeEnum.TIMER:
+        return Container(
+          width: 32,
+          height: 32,
+          decoration: const BoxDecoration(
+            color: AppColors.blue,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.timer,
+            color: AppColors.white,
+            size: 16,
+          ),
+        );
+      // Default case (tüm enum değerleri kapsandığı için gerekli değil)
+    }
   }
 }
