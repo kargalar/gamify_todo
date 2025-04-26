@@ -5,7 +5,6 @@ import 'package:gamify_todo/Service/home_widget_service.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Service/notification_services.dart';
 import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Provider/navbar_provider.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Provider/task_log_provider.dart';
@@ -27,11 +26,14 @@ class GlobalTimer {
     ItemModel? storeItemModel,
   }) async {
     if (taskModel != null) {
-      taskModel.isTimerActive = !taskModel.isTimerActive!;
+      // Timer durumunu değiştir
+      bool newTimerState = !taskModel.isTimerActive!;
+      taskModel.isTimerActive = newTimerState;
 
       // Timer başlatıldığında zamanı kaydet
       final prefs = await SharedPreferences.getInstance();
-      if (taskModel.isTimerActive!) {
+      if (newTimerState) {
+        // Timer başlatılıyor
         NotificationService().showTimerNotification(
           id: taskModel.id,
           currentDuration: taskModel.currentDuration!,
@@ -40,13 +42,17 @@ class GlobalTimer {
           isCountDown: false,
         );
 
-        final now = DateTime.now().toIso8601String();
-        prefs.setString('task_last_update_${taskModel.id}', now);
+        // Timer başlangıç zamanını kaydet
+        prefs.setString('timer_start_time_${taskModel.id}', DateTime.now().millisecondsSinceEpoch.toString());
+        prefs.setString('timer_start_duration_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
+
+        // Son güncelleme zamanını kaydet
+        prefs.setString('task_last_update_${taskModel.id}', DateTime.now().toIso8601String());
         prefs.setString('task_last_progress_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
 
-        // birldirim ayarla
+        // Bildirim ayarla
         if (taskModel.status != TaskStatusEnum.COMPLETED) {
-          // scheduled notification
+          // Tamamlanma zamanı için bildirim planla
           final scheduledDate = DateTime.now().add(taskModel.remainingDuration! - taskModel.currentDuration!);
           NotificationService().scheduleNotification(
             id: taskModel.id + 100000,
@@ -57,18 +63,50 @@ class GlobalTimer {
           );
         }
       } else {
-        await prefs.remove('task_last_update_${taskModel.id}');
-        await prefs.remove('task_last_progress_${taskModel.id}');
+        // Timer durduruluyor
+        // Timer çalışma süresini hesapla ve log oluştur
+        String? timerStartTimeStr = prefs.getString('timer_start_time_${taskModel.id}');
+        String? timerStartDurationStr = prefs.getString('timer_start_duration_${taskModel.id}');
 
+        if (timerStartTimeStr != null && timerStartDurationStr != null) {
+          // Timer başlangıç zamanını hesapla
+          DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+
+          // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+          Duration timerRunDuration = DateTime.now().difference(timerStartTime);
+
+          // Sadece pozitif değişimleri logla
+          if (timerRunDuration.inSeconds > 0) {
+            // Log oluştur
+            TaskLogProvider().addTaskLog(
+              taskModel,
+              customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
+            );
+          }
+
+          // Timer bilgilerini temizle
+          prefs.remove('timer_start_time_${taskModel.id}');
+          prefs.remove('timer_start_duration_${taskModel.id}');
+          prefs.remove('task_last_update_${taskModel.id}');
+          prefs.remove('task_last_progress_${taskModel.id}');
+        }
+
+        // Bildirimleri iptal et
         NotificationService().cancelNotificationOrAlarm(-taskModel.id);
         NotificationService().cancelNotificationOrAlarm(taskModel.id + 100000);
       }
+
+      // Sunucuya güncelleme gönder
+      ServerManager().updateTask(taskModel: taskModel);
     } else if (storeItemModel != null) {
-      storeItemModel.isTimerActive = !storeItemModel.isTimerActive!;
+      // Store item timer durumunu değiştir
+      bool newTimerState = !storeItemModel.isTimerActive!;
+      storeItemModel.isTimerActive = newTimerState;
 
       // Timer başlatıldığında zamanı kaydet
       final prefs = await SharedPreferences.getInstance();
-      if (storeItemModel.isTimerActive!) {
+      if (newTimerState) {
+        // Timer başlatılıyor
         NotificationService().showTimerNotification(
           id: storeItemModel.id,
           currentDuration: storeItemModel.currentDuration!,
@@ -77,13 +115,14 @@ class GlobalTimer {
           isCountDown: true,
         );
 
-        final now = DateTime.now().toIso8601String();
-        await prefs.setString('item_last_update_${storeItemModel.id}', now);
-        await prefs.setString('item_last_progress_${storeItemModel.id}', storeItemModel.currentDuration!.inSeconds.toString());
+        // Timer başlangıç zamanını kaydet
+        final now = DateTime.now();
+        prefs.setString('item_last_update_${storeItemModel.id}', now.toIso8601String());
+        prefs.setString('item_last_progress_${storeItemModel.id}', storeItemModel.currentDuration!.inSeconds.toString());
 
         if (storeItemModel.currentDuration!.inSeconds > 0) {
-          // scheduled notification
-          final scheduledDate = DateTime.now().add(storeItemModel.currentDuration!);
+          // Süre dolduğunda bildirim planla
+          final scheduledDate = now.add(storeItemModel.currentDuration!);
           NotificationService().scheduleNotification(
             id: storeItemModel.id + 100000,
             title: LocaleKeys.item_expired_title.tr(args: [storeItemModel.title]),
@@ -93,14 +132,21 @@ class GlobalTimer {
           );
         }
       } else {
-        await prefs.remove('item_last_update_${storeItemModel.id}');
-        await prefs.remove('item_last_progress_${storeItemModel.id}');
+        // Timer durduruluyor
+        // Timer bilgilerini temizle
+        prefs.remove('item_last_update_${storeItemModel.id}');
+        prefs.remove('item_last_progress_${storeItemModel.id}');
 
+        // Bildirimleri iptal et
         NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
         NotificationService().cancelNotificationOrAlarm(storeItemModel.id + 100000);
       }
+
+      // Sunucuya güncelleme gönder
+      ServerManager().updateItem(itemModel: storeItemModel);
     }
 
+    // Global timer'ı başlat/durdur
     startStopGlobalTimer();
   }
 
@@ -112,10 +158,45 @@ class GlobalTimer {
     } else if (_timer == null || !_timer!.isActive) {
       _timer = Timer.periodic(
         const Duration(seconds: 1),
-        (timer) {
+        (timer) async {
+          // SharedPreferences'ı bir kez al
+          final prefs = await SharedPreferences.getInstance();
+
           for (var task in TaskProvider().taskList) {
             if (task.isTimerActive != null && task.isTimerActive == true) {
-              task.currentDuration = task.currentDuration! + const Duration(seconds: 1);
+              // Timer başlangıç zamanını kontrol et
+              String? timerStartTimeStr = prefs.getString('timer_start_time_${task.id}');
+
+              if (timerStartTimeStr != null) {
+                // Timer başlangıç zamanını hesapla
+                DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+
+                // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+                Duration timerRunDuration = DateTime.now().difference(timerStartTime);
+
+                // Timer başlangıç değerini al
+                String? timerStartDurationStr = prefs.getString('timer_start_duration_${task.id}');
+                Duration timerStartDuration = Duration.zero;
+                if (timerStartDurationStr != null) {
+                  timerStartDuration = Duration(seconds: int.parse(timerStartDurationStr));
+                }
+
+                // Toplam süreyi hesapla
+                task.currentDuration = timerStartDuration + timerRunDuration;
+
+                // Her 5 saniyede bir SharedPreferences'ı güncelle
+                if (timerRunDuration.inSeconds % 5 == 0) {
+                  prefs.setString('task_last_update_${task.id}', DateTime.now().toIso8601String());
+                  prefs.setString('task_last_progress_${task.id}', task.currentDuration!.inSeconds.toString());
+                }
+              } else {
+                // Timer başlangıç zamanı yoksa, şimdi oluştur
+                prefs.setString('timer_start_time_${task.id}', DateTime.now().millisecondsSinceEpoch.toString());
+                prefs.setString('timer_start_duration_${task.id}', task.currentDuration!.inSeconds.toString());
+
+                // Bir saniye ekle
+                task.currentDuration = task.currentDuration! + const Duration(seconds: 1);
+              }
 
               if (task.status != TaskStatusEnum.COMPLETED && task.currentDuration! >= task.remainingDuration!) {
                 task.status = TaskStatusEnum.COMPLETED;
@@ -131,30 +212,27 @@ class GlobalTimer {
                 );
 
                 // Timer tamamlandığında log oluştur
-                // Shared Preferences'dan timer başlangıç zamanını al
-                SharedPreferences.getInstance().then((prefs) {
-                  String? timerStartTimeStr = prefs.getString('timer_start_time_${task.id}');
+                String? timerStartTimeStr = prefs.getString('timer_start_time_${task.id}');
 
-                  if (timerStartTimeStr != null) {
-                    // Timer başlangıç zamanını hesapla
-                    DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+                if (timerStartTimeStr != null) {
+                  // Timer başlangıç zamanını hesapla
+                  DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
 
-                    // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
-                    Duration timerRunDuration = DateTime.now().difference(timerStartTime);
+                  // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+                  Duration timerRunDuration = DateTime.now().difference(timerStartTime);
 
-                    // Sadece pozitif değişimleri logla
-                    if (timerRunDuration.inSeconds > 0) {
-                      TaskLogProvider().addTaskLog(
-                        task,
-                        customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
-                      );
+                  // Sadece pozitif değişimleri logla
+                  if (timerRunDuration.inSeconds > 0) {
+                    TaskLogProvider().addTaskLog(
+                      task,
+                      customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
+                    );
 
-                      // Timer başlangıç zamanını temizle
-                      prefs.remove('timer_start_time_${task.id}');
-                      prefs.remove('timer_start_duration_${task.id}');
-                    }
+                    // Timer başlangıç zamanını temizle
+                    prefs.remove('timer_start_time_${task.id}');
+                    prefs.remove('timer_start_duration_${task.id}');
                   }
-                });
+                }
 
                 // Timer'ı durdur
                 task.isTimerActive = false;
@@ -173,13 +251,7 @@ class GlobalTimer {
               }
 
               if (task.currentDuration!.inSeconds % 60 == 0) {
-                SharedPreferences.getInstance().then((prefs) {
-                  prefs.setString('task_last_update_${task.id}', DateTime.now().toIso8601String());
-                  prefs.setString('task_last_progress_${task.id}', task.currentDuration!.inSeconds.toString());
-                });
-
                 ServerManager().updateTask(taskModel: task);
-
                 AppHelper().addCreditByProgress(const Duration(seconds: 60));
               }
             }
@@ -189,22 +261,20 @@ class GlobalTimer {
             if (storeItem.isTimerActive != null && storeItem.isTimerActive == true) {
               storeItem.currentDuration = storeItem.currentDuration! - const Duration(seconds: 1);
 
-              if (storeItem.currentDuration!.inSeconds % 60 == 0) {
-                SharedPreferences.getInstance().then((prefs) {
-                  prefs.setString('item_last_update_${storeItem.id}', DateTime.now().toIso8601String());
-                  prefs.setString('item_last_progress_${storeItem.id}', storeItem.currentDuration!.inSeconds.toString());
-                });
+              if (storeItem.currentDuration!.inSeconds % 5 == 0) {
+                prefs.setString('item_last_update_${storeItem.id}', DateTime.now().toIso8601String());
+                prefs.setString('item_last_progress_${storeItem.id}', storeItem.currentDuration!.inSeconds.toString());
+              }
 
+              if (storeItem.currentDuration!.inSeconds % 60 == 0) {
                 ServerManager().updateItem(itemModel: storeItem);
               }
             }
           }
 
-          if (NavbarProvider().currentIndex == 0) {
-            StoreProvider().setStateItems();
-          } else if (NavbarProvider().currentIndex == 1) {
-            TaskProvider().updateItems();
-          }
+          // UI'ı güncelle
+          TaskProvider().updateItems();
+          StoreProvider().setStateItems();
         },
       );
     }

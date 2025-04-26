@@ -77,44 +77,40 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
     _updateProgressFromLogs();
   }
 
-  void _updateProgressFromLogs() {
+  Future<void> _updateProgressFromLogs() async {
     if (!isTask) return;
 
     // Task için logları al
     List<TaskLogModel> logs = _taskLogProvider.getLogsByTaskId(widget.taskModel!.id);
-
-    if (logs.isEmpty) return;
 
     // TaskProvider'dan seçili tarihi al
     final selectedDate = TaskProvider().selectedDate;
     final selectedDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
 
     // Sadece seçili tarihe ait logları filtrele
-    logs = logs.where((log) {
+    List<TaskLogModel> filteredLogs = logs.where((log) {
       final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
       return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
     }).toList();
-
-    if (logs.isEmpty) return;
-
-    // Logları tarihe göre sırala (en yenisi en üstte)
-    logs.sort((a, b) => b.logDate.compareTo(a.logDate));
 
     // Toplam ilerlemeyi hesapla
     int totalCount = 0;
     Duration totalDuration = Duration.zero;
 
     // Checkbox için en son durumu al (en yeni log)
-    if (widget.taskModel!.type == TaskTypeEnum.CHECKBOX && logs.isNotEmpty) {
+    if (widget.taskModel!.type == TaskTypeEnum.CHECKBOX && filteredLogs.isNotEmpty) {
+      // Logları tarihe göre sırala (en yenisi en üstte)
+      filteredLogs.sort((a, b) => b.logDate.compareTo(a.logDate));
+
       // En yeni log (ilk eleman)
-      TaskLogModel latestLog = logs.first;
+      TaskLogModel latestLog = filteredLogs.first;
 
       // Task durumunu güncelle
       widget.taskModel!.status = latestLog.status;
     }
 
     // Tüm logları işle ve toplam değeri hesapla
-    for (var log in logs) {
+    for (var log in filteredLogs) {
       if (widget.taskModel!.type == TaskTypeEnum.TIMER && log.duration != null) {
         // Her log kendi başına bir artış olarak değerlendirilir
         // Örneğin: +2h, +1h, +30m gibi
@@ -123,6 +119,26 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
         // Her log kendi başına bir artış olarak değerlendirilir
         // Örneğin: +5, +1, -2 gibi
         totalCount += log.count!;
+      }
+    }
+
+    // Aktif timer varsa, şu anki timer değerini de ekle
+    if (widget.taskModel!.type == TaskTypeEnum.TIMER && widget.taskModel!.isTimerActive == true) {
+      // SharedPreferences'dan timer başlangıç zamanını al
+      final prefs = await SharedPreferences.getInstance();
+      String? timerStartTimeStr = prefs.getString('timer_start_time_${widget.taskModel!.id}');
+      String? timerStartDurationStr = prefs.getString('timer_start_duration_${widget.taskModel!.id}');
+
+      if (timerStartTimeStr != null && timerStartDurationStr != null) {
+        // Timer başlangıç zamanını hesapla
+        DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+        Duration timerStartDuration = Duration(seconds: int.parse(timerStartDurationStr));
+
+        // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+        Duration timerRunDuration = DateTime.now().difference(timerStartTime);
+
+        // Toplam süreyi hesapla (başlangıç değeri + geçen süre)
+        totalDuration = timerStartDuration + timerRunDuration;
       }
     }
 
@@ -276,7 +292,17 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
       // TaskLogProvider'ı dinle (loglar değiştiğinde widget'ı güncelle)
       context.watch<TaskLogProvider>();
 
-      // Seçili tarih değiştiğinde logları güncelle
+      // Timer aktifse periyodik olarak güncelle
+      if (widget.taskModel!.type == TaskTypeEnum.TIMER && widget.taskModel!.isTimerActive == true) {
+        // Her saniye güncelle
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            _updateProgressFromLogs();
+          }
+        });
+      }
+
+      // Sayfa yüklendiğinde logları güncelle
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _updateProgressFromLogs();
       });
