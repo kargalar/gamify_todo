@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/app_helper.dart';
+import 'package:gamify_todo/Service/global_timer.dart';
 import 'package:gamify_todo/Service/home_widget_service.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Service/notification_services.dart';
@@ -238,6 +239,12 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
   void setDuration(Duration value) async {
     // Önceki değeri kaydet
     Duration previousDuration = isTask ? (widget.taskModel!.currentDuration ?? Duration.zero) : Duration.zero;
+
+    // Timer aktifse durdur
+    if (isTask && widget.taskModel!.isTimerActive == true) {
+      // Timer'ı durdur
+      GlobalTimer().startStopTimer(taskModel: widget.taskModel!);
+    }
 
     setState(() {
       if (isTask) {
@@ -559,37 +566,85 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
     final bool isSelected = isTask && widget.taskModel!.status == status;
 
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         if (!isTask) return;
+
+        // TaskProvider'dan seçili tarihi al
+        final selectedDate = TaskProvider().selectedDate;
+        final now = DateTime.now();
 
         // Eğer zaten seçili durum tıklanırsa, durumu sıfırla (null yap)
         if (isSelected) {
           widget.taskModel!.status = null;
 
-          // TaskProvider'dan seçili tarihi al
-          final selectedDate = TaskProvider().selectedDate;
-          final now = DateTime.now();
+          // Son logları kontrol et
+          List<TaskLogModel> logs = _taskLogProvider.getLogsByTaskId(widget.taskModel!.id);
+
+          // Bugüne ait logları filtrele
+          logs = logs.where((log) {
+            final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+            final today = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+            return logDate.isAtSameMomentAs(today);
+          }).toList();
+
+          // Logları tarihe göre sırala (en yenisi en üstte)
+          logs.sort((a, b) => b.logDate.compareTo(a.logDate));
+
+          // Son log'un durumu kontrol et
+          bool shouldCreateLog = true;
+          if (logs.isNotEmpty) {
+            TaskLogModel lastLog = logs.first;
+            // Eğer son log'un durumu null ise ve şimdi de null yapıyorsak, log oluşturma
+            if (lastLog.status == null) {
+              shouldCreateLog = false;
+            }
+          }
 
           // Log oluştur (durumu null olarak)
-          TaskLogProvider().addTaskLog(
-            widget.taskModel!,
-            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
-            // Burada null olarak gönderiyoruz - bu, checkbox'ın hiçbir durumunun seçili olmadığını gösterir
-            customStatus: null,
-          );
+          if (shouldCreateLog) {
+            TaskLogProvider().addTaskLog(
+              widget.taskModel!,
+              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
+              // Burada null olarak gönderiyoruz - bu, checkbox'ın hiçbir durumunun seçili olmadığını gösterir
+              customStatus: null,
+            );
+          }
         } else {
-          widget.taskModel!.status = status;
+          // Yeni durum
+          TaskStatusEnum newStatus = status;
+          widget.taskModel!.status = newStatus;
 
-          // TaskProvider'dan seçili tarihi al
-          final selectedDate = TaskProvider().selectedDate;
-          final now = DateTime.now();
+          // Son logları kontrol et
+          List<TaskLogModel> logs = _taskLogProvider.getLogsByTaskId(widget.taskModel!.id);
+
+          // Bugüne ait logları filtrele
+          logs = logs.where((log) {
+            final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+            final today = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+            return logDate.isAtSameMomentAs(today);
+          }).toList();
+
+          // Logları tarihe göre sırala (en yenisi en üstte)
+          logs.sort((a, b) => b.logDate.compareTo(a.logDate));
+
+          // Son log'un durumu kontrol et
+          bool shouldCreateLog = true;
+          if (logs.isNotEmpty) {
+            TaskLogModel lastLog = logs.first;
+            // Eğer son log'un durumu yeni durum ile aynıysa, log oluşturma
+            if (lastLog.status == newStatus) {
+              shouldCreateLog = false;
+            }
+          }
 
           // Log oluştur
-          TaskLogProvider().addTaskLog(
-            widget.taskModel!,
-            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
-            customStatus: status,
-          );
+          if (shouldCreateLog) {
+            TaskLogProvider().addTaskLog(
+              widget.taskModel!,
+              customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
+              customStatus: newStatus,
+            );
+          }
         }
 
         // Sunucuya güncelleme gönder
