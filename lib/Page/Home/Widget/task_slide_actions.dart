@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:gamify_todo/Core/Handlers/task_action_handler.dart';
 import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
@@ -48,8 +49,8 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
         dismissThreshold: 0.01,
         closeOnCancel: true,
         confirmDismiss: () async {
-          taskProvider.failedTask(widget.taskModel);
-
+          TaskActionHandler.handleTaskFailure(widget.taskModel);
+          taskProvider.updateItems();
           return false;
         },
         onDismissed: () {},
@@ -92,7 +93,8 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
   SlidableAction cancelAction() {
     return SlidableAction(
       onPressed: (context) {
-        taskProvider.cancelTask(widget.taskModel);
+        TaskActionHandler.handleTaskCancellation(widget.taskModel);
+        taskProvider.updateItems();
       },
       backgroundColor: AppColors.purple,
       icon: Icons.block,
@@ -104,7 +106,8 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
   SlidableAction failedAction() {
     return SlidableAction(
       onPressed: (context) {
-        taskProvider.failedTask(widget.taskModel);
+        TaskActionHandler.handleTaskFailure(widget.taskModel);
+        taskProvider.updateItems();
       },
       backgroundColor: AppColors.red,
       icon: Icons.close,
