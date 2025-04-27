@@ -8,7 +8,6 @@ import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/notification_helper
 import 'package:gamify_todo/Provider/task_log_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/app_helper.dart';
-import 'package:gamify_todo/Service/global_timer.dart';
 import 'package:gamify_todo/Service/home_widget_service.dart';
 import 'package:gamify_todo/Service/server_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -166,7 +165,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       itemModel!.currentCount = value;
       ServerManager().updateItem(itemModel: itemModel!);
     }
-    
+
     notifyListeners();
   }
 
@@ -174,36 +173,59 @@ class TaskProgressViewModel extends ChangeNotifier {
     // Önceki değeri kaydet
     Duration previousDuration = isTask ? (taskModel!.currentDuration ?? Duration.zero) : Duration.zero;
 
-    // Timer aktifse durdur
-    if (isTask && taskModel!.isTimerActive == true) {
-      // Timer'ı durdur
-      GlobalTimer().startStopTimer(taskModel: taskModel!);
-    }
+    // Timer durumunu kontrol et
+    bool isTimerActive = isTask && taskModel!.isTimerActive == true;
 
-    if (isTask) {
-      // Değer değiştiyse log oluştur
-      bool shouldCreateLog = value != previousDuration;
+    // Timer aktifse, güncel değeri almak için SharedPreferences'dan timer başlangıç zamanını ve süresini al
+    if (isTimerActive && isTask) {
+      SharedPreferences.getInstance().then((prefs) {
+        String? timerStartTimeStr = prefs.getString('timer_start_time_${taskModel!.id}');
+        String? timerStartDurationStr = prefs.getString('timer_start_duration_${taskModel!.id}');
 
-      if (value >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.COMPLETED) {
-        taskModel!.status = TaskStatusEnum.COMPLETED;
-      } else if (value < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.COMPLETED) {
-        taskModel!.status = null;
-      }
+        if (timerStartTimeStr != null && timerStartDurationStr != null) {
+          // Timer başlangıç zamanını hesapla
+          DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
 
-      // Değer değiştiyse log oluştur
-      if (shouldCreateLog) {
-        // Değişim miktarını hesapla
-        Duration difference = value - previousDuration;
+          // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+          Duration timerRunDuration = DateTime.now().difference(timerStartTime);
 
-        // Değişim miktarını log olarak kaydet (hem pozitif hem negatif değişimler için)
-        if (difference.inSeconds != 0) {
+          // Timer başlangıç değerini al
+          Duration timerStartDuration = Duration(seconds: int.parse(timerStartDurationStr));
+
+          // Toplam süreyi hesapla
+          previousDuration = timerStartDuration + timerRunDuration;
+
+          // Kullanıcının yaptığı değişikliği hesapla
+          Duration userChange = value - previousDuration;
+
+          if (userChange.inSeconds != 0) {
+            // Timer başlangıç değerini güncelle (yeni değer = eski başlangıç değeri + kullanıcının yaptığı değişiklik)
+            prefs.setString('timer_start_duration_${taskModel!.id}', (timerStartDuration + userChange).inSeconds.toString());
+          }
+        }
+      });
+    } else {
+      // Timer aktif değilse normal işlemi yap
+      if (isTask) {
+        // Kullanıcının yaptığı değişikliği hesapla
+        Duration userChange = value - previousDuration;
+
+        if (value >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.COMPLETED) {
+          taskModel!.status = TaskStatusEnum.COMPLETED;
+        } else if (value < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.COMPLETED) {
+          taskModel!.status = null;
+        }
+
+        // Kullanıcı gerçekten bir değişiklik yaptıysa log oluştur
+        if (userChange.inSeconds != 0) {
           // TaskProvider'dan seçili tarihi al
           final selectedDate = TaskProvider().selectedDate;
 
+          // Sadece kullanıcının yaptığı değişikliği logla
           taskLogProvider.addTaskLog(
             taskModel!,
             customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute, DateTime.now().second, DateTime.now().millisecond),
-            customDuration: difference, // Değişim miktarını logla (pozitif veya negatif)
+            customDuration: userChange,
             customStatus: value >= taskModel!.remainingDuration! ? TaskStatusEnum.COMPLETED : null,
           );
 
@@ -212,14 +234,15 @@ class TaskProgressViewModel extends ChangeNotifier {
             prefs.setString('last_logged_duration_${taskModel!.id}', value.inSeconds.toString());
           });
         }
-      }
 
-      NotificationHelper.checkAndUpdateNotificationStatusForTask(taskModel!);
-    } else {
-      itemModel!.currentDuration = value;
-      NotificationHelper.checkAndUpdateNotificationStatusForStoreItem(itemModel!);
+        NotificationHelper.checkAndUpdateNotificationStatusForTask(taskModel!);
+      } else {
+        itemModel!.currentDuration = value;
+        NotificationHelper.checkAndUpdateNotificationStatusForStoreItem(itemModel!);
+      }
     }
-    
+
+    // taskModel'in değerini updateProgress metodunda güncelleyeceğiz
     updateProgress(value);
   }
 
@@ -228,8 +251,8 @@ class TaskProgressViewModel extends ChangeNotifier {
     int previousCount = isTask ? (taskModel!.currentCount ?? 0) : 0;
 
     if (isTask) {
-      // Değer değiştiyse log oluştur
-      bool shouldCreateLog = value != previousCount;
+      // Kullanıcının yaptığı değişikliği hesapla
+      int userChange = value - previousCount;
 
       if (value >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.COMPLETED) {
         taskModel!.status = TaskStatusEnum.COMPLETED;
@@ -237,28 +260,22 @@ class TaskProgressViewModel extends ChangeNotifier {
         taskModel!.status = null;
       }
 
-      // Değer değiştiyse log oluştur
-      if (shouldCreateLog) {
-        // Değişim miktarını hesapla
-        int difference = value - previousCount;
+      // Kullanıcı gerçekten bir değişiklik yaptıysa log oluştur
+      if (userChange != 0) {
+        // TaskProvider'dan seçili tarihi al
+        final selectedDate = TaskProvider().selectedDate;
 
-        // Değişim miktarını log olarak kaydet (hem pozitif hem negatif değişimler için)
-        if (difference != 0) {
-          // TaskProvider'dan seçili tarihi al
-          final selectedDate = TaskProvider().selectedDate;
-
-          taskLogProvider.addTaskLog(
-            taskModel!,
-            customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute, DateTime.now().second, DateTime.now().millisecond),
-            customCount: difference, // Değişim miktarını logla (pozitif veya negatif)
-            customStatus: value >= taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
-          );
-        }
+        taskLogProvider.addTaskLog(
+          taskModel!,
+          customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute, DateTime.now().second, DateTime.now().millisecond),
+          customCount: userChange, // Sadece kullanıcının yaptığı değişikliği logla
+          customStatus: value >= taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
+        );
       }
     } else {
       itemModel!.currentCount = value;
     }
-    
+
     updateProgress(value);
   }
 }

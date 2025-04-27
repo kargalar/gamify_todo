@@ -225,12 +225,18 @@ class TaskProvider with ChangeNotifier {
 
     // Create a log entry if the status changed to or from COMPLETED
     if (!wasCompleted && taskModel.status == TaskStatusEnum.COMPLETED) {
-      TaskLogProvider().addTaskLog(taskModel);
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: TaskStatusEnum.COMPLETED,
+      );
     } else if (wasCompleted && taskModel.status != TaskStatusEnum.COMPLETED) {
       // Task was uncompleted - could add a different type of log here if needed
     } else if (!wasCancelled && taskModel.status == TaskStatusEnum.CANCEL) {
       // Log cancellation
-      TaskLogProvider().addTaskLog(taskModel);
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: TaskStatusEnum.CANCEL,
+      );
     }
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
@@ -254,7 +260,10 @@ class TaskProvider with ChangeNotifier {
 
     // Create a log entry if the task is marked as failed
     if (!wasFailed && taskModel.status == TaskStatusEnum.FAILED) {
-      TaskLogProvider().addTaskLog(taskModel);
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: TaskStatusEnum.FAILED,
+      );
     }
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
@@ -306,7 +315,10 @@ class TaskProvider with ChangeNotifier {
     checkTaskStatusForNotifications(taskModel);
 
     // Create a log entry for the completed task
-    TaskLogProvider().addTaskLog(taskModel);
+    TaskLogProvider().addTaskLog(
+      taskModel,
+      customStatus: TaskStatusEnum.COMPLETED,
+    );
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
     // TODO: arşivden çıkar ekle
@@ -360,7 +372,10 @@ class TaskProvider with ChangeNotifier {
         // Alt görev tamamlandığında log oluştur
         if (!wasCompleted) {
           // Alt görev tamamlandı
-          TaskLogProvider().addTaskLog(taskModel);
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: TaskStatusEnum.COMPLETED,
+          );
         }
 
         notifyListeners();

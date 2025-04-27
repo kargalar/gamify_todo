@@ -75,9 +75,15 @@ class GlobalTimer {
           // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
           Duration timerRunDuration = DateTime.now().difference(timerStartTime);
 
+          // Timer başlangıç değerini al
+          Duration timerStartDuration = Duration(seconds: int.parse(timerStartDurationStr));
+
           // Sadece pozitif değişimleri logla
           if (timerRunDuration.inSeconds > 0) {
-            // Log oluştur
+            // Timer çalışma süresini taskModel'e kaydet
+            taskModel.currentDuration = timerStartDuration + timerRunDuration;
+
+            // Timer durdurulduğunda log oluştur
             TaskLogProvider().addTaskLog(
               taskModel,
               customDuration: timerRunDuration, // Sadece timer çalışma süresini logla

@@ -259,23 +259,27 @@ class TaskDetailViewModel with ChangeNotifier {
       String progressText = "";
 
       if (log.duration != null) {
-        // Her log için "+" işareti ile göster
-        int hours = log.duration!.inHours;
-        int minutes = log.duration!.inMinutes.remainder(60);
+        // Pozitif veya negatif değerleri göster
+        bool isPositive = !log.duration!.isNegative;
+        int hours = isPositive ? log.duration!.inHours : -log.duration!.inHours;
+        int minutes = isPositive ? log.duration!.inMinutes.remainder(60) : -log.duration!.inMinutes.remainder(60);
+        String sign = isPositive ? "+" : "-";
 
         // Saat veya dakika 0 ise gösterme
         if (hours > 0 && minutes > 0) {
-          progressText = "+${hours}h ${minutes}m";
+          progressText = "$sign${hours}h ${minutes}m";
         } else if (hours > 0) {
-          progressText = "+${hours}h";
+          progressText = "$sign${hours}h";
         } else if (minutes > 0) {
-          progressText = "+${minutes}m";
+          progressText = "$sign${minutes}m";
         } else {
-          progressText = "+0m"; // Sıfır durumu
+          // Sıfır durumu - işaret göster
+          progressText = "${isPositive ? '+' : '-'}0m";
         }
       } else if (log.count != null) {
-        // Her log için "+" işareti ile göster
-        progressText = "+${log.count}";
+        // Pozitif veya negatif değerleri göster
+        String sign = log.count! >= 0 ? "+" : "";
+        progressText = "$sign${log.count}";
       }
 
       // Get status text

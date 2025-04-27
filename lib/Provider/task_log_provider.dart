@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Model/task_log_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
 import 'package:gamify_todo/Service/hive_service.dart';
@@ -38,8 +37,12 @@ class TaskLogProvider with ChangeNotifier {
       routineId: taskModel.routineID,
       logDate: customLogDate ?? DateTime.now(), // DateTime.now() already includes seconds and milliseconds
       taskTitle: taskModel.title,
-      duration: customDuration ?? (taskModel.type == TaskTypeEnum.TIMER ? taskModel.currentDuration : null),
-      count: customCount ?? (taskModel.type == TaskTypeEnum.COUNTER ? taskModel.currentCount : null),
+      // Eğer customDuration açıkça verilmişse, o değeri kullan
+      // Aksi takdirde, sadece checkbox olmayan ve customDuration null olan durumlarda taskModel.currentDuration kullan
+      duration: customDuration,
+      // Eğer customCount açıkça verilmişse, o değeri kullan
+      // Aksi takdirde, sadece counter olan ve customCount null olan durumlarda taskModel.currentCount kullan
+      count: customCount,
       // Eğer customStatus açıkça null olarak verilmişse, bu checkbox'ın hiçbir durumunun seçili olmadığını gösterir
       // Ancak UI'da bu, hiçbir durumun seçili olmadığını gösterecek
       status: customStatus ?? taskModel.status,

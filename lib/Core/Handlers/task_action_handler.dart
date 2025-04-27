@@ -17,7 +17,6 @@ class TaskActionHandler {
   /// Handles the primary action for a task based on its type
   static void handleTaskAction(TaskModel taskModel, {Function? onStateChanged}) {
     final bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
-    bool shouldCreateLog = false;
 
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
@@ -25,7 +24,6 @@ class TaskActionHandler {
         taskModel.status = null;
       } else {
         taskModel.status = TaskStatusEnum.COMPLETED;
-        shouldCreateLog = true;
       }
 
       HomeWidgetService.updateTaskCount();
@@ -35,7 +33,6 @@ class TaskActionHandler {
       taskModel.currentCount = previousCount + 1;
 
       AppHelper().addCreditByProgress(taskModel.remainingDuration);
-      shouldCreateLog = true;
 
       if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
         taskModel.status = TaskStatusEnum.COMPLETED;
@@ -45,20 +42,6 @@ class TaskActionHandler {
       // Toggle timer for timer tasks
       // Toggle timer using startStopTimer
       GlobalTimer().startStopTimer(taskModel: taskModel);
-
-      // If timer was active, we need to create a log
-      if (taskModel.isTimerActive!) {
-        shouldCreateLog = true;
-      }
-    }
-
-    // Create log if needed
-    if (shouldCreateLog) {
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customCount: taskModel.type == TaskTypeEnum.COUNTER ? 1 : null,
-        customDuration: taskModel.type == TaskTypeEnum.TIMER ? taskModel.currentDuration : null,
-      );
     }
 
     // Update task in provider
