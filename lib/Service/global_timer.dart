@@ -61,6 +61,9 @@ class GlobalTimer {
             scheduledDate: scheduledDate,
             isAlarm: true,
           );
+        } else {
+          // Task zaten tamamlanmış, ancak timer hala çalışabilir
+          // Bildirim gösterme, sadece timer'ı çalıştır
         }
       } else {
         // Timer durduruluyor
@@ -84,8 +87,11 @@ class GlobalTimer {
             taskModel.currentDuration = timerStartDuration + timerRunDuration;
 
             // Timer durdurulduğunda log oluştur
+            // Tam zamanı kaydet
+            final now = DateTime.now();
             TaskLogProvider().addTaskLog(
               taskModel,
+              customLogDate: DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second, now.millisecond),
               customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
             );
           }
@@ -204,6 +210,7 @@ class GlobalTimer {
                 task.currentDuration = task.currentDuration! + const Duration(seconds: 1);
               }
 
+              // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma
               if (task.status != TaskStatusEnum.COMPLETED && task.currentDuration! >= task.remainingDuration!) {
                 task.status = TaskStatusEnum.COMPLETED;
                 HomeWidgetService.updateTaskCount();
@@ -229,25 +236,22 @@ class GlobalTimer {
 
                   // Sadece pozitif değişimleri logla
                   if (timerRunDuration.inSeconds > 0) {
+                    // Tam zamanı kaydet
+                    final now = DateTime.now();
                     TaskLogProvider().addTaskLog(
                       task,
+                      customLogDate: DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second, now.millisecond),
                       customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
+                      customStatus: TaskStatusEnum.COMPLETED, // Tamamlandı olarak işaretle
                     );
-
-                    // Timer başlangıç zamanını temizle
-                    prefs.remove('timer_start_time_${task.id}');
-                    prefs.remove('timer_start_duration_${task.id}');
                   }
                 }
 
-                // Timer'ı durdur
-                task.isTimerActive = false;
+                // Timer'ı durdurma - kullanıcı isterse durdurabilir
+                // task.isTimerActive = false;
 
-                // Tüm bildirimleri iptal et
-                NotificationService().cancelNotificationOrAlarm(task.id); // Normal task bildirimi
-                NotificationService().cancelNotificationOrAlarm(-task.id); // Timer bildirimi
-                NotificationService().cancelNotificationOrAlarm(task.id + 100000); // Zamanlanmış bildirim
-                NotificationService().cancelNotificationOrAlarm(task.id + 200000); // Tamamlanma bildirimi
+                // Zamanlanmış bildirimi iptal et (tamamlanma bildirimi)
+                NotificationService().cancelNotificationOrAlarm(task.id + 100000);
 
                 // Veritabanını güncelle
                 ServerManager().updateTask(taskModel: task);

@@ -178,32 +178,8 @@ class TaskProgressViewModel extends ChangeNotifier {
 
     // Timer aktifse, güncel değeri almak için SharedPreferences'dan timer başlangıç zamanını ve süresini al
     if (isTimerActive && isTask) {
-      SharedPreferences.getInstance().then((prefs) {
-        String? timerStartTimeStr = prefs.getString('timer_start_time_${taskModel!.id}');
-        String? timerStartDurationStr = prefs.getString('timer_start_duration_${taskModel!.id}');
-
-        if (timerStartTimeStr != null && timerStartDurationStr != null) {
-          // Timer başlangıç zamanını hesapla
-          DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
-
-          // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
-          Duration timerRunDuration = DateTime.now().difference(timerStartTime);
-
-          // Timer başlangıç değerini al
-          Duration timerStartDuration = Duration(seconds: int.parse(timerStartDurationStr));
-
-          // Toplam süreyi hesapla
-          previousDuration = timerStartDuration + timerRunDuration;
-
-          // Kullanıcının yaptığı değişikliği hesapla
-          Duration userChange = value - previousDuration;
-
-          if (userChange.inSeconds != 0) {
-            // Timer başlangıç değerini güncelle (yeni değer = eski başlangıç değeri + kullanıcının yaptığı değişiklik)
-            prefs.setString('timer_start_duration_${taskModel!.id}', (timerStartDuration + userChange).inSeconds.toString());
-          }
-        }
-      });
+      // Asenkron işlemi senkron hale getir
+      _updateTimerDuration(value, previousDuration);
     } else {
       // Timer aktif değilse normal işlemi yap
       if (isTask) {
@@ -246,6 +222,58 @@ class TaskProgressViewModel extends ChangeNotifier {
     updateProgress(value);
   }
 
+  // Timer aktifken süre güncellemesi için yardımcı metot
+  Future<void> _updateTimerDuration(Duration value, Duration previousDuration) async {
+    // SharedPreferences'ı al
+    final prefs = await SharedPreferences.getInstance();
+
+    // Timer başlangıç zamanı ve süresini al
+    String? timerStartTimeStr = prefs.getString('timer_start_time_${taskModel!.id}');
+    String? timerStartDurationStr = prefs.getString('timer_start_duration_${taskModel!.id}');
+
+    if (timerStartTimeStr != null && timerStartDurationStr != null) {
+      // Timer başlangıç zamanını hesapla
+      DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+
+      // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
+      Duration timerRunDuration = DateTime.now().difference(timerStartTime);
+
+      // Timer başlangıç değerini al
+      Duration timerStartDuration = Duration(seconds: int.parse(timerStartDurationStr));
+
+      // Toplam süreyi hesapla
+      Duration currentDuration = timerStartDuration + timerRunDuration;
+
+      // Kullanıcının yaptığı değişikliği hesapla
+      Duration userChange = value - currentDuration;
+
+      // eğer pozitif veya 0 ise bir saniye ekle
+      if (userChange.inSeconds > 0 || userChange.inSeconds == 0) {
+        userChange += const Duration(seconds: 1);
+      }
+
+      if (userChange.inSeconds != 0) {
+        // Timer başlangıç değerini güncelle (yeni değer = eski başlangıç değeri + kullanıcının yaptığı değişiklik)
+        await prefs.setString('timer_start_duration_${taskModel!.id}', (timerStartDuration + userChange).inSeconds.toString());
+
+        // Timer aktifken de log oluştur
+        final selectedDate = TaskProvider().selectedDate;
+        final now = DateTime.now();
+
+        // Sadece kullanıcının yaptığı değişikliği logla
+        await taskLogProvider.addTaskLog(
+          taskModel!,
+          customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
+          customDuration: userChange,
+          customStatus: null, // Timer aktifken status değişmez
+        );
+
+        // UI'ı güncelle
+        notifyListeners();
+      }
+    }
+  }
+
   void setCount(int value) {
     // Önceki değeri kaydet
     int previousCount = isTask ? (taskModel!.currentCount ?? 0) : 0;
@@ -264,10 +292,11 @@ class TaskProgressViewModel extends ChangeNotifier {
       if (userChange != 0) {
         // TaskProvider'dan seçili tarihi al
         final selectedDate = TaskProvider().selectedDate;
+        final now = DateTime.now();
 
         taskLogProvider.addTaskLog(
           taskModel!,
-          customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute, DateTime.now().second, DateTime.now().millisecond),
+          customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
           customCount: userChange, // Sadece kullanıcının yaptığı değişikliği logla
           customStatus: value >= taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
         );

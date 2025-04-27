@@ -270,13 +270,19 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // TODO: delete
-  deleteTask(TaskModel taskModel) {
+  // Delete a task and its associated logs
+  Future<void> deleteTask(TaskModel taskModel) async {
+    // First delete all logs associated with this task
+    await TaskLogProvider().deleteLogsByTaskId(taskModel.id);
+
+    // Remove the task from the list
     taskList.remove(taskModel);
 
-    ServerManager().deleteTask(id: taskModel.id);
+    // Delete the task from storage
+    await ServerManager().deleteTask(id: taskModel.id);
     HomeWidgetService.updateTaskCount();
 
+    // Cancel any notifications for this task
     NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
@@ -287,10 +293,19 @@ class TaskProvider with ChangeNotifier {
   Future<void> deleteRoutine(int routineID) async {
     final routineModel = routineList.firstWhere((element) => element.id == routineID);
 
-    // Delete all associated tasks
+    // Delete all logs associated with this routine
+    await TaskLogProvider().deleteLogsByRoutineId(routineID);
+
+    // Delete all associated tasks and their logs
     final tasksToDelete = taskList.where((task) => task.routineID == routineID).toList();
     for (final task in tasksToDelete) {
+      // Delete logs for each task
+      await TaskLogProvider().deleteLogsByTaskId(task.id);
+
+      // Cancel notifications
       NotificationService().cancelNotificationOrAlarm(task.id);
+
+      // Delete the task
       await ServerManager().deleteTask(id: task.id);
       taskList.remove(task);
     }

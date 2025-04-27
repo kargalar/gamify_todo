@@ -11,6 +11,7 @@ import 'package:gamify_todo/Service/navigator_service.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
 import 'package:gamify_todo/Provider/trait_provider.dart';
+import 'package:gamify_todo/Provider/task_log_provider.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -200,8 +201,18 @@ class HiveService {
     final DateTime lastLoginDate = lastLoginDateString != null ? DateTime.parse(lastLoginDateString) : today;
 
     if (TaskProvider().routineList.isNotEmpty) {
-      // create new tasks from routines
-      int taskID = prefs.getInt("last_task_id") ?? 0;
+      // Get all existing tasks to find the highest ID
+      final existingTasks = await getTasks();
+      int highestTaskId = prefs.getInt("last_task_id") ?? 0;
+
+      // Find the highest ID among existing tasks
+      for (final task in existingTasks) {
+        if (task.id > highestTaskId) {
+          highestTaskId = task.id;
+        }
+      }
+
+      int taskID = highestTaskId;
 
       for (DateTime date = lastLoginDate.add(const Duration(days: 1)); date.isBeforeOrSameDay(today); date = date.add(const Duration(days: 1))) {
         for (RoutineModel routine in TaskProvider().routineList) {
@@ -229,7 +240,7 @@ class HiveService {
               isTimerActive: routine.type == TaskTypeEnum.TIMER ? false : null,
             );
 
-            addTask(task);
+            await addTask(task);
             TaskProvider().taskList.add(task);
 
             // Bildirim veya alarm ayarla
@@ -239,7 +250,11 @@ class HiveService {
           }
         }
       }
-      prefs.setInt("last_task_id", TaskProvider().taskList.last.id);
+
+      // Update the last task ID in SharedPreferences if tasks were created
+      if (TaskProvider().taskList.isNotEmpty) {
+        await prefs.setInt("last_task_id", taskID);
+      }
     }
 
     if (TaskProvider().taskList.isNotEmpty) {
@@ -293,6 +308,9 @@ class HiveService {
 
     StoreProvider().storeItemList.clear();
     StoreProvider().setStateItems();
+
+    // Clear task logs in the provider
+    TaskLogProvider().clearAllLogs();
 
     NavigatorService().goBackNavbar(
       isHome: true,

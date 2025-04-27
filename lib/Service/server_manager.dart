@@ -311,13 +311,27 @@ class ServerManager {
     // TODO: SERVER MANAGER AKTİF OLDUĞUNDA ID SERVER MANAGERDAN GELEN İD OLACAK. yani zaten buna gerek olmayacak. server managere kaydeildikten sonra hive kaydedilecek ???????????
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int id = prefs.getInt("last_routine_id") ?? 0;
+    final int lastId = prefs.getInt("last_routine_id") ?? 0;
 
-    routineModel.id = id + 1;
+    // Get all existing routines to ensure we don't have ID conflicts
+    final existingRoutines = await HiveService().getRoutines();
 
-    HiveService().addRoutine(routineModel);
+    // Find the highest ID among existing routines
+    int highestId = lastId;
+    for (final routine in existingRoutines) {
+      if (routine.id > highestId) {
+        highestId = routine.id;
+      }
+    }
 
-    prefs.setInt("last_routine_id", routineModel.id);
+    // Set the new routine ID to be one higher than the highest existing ID
+    routineModel.id = highestId + 1;
+
+    // Save the routine
+    await HiveService().addRoutine(routineModel);
+
+    // Update the last routine ID in SharedPreferences
+    await prefs.setInt("last_routine_id", routineModel.id);
 
     return routineModel.id;
 
@@ -346,13 +360,27 @@ class ServerManager {
     // TODO: SERVER MANAGER AKTİF OLDUĞUNDA ID SERVER MANAGERDAN GELEN İD OLACAK. yani zaten buna gerek olmayacak. server managere kaydeildikten sonra hive kaydedilecek ???????????
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int id = prefs.getInt("last_task_id") ?? 0;
+    final int lastId = prefs.getInt("last_task_id") ?? 0;
 
-    taskModel.id = id + 1;
+    // Get all existing tasks to ensure we don't have ID conflicts
+    final existingTasks = await HiveService().getTasks();
 
-    HiveService().addTask(taskModel);
+    // Find the highest ID among existing tasks
+    int highestId = lastId;
+    for (final task in existingTasks) {
+      if (task.id > highestId) {
+        highestId = task.id;
+      }
+    }
 
-    prefs.setInt("last_task_id", taskModel.id);
+    // Set the new task ID to be one higher than the highest existing ID
+    taskModel.id = highestId + 1;
+
+    // Save the task
+    await HiveService().addTask(taskModel);
+
+    // Update the last task ID in SharedPreferences
+    await prefs.setInt("last_task_id", taskModel.id);
 
     return taskModel.id;
   }

@@ -253,7 +253,8 @@ class TaskDetailViewModel with ChangeNotifier {
       final log = logs[i];
 
       // Format the date with seconds for precise time display
-      String formattedDate = DateFormat('d MMMM yyyy HH:mm:ss').format(log.logDate);
+      // Format: "d MMM yyyy HH:mm:ss" - Daha kompakt bir format
+      String formattedDate = DateFormat('d MMM yyyy HH:mm:ss').format(log.logDate);
 
       // Format the duration or count as a difference
       String progressText = "";
@@ -263,18 +264,46 @@ class TaskDetailViewModel with ChangeNotifier {
         bool isPositive = !log.duration!.isNegative;
         int hours = isPositive ? log.duration!.inHours : -log.duration!.inHours;
         int minutes = isPositive ? log.duration!.inMinutes.remainder(60) : -log.duration!.inMinutes.remainder(60);
+        int seconds = isPositive ? log.duration!.inSeconds.remainder(60) : -log.duration!.inSeconds.remainder(60);
         String sign = isPositive ? "+" : "-";
 
-        // Saat veya dakika 0 ise gösterme
-        if (hours > 0 && minutes > 0) {
-          progressText = "$sign${hours}h ${minutes}m";
-        } else if (hours > 0) {
-          progressText = "$sign${hours}h";
+        // Saat, dakika ve saniye değerlerini göster
+        if (hours > 0) {
+          // Saat varsa
+          if (minutes > 0) {
+            // Saat ve dakika varsa
+            if (seconds > 0) {
+              // Saat, dakika ve saniye varsa
+              progressText = "$sign${hours}h ${minutes}m ${seconds}s";
+            } else {
+              // Saat ve dakika var, saniye yok
+              progressText = "$sign${hours}h ${minutes}m";
+            }
+          } else {
+            // Sadece saat varsa
+            if (seconds > 0) {
+              // Saat ve saniye varsa
+              progressText = "$sign${hours}h ${seconds}s";
+            } else {
+              // Sadece saat varsa
+              progressText = "$sign${hours}h";
+            }
+          }
         } else if (minutes > 0) {
-          progressText = "$sign${minutes}m";
+          // Saat yok, dakika varsa
+          if (seconds > 0) {
+            // Dakika ve saniye varsa
+            progressText = "$sign${minutes}m ${seconds}s";
+          } else {
+            // Sadece dakika varsa
+            progressText = "$sign${minutes}m";
+          }
+        } else if (seconds > 0) {
+          // Sadece saniye varsa
+          progressText = "$sign${seconds}s";
         } else {
           // Sıfır durumu - işaret göster
-          progressText = "${isPositive ? '+' : '-'}0m";
+          progressText = "${isPositive ? '+' : '-'}0s";
         }
       } else if (log.count != null) {
         // Pozitif veya negatif değerleri göster

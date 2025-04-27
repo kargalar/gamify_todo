@@ -29,10 +29,18 @@ class TaskLogProvider with ChangeNotifier {
     TaskStatusEnum? customStatus,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int logId = prefs.getInt("last_task_log_id") ?? 0;
+    final int lastLogId = prefs.getInt("last_task_log_id") ?? 0;
+
+    // Find the highest ID among existing logs to ensure uniqueness
+    int highestLogId = lastLogId;
+    for (final log in taskLogList) {
+      if (log.id > highestLogId) {
+        highestLogId = log.id;
+      }
+    }
 
     final TaskLogModel taskLog = TaskLogModel(
-      id: logId + 1,
+      id: highestLogId + 1,
       taskId: taskModel.id,
       routineId: taskModel.routineID,
       logDate: customLogDate ?? DateTime.now(), // DateTime.now() already includes seconds and milliseconds
@@ -70,5 +78,39 @@ class TaskLogProvider with ChangeNotifier {
     sortedLogs.sort((a, b) => b.logDate.compareTo(a.logDate));
 
     return sortedLogs.take(count).toList();
+  }
+
+  // Delete all logs associated with a specific task
+  Future<void> deleteLogsByTaskId(int taskId) async {
+    // Get all logs for this task
+    final logsToDelete = taskLogList.where((log) => log.taskId == taskId).toList();
+
+    // Delete each log from Hive
+    for (final log in logsToDelete) {
+      await HiveService().deleteTaskLog(log.id);
+      taskLogList.remove(log);
+    }
+
+    notifyListeners();
+  }
+
+  // Delete all logs associated with a specific routine
+  Future<void> deleteLogsByRoutineId(int routineId) async {
+    // Get all logs for this routine
+    final logsToDelete = taskLogList.where((log) => log.routineId == routineId).toList();
+
+    // Delete each log from Hive
+    for (final log in logsToDelete) {
+      await HiveService().deleteTaskLog(log.id);
+      taskLogList.remove(log);
+    }
+
+    notifyListeners();
+  }
+
+  // Clear all logs from the provider (used when deleting all data)
+  void clearAllLogs() {
+    taskLogList.clear();
+    notifyListeners();
   }
 }

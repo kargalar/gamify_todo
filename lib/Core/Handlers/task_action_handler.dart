@@ -24,6 +24,12 @@ class TaskActionHandler {
         taskModel.status = null;
       } else {
         taskModel.status = TaskStatusEnum.COMPLETED;
+
+        // Create log for completed checkbox task
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: TaskStatusEnum.COMPLETED,
+        );
       }
 
       HomeWidgetService.updateTaskCount();
@@ -32,16 +38,31 @@ class TaskActionHandler {
       int previousCount = taskModel.currentCount!;
       taskModel.currentCount = previousCount + 1;
 
+      // Create log for counter increment
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customCount: 1, // Log the increment amount
+      );
+
       AppHelper().addCreditByProgress(taskModel.remainingDuration);
 
       if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
         taskModel.status = TaskStatusEnum.COMPLETED;
+
+        // Create log for completed counter task
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: TaskStatusEnum.COMPLETED,
+        );
+
         HomeWidgetService.updateTaskCount();
       }
     } else if (taskModel.type == TaskTypeEnum.TIMER) {
       // Toggle timer for timer tasks
       // Toggle timer using startStopTimer
       GlobalTimer().startStopTimer(taskModel: taskModel);
+
+      // Note: Timer logs are created in the GlobalTimer class when the timer is stopped
     }
 
     // Update task in provider

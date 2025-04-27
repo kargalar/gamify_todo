@@ -106,23 +106,43 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
               final log = widget.viewModel.recentLogs[index];
               return ListTile(
                 leading: const Icon(Icons.history, size: 16),
-                title: Row(
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      log.dateTime,
-                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(log.status),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        log.status == "" ? "In Progress" : log.status,
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  // Tarih ve saat kısmını ayır
+                                  text: log.dateTime.substring(0, log.dateTime.lastIndexOf(':')),
+                                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                                ),
+                                TextSpan(
+                                  // Saniye kısmını vurgula
+                                  text: log.dateTime.substring(log.dateTime.lastIndexOf(':')),
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(log.status),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            log.status == "" ? "In Progress" : log.status,
+                            style: const TextStyle(color: Colors.white, fontSize: 10),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
