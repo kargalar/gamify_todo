@@ -94,9 +94,9 @@ class _LineChart extends StatelessWidget {
         dotData: FlDotData(
           show: true,
           getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-            radius: 5,
+            radius: 4,
             color: AppColors.main,
-            strokeWidth: 2,
+            strokeWidth: 1,
             strokeColor: AppColors.white,
           ),
         ),
@@ -140,9 +140,24 @@ class _LineChart extends StatelessWidget {
       ),
     );
 
-    // Round up to next multiple of 2 for better readability
-    maxHours = ((maxHours + 1.99) ~/ 2) * 2.0;
-    maxHours = maxHours < 2 ? 2 : maxHours;
+    // Maksimum saat değerini düzgün bir sayıya yuvarla
+    if (maxHours <= 1) {
+      maxHours = 1.0; // 1 saat veya daha az
+    } else if (maxHours <= 2) {
+      maxHours = 2.0; // 1-2 saat arası
+    } else if (maxHours <= 4) {
+      maxHours = 4.0; // 2-4 saat arası
+    } else if (maxHours <= 8) {
+      maxHours = 8.0; // 4-8 saat arası
+    } else if (maxHours <= 12) {
+      maxHours = 12.0; // 8-12 saat arası
+    } else if (maxHours <= 16) {
+      maxHours = 16.0; // 12-16 saat arası
+    } else if (maxHours <= 20) {
+      maxHours = 20.0; // 16-20 saat arası
+    } else {
+      maxHours = 24.0; // 20 saatten fazla
+    }
 
     Widget bottomTitleWidgets(
       double value,
@@ -177,8 +192,11 @@ class _LineChart extends StatelessWidget {
     }
 
     Widget leftTitleWidgets(double value, TitleMeta meta) {
-      // Show actual hour values based on the value parameter
-      String hourText = '${value.toStringAsFixed(0)}${LocaleKeys.h.tr()}';
+      // Saat değerini tam sayıya çevir
+      int hours = value.round();
+
+      // Saat metnini oluştur
+      String hourText = '$hours${LocaleKeys.h.tr()}';
 
       return Text(hourText,
           style: TextStyle(
@@ -194,27 +212,47 @@ class _LineChart extends StatelessWidget {
     return LineChart(
       LineChartData(
         lineTouchData: LineTouchData(
+          enabled: true,
+          // Dokunma hassasiyetini azalt
+          touchSpotThreshold: 20,
+          // Varsayılan dokunma davranışını kullan
           handleBuiltInTouches: true,
+          // Tooltip özelleştirme
           touchTooltipData: LineTouchTooltipData(
-            getTooltipItems: (touchedSpots) {
-              // Return empty list to use custom tooltip widget
-              return [];
+            getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+              return touchedBarSpots.map((barSpot) {
+                // Tarih ve süre bilgisini al
+                DateTime now = DateTime.now();
+                DateTime monday = now.subtract(Duration(days: now.weekday - 1));
+                DateTime date = monday.add(Duration(days: barSpot.x.toInt()));
+                date = DateTime(date.year, date.month, date.day);
+
+                // Tarih formatı
+                final dateFormat = DateFormat('EEE, d MMM', context.locale.languageCode);
+                final dateStr = dateFormat.format(date);
+
+                // Süre - temiz format
+                final duration = totalDurations[date] ?? Duration.zero;
+                // Duration extension kullanarak temiz format
+                final durationStr = duration.textShortDynamic();
+
+                return LineTooltipItem(
+                  "$dateStr\n$durationStr",
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                );
+              }).toList();
             },
-            fitInsideHorizontally: true,
-            fitInsideVertically: true,
           ),
-          touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
-            // Custom tooltip handling
-            if (touchResponse?.lineBarSpots != null && touchResponse!.lineBarSpots!.isNotEmpty && event is FlPanDownEvent) {
-              // Show custom tooltip here if needed
-            }
-          },
         ),
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
           drawHorizontalLine: true,
-          horizontalInterval: maxHours / 4,
+          horizontalInterval: maxHours <= 4 ? 1 : (maxHours / 4),
           getDrawingHorizontalLine: (value) => FlLine(
             color: AppColors.text.withValues(alpha: 25), // 0.1 * 255 = 25
             strokeWidth: 1,
@@ -235,7 +273,7 @@ class _LineChart extends StatelessWidget {
               getTitlesWidget: leftTitleWidgets,
               showTitles: true,
               reservedSize: 40,
-              interval: (maxHours / 4),
+              interval: maxHours <= 4 ? 1 : (maxHours / 4),
             ),
           ),
           rightTitles: const AxisTitles(
