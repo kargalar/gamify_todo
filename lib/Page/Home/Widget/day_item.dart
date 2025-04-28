@@ -4,6 +4,7 @@ import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DayItem extends StatefulWidget {
   const DayItem({
@@ -25,12 +26,14 @@ class _DayItemState extends State<DayItem> {
     return InkWell(
       borderRadius: AppColors.borderRadiusAll,
       onTap: () {
-        TaskProvider().changeSelectedDate(widget.date);
+        // Provider üzerinden erişim sağlayarak tarihi değiştir
+        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+        taskProvider.changeSelectedDate(widget.date);
       },
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: TaskProvider().selectedDate.isSameDay(widget.date) ? AppColors.main : AppColors.transparent,
+          color: context.watch<TaskProvider>().selectedDate.isSameDay(widget.date) ? AppColors.main : AppColors.transparent,
           borderRadius: AppColors.borderRadiusAll,
         ),
         child: Column(

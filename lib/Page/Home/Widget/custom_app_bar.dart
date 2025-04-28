@@ -12,6 +12,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
+  Size get preferredSize => const Size.fromHeight(50);
+
+  @override
   Widget build(BuildContext context) {
     final selectedDate = context.watch<TaskProvider>().selectedDate;
 
@@ -53,7 +56,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     child: InkWell(
                       borderRadius: AppColors.borderRadiusAll,
                       onTap: () {
-                        TaskProvider().changeSelectedDate(DateTime.now());
+                        // Provider üzerinden erişim sağlayarak bugüne dön
+                        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+                        taskProvider.changeSelectedDate(DateTime.now());
                       },
                       child: Container(
                         height: 40,
@@ -129,7 +134,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(50);
 }
