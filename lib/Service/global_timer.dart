@@ -222,6 +222,7 @@ class GlobalTimer {
                   currentDuration: task.currentDuration!,
                   remainingDuration: task.remainingDuration!,
                   isCountDown: false,
+                  isCompleted: true, // Mark as completed so it can be dismissed
                 );
 
                 // Timer tamamlandığında log oluştur

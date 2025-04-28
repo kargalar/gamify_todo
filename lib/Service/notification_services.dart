@@ -300,13 +300,13 @@ class NotificationService {
     );
   }
 
-  // TODO: gliba farklı android versiyonlarında bildirim panelinden kaydırarak silinme özelliğini kapatma işlevi çalışmıyor.
   Future<void> showTimerNotification({
     required int id,
     required String title,
     required Duration currentDuration,
     required Duration? remainingDuration,
     required bool isCountDown,
+    bool isCompleted = false, // Add isCompleted parameter with default value false
   }) async {
     // Task ID'sini payload olarak ekle (negatif ID'yi pozitife çevir)
     final int taskId = id < 0 ? -id : id;
@@ -326,16 +326,17 @@ class NotificationService {
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
           playSound: false,
-          ongoing: true,
-          autoCancel: false,
-          usesChronometer: true,
-          chronometerCountDown: isCountDown,
+          // Make completed notifications dismissible by swiping
+          ongoing: !isCompleted,
+          autoCancel: isCompleted,
+          usesChronometer: !isCompleted, // Don't use chronometer for completed notifications
+          chronometerCountDown: isCountDown && !isCompleted,
           when: isCountDown ? DateTime.now().millisecondsSinceEpoch + currentDuration.inMilliseconds : DateTime.now().millisecondsSinceEpoch - currentDuration.inMilliseconds,
           visibility: NotificationVisibility.private,
           onlyAlertOnce: true,
-          fullScreenIntent: true,
-          category: AndroidNotificationCategory.service,
-          silent: true,
+          fullScreenIntent: !isCompleted, // Only use full screen intent for active timers
+          category: isCompleted ? AndroidNotificationCategory.status : AndroidNotificationCategory.service,
+          silent: !isCompleted, // Play sound for completion notifications
         ),
       ),
       payload: payload,
