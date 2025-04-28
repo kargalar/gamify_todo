@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Widget/task_item.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
@@ -52,40 +51,32 @@ class _TaskListState extends State<TaskList> {
 
                 // Routine Tasks
                 if (selectedDateRutinTaskList.isNotEmpty) ...[
-                  if (selectedDateTaskList.isEmpty) const SizedBox(height: 10),
-                  Text(
-                    LocaleKeys.Routines.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  if (selectedDateTaskList.isNotEmpty) ...[
+                    const SizedBox(height: 15),
+                    const Divider(height: 1, thickness: 1),
+                    const SizedBox(height: 15),
+                  ],
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(0),
+                    itemCount: selectedDateRutinTaskList.length,
+                    itemBuilder: (context, index) {
+                      return TaskItem(
+                        taskModel: selectedDateRutinTaskList[index],
+                        isRoutine: true,
+                      );
+                    },
                   ),
-                  if (selectedDateRutinTaskList.isNotEmpty)
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(0),
-                      itemCount: selectedDateRutinTaskList.length,
-                      itemBuilder: (context, index) {
-                        return TaskItem(
-                          taskModel: selectedDateRutinTaskList[index],
-                          isRoutine: true,
-                        );
-                      },
-                    ),
                 ],
 
                 // Future routines ghosts
                 if (selectedDateGhostRutinTaskList.isNotEmpty) ...[
-                  if (selectedDateTaskList.isEmpty) const SizedBox(height: 10),
-                  Text(
-                    LocaleKeys.FutureRoutines.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.deepPurple,
-                    ),
-                  ),
+                  if (selectedDateTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty) ...[
+                    const SizedBox(height: 15),
+                    const Divider(height: 1, thickness: 1),
+                    const SizedBox(height: 15),
+                  ],
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
