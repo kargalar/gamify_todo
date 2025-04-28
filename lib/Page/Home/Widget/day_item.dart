@@ -28,17 +28,30 @@ class _DayItemState extends State<DayItem> {
         TaskProvider().changeSelectedDate(widget.date);
       },
       child: Container(
-        width: 50,
-        height: 50,
-        padding: const EdgeInsets.all(1),
+        height: 40,
         decoration: BoxDecoration(
           color: TaskProvider().selectedDate.isSameDay(widget.date) ? AppColors.main : AppColors.transparent,
           borderRadius: AppColors.borderRadiusAll,
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(DateFormat('EEE', locale.languageCode).format(widget.date)),
-            Text(widget.date.day.toString()),
+            Text(
+              DateFormat('EEE', locale.languageCode).format(widget.date),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: AppColors.text,
+              ),
+            ),
+            Text(
+              widget.date.day.toString(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+            ),
           ],
         ),
       ),
