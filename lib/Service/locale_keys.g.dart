@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const Store = 'Store';
   static const Settings = 'Settings';
   static const SelectLanguage = 'SelectLanguage';
@@ -64,6 +64,7 @@ abstract class  LocaleKeys {
   static const LongestStreak = 'LongestStreak';
   static const Streak = 'Streak';
   static const Day = 'Day';
+  static const Today = 'Today';
   static const RecentLogs = 'RecentLogs';
   static const Cancelled = 'Cancelled';
   static const InProgress = 'InProgress';
@@ -135,5 +136,4 @@ abstract class  LocaleKeys {
   static const CreateNewCategory = 'CreateNewCategory';
   static const DeleteCategory = 'DeleteCategory';
   static const DeleteCategoryConfirmation = 'DeleteCategoryConfirmation';
-
 }

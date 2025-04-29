@@ -74,7 +74,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                               size: 16,
                             ),
                             Text(
-                              LocaleKeys.Day.tr(),
+                              LocaleKeys.Today.tr(),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w500,
