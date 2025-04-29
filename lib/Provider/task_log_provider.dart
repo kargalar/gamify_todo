@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/Model/task_log_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
+import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/hive_service.dart';
+import 'package:gamify_todo/Service/server_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskLogProvider with ChangeNotifier {
@@ -91,6 +93,16 @@ class TaskLogProvider with ChangeNotifier {
       taskLogList.remove(log);
     }
 
+    // Find the task in TaskProvider and reset its status to null
+    final taskProvider = TaskProvider();
+    final taskIndex = taskProvider.taskList.indexWhere((task) => task.id == taskId);
+    if (taskIndex != -1) {
+      // Reset task status to null
+      taskProvider.taskList[taskIndex].status = null;
+      // Update task in storage
+      await ServerManager().updateTask(taskModel: taskProvider.taskList[taskIndex]);
+    }
+
     notifyListeners();
   }
 
@@ -105,12 +117,31 @@ class TaskLogProvider with ChangeNotifier {
       taskLogList.remove(log);
     }
 
+    // Find all tasks associated with this routine and reset their status to null
+    final taskProvider = TaskProvider();
+    final tasksToReset = taskProvider.taskList.where((task) => task.routineID == routineId).toList();
+
+    for (final task in tasksToReset) {
+      // Reset task status to null
+      task.status = null;
+      // Update task in storage
+      await ServerManager().updateTask(taskModel: task);
+    }
+
     notifyListeners();
   }
 
   // Clear all logs from the provider (used when deleting all data)
-  void clearAllLogs() {
+  Future<void> clearAllLogs() async {
     taskLogList.clear();
+
+    // Reset status of all tasks to null
+    final taskProvider = TaskProvider();
+    for (final task in taskProvider.taskList) {
+      task.status = null;
+      await ServerManager().updateTask(taskModel: task);
+    }
+
     notifyListeners();
   }
 }

@@ -311,7 +311,7 @@ class HiveService {
     StoreProvider().setStateItems();
 
     // Clear task logs in the provider
-    TaskLogProvider().clearAllLogs();
+    await TaskLogProvider().clearAllLogs();
 
     NavigatorService().goBackNavbar(
       isHome: true,

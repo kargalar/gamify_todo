@@ -7,8 +7,10 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Model/task_log_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
 import 'package:gamify_todo/Provider/task_log_provider.dart';
+import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/hive_service.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:gamify_todo/Service/server_manager.dart';
 
 class EditLogDialog extends StatefulWidget {
   final TaskModel taskModel;
@@ -335,7 +337,27 @@ class _EditLogDialogState extends State<EditLogDialog> {
     // Log sil
     await HiveService().deleteTaskLog(logModel.id);
 
-    // Provider'ı güncelle
-    await TaskLogProvider().loadTaskLogs();
+    // Check if this was the last log for this task
+    final taskLogProvider = TaskLogProvider();
+    await taskLogProvider.loadTaskLogs();
+
+    // Get all logs for this task
+    final remainingLogs = taskLogProvider.getLogsByTaskId(widget.taskModel.id);
+
+    // If no logs remain, reset the task status to null
+    if (remainingLogs.isEmpty) {
+      // Find the task in TaskProvider
+      final taskProvider = TaskProvider();
+      final taskIndex = taskProvider.taskList.indexWhere((task) => task.id == widget.taskModel.id);
+
+      if (taskIndex != -1) {
+        // Reset task status to null
+        taskProvider.taskList[taskIndex].status = null;
+        // Update task in storage
+        await ServerManager().updateTask(taskModel: taskProvider.taskList[taskIndex]);
+        // Notify listeners
+        taskProvider.updateItems();
+      }
+    }
   }
 }
