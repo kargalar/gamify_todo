@@ -29,6 +29,10 @@ class _SetCreditState extends State<SetCredit> {
           InkWell(
             borderRadius: AppColors.borderRadiusAll,
             onTap: () {
+              // Unfocus when tapping
+              provider.unfocusAll();
+              FocusScope.of(context).unfocus();
+
               if (provider.credit > 0) {
                 setState(() {
                   provider.credit--;
@@ -36,6 +40,10 @@ class _SetCreditState extends State<SetCredit> {
               }
             },
             onLongPress: () {
+              // Unfocus when long pressing
+              provider.unfocusAll();
+              FocusScope.of(context).unfocus();
+
               setState(() {
                 if (provider.credit >= 20) {
                   provider.credit -= 20;
@@ -73,11 +81,19 @@ class _SetCreditState extends State<SetCredit> {
           InkWell(
             borderRadius: AppColors.borderRadiusAll,
             onTap: () {
+              // Unfocus when tapping
+              provider.unfocusAll();
+              FocusScope.of(context).unfocus();
+
               setState(() {
                 provider.credit++;
               });
             },
             onLongPress: () {
+              // Unfocus when long pressing
+              provider.unfocusAll();
+              FocusScope.of(context).unfocus();
+
               setState(() {
                 provider.credit += 20;
               });

@@ -38,6 +38,15 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
               child: DurationPicker(
                 duration: provider.taskDuration,
                 onChange: (selectedDuration) {
+                  // Unfocus any text fields when changing duration
+                  if (!widget.isStore) {
+                    (provider as AddTaskProvider).unfocusAll();
+                  } else {
+                    (provider as AddStoreItemProvider).unfocusAll();
+                  }
+                  // Also unfocus using FocusScope for any other fields
+                  FocusScope.of(context).unfocus();
+
                   late int duration;
 
                   if (selectedDuration.inMinutes > 5) {

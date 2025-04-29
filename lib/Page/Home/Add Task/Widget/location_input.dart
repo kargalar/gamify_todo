@@ -30,6 +30,7 @@ class LocationInput extends StatelessWidget {
           ),
           child: TextField(
             controller: addTaskProvider.locationController,
+            focusNode: addTaskProvider.locationFocus,
             decoration: InputDecoration(
               hintText: LocaleKeys.EnterLocation.tr(),
               border: InputBorder.none,
@@ -40,12 +41,31 @@ class LocationInput extends StatelessWidget {
                       onPressed: () {
                         addTaskProvider.locationController.clear();
                         addTaskProvider.updateLocation();
+                        // Unfocus after clearing
+                        try {
+                          if (addTaskProvider.locationFocus.hashCode != 0) {
+                            addTaskProvider.locationFocus.unfocus();
+                          }
+                        } catch (e) {
+                          // Focus node may have issues
+                        }
                       },
                     )
                   : null,
             ),
             onChanged: (value) {
               addTaskProvider.updateLocation();
+            },
+            textInputAction: TextInputAction.done,
+            onEditingComplete: () {
+              // Unfocus when done editing
+              try {
+                if (addTaskProvider.locationFocus.hashCode != 0) {
+                  addTaskProvider.locationFocus.unfocus();
+                }
+              } catch (e) {
+                // Focus node may have issues
+              }
             },
           ),
         ),

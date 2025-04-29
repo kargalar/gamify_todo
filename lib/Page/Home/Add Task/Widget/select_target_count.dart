@@ -33,12 +33,28 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
         InkWell(
           borderRadius: AppColors.borderRadiusAll,
           onTap: () {
+            // Unfocus any text fields when changing target count
+            if (!widget.isStore) {
+              (provider as AddTaskProvider).unfocusAll();
+            } else {
+              (provider as AddStoreItemProvider).unfocusAll();
+            }
+            // Also unfocus using FocusScope for any other fields
+            FocusScope.of(context).unfocus();
             if (targetCount > 1) {
               provider.updateTargetCount(targetCount - 1);
             }
             setState(() {});
           },
           onLongPress: () {
+            // Unfocus any text fields when changing target count
+            if (!widget.isStore) {
+              (provider as AddTaskProvider).unfocusAll();
+            } else {
+              (provider as AddStoreItemProvider).unfocusAll();
+            }
+            // Also unfocus using FocusScope for any other fields
+            FocusScope.of(context).unfocus();
             if (targetCount > 20) {
               provider.updateTargetCount(targetCount - 20);
             } else {
@@ -72,11 +88,27 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
         InkWell(
           borderRadius: AppColors.borderRadiusAll,
           onTap: () {
+            // Unfocus any text fields when changing target count
+            if (!widget.isStore) {
+              (provider as AddTaskProvider).unfocusAll();
+            } else {
+              (provider as AddStoreItemProvider).unfocusAll();
+            }
+            // Also unfocus using FocusScope for any other fields
+            FocusScope.of(context).unfocus();
             provider.updateTargetCount(targetCount + 1);
 
             setState(() {});
           },
           onLongPress: () {
+            // Unfocus any text fields when changing target count
+            if (!widget.isStore) {
+              (provider as AddTaskProvider).unfocusAll();
+            } else {
+              (provider as AddStoreItemProvider).unfocusAll();
+            }
+            // Also unfocus using FocusScope for any other fields
+            FocusScope.of(context).unfocus();
             provider.updateTargetCount(targetCount + 20);
 
             setState(() {});

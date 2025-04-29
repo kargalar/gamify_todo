@@ -32,12 +32,19 @@ class TaskName extends StatelessWidget {
           child: TextField(
             autofocus: autoFocus,
             controller: provider.taskNameController,
+            focusNode: provider.taskNameFocus,
             decoration: InputDecoration(
               hintText: LocaleKeys.TaskName.tr(),
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
             ),
             textInputAction: TextInputAction.next,
+            onEditingComplete: () {
+              // Move focus to description when done
+              if (provider.descriptionFocus.hashCode != 0) {
+                provider.descriptionFocus.requestFocus();
+              }
+            },
           ),
         ),
       ),

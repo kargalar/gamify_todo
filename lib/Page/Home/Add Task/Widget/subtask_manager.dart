@@ -48,24 +48,75 @@ class _SubtaskManagerState extends State<SubtaskManager> {
           Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: _subtaskController,
-                  decoration: InputDecoration(
-                    hintText: LocaleKeys.AddSubtask.tr(),
-                    border: OutlineInputBorder(
+                child: GestureDetector(
+                  onTap: () {
+                    // Ensure this field gets focus when tapping anywhere in the container
+                    final provider = context.read<AddTaskProvider>();
+                    provider.subtaskFocus.requestFocus();
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.panelBackground,
                       borderRadius: AppColors.borderRadiusAll,
-                      borderSide: BorderSide.none,
                     ),
-                    filled: true,
-                    fillColor: AppColors.background,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: TextField(
+                      controller: _subtaskController,
+                      focusNode: addTaskProvider.subtaskFocus,
+                      autofocus: false, // Don't autofocus on page load
+                      decoration: InputDecoration(
+                        hintText: LocaleKeys.AddSubtask.tr(),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                        suffixIcon: _subtaskController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _subtaskController.clear();
+                                  // Unfocus after clearing
+                                  try {
+                                    if (addTaskProvider.subtaskFocus.hashCode != 0) {
+                                      addTaskProvider.subtaskFocus.unfocus();
+                                    }
+                                  } catch (e) {
+                                    // Focus node may have issues
+                                  }
+                                },
+                              )
+                            : null,
+                      ),
+                      onChanged: (value) {
+                        // Force rebuild to show/hide clear button
+                        setState(() {});
+                      },
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) {
+                        _addSubtask();
+                        // Unfocus after adding subtask
+                        addTaskProvider.subtaskFocus.unfocus();
+                      },
+                      onTap: () {
+                        // Ensure other text fields are unfocused, but keep this one focused
+                        final provider = context.read<AddTaskProvider>();
+
+                        // First unfocus all fields
+                        provider.taskNameFocus.unfocus();
+                        provider.descriptionFocus.unfocus();
+                        provider.locationFocus.unfocus();
+
+                        // Then explicitly request focus for this field
+                        provider.subtaskFocus.requestFocus();
+                      },
+                    ),
                   ),
-                  onSubmitted: (_) => _addSubtask(),
                 ),
               ),
               const SizedBox(width: 8),
               InkWell(
-                onTap: _addSubtask,
+                onTap: () {
+                  _addSubtask();
+                  // Unfocus after adding subtask
+                  addTaskProvider.subtaskFocus.unfocus();
+                },
                 borderRadius: AppColors.borderRadiusAll,
                 child: Container(
                   padding: const EdgeInsets.all(8),
@@ -110,6 +161,10 @@ class _SubtaskManagerState extends State<SubtaskManager> {
               activeColor: AppColors.main,
               onChanged: (value) {
                 if (value != null) {
+                  // Unfocus when toggling subtask
+                  final provider = context.read<AddTaskProvider>();
+                  provider.subtaskFocus.unfocus();
+                  provider.unfocusAll();
                   _toggleSubtaskCompletion(index);
                 }
               },
@@ -129,7 +184,13 @@ class _SubtaskManagerState extends State<SubtaskManager> {
             ),
           ),
           InkWell(
-            onTap: () => _removeSubtask(index),
+            onTap: () {
+              // Unfocus when removing subtask
+              final provider = context.read<AddTaskProvider>();
+              provider.subtaskFocus.unfocus();
+              provider.unfocusAll();
+              _removeSubtask(index);
+            },
             borderRadius: BorderRadius.circular(20),
             child: const Padding(
               padding: EdgeInsets.all(4),
@@ -156,6 +217,10 @@ class _SubtaskManagerState extends State<SubtaskManager> {
     }
 
     final addTaskProvider = context.read<AddTaskProvider>();
+
+    // Unfocus all text fields
+    addTaskProvider.subtaskFocus.unfocus();
+    addTaskProvider.unfocusAll();
 
     // Generate a unique ID for the subtask
     int subtaskId = 1;

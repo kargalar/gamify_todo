@@ -102,6 +102,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
     }
   }
 
+  // We don't need to explicitly dispose focus nodes here
+  // The provider will handle it in its own dispose method
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -110,130 +113,153 @@ class _AddTaskPageState extends State<AddTaskPage> {
         // didpop kontrolü şunun için var: eğer geri gelme butonuna basarak pop yaparsak false oluyor fonsiyon ile tetiklersek true oluyor. hata bu sayede düzeltildi. debuglock falan yazıyordu.
         if (!didPop) goBack();
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(addTaskProvider.editTask != null
-              ? LocaleKeys.EditTask.tr()
-              : addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null
-                  ? LocaleKeys.EditRoutine.tr()
-                  : LocaleKeys.AddTask.tr()),
-          leading: InkWell(
-            borderRadius: AppColors.borderRadiusAll,
-            onTap: () {
-              goBack();
-            },
-            child: const Icon(Icons.arrow_back_ios),
-          ),
-          actions: [
-            if (addTaskProvider.editTask == null)
-              TextButton(
-                onPressed: addTask,
-                child: Text(
-                  LocaleKeys.Save.tr(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+      child: GestureDetector(
+        // Unfocus when tapping outside of text fields
+        onTap: () {
+          // Unfocus all text fields including subtask field
+          addTaskProvider.unfocusAll();
+
+          // Find and unfocus all fields in the current focus scope
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(addTaskProvider.editTask != null
+                ? LocaleKeys.EditTask.tr()
+                : addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null
+                    ? LocaleKeys.EditRoutine.tr()
+                    : LocaleKeys.AddTask.tr()),
+            leading: InkWell(
+              borderRadius: AppColors.borderRadiusAll,
+              onTap: () {
+                // Unfocus before going back
+                addTaskProvider.unfocusAll();
+                FocusScope.of(context).unfocus();
+                goBack();
+              },
+              child: const Icon(Icons.arrow_back_ios),
+            ),
+            actions: [
+              if (addTaskProvider.editTask == null)
+                TextButton(
+                  onPressed: () {
+                    // Unfocus before saving
+                    addTaskProvider.unfocusAll();
+                    FocusScope.of(context).unfocus();
+                    addTask();
+                  },
+                  child: Text(
+                    LocaleKeys.Save.tr(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-              children: [
-                if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) ...[
-                  const SizedBox(height: 10),
-                  EditProgressWidget.forTask(task: addTaskProvider.editTask!),
-                ],
-                const SizedBox(height: 10),
-                TaskName(autoFocus: addTaskProvider.editTask == null),
-                const SizedBox(height: 5),
-                const TaskDescription(),
-                const SizedBox(height: 10),
-                const LocationInput(),
-                const SizedBox(height: 10),
-                const SelectPriority(),
-                const SizedBox(height: 10),
-                const CategorySelector(),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            ],
+          ),
+          body: SingleChildScrollView(
+            // Add keyboard dismiss behavior
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
                   children: [
-                    if (addTaskProvider.editTask == null)
-                      const Expanded(
-                        child: SelectDate(),
-                      ),
-                    SizedBox(
-                      width: 0.35.sw,
-                      child: const Column(
-                        children: [
-                          SelectTime(),
-                          SizedBox(height: 5),
-                          NotificationStatus(),
-                        ],
-                      ),
+                    if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) ...[
+                      const SizedBox(height: 10),
+                      EditProgressWidget.forTask(task: addTaskProvider.editTask!),
+                    ],
+                    const SizedBox(height: 10),
+                    TaskName(autoFocus: addTaskProvider.editTask == null),
+                    const SizedBox(height: 5),
+                    const TaskDescription(),
+                    const SizedBox(height: 10),
+                    const LocationInput(),
+                    const SizedBox(height: 10),
+                    const SelectPriority(),
+                    const SizedBox(height: 10),
+                    const CategorySelector(),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (addTaskProvider.editTask == null)
+                          const Expanded(
+                            child: SelectDate(),
+                          ),
+                        SizedBox(
+                          width: 0.35.sw,
+                          child: const Column(
+                            children: [
+                              SelectTime(),
+                              SizedBox(height: 5),
+                              NotificationStatus(),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const DurationPickerWidget(),
-                    if (addTaskProvider.editTask == null) const SelectTaskType(),
-                    if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
-                      const Column(
-                        children: [
-                          // TODO: localization
-                          Text("Target Count"),
-                          SelectTargetCount(),
-                        ],
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
-                const SizedBox(height: 10),
-                const SubtaskManager(),
-                const SizedBox(height: 10),
-                const SelectTraitList(isSkill: false),
-                const SizedBox(height: 10),
-                const SelectTraitList(isSkill: true),
-                const SizedBox(height: 50),
-                if (addTaskProvider.editTask != null)
-                  InkWell(
-                    borderRadius: AppColors.borderRadiusAll,
-                    onTap: () {
-                      Helper().getDialog(
-                          message: "Are you sure delete?",
-                          onAccept: () {
-                            if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
-                              taskProvider.deleteTask(addTaskProvider.editTask!);
-                            } else {
-                              taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
-                            }
-
-                            NavigatorService().goBackNavbar();
-                          });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const DurationPickerWidget(),
+                        if (addTaskProvider.editTask == null) const SelectTaskType(),
+                        if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
+                          const Column(
+                            children: [
+                              // TODO: localization
+                              Text("Target Count"),
+                              SelectTargetCount(),
+                            ],
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
+                    const SizedBox(height: 10),
+                    const SubtaskManager(),
+                    const SizedBox(height: 10),
+                    const SelectTraitList(isSkill: false),
+                    const SizedBox(height: 10),
+                    const SelectTraitList(isSkill: true),
+                    const SizedBox(height: 50),
+                    if (addTaskProvider.editTask != null)
+                      InkWell(
                         borderRadius: AppColors.borderRadiusAll,
-                        color: AppColors.red,
-                      ),
-                      child: Text(
-                        LocaleKeys.Delete.tr(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                        onTap: () {
+                          // Unfocus all fields before showing dialog
+                          addTaskProvider.unfocusAll();
+                          FocusScope.of(context).unfocus();
+
+                          Helper().getDialog(
+                              message: "Are you sure delete?",
+                              onAccept: () {
+                                if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
+                                  taskProvider.deleteTask(addTaskProvider.editTask!);
+                                } else {
+                                  taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
+                                }
+
+                                NavigatorService().goBackNavbar();
+                              });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: AppColors.borderRadiusAll,
+                            color: AppColors.red,
+                          ),
+                          child: Text(
+                            LocaleKeys.Delete.tr(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                const SizedBox(height: 40),
-              ],
-            ),
+                    const SizedBox(height: 40),
+                  ],
+                )),
           ),
         ),
       ),

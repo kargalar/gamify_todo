@@ -72,8 +72,14 @@ class CategorySelector extends StatelessWidget {
                               context: context,
                               category: category,
                               isSelected: addTaskProvider.categoryId == category.id,
-                              onTap: () => addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id),
+                              onTap: () {
+                                // Unfocus any text fields before updating category
+                                addTaskProvider.unfocusAll();
+                                addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
+                              },
                               onLongPress: () {
+                                // Unfocus any text fields before showing dialog
+                                addTaskProvider.unfocusAll();
                                 Get.dialog(CreateCategoryDialog(categoryModel: category));
                               },
                             )),
@@ -157,6 +163,8 @@ class CategorySelector extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: () {
+          // Unfocus any text fields before showing dialog
+          context.read<AddTaskProvider>().unfocusAll();
           Get.dialog(const CreateCategoryDialog());
         },
         borderRadius: BorderRadius.circular(20),

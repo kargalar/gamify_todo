@@ -57,6 +57,14 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
     return InkWell(
       borderRadius: AppColors.borderRadiusAll,
       onTap: () {
+        // Unfocus any text fields when selecting task type
+        if (!widget.isStore) {
+          (provider as AddTaskProvider).unfocusAll();
+        } else {
+          (provider as AddStoreItemProvider).unfocusAll();
+        }
+        // Also unfocus using FocusScope for any other fields
+        FocusScope.of(context).unfocus();
         setState(() {
           provider.selectedTaskType = taskType;
         });

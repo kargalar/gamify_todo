@@ -64,6 +64,8 @@ class _SelectDateState extends State<SelectDate> {
           ),
         ),
         onDaySelected: (selectedDay, focusedDay) {
+          // Unfocus any text fields when selecting a date
+          addTaskProvider.unfocusAll();
           setState(() {
             addTaskProvider.selectedDate = selectedDay;
           });

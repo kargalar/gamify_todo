@@ -5,6 +5,7 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/create_trait_dialog.dart
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/trait_item.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/trait_provider.dart';
+import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Enum/trait_type_enum.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
@@ -51,6 +52,9 @@ class _SelectTraitListState extends State<SelectTraitList> {
               InkWell(
                 borderRadius: AppColors.borderRadiusAll / 2,
                 onTap: () async {
+                  // Unfocus any text fields when opening dialog
+                  context.read<AddTaskProvider>().unfocusAll();
+
                   await Get.dialog(
                     CreateTraitDialog(isSkill: widget.isSkill),
                   ).then(

@@ -28,6 +28,8 @@ class _NotificationStatusState extends State<NotificationStatus> {
       child: InkWell(
         borderRadius: AppColors.borderRadiusAll,
         onTap: () async {
+          // Unfocus any text fields when changing notification status
+          addTaskProvider.unfocusAll();
           await changeNotificationStatus();
         },
         child: Padding(
@@ -53,7 +55,16 @@ class _NotificationStatusState extends State<NotificationStatus> {
 
   Future changeNotificationStatus() async {
     if (addTaskProvider.selectedTime == null) {
+      // Add a small delay to ensure keyboard is fully dismissed
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Check if widget is still mounted before proceeding
+      if (!mounted) return;
+
       final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
+
+      // Check again if widget is still mounted
+      if (!mounted) return;
 
       if (selectedTime != null) {
         if (await NotificationService().requestNotificationPermissions()) {

@@ -76,7 +76,10 @@ class _PriorityOption extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: () {
-          context.read<AddTaskProvider>().updatePriority(value);
+          // Unfocus any text fields before updating priority
+          final provider = context.read<AddTaskProvider>();
+          provider.unfocusAll();
+          provider.updatePriority(value);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),

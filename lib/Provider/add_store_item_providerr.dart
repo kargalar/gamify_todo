@@ -6,6 +6,11 @@ import 'package:gamify_todo/Model/store_item_model.dart';
 class AddStoreItemProvider with ChangeNotifier {
   // Widget variables
   TextEditingController taskNameController = TextEditingController();
+
+  // Focus nodes for managing keyboard focus
+  final FocusNode taskNameFocus = FocusNode();
+  final FocusNode descriptionFocus = FocusNode(); // Uyumluluk için eklendi
+
   int addCount = 1;
   Duration taskDuration = const Duration(hours: 0, minutes: 0);
   TaskTypeEnum selectedTaskType = TaskTypeEnum.COUNTER;
@@ -46,5 +51,56 @@ class AddStoreItemProvider with ChangeNotifier {
     addCount = value;
 
     notifyListeners();
+  }
+
+  // Method to unfocus all text fields
+  void unfocusAll() {
+    try {
+      if (taskNameFocus.hashCode != 0) {
+        taskNameFocus.unfocus();
+      }
+    } catch (e) {
+      // Focus node may have issues
+    }
+
+    try {
+      if (descriptionFocus.hashCode != 0) {
+        descriptionFocus.unfocus();
+      }
+    } catch (e) {
+      // Focus node may have issues
+    }
+  }
+
+  // Dispose focus nodes when provider is disposed
+  void disposeFocusNodes() {
+    try {
+      if (taskNameFocus.hashCode != 0) {
+        taskNameFocus.dispose();
+      }
+    } catch (e) {
+      // Focus node may already be disposed
+    }
+
+    try {
+      if (descriptionFocus.hashCode != 0) {
+        descriptionFocus.dispose();
+      }
+    } catch (e) {
+      // Focus node may already be disposed
+    }
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers and focus nodes safely
+    try {
+      taskNameController.dispose();
+    } catch (e) {
+      // Controller may already be disposed
+    }
+
+    disposeFocusNodes();
+    super.dispose();
   }
 }

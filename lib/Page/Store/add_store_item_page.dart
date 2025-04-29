@@ -58,107 +58,128 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) goBackCheck();
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(LocaleKeys.AddItem.tr()),
-          leading: InkWell(
-            borderRadius: AppColors.borderRadiusAll,
-            onTap: () {
-              goBackCheck();
-            },
-            child: const Icon(Icons.arrow_back_ios),
+      child: GestureDetector(
+        // Unfocus when tapping outside of text fields
+        onTap: () {
+          // Unfocus all text fields
+          addStoreItemProvider.unfocusAll();
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(LocaleKeys.AddItem.tr()),
+            leading: InkWell(
+              borderRadius: AppColors.borderRadiusAll,
+              onTap: () {
+                // Unfocus before going back
+                addStoreItemProvider.unfocusAll();
+                FocusScope.of(context).unfocus();
+                goBackCheck();
+              },
+              child: const Icon(Icons.arrow_back_ios),
+            ),
+            actions: [
+              if (widget.editItemModel == null)
+                Consumer(
+                  builder: (context, AddStoreItemProvider addStoreItemProvider, child) {
+                    return InkWell(
+                      borderRadius: AppColors.borderRadiusAll,
+                      onTap: () {
+                        // TODO: ardarda basıp yanlış kopyalar ekleyebiliyorum düzelt. bir kere basınca tekrar basılamasın tüm sayfaya olabilir.
+
+                        // Unfocus before saving
+                        addStoreItemProvider.unfocusAll();
+                        FocusScope.of(context).unfocus();
+
+                        if (addStoreItemProvider.taskNameController.text.trim().isEmpty) {
+                          addStoreItemProvider.taskNameController.clear();
+
+                          Helper().getMessage(
+                            message: LocaleKeys.NameEmpty.tr(),
+                            status: StatusEnum.WARNING,
+                          );
+                          return;
+                        }
+
+                        addStoreItemProvider.addItem();
+
+                        Get.back();
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        child: Icon(Icons.check),
+                      ),
+                    );
+                  },
+                ),
+            ],
           ),
-          actions: [
-            if (widget.editItemModel == null)
-              Consumer(
-                builder: (context, AddStoreItemProvider addStoreItemProvider, child) {
-                  return InkWell(
-                    borderRadius: AppColors.borderRadiusAll,
-                    onTap: () {
-                      // TODO: ardarda basıp yanlış kopyalar ekleyebiliyorum düzelt. bir kere basınca tekrar basılamasın tüm sayfaya olabilir.
+          body: SingleChildScrollView(
+            // Add keyboard dismiss behavior
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  if (widget.editItemModel != null) EditProgressWidget.forStoreItem(item: widget.editItemModel!),
+                  const SizedBox(height: 20),
+                  TaskName(
+                    isStore: true,
+                    autoFocus: widget.editItemModel == null,
+                  ),
+                  const SizedBox(height: 10),
+                  const SetCredit(),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const DurationPickerWidget(isStore: true),
+                      const SizedBox(width: 20),
+                      if (widget.editItemModel == null) const SelectTaskType(isStore: true),
+                      if (widget.editItemModel != null && widget.editItemModel!.type == TaskTypeEnum.COUNTER)
+                        const Column(
+                          children: [
+                            // TODO: localization
+                            Text("Add Count"),
+                            SelectTargetCount(isStore: true),
+                          ],
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  if (widget.editItemModel != null) ...[
+                    const SizedBox(height: 30),
+                    InkWell(
+                      borderRadius: AppColors.borderRadiusAll,
+                      onTap: () {
+                        // Unfocus before deleting
+                        addStoreItemProvider.unfocusAll();
+                        FocusScope.of(context).unfocus();
 
-                      if (addStoreItemProvider.taskNameController.text.trim().isEmpty) {
-                        addStoreItemProvider.taskNameController.clear();
-
-                        Helper().getMessage(
-                          message: LocaleKeys.NameEmpty.tr(),
-                          status: StatusEnum.WARNING,
-                        );
-                        return;
-                      }
-
-                      addStoreItemProvider.addItem();
-
-                      Get.back();
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      child: Icon(Icons.check),
-                    ),
-                  );
-                },
-              ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                if (widget.editItemModel != null) EditProgressWidget.forStoreItem(item: widget.editItemModel!),
-                const SizedBox(height: 20),
-                TaskName(
-                  isStore: true,
-                  autoFocus: widget.editItemModel == null,
-                ),
-                const SizedBox(height: 10),
-                const SetCredit(),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const DurationPickerWidget(isStore: true),
-                    const SizedBox(width: 20),
-                    if (widget.editItemModel == null) const SelectTaskType(isStore: true),
-                    if (widget.editItemModel != null && widget.editItemModel!.type == TaskTypeEnum.COUNTER)
-                      const Column(
-                        children: [
-                          // TODO: localization
-                          Text("Add Count"),
-                          SelectTargetCount(isStore: true),
-                        ],
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                if (widget.editItemModel != null) ...[
-                  const SizedBox(height: 30),
-                  InkWell(
-                    borderRadius: AppColors.borderRadiusAll,
-                    onTap: () {
-                      storeProvider.deleteItem(widget.editItemModel!.id);
-                      Get.back();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        borderRadius: AppColors.borderRadiusAll,
-                        color: AppColors.red,
-                      ),
-                      child: Text(
-                        LocaleKeys.Delete.tr(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.white,
+                        storeProvider.deleteItem(widget.editItemModel!.id);
+                        Get.back();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: AppColors.borderRadiusAll,
+                          color: AppColors.red,
+                        ),
+                        child: Text(
+                          LocaleKeys.Delete.tr(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
+                  const SizedBox(height: 50),
                 ],
-                const SizedBox(height: 50),
-              ],
+              ),
             ),
           ),
         ),

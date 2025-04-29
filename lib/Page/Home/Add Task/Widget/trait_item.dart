@@ -48,6 +48,11 @@ class _TraitItemState extends State<TraitItem> {
           highlightColor: widget.trait.color,
           splashColor: isSelected ? null : widget.trait.color,
           onTap: () async {
+            // Unfocus any text fields when selecting trait
+            if (!widget.isStatisticsPage) {
+              addTaskProvider.unfocusAll();
+            }
+
             if (widget.isStatisticsPage) {
               await NavigatorService().goTo(
                 TraitDetailPage(traitModel: widget.trait),
@@ -65,6 +70,11 @@ class _TraitItemState extends State<TraitItem> {
             }
           },
           onLongPress: () async {
+            // Unfocus any text fields when long pressing trait
+            if (!widget.isStatisticsPage) {
+              addTaskProvider.unfocusAll();
+            }
+
             await NavigatorService().goTo(
               TraitDetailPage(
                 traitModel: widget.trait,

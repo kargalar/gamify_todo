@@ -20,6 +20,35 @@ class SelectTime extends StatefulWidget {
 class _SelectTimeState extends State<SelectTime> {
   late final addTaskProvider = context.read<AddTaskProvider>();
 
+  // Method to handle time selection with proper async handling
+  Future<void> _selectTime() async {
+    // Add a small delay to ensure keyboard is fully dismissed
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    // Check if widget is still mounted before proceeding
+    if (!mounted) return;
+
+    final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
+
+    // Check again if widget is still mounted
+    if (!mounted) return;
+
+    if (selectedTime != null) {
+      if (await NotificationService().requestNotificationPermissions()) {
+        if (addTaskProvider.isAlarmOn) return;
+        addTaskProvider.isNotificationOn = true;
+      } else {
+        addTaskProvider.isNotificationOn = false;
+        addTaskProvider.isAlarmOn = false;
+      }
+    } else {
+      addTaskProvider.isNotificationOn = false;
+      addTaskProvider.isAlarmOn = false;
+    }
+
+    addTaskProvider.updateTime(selectedTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -45,23 +74,12 @@ class _SelectTimeState extends State<SelectTime> {
             ],
           ),
         ),
-        onTap: () async {
-          final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
+        onTap: () {
+          // Unfocus any text fields before showing time picker
+          addTaskProvider.unfocusAll();
 
-          if (selectedTime != null) {
-            if (await NotificationService().requestNotificationPermissions()) {
-              if (addTaskProvider.isAlarmOn) return;
-              addTaskProvider.isNotificationOn = true;
-            } else {
-              addTaskProvider.isNotificationOn = false;
-              addTaskProvider.isAlarmOn = false;
-            }
-          } else {
-            addTaskProvider.isNotificationOn = false;
-            addTaskProvider.isAlarmOn = false;
-          }
-
-          addTaskProvider.updateTime(selectedTime);
+          // Use a separate method to handle the async operations
+          _selectTime();
         },
       ),
     );

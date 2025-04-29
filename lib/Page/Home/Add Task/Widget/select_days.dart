@@ -77,6 +77,9 @@ class _DayButtonState extends State<DayButton> {
         borderRadius: AppColors.borderRadiusCircular,
       ),
       onTap: () {
+        // Unfocus any text fields when selecting days
+        addTaskProvider.unfocusAll();
+
         setState(() {
           isSelected = !isSelected;
         });
