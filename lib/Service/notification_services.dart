@@ -326,15 +326,15 @@ class NotificationService {
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
           playSound: false,
-          // Make completed notifications dismissible by swiping
-          ongoing: !isCompleted,
-          autoCancel: isCompleted,
+          // Active timer notifications cannot be dismissed, completion notifications can be dismissed
+          ongoing: !isCompleted, // Cannot be swiped away when true
+          autoCancel: isCompleted, // Auto dismiss when tapped if completed
           usesChronometer: !isCompleted, // Don't use chronometer for completed notifications
           chronometerCountDown: isCountDown && !isCompleted,
           when: isCountDown ? DateTime.now().millisecondsSinceEpoch + currentDuration.inMilliseconds : DateTime.now().millisecondsSinceEpoch - currentDuration.inMilliseconds,
           visibility: NotificationVisibility.private,
           onlyAlertOnce: true,
-          fullScreenIntent: !isCompleted, // Only use full screen intent for active timers
+          fullScreenIntent: false, // Don't use full screen intent for timers
           category: isCompleted ? AndroidNotificationCategory.status : AndroidNotificationCategory.service,
           silent: !isCompleted, // Play sound for completion notifications
         ),

@@ -33,6 +33,9 @@ class GlobalTimer {
       // Timer başlatıldığında zamanı kaydet
       final prefs = await SharedPreferences.getInstance();
       if (newTimerState) {
+        // Önce mevcut timer bildirimini iptal et
+        NotificationService().cancelNotificationOrAlarm(-taskModel.id);
+
         // Timer başlatılıyor
         NotificationService().showTimerNotification(
           id: taskModel.id,
@@ -106,6 +109,7 @@ class GlobalTimer {
         // Bildirimleri iptal et
         NotificationService().cancelNotificationOrAlarm(-taskModel.id);
         NotificationService().cancelNotificationOrAlarm(taskModel.id + 100000);
+        NotificationService().cancelNotificationOrAlarm(taskModel.id + 200000); // Tamamlanma bildirimini de iptal et
       }
 
       // Sunucuya güncelleme gönder
@@ -118,6 +122,9 @@ class GlobalTimer {
       // Timer başlatıldığında zamanı kaydet
       final prefs = await SharedPreferences.getInstance();
       if (newTimerState) {
+        // Önce mevcut timer bildirimini iptal et
+        NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
+
         // Timer başlatılıyor
         NotificationService().showTimerNotification(
           id: storeItemModel.id,
@@ -152,6 +159,7 @@ class GlobalTimer {
         // Bildirimleri iptal et
         NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
         NotificationService().cancelNotificationOrAlarm(storeItemModel.id + 100000);
+        NotificationService().cancelNotificationOrAlarm(storeItemModel.id + 200000); // Tamamlanma bildirimini de iptal et
       }
 
       // Sunucuya güncelleme gönder
@@ -226,34 +234,18 @@ class GlobalTimer {
                   isCompleted: true, // Mark as completed so it can be dismissed
                 );
 
-                // Timer tamamlandığında log oluştur
-                String? timerStartTimeStr = prefs.getString('timer_start_time_${task.id}');
-
-                if (timerStartTimeStr != null) {
-                  // Timer başlangıç zamanını hesapla
-                  DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
-
-                  // Timer çalışma süresini hesapla (şu anki zaman - başlangıç zamanı)
-                  Duration timerRunDuration = DateTime.now().difference(timerStartTime);
-
-                  // Sadece pozitif değişimleri logla
-                  if (timerRunDuration.inSeconds > 0) {
-                    // Tam zamanı kaydet
-                    final now = DateTime.now();
-                    TaskLogProvider().addTaskLog(
-                      task,
-                      customLogDate: DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second, now.millisecond),
-                      customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
-                      customStatus: TaskStatusEnum.COMPLETED, // Tamamlandı olarak işaretle
-                    );
-                  }
-                }
+                // Timer tamamlandığında log oluşturma - sadece timer durdurulduğunda log oluşturulacak
+                // Burada log oluşturmuyoruz, çünkü timer durdurulduğunda zaten log oluşturulacak
 
                 // Timer'ı durdurma - kullanıcı isterse durdurabilir
                 // task.isTimerActive = false;
 
-                // Zamanlanmış bildirimi iptal et (tamamlanma bildirimi)
-                NotificationService().cancelNotificationOrAlarm(task.id + 100000);
+                // Zamanlanmış bildirimleri iptal et
+                NotificationService().cancelNotificationOrAlarm(task.id + 100000); // Zamanlanmış tamamlanma bildirimi
+                // Tamamlanma bildirimini 10 saniye sonra otomatik olarak kaldır
+                Future.delayed(const Duration(seconds: 10), () {
+                  NotificationService().cancelNotificationOrAlarm(task.id + 200000); // Tamamlanma bildirimi
+                });
 
                 // Veritabanını güncelle
                 ServerManager().updateTask(taskModel: task);
