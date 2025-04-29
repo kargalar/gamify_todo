@@ -224,6 +224,9 @@ class GlobalTimer {
                 task.status = TaskStatusEnum.COMPLETED;
                 HomeWidgetService.updateTaskCount();
 
+                // Önce zamanlanmış bildirimleri iptal et
+                NotificationService().cancelNotificationOrAlarm(task.id + 100000); // Zamanlanmış tamamlanma bildirimi
+
                 // Timer tamamlandığında bildirim gönder
                 NotificationService().showTimerNotification(
                   id: task.id + 200000, // Farklı bir ID kullan
@@ -240,8 +243,6 @@ class GlobalTimer {
                 // Timer'ı durdurma - kullanıcı isterse durdurabilir
                 // task.isTimerActive = false;
 
-                // Zamanlanmış bildirimleri iptal et
-                NotificationService().cancelNotificationOrAlarm(task.id + 100000); // Zamanlanmış tamamlanma bildirimi
                 // Tamamlanma bildirimini 10 saniye sonra otomatik olarak kaldır
                 Future.delayed(const Duration(seconds: 10), () {
                   NotificationService().cancelNotificationOrAlarm(task.id + 200000); // Tamamlanma bildirimi
@@ -264,6 +265,33 @@ class GlobalTimer {
           for (var storeItem in StoreProvider().storeItemList) {
             if (storeItem.isTimerActive != null && storeItem.isTimerActive == true) {
               storeItem.currentDuration = storeItem.currentDuration! - const Duration(seconds: 1);
+
+              // Check if timer has reached zero
+              if (storeItem.currentDuration!.inSeconds <= 0) {
+                // Cancel the scheduled notification first
+                NotificationService().cancelNotificationOrAlarm(storeItem.id + 100000);
+
+                // Show timer completion notification
+                NotificationService().showTimerNotification(
+                  id: storeItem.id + 200000, // Different ID for completion notification
+                  title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
+                  currentDuration: Duration.zero,
+                  remainingDuration: null,
+                  isCountDown: true,
+                  isCompleted: true, // Mark as completed so it can be dismissed
+                );
+
+                // Auto-dismiss notification after 10 seconds
+                Future.delayed(const Duration(seconds: 10), () {
+                  NotificationService().cancelNotificationOrAlarm(storeItem.id + 200000);
+                });
+
+                // Reset timer to zero to prevent negative values
+                storeItem.currentDuration = Duration.zero;
+
+                // Update item in database
+                ServerManager().updateItem(itemModel: storeItem);
+              }
 
               if (storeItem.currentDuration!.inSeconds % 5 == 0) {
                 prefs.setString('item_last_update_${storeItem.id}', DateTime.now().toIso8601String());

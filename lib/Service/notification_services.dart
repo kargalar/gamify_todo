@@ -326,8 +326,8 @@ class NotificationService {
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
           playSound: false,
-          // Active timer notifications cannot be dismissed, completion notifications can be dismissed
-          ongoing: !isCompleted, // Cannot be swiped away when true
+          // Make active timer notifications non-dismissible, but completed ones dismissible
+          ongoing: !isCompleted, // Cannot be swiped away when true for active timers
           autoCancel: isCompleted, // Auto dismiss when tapped if completed
           usesChronometer: !isCompleted, // Don't use chronometer for completed notifications
           chronometerCountDown: isCountDown && !isCompleted,
