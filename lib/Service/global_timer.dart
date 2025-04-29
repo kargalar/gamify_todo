@@ -212,6 +212,7 @@ class GlobalTimer {
 
               // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma
               if (task.status != TaskStatusEnum.COMPLETED && task.currentDuration! >= task.remainingDuration!) {
+                // Clear any existing status before setting to COMPLETED
                 task.status = TaskStatusEnum.COMPLETED;
                 HomeWidgetService.updateTaskCount();
 

@@ -23,6 +23,7 @@ class TaskActionHandler {
       if (taskModel.status == TaskStatusEnum.COMPLETED) {
         taskModel.status = null;
       } else {
+        // Clear any existing status before setting to COMPLETED
         taskModel.status = TaskStatusEnum.COMPLETED;
 
         // Create log for completed checkbox task
@@ -47,6 +48,7 @@ class TaskActionHandler {
       AppHelper().addCreditByProgress(taskModel.remainingDuration);
 
       if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
+        // Clear any existing status before setting to COMPLETED
         taskModel.status = TaskStatusEnum.COMPLETED;
 
         // Create log for completed counter task
@@ -106,13 +108,23 @@ class TaskActionHandler {
 
   /// Handles task failure action
   static void handleTaskFailure(TaskModel taskModel) {
-    taskModel.status = TaskStatusEnum.FAILED;
+    bool wasFailed = taskModel.status == TaskStatusEnum.FAILED;
 
-    // Create log for failed task
-    TaskLogProvider().addTaskLog(
-      taskModel,
-      customStatus: TaskStatusEnum.FAILED,
-    );
+    if (taskModel.status == TaskStatusEnum.FAILED) {
+      // If already failed, set to null (in progress)
+      taskModel.status = null;
+    } else {
+      // Set to failed, clearing any other status
+      taskModel.status = TaskStatusEnum.FAILED;
+    }
+
+    // Create log for failed task only if status is changing to FAILED
+    if (!wasFailed && taskModel.status == TaskStatusEnum.FAILED) {
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: TaskStatusEnum.FAILED,
+      );
+    }
 
     // Update task in provider
     ServerManager().updateTask(taskModel: taskModel);
@@ -122,13 +134,34 @@ class TaskActionHandler {
 
   /// Handles task cancellation action
   static void handleTaskCancellation(TaskModel taskModel) {
-    taskModel.status = TaskStatusEnum.CANCEL;
+    bool wasCancelled = taskModel.status == TaskStatusEnum.CANCEL;
 
-    // Create log for cancelled task
-    TaskLogProvider().addTaskLog(
-      taskModel,
-      customStatus: TaskStatusEnum.CANCEL,
-    );
+    if (taskModel.status == TaskStatusEnum.CANCEL) {
+      // If already cancelled, determine what to set it to
+      if (taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) {
+        taskModel.status = TaskStatusEnum.COMPLETED;
+      } else if (taskModel.type == TaskTypeEnum.TIMER && taskModel.currentDuration! >= taskModel.remainingDuration!) {
+        taskModel.status = TaskStatusEnum.COMPLETED;
+      } else {
+        taskModel.status = null;
+      }
+    } else {
+      // Set to cancelled, clearing any other status
+      taskModel.status = TaskStatusEnum.CANCEL;
+    }
+
+    // Create log for cancelled task only if status is changing to CANCEL
+    if (!wasCancelled && taskModel.status == TaskStatusEnum.CANCEL) {
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: TaskStatusEnum.CANCEL,
+      );
+    } else if (!wasCancelled && taskModel.status == TaskStatusEnum.COMPLETED) {
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: TaskStatusEnum.COMPLETED,
+      );
+    }
 
     // Update task in provider
     ServerManager().updateTask(taskModel: taskModel);

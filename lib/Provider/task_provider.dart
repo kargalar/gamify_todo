@@ -206,6 +206,7 @@ class TaskProvider with ChangeNotifier {
     bool wasCancelled = taskModel.status == TaskStatusEnum.CANCEL;
 
     if (taskModel.status == TaskStatusEnum.CANCEL) {
+      // If already cancelled, determine what to set it to
       if (taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) {
         taskModel.status = TaskStatusEnum.COMPLETED;
       } else if (taskModel.type == TaskTypeEnum.TIMER && taskModel.currentDuration! >= taskModel.remainingDuration!) {
@@ -214,6 +215,7 @@ class TaskProvider with ChangeNotifier {
         taskModel.status = null;
       }
     } else {
+      // Set to cancelled, clearing any other status
       taskModel.status = TaskStatusEnum.CANCEL;
     }
 
@@ -247,8 +249,10 @@ class TaskProvider with ChangeNotifier {
     bool wasFailed = taskModel.status == TaskStatusEnum.FAILED;
 
     if (taskModel.status == TaskStatusEnum.FAILED) {
+      // If already failed, set to null (in progress)
       taskModel.status = null;
     } else {
+      // Set to failed, clearing any other status
       taskModel.status = TaskStatusEnum.FAILED;
     }
 
@@ -321,6 +325,7 @@ class TaskProvider with ChangeNotifier {
   // TODO: just for routine
   // ? rutin model mi task model mi
   completeRoutine(TaskModel taskModel) {
+    // Clear any existing status before setting to COMPLETED
     taskModel.status = TaskStatusEnum.COMPLETED;
 
     ServerManager().updateTask(taskModel: taskModel);

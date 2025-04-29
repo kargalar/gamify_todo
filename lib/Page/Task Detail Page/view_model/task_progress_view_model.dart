@@ -187,6 +187,7 @@ class TaskProgressViewModel extends ChangeNotifier {
         Duration userChange = value - previousDuration;
 
         if (value >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.COMPLETED) {
+          // Clear any existing status before setting to COMPLETED
           taskModel!.status = TaskStatusEnum.COMPLETED;
         } else if (value < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.COMPLETED) {
           taskModel!.status = null;
@@ -283,6 +284,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       int userChange = value - previousCount;
 
       if (value >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.COMPLETED) {
+        // Clear any existing status before setting to COMPLETED
         taskModel!.status = TaskStatusEnum.COMPLETED;
       } else if (value < taskModel!.targetCount! && taskModel!.status == TaskStatusEnum.COMPLETED) {
         taskModel!.status = null;

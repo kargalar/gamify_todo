@@ -59,7 +59,7 @@ class CheckboxStatusViewModel extends ChangeNotifier {
         );
       }
     } else {
-      // Yeni durum
+      // Set new status, clearing any previous status
       taskModel.status = newStatus;
 
       // Son logları kontrol et

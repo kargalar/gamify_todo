@@ -18,100 +18,117 @@ class TaskStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Widget> statusWidgets = [];
 
-    // Show completed status if completed
-    if (taskModel.status == TaskStatusEnum.COMPLETED || (taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) || (taskModel.type == TaskTypeEnum.TIMER && taskModel.currentDuration! >= taskModel.remainingDuration!)) {
-      statusWidgets.add(
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: AppColors.green.withAlpha(80),
-            borderRadius: AppColors.borderRadiusAll,
-          ),
-          child: Text(
-            LocaleKeys.Completed.tr(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Show archived status if archived
-    if (taskModel.status == TaskStatusEnum.ARCHIVED) {
-      statusWidgets.add(
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          margin: statusWidgets.isNotEmpty ? const EdgeInsets.only(left: 4) : null,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.withAlpha(150), width: 1),
-            borderRadius: AppColors.borderRadiusAll,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.archive_outlined,
-                size: 12,
-                color: Colors.grey[600],
+    // First check for explicit status
+    if (taskModel.status != null) {
+      switch (taskModel.status) {
+        case TaskStatusEnum.COMPLETED:
+          statusWidgets.add(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.green.withAlpha(80),
+                borderRadius: AppColors.borderRadiusAll,
               ),
-              const SizedBox(width: 4),
-              Text(
-                'Archived',
-                style: TextStyle(
+              child: Text(
+                LocaleKeys.Completed.tr(),
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
                 ),
               ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Show failed status
-    if (taskModel.status == TaskStatusEnum.FAILED) {
-      statusWidgets.add(
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          margin: statusWidgets.isNotEmpty ? const EdgeInsets.only(left: 4) : null,
-          decoration: BoxDecoration(
-            color: AppColors.red.withAlpha(100),
-            borderRadius: AppColors.borderRadiusAll,
-          ),
-          child: Text(
-            LocaleKeys.Failed.tr(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
+            ),
+          );
+          break;
+        case TaskStatusEnum.ARCHIVED:
+          statusWidgets.add(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.withAlpha(150), width: 1),
+                borderRadius: AppColors.borderRadiusAll,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.archive_outlined,
+                    size: 12,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Archived',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+          break;
+        case TaskStatusEnum.FAILED:
+          statusWidgets.add(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.red.withAlpha(100),
+                borderRadius: AppColors.borderRadiusAll,
+              ),
+              child: Text(
+                LocaleKeys.Failed.tr(),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+          break;
+        case TaskStatusEnum.CANCEL:
+          statusWidgets.add(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.purple.withAlpha(100),
+                borderRadius: AppColors.borderRadiusAll,
+              ),
+              child: Text(
+                LocaleKeys.Cancel.tr(),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+          break;
+        default:
+          break;
+      }
+    } else {
+      // If no explicit status, check if task should be marked as completed based on progress
+      if ((taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) || (taskModel.type == TaskTypeEnum.TIMER && taskModel.currentDuration! >= taskModel.remainingDuration!)) {
+        statusWidgets.add(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.green.withAlpha(80),
+              borderRadius: AppColors.borderRadiusAll,
+            ),
+            child: Text(
+              LocaleKeys.Completed.tr(),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
-      );
-    }
-
-    // Show cancel status
-    if (taskModel.status == TaskStatusEnum.CANCEL) {
-      statusWidgets.add(
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          margin: statusWidgets.isNotEmpty ? const EdgeInsets.only(left: 4) : null,
-          decoration: BoxDecoration(
-            color: AppColors.purple.withAlpha(100),
-            borderRadius: AppColors.borderRadiusAll,
-          ),
-          child: Text(
-            LocaleKeys.Cancel.tr(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
+        );
+      }
     }
 
     if (statusWidgets.isEmpty) {
