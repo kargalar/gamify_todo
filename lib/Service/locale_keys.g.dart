@@ -62,6 +62,7 @@ abstract class LocaleKeys {
   static const BestHour = 'BestHour';
   static const BestDay = 'BestDay';
   static const LongestStreak = 'LongestStreak';
+  static const CurrentStreak = 'CurrentStreak';
   static const Streak = 'Streak';
   static const Day = 'Day';
   static const Today = 'Today';

@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Profile/Widget/top_item.dart';
 import 'package:gamify_todo/Page/Profile/Widget/profile_page_top_section.dart';
 import 'package:gamify_todo/Page/Profile/Widget/trait_list.dart';
 import 'package:gamify_todo/Page/Profile/Widget/weekly_total_progress_chart.dart';
@@ -88,17 +87,15 @@ class ProfilePageContent extends StatelessWidget {
         child: Column(
           children: [
             ProfilePageTopSection(),
-            SizedBox(height: 40),
+            SizedBox(height: 20),
             WeeklyTotalProgressChart(),
-            SizedBox(height: 40),
+            SizedBox(height: 20),
             StreakAnalysis(),
-            SizedBox(height: 40),
-            TopItem(),
-            SizedBox(height: 40),
+            SizedBox(height: 20),
             TraitList(isSkill: false),
             SizedBox(height: 20),
             TraitList(isSkill: true),
-            SizedBox(height: 80),
+            SizedBox(height: 60),
           ],
         ),
       ),
