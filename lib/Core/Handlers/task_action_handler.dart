@@ -21,7 +21,14 @@ class TaskActionHandler {
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
       if (taskModel.status == TaskStatusEnum.COMPLETED) {
+        // Change from completed to in progress (null)
         taskModel.status = null;
+
+        // Create log for uncompleted checkbox task
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
       } else {
         // Clear any existing status before setting to COMPLETED
         taskModel.status = TaskStatusEnum.COMPLETED;
