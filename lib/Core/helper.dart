@@ -285,7 +285,7 @@ class Helper {
     final selectedTime = await showTimePicker(
       context: context,
       initialTime: initialTime ?? const TimeOfDay(hour: 12, minute: 0),
-      initialEntryMode: TimePickerEntryMode.dial,
+      initialEntryMode: TimePickerEntryMode.dialOnly,
     );
 
     return selectedTime;

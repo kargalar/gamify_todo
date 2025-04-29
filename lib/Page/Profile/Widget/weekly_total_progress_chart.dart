@@ -234,7 +234,7 @@ class _LineChart extends StatelessWidget {
                 // Süre - temiz format
                 final duration = totalDurations[date] ?? Duration.zero;
                 // Duration extension kullanarak temiz format
-                final durationStr = duration.textShortDynamic();
+                final durationStr = duration.textShort2hour();
 
                 return LineTooltipItem(
                   "$dateStr\n$durationStr",
