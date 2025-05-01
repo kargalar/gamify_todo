@@ -19,6 +19,8 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_trait.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_manager.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_description.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
+import 'package:gamify_todo/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
+import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Service/navigator_service.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
@@ -46,6 +48,7 @@ class AddTaskPage extends StatefulWidget {
 class _AddTaskPageState extends State<AddTaskPage> {
   late final addTaskProvider = context.read<AddTaskProvider>();
   late final taskProvider = context.read<TaskProvider>();
+  TaskDetailViewModel? _taskDetailViewModel;
 
   bool isLoadign = false;
 
@@ -56,6 +59,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
     if (widget.editTask != null) {
       RoutineModel? routine;
       addTaskProvider.editTask = widget.editTask;
+
+      // Initialize the TaskDetailViewModel for the edit task
+      _taskDetailViewModel = TaskDetailViewModel(widget.editTask!);
+      _taskDetailViewModel!.initialize();
       if (addTaskProvider.editTask!.routineID != null) {
         routine = taskProvider.routineList.firstWhere((element) => element.id == widget.editTask!.routineID);
 
@@ -104,6 +111,15 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   // We don't need to explicitly dispose focus nodes here
   // The provider will handle it in its own dispose method
+
+  @override
+  void dispose() {
+    // Clean up the TaskDetailViewModel
+    if (_taskDetailViewModel != null) {
+      _taskDetailViewModel!.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +238,19 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     const SelectTraitList(isSkill: false),
                     const SizedBox(height: 10),
                     const SelectTraitList(isSkill: true),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 20),
+
+                    // Add Recent Logs section for edit task
+                    if (addTaskProvider.editTask != null && _taskDetailViewModel != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RecentLogsWidget(viewModel: _taskDetailViewModel!),
+                          const SizedBox(height: 30),
+                        ],
+                      ),
+
+                    const SizedBox(height: 20),
                     if (addTaskProvider.editTask != null)
                       InkWell(
                         borderRadius: AppColors.borderRadiusAll,
