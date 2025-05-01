@@ -94,6 +94,7 @@ class LoginScreen extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       keyboardType: !obscureText ? TextInputType.emailAddress : null,
+      textCapitalization: TextCapitalization.sentences,
       autofillHints: !obscureText ? const [AutofillHints.email] : null,
       decoration: InputDecoration(
         hintText: hint,

@@ -66,6 +66,7 @@ class RegisterScreenState extends State<RegisterScreen> {
       obscureText: obscureText,
       controller: controller,
       keyboardType: !obscureText ? TextInputType.emailAddress : null,
+      textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,

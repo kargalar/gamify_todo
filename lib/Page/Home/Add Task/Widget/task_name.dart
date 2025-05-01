@@ -33,6 +33,7 @@ class TaskName extends StatelessWidget {
             autofocus: autoFocus,
             controller: provider.taskNameController,
             focusNode: provider.taskNameFocus,
+            textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: LocaleKeys.TaskName.tr(),
               enabledBorder: InputBorder.none,

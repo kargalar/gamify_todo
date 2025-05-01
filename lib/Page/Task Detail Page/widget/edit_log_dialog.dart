@@ -196,6 +196,7 @@ class _EditLogDialogState extends State<EditLogDialog> {
               // Counter için sayı girişi
               TextField(
                 keyboardType: TextInputType.number,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: LocaleKeys.EnterCount.tr(),
                   border: const OutlineInputBorder(),
@@ -217,6 +218,7 @@ class _EditLogDialogState extends State<EditLogDialog> {
                   Expanded(
                     child: TextField(
                       keyboardType: TextInputType.number,
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         hintText: LocaleKeys.Hours.tr(),
                         border: const OutlineInputBorder(),
@@ -236,6 +238,7 @@ class _EditLogDialogState extends State<EditLogDialog> {
                   Expanded(
                     child: TextField(
                       keyboardType: TextInputType.number,
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         hintText: LocaleKeys.Minutes.tr(),
                         border: const OutlineInputBorder(),

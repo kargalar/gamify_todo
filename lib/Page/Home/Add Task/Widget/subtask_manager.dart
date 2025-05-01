@@ -63,6 +63,7 @@ class _SubtaskManagerState extends State<SubtaskManager> {
                       controller: _subtaskController,
                       focusNode: addTaskProvider.subtaskFocus,
                       autofocus: false, // Don't autofocus on page load
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         hintText: LocaleKeys.AddSubtask.tr(),
                         border: InputBorder.none,

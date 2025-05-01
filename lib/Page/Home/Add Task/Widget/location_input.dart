@@ -31,6 +31,7 @@ class LocationInput extends StatelessWidget {
           child: TextField(
             controller: addTaskProvider.locationController,
             focusNode: addTaskProvider.locationFocus,
+            textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: LocaleKeys.EnterLocation.tr(),
               border: InputBorder.none,

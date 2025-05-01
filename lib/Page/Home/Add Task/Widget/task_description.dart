@@ -26,6 +26,7 @@ class TaskDescription extends StatelessWidget {
           child: TextField(
             controller: provider.descriptionController,
             focusNode: provider.descriptionFocus,
+            textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
               hintText: LocaleKeys.TaskDescription.tr(),
               enabledBorder: InputBorder.none,

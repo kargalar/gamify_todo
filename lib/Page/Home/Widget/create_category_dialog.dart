@@ -75,6 +75,7 @@ class _CreateCategoryDialogState extends State<CreateCategoryDialog> {
             // Category Name Input
             TextField(
               controller: categoryTitleController,
+              textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                 labelText: LocaleKeys.CategoryName.tr(),
                 filled: true,

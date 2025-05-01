@@ -244,6 +244,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                         Expanded(
                           child: TextField(
                             controller: traitTitleController,
+                            textCapitalization: TextCapitalization.sentences,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,

@@ -48,6 +48,7 @@ class _CreateTraitDialogState extends State<CreateTraitDialog> {
               child: TextField(
                 autofocus: true,
                 controller: traitTitleController,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: LocaleKeys.Name.tr(),
                   enabledBorder: InputBorder.none,
