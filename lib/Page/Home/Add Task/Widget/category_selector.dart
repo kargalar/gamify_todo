@@ -110,16 +110,16 @@ class CategorySelector extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         child: Ink(
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground,
+            color: isSelected ? color.withValues(alpha: 0.2) : AppColors.panelBackground,
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: isSelected ? color : Colors.grey.shade300,
+              color: isSelected ? color.withValues(alpha: 0.7) : Colors.grey.shade300,
               width: isSelected ? 1.5 : 1.0,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: color.withValues(alpha: 0.1),
+                      color: color.withValues(alpha: 0.2),
                       blurRadius: 3,
                       offset: const Offset(0, 1),
                     ),
@@ -147,6 +147,15 @@ class CategorySelector extends StatelessWidget {
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     color: isSelected ? color : Colors.grey.shade700,
                     letterSpacing: 0.1,
+                    shadows: isSelected
+                        ? [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 0.5,
+                              offset: const Offset(0, 0.5),
+                            ),
+                          ]
+                        : null,
                   ),
                 ),
               ],

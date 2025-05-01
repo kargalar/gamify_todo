@@ -26,31 +26,38 @@ class TaskCategory extends StatelessWidget {
       margin: const EdgeInsets.only(top: 2),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: category.color.withValues(alpha: 0.15),
+        color: category.color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: category.color.withValues(alpha: 0.5),
+          color: category.color.withValues(alpha: 0.7),
           width: 1,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Container(
-          //   width: 6,
-          //   height: 6,
-          //   decoration: BoxDecoration(
-          //     color: category.color,
-          //     shape: BoxShape.circle,
-          //   ),
-          // ),
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: category.color,
+              shape: BoxShape.circle,
+            ),
+          ),
           const SizedBox(width: 3),
           Text(
             "#${category.title}",
             style: TextStyle(
               fontSize: 10,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: category.color,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 0.5,
+                  offset: const Offset(0, 0.5),
+                ),
+              ],
             ),
           ),
         ],
