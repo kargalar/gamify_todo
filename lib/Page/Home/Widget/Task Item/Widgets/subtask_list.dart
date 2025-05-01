@@ -4,6 +4,7 @@ import 'package:gamify_todo/Enum/task_status_enum.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Model/subtask_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
@@ -104,36 +105,60 @@ class _SubtaskListState extends State<SubtaskList> {
       onTap: () {
         _toggleSubtaskCompletion(context, subtask);
       },
+      onLongPress: () {
+        // Show edit dialog when long-pressed
+        _showSubtaskEditDialog(context, subtask);
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: Checkbox(
-                value: subtask.isCompleted,
-                activeColor: AppColors.main,
-                onChanged: (value) {
-                  if (value != null) {
-                    _toggleSubtaskCompletion(context, subtask);
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                subtask.title,
-                style: TextStyle(
-                  fontSize: 14,
-                  decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
-                  color: subtask.isCompleted ? AppColors.text.withValues(alpha: 0.6) : AppColors.text,
+            Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: Checkbox(
+                    value: subtask.isCompleted,
+                    activeColor: AppColors.main,
+                    onChanged: (value) {
+                      if (value != null) {
+                        _toggleSubtaskCompletion(context, subtask);
+                      }
+                    },
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    subtask.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
+                      color: subtask.isCompleted ? AppColors.text.withValues(alpha: 0.6) : AppColors.text,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
+            // Show description if available
+            if (subtask.description != null && subtask.description!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 28, top: 2),
+                child: Text(
+                  subtask.description!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.text.withValues(alpha: 0.6),
+                    decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
           ],
         ),
       ),
@@ -143,5 +168,21 @@ class _SubtaskListState extends State<SubtaskList> {
   void _toggleSubtaskCompletion(BuildContext context, SubTaskModel subtask) {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
     taskProvider.toggleSubtaskCompletion(widget.taskModel, subtask);
+  }
+
+  void _showSubtaskEditDialog(BuildContext context, SubTaskModel subtask) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SubtaskDialog(
+        subtask: subtask,
+        onSave: (title, description) {
+          // Update the subtask with new title and description
+          final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+          taskProvider.updateSubtask(widget.taskModel, subtask, title, description);
+        },
+      ),
+    );
   }
 }

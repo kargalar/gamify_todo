@@ -407,6 +407,22 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
+  void updateSubtask(TaskModel taskModel, SubTaskModel subtask, String title, String? description) {
+    if (taskModel.subtasks != null) {
+      final index = taskModel.subtasks!.indexWhere((s) => s.id == subtask.id);
+      if (index != -1) {
+        // Update the subtask with new title and description
+        taskModel.subtasks![index].title = title;
+        taskModel.subtasks![index].description = description;
+
+        // Save changes to server
+        ServerManager().updateTask(taskModel: taskModel);
+
+        notifyListeners();
+      }
+    }
+  }
+
   // Öncelik ve zamana göre sıralama fonksiyonu
   void sortTasksByPriorityAndTime(List<TaskModel> tasks) {
     tasks.sort((a, b) {

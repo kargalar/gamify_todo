@@ -10,11 +10,14 @@ class SubTaskModel extends HiveObject {
   String title;
   @HiveField(2)
   bool isCompleted;
+  @HiveField(3)
+  String? description;
 
   SubTaskModel({
     required this.id,
     required this.title,
     this.isCompleted = false,
+    this.description,
   });
 
   factory SubTaskModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +25,7 @@ class SubTaskModel extends HiveObject {
       id: json['id'],
       title: json['title'],
       isCompleted: json['is_completed'],
+      description: json['description'],
     );
   }
 
@@ -30,6 +34,7 @@ class SubTaskModel extends HiveObject {
       'id': id,
       'title': title,
       'is_completed': isCompleted,
+      'description': description,
     };
   }
 

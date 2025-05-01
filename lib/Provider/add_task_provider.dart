@@ -53,6 +53,13 @@ class AddTaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSubtask(int index, SubTaskModel updatedSubtask) {
+    if (index >= 0 && index < subtasks.length) {
+      subtasks[index] = updatedSubtask;
+      notifyListeners();
+    }
+  }
+
   void removeSubtask(int index) {
     if (index >= 0 && index < subtasks.length) {
       subtasks.removeAt(index);
