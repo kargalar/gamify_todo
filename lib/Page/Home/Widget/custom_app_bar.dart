@@ -109,8 +109,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           itemBuilder: (context) {
             return [
               PopupMenuItem(
-                onTap: () {
-                  TaskProvider().changeShowCompleted();
+                onTap: () async {
+                  await TaskProvider().changeShowCompleted();
                 },
                 child: Row(
                   children: [

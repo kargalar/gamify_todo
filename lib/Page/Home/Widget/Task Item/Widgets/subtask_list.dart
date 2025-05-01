@@ -21,13 +21,21 @@ class SubtaskList extends StatefulWidget {
 }
 
 class _SubtaskListState extends State<SubtaskList> {
-  bool _showSubtasks = true;
+  late bool _showSubtasks;
 
   @override
   void initState() {
     super.initState();
-    // Görev tamamlandıysa alt görevleri gizle, tamamlanmadıysa göster
-    _showSubtasks = !(widget.taskModel.status == TaskStatusEnum.COMPLETED);
+    // Hive'da kaydedilmiş değeri kullan, yoksa görev tamamlandıysa gizle, tamamlanmadıysa göster
+    _showSubtasks = widget.taskModel.showSubtasks ?? !(widget.taskModel.status == TaskStatusEnum.COMPLETED);
+
+    // Eğer showSubtasks null ise, varsayılan değeri kaydet
+    if (widget.taskModel.showSubtasks == null) {
+      widget.taskModel.showSubtasks = _showSubtasks;
+      // Değişikliği kaydet
+      final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+      taskProvider.editTask(taskModel: widget.taskModel, selectedDays: []);
+    }
   }
 
   @override
@@ -38,6 +46,10 @@ class _SubtaskListState extends State<SubtaskList> {
     if (oldWidget.taskModel.status == TaskStatusEnum.COMPLETED && widget.taskModel.status != TaskStatusEnum.COMPLETED) {
       setState(() {
         _showSubtasks = true;
+        // Değişikliği kaydet
+        widget.taskModel.showSubtasks = _showSubtasks;
+        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+        taskProvider.editTask(taskModel: widget.taskModel, selectedDays: []);
       });
     }
   }
@@ -57,6 +69,10 @@ class _SubtaskListState extends State<SubtaskList> {
             onTap: () {
               setState(() {
                 _showSubtasks = !_showSubtasks;
+                // Değişikliği kaydet
+                widget.taskModel.showSubtasks = _showSubtasks;
+                final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+                taskProvider.editTask(taskModel: widget.taskModel, selectedDays: []);
               });
             },
             child: Row(

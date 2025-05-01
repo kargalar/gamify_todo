@@ -12,6 +12,7 @@ import 'package:gamify_todo/Model/subtask_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
 import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Provider/task_log_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskProvider with ChangeNotifier {
   // burayı singelton yaptım gayet de iyi oldu neden normalde de context den kullanıyoruz anlamadım. galiba "watch" için olabilir. sibelton kısmını global timer için yaptım.
@@ -21,7 +22,10 @@ class TaskProvider with ChangeNotifier {
     return _instance;
   }
 
-  TaskProvider._internal();
+  TaskProvider._internal() {
+    // Uygulama başladığında showCompleted durumunu yükle
+    loadShowCompletedState();
+  }
 
   List<RoutineModel> routineList = [];
 
@@ -36,6 +40,13 @@ class TaskProvider with ChangeNotifier {
   // TODO: saat 00:00:00 geçtikten sonra hala dünü gösterecek muhtemelen her ana sayfaya gidişte. bunu düzelt. yani değişken uygulama açıldığında belirlendiği için 12 den sonra değişmeyecek.
   DateTime selectedDate = DateTime.now();
   bool showCompleted = true;
+
+  // Uygulama başladığında showCompleted durumunu SharedPreferences'dan yükle
+  Future<void> loadShowCompletedState() async {
+    final prefs = await SharedPreferences.getInstance();
+    showCompleted = prefs.getBool('show_completed') ?? true;
+    notifyListeners();
+  }
 
   void addTask(TaskModel taskModel) async {
     final int taskId = await ServerManager().addTask(taskModel: taskModel);
@@ -345,8 +356,12 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeShowCompleted() {
+  Future<void> changeShowCompleted() async {
     showCompleted = !showCompleted;
+
+    // Değişikliği SharedPreferences'a kaydet
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('show_completed', showCompleted);
 
     notifyListeners();
   }
