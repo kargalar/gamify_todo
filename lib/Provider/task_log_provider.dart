@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/Enum/task_status_enum.dart';
+import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Model/task_log_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
@@ -33,6 +34,46 @@ class TaskLogProvider with ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final int lastLogId = prefs.getInt("last_task_log_id") ?? 0;
 
+    // Get the log date (either custom or now)
+    final DateTime logDate = customLogDate ?? DateTime.now();
+
+    // For checkbox tasks, check if there's already a status log for the same day
+    if (taskModel.type == TaskTypeEnum.CHECKBOX) {
+      // Find logs for this task
+      List<TaskLogModel> taskLogs = getLogsByTaskId(taskModel.id);
+
+      // Filter logs for the same day
+      List<TaskLogModel> sameDayLogs = taskLogs.where((log) {
+        return log.logDate.year == logDate.year && log.logDate.month == logDate.month && log.logDate.day == logDate.day;
+      }).toList();
+
+      // Sort logs by date (newest first)
+      sameDayLogs.sort((a, b) => b.logDate.compareTo(a.logDate));
+
+      // If there's a status log for the same day, update it instead of creating a new one
+      if (sameDayLogs.isNotEmpty) {
+        // Get the most recent log for this day
+        TaskLogModel existingLog = sameDayLogs.first;
+
+        // Update the existing log with the new status
+        existingLog.status = customStatus ?? taskModel.status;
+        existingLog.logDate = logDate; // Update timestamp to current time
+
+        // Save the updated log
+        await HiveService().addTaskLog(existingLog);
+
+        // Update the log in the provider's list
+        final index = taskLogList.indexWhere((log) => log.id == existingLog.id);
+        if (index != -1) {
+          taskLogList[index] = existingLog;
+        }
+
+        notifyListeners();
+        return; // Exit early since we've updated an existing log
+      }
+    }
+
+    // If we get here, either it's not a checkbox task or there's no existing log for today
     // Find the highest ID among existing logs to ensure uniqueness
     int highestLogId = lastLogId;
     for (final log in taskLogList) {
@@ -45,7 +86,7 @@ class TaskLogProvider with ChangeNotifier {
       id: highestLogId + 1,
       taskId: taskModel.id,
       routineId: taskModel.routineID,
-      logDate: customLogDate ?? DateTime.now(), // DateTime.now() already includes seconds and milliseconds
+      logDate: logDate,
       taskTitle: taskModel.title,
       // Eğer customDuration açıkça verilmişse, o değeri kullan
       // Aksi takdirde, sadece checkbox olmayan ve customDuration null olan durumlarda taskModel.currentDuration kullan

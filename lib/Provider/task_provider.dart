@@ -213,58 +213,55 @@ class TaskProvider with ChangeNotifier {
 
   // iptal de kullanıcıya ceza yansıtılmayacak
   cancelTask(TaskModel taskModel) {
-    bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
-    bool wasCancelled = taskModel.status == TaskStatusEnum.CANCEL;
-
     if (taskModel.status == TaskStatusEnum.CANCEL) {
-      // If already cancelled, determine what to set it to
-      if (taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) {
-        taskModel.status = TaskStatusEnum.COMPLETED;
-      } else if (taskModel.type == TaskTypeEnum.TIMER && taskModel.currentDuration! >= taskModel.remainingDuration!) {
-        taskModel.status = TaskStatusEnum.COMPLETED;
-      } else {
-        taskModel.status = null;
-      }
+      // If already cancelled, set to null (in progress)
+      taskModel.status = null;
+
+      // Create log for the status change to null (in progress)
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: null, // null status means "in progress"
+      );
     } else {
       // Set to cancelled, clearing any other status
       taskModel.status = TaskStatusEnum.CANCEL;
-    }
 
-    ServerManager().updateTask(taskModel: taskModel);
-    HomeWidgetService.updateTaskCount();
-
-    // Bildirim durumunu kontrol et
-    checkTaskStatusForNotifications(taskModel);
-
-    // Create a log entry if the status changed to or from COMPLETED
-    if (!wasCompleted && taskModel.status == TaskStatusEnum.COMPLETED) {
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customStatus: TaskStatusEnum.COMPLETED,
-      );
-    } else if (wasCompleted && taskModel.status != TaskStatusEnum.COMPLETED) {
-      // Task was uncompleted - could add a different type of log here if needed
-    } else if (!wasCancelled && taskModel.status == TaskStatusEnum.CANCEL) {
-      // Log cancellation
+      // Create log for cancelled task
       TaskLogProvider().addTaskLog(
         taskModel,
         customStatus: TaskStatusEnum.CANCEL,
       );
     }
 
+    ServerManager().updateTask(taskModel: taskModel);
+    HomeWidgetService.updateTaskCount();
+
+    // Bildirim durumunu kontrol et
+    checkTaskStatusForNotifications(taskModel);
+
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
     notifyListeners();
   }
 
   failedTask(TaskModel taskModel) {
-    bool wasFailed = taskModel.status == TaskStatusEnum.FAILED;
-
     if (taskModel.status == TaskStatusEnum.FAILED) {
       // If already failed, set to null (in progress)
       taskModel.status = null;
+
+      // Create log for the status change to null (in progress)
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: null, // null status means "in progress"
+      );
     } else {
       // Set to failed, clearing any other status
       taskModel.status = TaskStatusEnum.FAILED;
+
+      // Create log for failed task
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: TaskStatusEnum.FAILED,
+      );
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -272,14 +269,6 @@ class TaskProvider with ChangeNotifier {
 
     // Bildirim durumunu kontrol et
     checkTaskStatusForNotifications(taskModel);
-
-    // Create a log entry if the task is marked as failed
-    if (!wasFailed && taskModel.status == TaskStatusEnum.FAILED) {
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customStatus: TaskStatusEnum.FAILED,
-      );
-    }
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
     notifyListeners();
