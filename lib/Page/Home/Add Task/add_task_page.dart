@@ -7,6 +7,7 @@ import 'package:gamify_todo/Core/helper.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/category_selector.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
+
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/location_input.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/notification_status.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_date.dart';
@@ -87,6 +88,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           TraitProvider().traitList.where((element) => (addTaskProvider.editTask!.attributeIDList != null && addTaskProvider.editTask!.attributeIDList!.contains(element.id)) || (addTaskProvider.editTask!.skillIDList != null && addTaskProvider.editTask!.skillIDList!.contains(element.id))).toList();
       addTaskProvider.priority = addTaskProvider.editTask!.priority;
       addTaskProvider.categoryId = addTaskProvider.editTask!.categoryId;
+      addTaskProvider.earlyReminderMinutes = addTaskProvider.editTask!.earlyReminderMinutes;
       addTaskProvider.loadSubtasksFromTask(addTaskProvider.editTask!);
     } else {
       addTaskProvider.editTask = null;
@@ -338,6 +340,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
           location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
           categoryId: addTaskProvider.categoryId,
+          earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
         ),
       );
     } else {
@@ -359,6 +362,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           isArchived: false,
           priority: addTaskProvider.priority,
           categoryId: addTaskProvider.categoryId,
+          earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
         ),
       );
 
@@ -384,6 +388,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
             location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
             categoryId: addTaskProvider.categoryId,
+            earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
           ),
         );
       } else {
@@ -442,6 +447,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
           location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
           categoryId: addTaskProvider.categoryId,
+          earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
         ),
       );
 

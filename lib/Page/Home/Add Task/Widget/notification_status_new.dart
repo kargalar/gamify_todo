@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Core/helper.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/notification_services.dart';
@@ -26,19 +25,19 @@ class _NotificationStatusState extends State<NotificationStatus> {
         : addTaskProvider.isAlarmOn
             ? AppColors.red
             : AppColors.text.withValues(alpha: 0.5);
-
+    
     final IconData notificationIcon = addTaskProvider.isNotificationOn
         ? Icons.notifications_active
         : addTaskProvider.isAlarmOn
             ? Icons.alarm
             : Icons.notifications_off;
-
+    
     final String statusText = addTaskProvider.isNotificationOn
         ? "Bildirim"
         : addTaskProvider.isAlarmOn
             ? "Alarm"
             : "Kapalı";
-
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -65,12 +64,8 @@ class _NotificationStatusState extends State<NotificationStatus> {
               await changeNotificationStatus();
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Bildirim simgesi
                   Icon(
@@ -78,21 +73,29 @@ class _NotificationStatusState extends State<NotificationStatus> {
                     size: 24,
                     color: activeColor,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 12),
                   // Bildirim durumu metni
-                  Text(
-                    statusText,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: activeColor,
+                  Expanded(
+                    child: Text(
+                      statusText,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: activeColor,
+                      ),
                     ),
+                  ),
+                  // Değiştir simgesi
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: AppColors.text.withValues(alpha: 0.5),
                   ),
                 ],
               ),
             ),
           ),
-
+          
           // Erken hatırlatma seçici (sadece alarm açıksa göster)
           if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null)
             Column(
@@ -103,22 +106,30 @@ class _NotificationStatusState extends State<NotificationStatus> {
                   thickness: 1,
                   color: activeColor.withValues(alpha: 0.1),
                 ),
-
+                
                 // Erken hatırlatma başlığı
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                  ),
-                  child: Text(
-                    "Erken Hatırlatma",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.text.withValues(alpha: 0.7),
-                    ),
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.timer_outlined,
+                        size: 18,
+                        color: AppColors.text.withValues(alpha: 0.7),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Erken Hatırlatma",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.text.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-
+                
                 // Erken hatırlatma seçenekleri
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
@@ -133,50 +144,29 @@ class _NotificationStatusState extends State<NotificationStatus> {
 
   // Erken hatırlatma seçeneklerini oluştur
   Widget _buildEarlyReminderOptions() {
-    // İki sütun halinde düzenlemek için Column ve Row kullanıyoruz
-    return Column(
+    return GridView.count(
+      crossAxisCount: 4, // Dört sütun
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 2.0, // Genişlik/yükseklik oranı
+      mainAxisSpacing: 8, // Dikey boşluk
+      crossAxisSpacing: 8, // Yatay boşluk
+      padding: EdgeInsets.zero, // Padding'i kaldır
       children: [
-        // İlk sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(null)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(5)),
-          ],
-        ),
-        const SizedBox(height: 8), // Sıralar arası boşluk
-        // İkinci sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(10)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(15)),
-          ],
-        ),
-        const SizedBox(height: 8), // Sıralar arası boşluk
-        // Üçüncü sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(20)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(30)),
-          ],
-        ),
-        const SizedBox(height: 8), // Sıralar arası boşluk
-        // Dördüncü sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(60)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(120)),
-          ],
-        ),
+        _buildReminderOption(null, "Yok"),
+        _buildReminderOption(5, "5dk"),
+        _buildReminderOption(10, "10dk"),
+        _buildReminderOption(15, "15dk"),
+        _buildReminderOption(20, "20dk"),
+        _buildReminderOption(30, "30dk"),
+        _buildReminderOption(60, "1sa"),
+        _buildReminderOption(120, "2sa"),
       ],
     );
   }
 
   // Erken hatırlatma seçeneği oluştur
-  Widget _buildReminderOption(int? minutes) {
+  Widget _buildReminderOption(int? minutes, String label) {
     final bool isSelected = addTaskProvider.earlyReminderMinutes == minutes;
     final Color optionColor = isSelected ? AppColors.red : AppColors.text.withValues(alpha: 0.5);
 
@@ -184,24 +174,22 @@ class _NotificationStatusState extends State<NotificationStatus> {
       onTap: () {
         addTaskProvider.updateEarlyReminderMinutes(minutes);
       },
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        // Yüksekliği sabit tutalım
-        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         decoration: BoxDecoration(
           color: isSelected ? optionColor.withValues(alpha: 0.2) : Colors.transparent,
-          borderRadius: AppColors.borderRadiusAll,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? optionColor : AppColors.text.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
-        // İçeriği ortalayalım
         child: Center(
           child: Text(
-            Duration(minutes: minutes ?? 0).compactFormat(),
+            label,
             style: TextStyle(
-              fontSize: 10, // Yazı boyutunu artıralım
+              fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               color: isSelected ? optionColor : AppColors.text,
             ),

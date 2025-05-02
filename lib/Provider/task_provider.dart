@@ -200,6 +200,9 @@ class TaskProvider with ChangeNotifier {
       // Task bildirimi iptal et
       NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
+      // Erken hatırlatma bildirimini iptal et
+      NotificationService().cancelNotificationOrAlarm(taskModel.id + 300000);
+
       // Timer bildirimi iptal et (eğer varsa)
       if (taskModel.type == TaskTypeEnum.TIMER) {
         NotificationService().cancelNotificationOrAlarm(-taskModel.id);
@@ -233,6 +236,7 @@ class TaskProvider with ChangeNotifier {
           desc: "Don't forget!",
           scheduledDate: taskDateTime,
           isAlarm: taskModel.isAlarmOn,
+          earlyReminderMinutes: taskModel.earlyReminderMinutes,
         );
       }
     }

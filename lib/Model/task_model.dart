@@ -53,6 +53,8 @@ class TaskModel extends HiveObject {
   int? categoryId; // kategori id'si
   @HiveField(21)
   bool? showSubtasks; // alt görevlerin gösterilip gösterilmeyeceği
+  @HiveField(22)
+  int? earlyReminderMinutes; // erken hatırlatma süresi (dakika cinsinden)
 
   TaskModel({
     this.id = 0,
@@ -77,6 +79,7 @@ class TaskModel extends HiveObject {
     this.location,
     this.categoryId,
     this.showSubtasks = true,
+    this.earlyReminderMinutes,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
@@ -110,6 +113,7 @@ class TaskModel extends HiveObject {
       location: json['location'],
       categoryId: json['category_id'],
       showSubtasks: json['show_subtasks'] ?? true,
+      earlyReminderMinutes: json['early_reminder_minutes'],
     );
 
     return taskModel;
@@ -151,6 +155,7 @@ class TaskModel extends HiveObject {
       'location': location,
       'category_id': categoryId,
       'show_subtasks': showSubtasks,
+      'early_reminder_minutes': earlyReminderMinutes,
     };
   }
 }

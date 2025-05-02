@@ -34,13 +34,14 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       isArchived: fields[14] as bool,
       priority: fields[15] as int,
       categoryId: fields[16] as int?,
+      earlyReminderMinutes: fields[17] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, RoutineModel obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -74,7 +75,9 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(15)
       ..write(obj.priority)
       ..writeByte(16)
-      ..write(obj.categoryId);
+      ..write(obj.categoryId)
+      ..writeByte(17)
+      ..write(obj.earlyReminderMinutes);
   }
 
   @override

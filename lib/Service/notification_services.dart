@@ -188,6 +188,7 @@ class NotificationService {
     required String title,
     required DateTime scheduledDate,
     required bool isAlarm,
+    int? earlyReminderMinutes,
   }) async {
     final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
       scheduledDate,
@@ -197,6 +198,26 @@ class NotificationService {
     // Task ID'sini payload olarak ekle
     final String payload = jsonEncode({'taskId': id});
 
+    // Eğer alarm açıksa ve erken hatırlatma süresi belirtilmişse, erken hatırlatma bildirimi planla
+    if (isAlarm && earlyReminderMinutes != null && earlyReminderMinutes > 0) {
+      final tz.TZDateTime earlyReminderDate = scheduledTZDate.subtract(Duration(minutes: earlyReminderMinutes));
+
+      // Erken hatırlatma zamanı geçmemişse bildirim planla
+      if (earlyReminderDate.isAfter(tz.TZDateTime.now(tz.local))) {
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+          id + 300000, // Erken hatırlatma için farklı bir ID kullan
+          "⏰ $title",
+          "$earlyReminderMinutes dakika sonra başlayacak",
+          earlyReminderDate,
+          notificationDetails(false), // Erken hatırlatma için alarm değil, normal bildirim kullan
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          matchDateTimeComponents: DateTimeComponents.dateAndTime,
+          payload: payload,
+        );
+      }
+    }
+
+    // Asıl bildirimi planla
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,

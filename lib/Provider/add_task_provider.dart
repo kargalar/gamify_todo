@@ -29,6 +29,7 @@ class AddTaskProvider with ChangeNotifier {
   int priority = 3;
   List<SubTaskModel> subtasks = [];
   int? categoryId;
+  int? earlyReminderMinutes; // Erken hatırlatma süresi (dakika cinsinden)
 
   void updateTime(TimeOfDay? time) {
     selectedTime = time;
@@ -90,6 +91,16 @@ class AddTaskProvider with ChangeNotifier {
 
   void updateCategory(int? id) {
     categoryId = id;
+    notifyListeners();
+  }
+
+  void updateEarlyReminderMinutes(int? minutes) {
+    earlyReminderMinutes = minutes;
+    notifyListeners();
+  }
+
+  // Bildirim durumu değiştiğinde tüm bağımlı widget'ları güncelle
+  void refreshNotificationStatus() {
     notifyListeners();
   }
 

@@ -101,6 +101,23 @@ extension DurationFormatting on Duration {
     }
   }
 
+  // Erken hatırlatma için kompakt format
+  String compactFormat() {
+    final hours = inHours;
+    final minutes = inMinutes.remainder(60);
+
+    if (hours > 0 && minutes > 0) {
+      // 1 saat 25 dakika -> "1h 25m"
+      return "$hours${LocaleKeys.h.tr()} $minutes${LocaleKeys.m.tr()}";
+    } else if (hours > 0) {
+      // 1 saat -> "1h"
+      return "$hours${LocaleKeys.h.tr()}";
+    } else {
+      // 20 dakika -> "20m"
+      return "$minutes${LocaleKeys.m.tr()}";
+    }
+  }
+
   String toLevel() {
     // TODO direkt her 15 saat 1 lvl olmasın. 1.1x olarak daha zorlaşsın mesela lvl atlamak veya 10,20,35,50,70,100 gibi manuel kontrol
 
