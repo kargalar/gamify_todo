@@ -104,12 +104,13 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         // Bildirime tıklandığında yapılacak işlemler
-        _handleNotificationTap(response.payload);
+        // _handleNotificationTap(response.payload);
       },
     );
   }
 
   // Bildirime tıklandığında çağrılacak metod
+  // ignore: unused_element
   void _handleNotificationTap(String? payload) {
     if (payload != null) {
       try {
@@ -203,7 +204,8 @@ class NotificationService {
       scheduledTZDate,
       notificationDetails(isAlarm),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
+      // Use dateAndTime to ensure notifications are scheduled for the exact date and time
+      matchDateTimeComponents: DateTimeComponents.dateAndTime,
       payload: payload,
     );
   }
