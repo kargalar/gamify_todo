@@ -501,4 +501,72 @@ class TaskProvider with ChangeNotifier {
     sortTasksByPriorityAndTime(tasks);
     return tasks;
   }
+
+  // Get all tasks with a specific category ID
+  List<TaskModel> getTasksByCategoryId(int categoryId) {
+    // Filter tasks by category ID
+    List<TaskModel> tasks = taskList.where((task) => task.categoryId == categoryId).toList();
+
+    // Sort tasks by date, priority, and time
+    tasks.sort((a, b) {
+      // First sort by date
+      int dateCompare = a.taskDate.compareTo(b.taskDate);
+      if (dateCompare != 0) return dateCompare;
+
+      // If same date, sort by status (active tasks first)
+      if (a.status != null && b.status == null) return 1;
+      if (a.status == null && b.status != null) return -1;
+
+      // Then by priority
+      int priorityCompare = a.priority.compareTo(b.priority);
+      if (priorityCompare != 0) return priorityCompare;
+
+      // Finally by time if available
+      if (a.time != null && b.time != null) {
+        return (a.time!.hour * 60 + a.time!.minute).compareTo(b.time!.hour * 60 + b.time!.minute);
+      } else if (a.time != null) {
+        return -1;
+      } else if (b.time != null) {
+        return 1;
+      }
+
+      return 0;
+    });
+
+    return tasks;
+  }
+
+  // Get all tasks regardless of category
+  List<TaskModel> getAllTasks() {
+    // Get all tasks
+    List<TaskModel> tasks = List.from(taskList);
+
+    // Sort tasks by date, priority, and time
+    tasks.sort((a, b) {
+      // First sort by date
+      int dateCompare = a.taskDate.compareTo(b.taskDate);
+      if (dateCompare != 0) return dateCompare;
+
+      // If same date, sort by status (active tasks first)
+      if (a.status != null && b.status == null) return 1;
+      if (a.status == null && b.status != null) return -1;
+
+      // Then by priority
+      int priorityCompare = a.priority.compareTo(b.priority);
+      if (priorityCompare != 0) return priorityCompare;
+
+      // Finally by time if available
+      if (a.time != null && b.time != null) {
+        return (a.time!.hour * 60 + a.time!.minute).compareTo(b.time!.hour * 60 + b.time!.minute);
+      } else if (a.time != null) {
+        return -1;
+      } else if (b.time != null) {
+        return 1;
+      }
+
+      return 0;
+    });
+
+    return tasks;
+  }
 }

@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/accessible.dart';
 import 'package:gamify_todo/General/app_colors.dart';
+import 'package:gamify_todo/Page/Categories/categories_page.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:gamify_todo/Page/Home/Widget/create_category_dialog.dart';
 import 'package:gamify_todo/Page/Home/home_page.dart';
 import 'package:gamify_todo/Page/Profile/profile_page.dart';
 import 'package:gamify_todo/Page/Store/add_store_item_page.dart';
@@ -18,7 +20,7 @@ import 'package:gamify_todo/Provider/navbar_provider.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Provider/trait_provider.dart';
-import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class NavbarPageManager extends StatefulWidget {
@@ -39,6 +41,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     const BottomNavigationBarItem(
       icon: Icon(Icons.list),
       label: 'Home',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.tag),
+      label: 'Categories',
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.person_rounded),
@@ -100,6 +106,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   children: const <Widget>[
                     StorePage(),
                     HomePage(),
+                    CategoriesPage(),
                     ProfilePage(),
                   ],
                 ),
@@ -152,19 +159,36 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
   }
 
   Widget floatingActionButton() {
-    return context.read<NavbarProvider>().currentIndex == 1 || context.read<NavbarProvider>().currentIndex == 0
-        ? FloatingActionButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: AppColors.borderRadiusAll,
-            ),
-            onPressed: () async {
-              await NavigatorService().goTo(
-                context.read<NavbarProvider>().currentIndex == 1 ? const AddTaskPage() : const AddStoreItemPage(),
-                transition: Transition.downToUp,
-              );
-            },
-            child: const Icon(Icons.add),
-          )
-        : const SizedBox();
+    final currentIndex = context.read<NavbarProvider>().currentIndex;
+
+    // Show FAB for Store, Home, and Categories tabs
+    if (currentIndex == 0 || currentIndex == 1 || currentIndex == 2) {
+      return FloatingActionButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: AppColors.borderRadiusAll,
+        ),
+        onPressed: () async {
+          if (currentIndex == 0) {
+            // Store tab - add store item
+            await NavigatorService().goTo(
+              const AddStoreItemPage(),
+              transition: Transition.downToUp,
+            );
+          } else if (currentIndex == 1) {
+            // Home tab - add task
+            await NavigatorService().goTo(
+              const AddTaskPage(),
+              transition: Transition.downToUp,
+            );
+          } else if (currentIndex == 2) {
+            // Categories tab - add category
+            Get.dialog(const CreateCategoryDialog());
+          }
+        },
+        child: const Icon(Icons.add),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 }
