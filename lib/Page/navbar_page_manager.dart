@@ -5,7 +5,6 @@ import 'package:gamify_todo/General/accessible.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Categories/categories_page.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
-import 'package:gamify_todo/Page/Home/Widget/create_category_dialog.dart';
 import 'package:gamify_todo/Page/Home/home_page.dart';
 import 'package:gamify_todo/Page/Profile/profile_page.dart';
 import 'package:gamify_todo/Page/Store/add_store_item_page.dart';
@@ -174,15 +173,12 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
               const AddStoreItemPage(),
               transition: Transition.downToUp,
             );
-          } else if (currentIndex == 1) {
+          } else if (currentIndex == 1 || currentIndex == 2) {
             // Home tab - add task
             await NavigatorService().goTo(
               const AddTaskPage(),
               transition: Transition.downToUp,
             );
-          } else if (currentIndex == 2) {
-            // Categories tab - add category
-            Get.dialog(const CreateCategoryDialog());
           }
         },
         child: const Icon(Icons.add),

@@ -166,6 +166,33 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Update task date without showing a dialog (for drag and drop functionality)
+  void changeTaskDateWithoutDialog({
+    required TaskModel taskModel,
+    required DateTime newDate,
+  }) {
+    // Preserve the time if it exists
+    if (taskModel.time != null) {
+      newDate = newDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute);
+    }
+
+    // Stop timer if active
+    if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
+      taskModel.isTimerActive = false;
+    }
+
+    // Update the task date
+    taskModel.taskDate = newDate;
+
+    // Update in storage
+    ServerManager().updateTask(taskModel: taskModel);
+
+    // Update notifications
+    checkNotification(taskModel);
+
+    notifyListeners();
+  }
+
   // Task durumu değiştiğinde bildirimleri kontrol et
   void checkTaskStatusForNotifications(TaskModel taskModel) {
     // Eğer task tamamlandıysa, iptal edildiyse veya başarısız olduysa bildirimleri iptal et

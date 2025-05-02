@@ -491,6 +491,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.2"
+  flutter_draggable_list:
+    dependency: "direct main"
+    description:
+      name: flutter_draggable_list
+      sha256: a044093eca2df0714886a1616c6e6825a98ce23a3357995868905f63ec3314a4
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
