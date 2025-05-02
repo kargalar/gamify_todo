@@ -6,7 +6,6 @@ import 'package:gamify_todo/Model/task_model.dart';
 import 'package:gamify_todo/Page/Home/Widget/task_item.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CategoryTasksPage extends StatelessWidget {
