@@ -137,5 +137,13 @@
     "NoCategory": "Без категории",
     "CreateNewCategory": "Создать новую категорию",
     "DeleteCategory": "Удалить категорию",
-    "DeleteCategoryConfirmation": "Вы уверены, что хотите удалить эту категорию?"
+    "DeleteCategoryConfirmation": "Вы уверены, что хотите удалить эту категорию?",
+    "NoCategoriesYet": "Пока нет категорий",
+    "AddCategory": "Добавить категорию",
+    "NoTasksInCategory": "В этой категории нет задач",
+    "Tomorrow": "Завтра",
+    "Yesterday": "Вчера",
+    "AllTasks": "Все задачи",
+    "NoTasksYet": "Пока нет задач",
+    "Tasks": "Задачи"
 }

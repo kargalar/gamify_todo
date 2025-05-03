@@ -137,5 +137,13 @@
     "NoCategory": "Pas de catégorie",
     "CreateNewCategory": "Créer une nouvelle catégorie",
     "DeleteCategory": "Supprimer la catégorie",
-    "DeleteCategoryConfirmation": "Êtes-vous sûr de vouloir supprimer cette catégorie?"
+    "DeleteCategoryConfirmation": "Êtes-vous sûr de vouloir supprimer cette catégorie?",
+    "NoCategoriesYet": "Pas encore de catégories",
+    "AddCategory": "Ajouter une catégorie",
+    "NoTasksInCategory": "Aucune tâche dans cette catégorie",
+    "Tomorrow": "Demain",
+    "Yesterday": "Hier",
+    "AllTasks": "Toutes les tâches",
+    "NoTasksYet": "Pas encore de tâches",
+    "Tasks": "Tâches"
 }

@@ -137,5 +137,13 @@
     "NoCategory": "Kategori Yok",
     "CreateNewCategory": "Yeni Kategori Oluştur",
     "DeleteCategory": "Kategoriyi Sil",
-    "DeleteCategoryConfirmation": "Bu kategoriyi silmek istediğinizden emin misiniz?"
+    "DeleteCategoryConfirmation": "Bu kategoriyi silmek istediğinizden emin misiniz?",
+    "NoCategoriesYet": "Henüz kategori yok",
+    "AddCategory": "Kategori Ekle",
+    "NoTasksInCategory": "Bu kategoride görev yok",
+    "Tomorrow": "Yarın",
+    "Yesterday": "Dün",
+    "AllTasks": "Tüm Görevler",
+    "NoTasksYet": "Henüz görev yok",
+    "Tasks": "Görevler"
 }

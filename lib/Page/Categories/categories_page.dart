@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Model/category_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
@@ -7,7 +9,7 @@ import 'package:gamify_todo/Page/Home/Widget/task_item.dart';
 import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:get/get.dart';
+import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -20,37 +22,31 @@ class CategoriesPage extends StatefulWidget {
 class _CategoriesPageState extends State<CategoriesPage> {
   CategoryModel? _selectedCategory;
 
+  // Filter states
+  bool _showRoutines = true;
+  bool _showTasks = true;
+  final Set<TaskTypeEnum> _selectedTaskTypes = {
+    TaskTypeEnum.CHECKBOX,
+    TaskTypeEnum.COUNTER,
+    TaskTypeEnum.TIMER,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          LocaleKeys.Categories,
-          style: TextStyle(
+        title: Text(
+          LocaleKeys.Tasks.tr(),
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          // Add category button
-          TextButton.icon(
-            icon: const Icon(Icons.add),
-            label: const Text(
-              LocaleKeys.AddCategory,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            onPressed: () {
-              Get.dialog(const CreateCategoryDialog());
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
-          // Category tags
-          _buildCategoryTags(),
+          // Filter section (now includes categories)
+          _buildFilterSection(),
 
           // Divider
           Divider(
@@ -63,62 +59,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
           Expanded(
             child: _buildTaskList(),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryTags() {
-    final categoryProvider = context.watch<CategoryProvider>();
-    final activeCategories = categoryProvider.getActiveCategories();
-
-    if (activeCategories.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            children: [
-              Text(
-                LocaleKeys.NoCategoriesYet,
-                style: TextStyle(
-                  color: AppColors.text.withValues(alpha: 0.7),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Get.dialog(const CreateCategoryDialog());
-                },
-                icon: const Icon(Icons.add),
-                label: const Text(LocaleKeys.AddCategory),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.main,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          // "All" tag
-          _buildCategoryTag(
-            null,
-            isSelected: _selectedCategory == null,
-          ),
-
-          // Category tags
-          ...activeCategories.map((category) => _buildCategoryTag(
-                category,
-                isSelected: _selectedCategory?.id == category.id,
-              )),
+          // for navbbar
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 30),
         ],
       ),
     );
@@ -127,49 +69,65 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Widget _buildCategoryTag(CategoryModel? category, {required bool isSelected}) {
     final color = category?.color ?? AppColors.main;
 
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedCategory = category;
-        });
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.2) : AppColors.panelBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? color : AppColors.text.withValues(alpha: 0.2),
-            width: 1,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedCategory = category;
+          });
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Color indicator
-            if (category != null) ...[
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: category.color,
-                  shape: BoxShape.circle,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Color indicator
+              if (category != null) ...[
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: category.color,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: category.color.withValues(alpha: 0.3),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+
+              // Category name
+              Text(
+                category?.title ?? LocaleKeys.AllTasks,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? color : AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
-              const SizedBox(width: 6),
             ],
-
-            // Category name
-            Text(
-              category?.title ?? LocaleKeys.AllTasks,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? color : AppColors.text.withValues(alpha: 0.8),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -185,6 +143,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
     } else {
       tasks = taskProvider.getAllTasks();
     }
+
+    // Apply routine/task filter
+    tasks = tasks.where((task) {
+      bool isRoutine = task.routineID != null;
+      return (isRoutine && _showRoutines) || (!isRoutine && _showTasks);
+    }).toList();
+
+    // Apply task type filter
+    tasks = tasks.where((task) => _selectedTaskTypes.contains(task.type)).toList();
 
     if (tasks.isEmpty) {
       return Center(
@@ -277,6 +244,323 @@ class _CategoriesPageState extends State<CategoriesPage> {
           color: AppColors.text.withValues(alpha: 0.8),
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Filter title with icon
+          Row(
+            children: [
+              Icon(
+                Icons.filter_list_rounded,
+                size: 20,
+                color: AppColors.main,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Filters",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text.withValues(alpha: 0.9),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Categories section
+          _buildCategoryContent(),
+          const SizedBox(height: 16),
+
+          // Task/Routine filter section
+          Container(
+            margin: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              "Task Type",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.text.withValues(alpha: 0.6),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              // Task filter
+              _buildFilterChip(
+                label: "Tasks",
+                icon: Icons.task_alt_rounded,
+                isSelected: _showTasks,
+                onTap: () {
+                  setState(() {
+                    _showTasks = !_showTasks;
+                    // Ensure at least one filter is selected
+                    if (!_showTasks && !_showRoutines) {
+                      _showRoutines = true;
+                    }
+                  });
+                },
+              ),
+              const SizedBox(width: 8),
+
+              // Routine filter
+              _buildFilterChip(
+                label: "Routines",
+                icon: Icons.repeat_rounded,
+                isSelected: _showRoutines,
+                onTap: () {
+                  setState(() {
+                    _showRoutines = !_showRoutines;
+                    // Ensure at least one filter is selected
+                    if (!_showRoutines && !_showTasks) {
+                      _showTasks = true;
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Task format filter section
+          Container(
+            margin: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              "Task Format",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.text.withValues(alpha: 0.6),
+              ),
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              // Checkbox filter
+              _buildFilterChip(
+                label: "Checkbox",
+                icon: Icons.check_box_rounded,
+                isSelected: _selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX),
+                onTap: () {
+                  setState(() {
+                    if (_selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX)) {
+                      _selectedTaskTypes.remove(TaskTypeEnum.CHECKBOX);
+                      // Ensure at least one type is selected
+                      if (_selectedTaskTypes.isEmpty) {
+                        _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+                      }
+                    } else {
+                      _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+                    }
+                  });
+                },
+              ),
+
+              // Counter filter
+              _buildFilterChip(
+                label: "Counter",
+                icon: Icons.add_circle_outline_rounded,
+                isSelected: _selectedTaskTypes.contains(TaskTypeEnum.COUNTER),
+                onTap: () {
+                  setState(() {
+                    if (_selectedTaskTypes.contains(TaskTypeEnum.COUNTER)) {
+                      _selectedTaskTypes.remove(TaskTypeEnum.COUNTER);
+                      // Ensure at least one type is selected
+                      if (_selectedTaskTypes.isEmpty) {
+                        _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
+                      }
+                    } else {
+                      _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
+                    }
+                  });
+                },
+              ),
+
+              // Timer filter
+              _buildFilterChip(
+                label: "Timer",
+                icon: Icons.timer_rounded,
+                isSelected: _selectedTaskTypes.contains(TaskTypeEnum.TIMER),
+                onTap: () {
+                  setState(() {
+                    if (_selectedTaskTypes.contains(TaskTypeEnum.TIMER)) {
+                      _selectedTaskTypes.remove(TaskTypeEnum.TIMER);
+                      // Ensure at least one type is selected
+                      if (_selectedTaskTypes.isEmpty) {
+                        _selectedTaskTypes.add(TaskTypeEnum.TIMER);
+                      }
+                    } else {
+                      _selectedTaskTypes.add(TaskTypeEnum.TIMER);
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    IconData? icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.main.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.main.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 18,
+                  color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryContent() {
+    final categoryProvider = context.watch<CategoryProvider>();
+    final activeCategories = categoryProvider.getActiveCategories();
+
+    // Category title
+    Widget categoryTitle = Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        "Categories",
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: AppColors.text.withValues(alpha: 0.6),
+        ),
+      ),
+    );
+
+    if (activeCategories.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          categoryTitle,
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  Text(
+                    LocaleKeys.NoCategoriesYet,
+                    style: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Get.dialog(const CreateCategoryDialog());
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text(LocaleKeys.AddCategory),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.main,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        categoryTitle,
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            // "All" tag
+            _buildCategoryTag(
+              null,
+              isSelected: _selectedCategory == null,
+            ),
+
+            // Category tags
+            ...activeCategories.map((category) => _buildCategoryTag(
+                  category,
+                  isSelected: _selectedCategory?.id == category.id,
+                )),
+
+            // Add category button
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Get.dialog(const CreateCategoryDialog());
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.panelBackground.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    Icons.add_rounded,
+                    size: 18,
+                    color: AppColors.main,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
