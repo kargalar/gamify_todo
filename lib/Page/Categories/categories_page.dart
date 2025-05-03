@@ -84,15 +84,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
           decoration: BoxDecoration(
             color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(16),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -105,13 +96,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   decoration: BoxDecoration(
                     color: category.color,
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: category.color.withValues(alpha: 0.3),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      )
-                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -427,15 +411,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
           decoration: BoxDecoration(
             color: isSelected ? AppColors.main.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(16),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: AppColors.main.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

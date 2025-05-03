@@ -220,7 +220,7 @@ class CategorySelector extends StatelessWidget {
 
                 // Category name with animation
                 Text(
-                  "#$label",
+                  label,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

@@ -45,13 +45,6 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -280,10 +273,6 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               decoration: BoxDecoration(
                 color: AppColors.panelBackground.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.red.withValues(alpha: 0.2),
-                  width: 1,
-                ),
               ),
               padding: const EdgeInsets.all(12),
               child: _buildEarlyReminderOptions(),

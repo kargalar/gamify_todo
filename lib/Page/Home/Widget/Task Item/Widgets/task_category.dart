@@ -46,7 +46,7 @@ class TaskCategory extends StatelessWidget {
           ),
           const SizedBox(width: 3),
           Text(
-            "#${category.title}",
+            category.title,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,

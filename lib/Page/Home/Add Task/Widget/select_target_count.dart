@@ -28,135 +28,124 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
       targetCount = context.read<AddTaskProvider>().targetCount;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.text.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Target count title
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.format_list_numbered_rounded,
-                  size: 18,
-                  color: AppColors.main.withValues(alpha: 0.7),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  "Target Count",
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.text.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Target count selector
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Target count title
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Row(
             children: [
-              // Decrease button
-              _buildCountButton(
-                icon: Icons.remove_rounded,
-                onTap: () {
-                  _unfocusFields();
-                  if (targetCount > 1) {
-                    provider.updateTargetCount(targetCount - 1);
-                  }
-                  setState(() {});
-                },
-                onLongPress: () {
-                  _unfocusFields();
-                  if (targetCount > 20) {
-                    provider.updateTargetCount(targetCount - 20);
-                  } else {
-                    provider.updateTargetCount(1);
-                  }
-                  setState(() {});
-                },
+              Icon(
+                Icons.format_list_numbered_rounded,
+                size: 18,
+                color: AppColors.main.withValues(alpha: 0.7),
               ),
-
-              // Count display
-              Container(
-                width: 80,
-                height: 50,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.main.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.main.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
+              const SizedBox(width: 8),
+              Text(
+                "Target Count",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text.withValues(alpha: 0.8),
                 ),
-                child: Center(
-                  child: Text(
-                    targetCount.toString(),
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.main,
-                    ),
-                  ),
-                ),
-              ),
-
-              // Increase button
-              _buildCountButton(
-                icon: Icons.add_rounded,
-                onTap: () {
-                  _unfocusFields();
-                  provider.updateTargetCount(targetCount + 1);
-                  setState(() {});
-                },
-                onLongPress: () {
-                  _unfocusFields();
-                  provider.updateTargetCount(targetCount + 20);
-                  setState(() {});
-                },
               ),
             ],
           ),
+        ),
 
-          // Target count info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
+        // Target count selector
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Decrease button
+            _buildCountButton(
+              icon: Icons.remove_rounded,
+              onTap: () {
+                _unfocusFields();
+                if (targetCount > 1) {
+                  provider.updateTargetCount(targetCount - 1);
+                }
+                setState(() {});
+              },
+              onLongPress: () {
+                _unfocusFields();
+                if (targetCount > 20) {
+                  provider.updateTargetCount(targetCount - 20);
+                } else {
+                  provider.updateTargetCount(1);
+                }
+                setState(() {});
+              },
+            ),
+
+            // Count display
+            Container(
+              width: 80,
+              height: 50,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.main.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.main.withValues(alpha: 0.3),
+                  width: 1,
                 ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    "Set how many times this task needs to be completed. Long press to change by 20.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
+              ),
+              child: Center(
+                child: Text(
+                  targetCount.toString(),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
                   ),
                 ),
-              ],
+              ),
             ),
+
+            // Increase button
+            _buildCountButton(
+              icon: Icons.add_rounded,
+              onTap: () {
+                _unfocusFields();
+                provider.updateTargetCount(targetCount + 1);
+                setState(() {});
+              },
+              onLongPress: () {
+                _unfocusFields();
+                provider.updateTargetCount(targetCount + 20);
+                setState(() {});
+              },
+            ),
+          ],
+        ),
+
+        // Target count info
+        Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 14,
+                color: AppColors.text.withValues(alpha: 0.5),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  "Set how many times this task needs to be completed. Long press to change by 20.",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.text.withValues(alpha: 0.5),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -194,7 +183,7 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
             child: Icon(
               icon,
               size: 28,
-              color: AppColors.main,
+              color: AppColors.white,
             ),
           ),
         ),

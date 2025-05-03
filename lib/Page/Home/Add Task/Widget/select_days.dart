@@ -176,15 +176,6 @@ class _DayButtonState extends State<DayButton> {
               color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.1),
               width: isSelected ? 2 : 1,
             ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: AppColors.main.withValues(alpha: 0.3),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
           ),
           child: Center(
             child: Text(
