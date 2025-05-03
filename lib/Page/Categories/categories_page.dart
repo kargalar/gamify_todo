@@ -428,7 +428,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.7),
+                  color: isSelected ? AppColors.text : AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
             ],
