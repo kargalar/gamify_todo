@@ -103,38 +103,27 @@ class CategorySelector extends StatelessWidget {
               : Container(
                   decoration: BoxDecoration(
                     color: AppColors.panelBackground.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.text.withValues(alpha: 0.1),
-                      width: 1,
-                    ),
                   ),
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 10,
                     children: [
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 10,
-                        children: [
-                          // Category Tags
-                          ...activeCategories.map((category) => _buildCategoryTag(
-                                context: context,
-                                category: category,
-                                isSelected: addTaskProvider.categoryId == category.id,
-                                onTap: () {
-                                  // Unfocus any text fields before updating category
-                                  addTaskProvider.unfocusAll();
-                                  addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
-                                },
-                                onLongPress: () {
-                                  // Unfocus any text fields before showing dialog
-                                  addTaskProvider.unfocusAll();
-                                  Get.dialog(CreateCategoryDialog(categoryModel: category));
-                                },
-                              )),
-                        ],
-                      ),
+                      // Category Tags
+                      ...activeCategories.map((category) => _buildCategoryTag(
+                            context: context,
+                            category: category,
+                            isSelected: addTaskProvider.categoryId == category.id,
+                            onTap: () {
+                              // Unfocus any text fields before updating category
+                              addTaskProvider.unfocusAll();
+                              addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
+                            },
+                            onLongPress: () {
+                              // Unfocus any text fields before showing dialog
+                              addTaskProvider.unfocusAll();
+                              Get.dialog(CreateCategoryDialog(categoryModel: category));
+                            },
+                          )),
                     ],
                   ),
                 ),

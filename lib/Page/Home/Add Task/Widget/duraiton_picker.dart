@@ -68,112 +68,65 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
 
           // Duration picker
           Center(
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.panelBackground.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.main.withValues(alpha: 0.2),
-                  width: 1,
-                ),
-              ),
-              padding: const EdgeInsets.all(12),
-              child: SizedBox(
-                width: 150,
-                height: 150,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: DurationPicker(
-                    duration: provider.taskDuration,
-                    baseUnit: BaseUnit.minute,
-                    onChange: (selectedDuration) {
-                      // Unfocus any text fields when changing duration
-                      if (!widget.isStore) {
-                        (provider as AddTaskProvider).unfocusAll();
-                      } else {
-                        (provider as AddStoreItemProvider).unfocusAll();
-                      }
-                      // Also unfocus using FocusScope for any other fields
-                      FocusScope.of(context).unfocus();
+            child: SizedBox(
+              width: 150,
+              height: 150,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: DurationPicker(
+                  duration: provider.taskDuration,
+                  baseUnit: BaseUnit.minute,
+                  onChange: (selectedDuration) {
+                    // Unfocus any text fields when changing duration
+                    if (!widget.isStore) {
+                      (provider as AddTaskProvider).unfocusAll();
+                    } else {
+                      (provider as AddStoreItemProvider).unfocusAll();
+                    }
+                    // Also unfocus using FocusScope for any other fields
+                    FocusScope.of(context).unfocus();
 
-                      late int duration;
+                    late int duration;
 
-                      if (selectedDuration.inMinutes > 5) {
-                        duration = (selectedDuration.inMinutes / 5).round() * 5;
-                      } else {
-                        duration = selectedDuration.inMinutes;
-                      }
+                    if (selectedDuration.inMinutes > 5) {
+                      duration = (selectedDuration.inMinutes / 5).round() * 5;
+                    } else {
+                      duration = selectedDuration.inMinutes;
+                    }
 
-                      setState(
-                        () {
-                          provider.taskDuration = Duration(minutes: duration);
-                        },
-                      );
-                    },
-                  ),
+                    setState(
+                      () {
+                        provider.taskDuration = Duration(minutes: duration);
+                      },
+                    );
+                  },
                 ),
               ),
             ),
           ),
 
           // Duration info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 14,
+                color: AppColors.text.withValues(alpha: 0.5),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                "Rotate to set task duration",
+                style: TextStyle(
+                  fontSize: 12,
                   color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  "Rotate to set task duration",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Selected duration display
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.main.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  _formatDuration(provider.taskDuration),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.main,
-                  ),
+                  fontStyle: FontStyle.italic,
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-
-    if (duration.inHours > 0) {
-      return "${duration.inHours}h ${twoDigitMinutes}m";
-    } else {
-      return "${duration.inMinutes}m";
-    }
   }
 }

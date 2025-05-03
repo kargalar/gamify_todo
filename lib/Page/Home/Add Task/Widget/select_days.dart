@@ -82,24 +82,13 @@ class _SelectDaysState extends State<SelectDays> {
           ),
 
           // Days selector
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.panelBackground.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.text.withValues(alpha: 0.1),
-                width: 1,
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(
-                days.length,
-                (index) => DayButton(
-                  index: index,
-                  name: days[index],
-                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(
+              days.length,
+              (index) => DayButton(
+                index: index,
+                name: days[index],
               ),
             ),
           ),
@@ -178,9 +167,8 @@ class _DayButtonState extends State<DayButton> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 40,
+          width: 45,
           height: 40,
-          margin: const EdgeInsets.all(2),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.main.withValues(alpha: 0.9) : AppColors.panelBackground.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(12),

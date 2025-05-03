@@ -86,29 +86,17 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
           ),
 
           // Task type buttons
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.panelBackground.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.text.withValues(alpha: 0.1),
-                width: 1,
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            child: GridView.count(
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 1.0,
-              children: [
-                if (!widget.isStore) taskTypeButton(TaskTypeEnum.CHECKBOX),
-                taskTypeButton(TaskTypeEnum.COUNTER),
-                taskTypeButton(TaskTypeEnum.TIMER),
-              ],
-            ),
+          GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.6,
+            children: [
+              if (!widget.isStore) taskTypeButton(TaskTypeEnum.CHECKBOX),
+              taskTypeButton(TaskTypeEnum.COUNTER),
+              taskTypeButton(TaskTypeEnum.TIMER),
+            ],
           ),
 
           // Target count selector (if counter type is selected)
@@ -118,28 +106,25 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
           ],
 
           // Task type info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    _getTaskTypeDescription(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 14,
+                color: AppColors.text.withValues(alpha: 0.5),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _getTaskTypeDescription(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.text.withValues(alpha: 0.5),
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -200,7 +185,6 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.main.withValues(alpha: 0.9) : AppColors.panelBackground.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(12),
@@ -218,25 +202,27 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
                   ]
                 : null,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                taskTypeIcon,
-                size: 28,
-                color: isSelected ? Colors.white : AppColors.text.withValues(alpha: 0.7),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                taskTypeName,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  taskTypeIcon,
+                  size: 28,
                   color: isSelected ? Colors.white : AppColors.text.withValues(alpha: 0.7),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                const SizedBox(height: 6),
+                Text(
+                  taskTypeName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? Colors.white : AppColors.text.withValues(alpha: 0.7),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),

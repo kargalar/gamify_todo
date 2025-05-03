@@ -66,16 +66,16 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Text(
+              const Text(
                 "Time & Notifications",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          
+
           // Divider
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -84,7 +84,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               height: 1,
             ),
           ),
-          
+
           // Time selector
           Material(
             color: Colors.transparent,
@@ -94,7 +94,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               onTap: () {
                 // Unfocus any text fields before showing time picker
                 addTaskProvider.unfocusAll();
-                
+
                 // Select time
                 _selectTime();
               },
@@ -105,9 +105,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
                   color: AppColors.panelBackground.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: addTaskProvider.selectedTime != null 
-                        ? AppColors.main.withValues(alpha: 0.3)
-                        : AppColors.text.withValues(alpha: 0.1),
+                    color: addTaskProvider.selectedTime != null ? AppColors.main.withValues(alpha: 0.3) : AppColors.text.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -116,9 +114,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
                     Icon(
                       Icons.access_time_rounded,
                       size: 24,
-                      color: addTaskProvider.selectedTime != null 
-                          ? AppColors.main 
-                          : AppColors.text.withValues(alpha: 0.6),
+                      color: addTaskProvider.selectedTime != null ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -126,9 +122,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: addTaskProvider.selectedTime != null 
-                            ? AppColors.main 
-                            : AppColors.text.withValues(alpha: 0.6),
+                        color: addTaskProvider.selectedTime != null ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
                       ),
                     ),
                     const Spacer(),
@@ -153,9 +147,9 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Notification status selector (only if time is set)
           if (addTaskProvider.selectedTime != null)
             Container(
@@ -224,7 +218,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
                 ),
               ),
             ),
-          
+
           // Notification info
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
@@ -255,7 +249,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               ],
             ),
           ),
-          
+
           // Early reminder section (only show if alarm is on)
           if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null) ...[
             // Early reminder title
@@ -280,7 +274,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
                 ],
               ),
             ),
-            
+
             // Early reminder options
             Container(
               decoration: BoxDecoration(
@@ -294,7 +288,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               padding: const EdgeInsets.all(12),
               child: _buildEarlyReminderOptions(),
             ),
-            
+
             // Early reminder info
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
@@ -308,9 +302,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      addTaskProvider.earlyReminderMinutes == null 
-                          ? "No early reminder will be sent" 
-                          : "A notification will be sent ${Duration(minutes: addTaskProvider.earlyReminderMinutes!).compactFormat()} before the alarm",
+                      addTaskProvider.earlyReminderMinutes == null ? "No early reminder will be sent" : "A notification will be sent ${Duration(minutes: addTaskProvider.earlyReminderMinutes!).compactFormat()} before the alarm",
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.text.withValues(alpha: 0.5),
@@ -326,7 +318,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
       ),
     );
   }
-  
+
   // Method to handle time selection with proper async handling
   Future<void> _selectTime() async {
     // Add a small delay to ensure keyboard is fully dismissed
@@ -355,7 +347,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
 
     addTaskProvider.updateTime(selectedTime);
   }
-  
+
   // Method to change notification status
   Future<void> _changeNotificationStatus() async {
     if (addTaskProvider.selectedTime == null) {
@@ -410,7 +402,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
       addTaskProvider.refreshNotificationStatus();
     }
   }
-  
+
   // Build early reminder options grid
   Widget _buildEarlyReminderOptions() {
     // Use a grid layout for better organization
@@ -433,7 +425,7 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
       ],
     );
   }
-  
+
   // Build early reminder option button
   Widget _buildReminderOption(int? minutes) {
     final bool isSelected = addTaskProvider.earlyReminderMinutes == minutes;
