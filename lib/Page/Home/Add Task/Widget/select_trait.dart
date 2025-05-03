@@ -26,74 +26,211 @@ class _SelectTraitListState extends State<SelectTraitList> {
   @override
   Widget build(BuildContext context) {
     context.watch<TraitProvider>();
+    final traitProvider = TraitProvider();
+    final traits = widget.isSkill ? traitProvider.traitList.where((trait) => trait.type == TraitTypeEnum.SKILL).toList() : traitProvider.traitList.where((trait) => trait.type == TraitTypeEnum.ATTRIBUTE).toList();
 
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
-        borderRadius: AppColors.borderRadiusAll,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with title and add button
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Title
-              Text(
-                " ${widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr()}",
-                style: TextStyle(
-                  color: AppColors.text,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    widget.isSkill ? Icons.psychology_rounded : Icons.auto_awesome_rounded,
+                    color: AppColors.main,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-              const Spacer(),
-              // Add Button
-              InkWell(
-                borderRadius: AppColors.borderRadiusAll / 2,
-                onTap: () async {
-                  // Unfocus any text fields when opening dialog
-                  context.read<AddTaskProvider>().unfocusAll();
+              _buildAddTraitButton(context),
+            ],
+          ),
 
-                  await Get.dialog(
-                    CreateTraitDialog(isSkill: widget.isSkill),
-                  ).then(
-                    (value) {
-                      setState(() {});
-                    },
-                  );
-                },
-                child: const Icon(
-                  Icons.add,
-                  size: 30,
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+            ),
+          ),
+
+          // Traits content
+          traits.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      children: [
+                        Icon(
+                          widget.isSkill ? Icons.psychology_alt_outlined : Icons.auto_awesome_outlined,
+                          color: AppColors.text.withValues(alpha: 0.3),
+                          size: 40,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.isSkill ? "No skills yet" : "No attributes yet",
+                          style: TextStyle(
+                            color: AppColors.text.withValues(alpha: 0.5),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Tap + to add a ${widget.isSkill ? 'skill' : 'attribute'}",
+                          style: TextStyle(
+                            color: AppColors.text.withValues(alpha: 0.4),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Traits description
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        widget.isSkill ? "Select skills that will improve with this task" : "Select attributes that this task requires",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.text.withValues(alpha: 0.6),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+
+                    // Traits grid
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.text.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          childAspectRatio: 1,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: traits.length,
+                        itemBuilder: (context, index) {
+                          return TraitItem(
+                            trait: traits[index],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+          // Trait info
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    "Long press on a ${widget.isSkill ? 'skill' : 'attribute'} to view details. Tap to select/deselect.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddTraitButton(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () async {
+          // Unfocus any text fields when opening dialog
+          context.read<AddTaskProvider>().unfocusAll();
+
+          await Get.dialog(
+            CreateTraitDialog(isSkill: widget.isSkill),
+          ).then(
+            (value) {
+              setState(() {});
+            },
+          );
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.main.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.add_rounded,
+                size: 18,
+                color: AppColors.main,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                "Add",
+                style: TextStyle(
+                  color: AppColors.main,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
                 ),
               ),
             ],
           ),
-          // List of Traits
-          SizedBox(
-            height: 50,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              children: widget.isSkill
-                  ? TraitProvider()
-                      .traitList
-                      .where((trait) => trait.type == TraitTypeEnum.SKILL)
-                      .map((skill) => TraitItem(
-                            trait: skill,
-                          ))
-                      .toList()
-                  : TraitProvider()
-                      .traitList
-                      .where((trait) => trait.type == TraitTypeEnum.ATTRIBUTE)
-                      .map((attirbute) => TraitItem(
-                            trait: attirbute,
-                          ))
-                      .toList(),
-            ),
-          )
-        ],
+        ),
       ),
     );
   }

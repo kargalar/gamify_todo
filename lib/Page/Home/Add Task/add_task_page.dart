@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:gamify_todo/Core/Enums/status_enum.dart';
 import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Core/helper.dart';
@@ -9,13 +9,13 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/category_selector.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/location_input.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/notification_status.dart';
+
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_date.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_days.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_priority.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_task_type.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_time.dart';
+
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_trait.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_manager.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_description.dart';
@@ -23,6 +23,7 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/time_notification_widget.dart';
 import 'package:gamify_todo/Service/navigator_service.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
@@ -197,30 +198,23 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     const SizedBox(height: 10),
                     const CategorySelector(),
                     const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (addTaskProvider.editTask == null)
-                          const Expanded(
-                            child: SelectDate(),
-                          ),
-                        SizedBox(
-                          width: 0.35.sw,
-                          child: const Column(
-                            children: [
-                              SelectTime(),
-                              SizedBox(height: 5),
-                              NotificationStatus(),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Date selector
+                    if (addTaskProvider.editTask == null) const SelectDate(),
+
+                    if (addTaskProvider.editTask == null) const SizedBox(height: 10),
+
+                    // Combined Time & Notification widget
+                    const TimeNotificationWidget(),
                     const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Column(
                       children: [
-                        const DurationPickerWidget(),
+                        const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(child: DurationPickerWidget()),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
                         if (addTaskProvider.editTask == null) const SelectTaskType(),
                         if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
                           const Column(

@@ -27,22 +27,108 @@ class _SelectDaysState extends State<SelectDays> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
-        borderRadius: AppColors.borderRadiusAll,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(10),
-      child: SizedBox(
-        height: 50,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: days.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            return DayButton(
-              index: index,
-              name: days[index],
-            );
-          },
-        ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with title and icon
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today_rounded,
+                color: AppColors.main,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Repeat Days",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+            ),
+          ),
+
+          // Days description
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              "Select days to repeat this task",
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.text.withValues(alpha: 0.6),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+
+          // Days selector
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.panelBackground.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.text.withValues(alpha: 0.1),
+                width: 1,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(
+                days.length,
+                (index) => DayButton(
+                  index: index,
+                  name: days[index],
+                ),
+              ),
+            ),
+          ),
+
+          // Selected days info
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    addTaskProvider.selectedDays.isEmpty ? "No repeat days selected. This will be a one-time task." : "This task will repeat on the selected days.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -72,37 +158,53 @@ class _DayButtonState extends State<DayButton> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      customBorder: RoundedRectangleBorder(
-        borderRadius: AppColors.borderRadiusCircular,
-      ),
-      onTap: () {
-        // Unfocus any text fields when selecting days
-        addTaskProvider.unfocusAll();
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          // Unfocus any text fields when selecting days
+          addTaskProvider.unfocusAll();
 
-        setState(() {
-          isSelected = !isSelected;
-        });
+          setState(() {
+            isSelected = !isSelected;
+          });
 
-        if (addTaskProvider.selectedDays.contains(widget.index)) {
-          addTaskProvider.selectedDays.remove(widget.index);
-        } else {
-          addTaskProvider.selectedDays.add(widget.index);
-        }
-      },
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Container(
-          margin: const EdgeInsets.all(3),
+          if (addTaskProvider.selectedDays.contains(widget.index)) {
+            addTaskProvider.selectedDays.remove(widget.index);
+          } else {
+            addTaskProvider.selectedDays.add(widget.index);
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 40,
+          height: 40,
+          margin: const EdgeInsets.all(2),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.blue : AppColors.panelBackground4,
-            borderRadius: AppColors.borderRadiusCircular,
+            color: isSelected ? AppColors.main.withValues(alpha: 0.9) : AppColors.panelBackground.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.1),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.main.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Center(
             child: Text(
               widget.name,
-              style: const TextStyle(
-                color: AppColors.white,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.white : AppColors.text.withValues(alpha: 0.7),
               ),
             ),
           ),

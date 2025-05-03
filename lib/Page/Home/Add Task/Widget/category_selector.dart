@@ -18,77 +18,153 @@ class CategorySelector extends StatelessWidget {
     final categoryProvider = context.watch<CategoryProvider>();
     final activeCategories = categoryProvider.getActiveCategories();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
-              child: Text(
-                LocaleKeys.Category.tr(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 4.0, bottom: 8.0),
-              child: _buildAddCategoryButton(context),
-            ),
-          ],
-        ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: AppColors.panelBackground.withValues(alpha: 0.3),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.panelBackground,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          padding: const EdgeInsets.all(12),
-          child: activeCategories.isEmpty
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with title and add button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.label_rounded,
+                    color: AppColors.main,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    LocaleKeys.Category.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              _buildAddCategoryButton(context),
+            ],
+          ),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+            ),
+          ),
+
+          // Categories content
+          activeCategories.isEmpty
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      LocaleKeys.NoCategory.tr(),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade600,
-                        fontStyle: FontStyle.italic,
-                      ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.category_outlined,
+                          color: AppColors.text.withValues(alpha: 0.3),
+                          size: 40,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          LocaleKeys.NoCategory.tr(),
+                          style: TextStyle(
+                            color: AppColors.text.withValues(alpha: 0.5),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Tap + to add a category",
+                          style: TextStyle(
+                            color: AppColors.text.withValues(alpha: 0.4),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 10,
-                      children: [
-                        // Category Tags
-                        ...activeCategories.map((category) => _buildCategoryTag(
-                              context: context,
-                              category: category,
-                              isSelected: addTaskProvider.categoryId == category.id,
-                              onTap: () {
-                                // Unfocus any text fields before updating category
-                                addTaskProvider.unfocusAll();
-                                addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
-                              },
-                              onLongPress: () {
-                                // Unfocus any text fields before showing dialog
-                                addTaskProvider.unfocusAll();
-                                Get.dialog(CreateCategoryDialog(categoryModel: category));
-                              },
-                            )),
-                      ],
+              : Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.panelBackground.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.text.withValues(alpha: 0.1),
+                      width: 1,
                     ),
-                  ],
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 10,
+                        children: [
+                          // Category Tags
+                          ...activeCategories.map((category) => _buildCategoryTag(
+                                context: context,
+                                category: category,
+                                isSelected: addTaskProvider.categoryId == category.id,
+                                onTap: () {
+                                  // Unfocus any text fields before updating category
+                                  addTaskProvider.unfocusAll();
+                                  addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
+                                },
+                                onLongPress: () {
+                                  // Unfocus any text fields before showing dialog
+                                  addTaskProvider.unfocusAll();
+                                  Get.dialog(CreateCategoryDialog(categoryModel: category));
+                                },
+                              )),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-        ),
-      ],
+
+          // Category info
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    "Long press on a category to edit it. Tap to select/deselect.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -107,57 +183,72 @@ class CategorySelector extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(6),
-        child: Ink(
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.2) : AppColors.panelBackground,
-            borderRadius: BorderRadius.circular(6),
+            color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? color.withValues(alpha: 0.7) : Colors.grey.shade300,
+              color: isSelected ? color.withValues(alpha: 0.7) : AppColors.text.withValues(alpha: 0.1),
               width: isSelected ? 1.5 : 1.0,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
                       color: color.withValues(alpha: 0.2),
-                      blurRadius: 3,
-                      offset: const Offset(0, 1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
                   ]
                 : null,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 10,
-                  height: 10,
+                // Color indicator with animation
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 12,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  "#$label",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? color : Colors.grey.shade700,
-                    letterSpacing: 0.1,
-                    shadows: isSelected
+                    boxShadow: isSelected
                         ? [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 0.5,
-                              offset: const Offset(0, 0.5),
+                            BoxShadow(
+                              color: color.withValues(alpha: 0.3),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
                             ),
                           ]
                         : null,
                   ),
                 ),
+                const SizedBox(width: 8),
+
+                // Category name with animation
+                Text(
+                  "#$label",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? color : AppColors.text.withValues(alpha: 0.7),
+                    letterSpacing: 0.2,
+                  ),
+                ),
+
+                // Selected indicator
+                if (isSelected) ...[
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 14,
+                    color: color,
+                  ),
+                ],
               ],
             ),
           ),
@@ -178,15 +269,29 @@ class CategorySelector extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: AppColors.main.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(20),
           ),
-          child: Icon(
-            Icons.add,
-            size: 16,
-            color: AppColors.main,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.add_rounded,
+                size: 18,
+                color: AppColors.main,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                "Add",
+                style: TextStyle(
+                  color: AppColors.main,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
         ),
       ),

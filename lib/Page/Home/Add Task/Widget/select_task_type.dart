@@ -31,58 +31,213 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
-        borderRadius: AppColors.borderRadiusAll,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with title and icon
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              if (!widget.isStore) taskTypeButton(TaskTypeEnum.CHECKBOX),
-              taskTypeButton(TaskTypeEnum.COUNTER),
-              taskTypeButton(TaskTypeEnum.TIMER),
+              Icon(
+                Icons.category_rounded,
+                color: AppColors.main,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Task Type",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+            ),
+          ),
+
+          // Task type description
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              "Select the type of task you want to create",
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.text.withValues(alpha: 0.6),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+
+          // Task type buttons
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.panelBackground.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.text.withValues(alpha: 0.1),
+                width: 1,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            child: GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1.0,
+              children: [
+                if (!widget.isStore) taskTypeButton(TaskTypeEnum.CHECKBOX),
+                taskTypeButton(TaskTypeEnum.COUNTER),
+                taskTypeButton(TaskTypeEnum.TIMER),
+              ],
+            ),
+          ),
+
+          // Target count selector (if counter type is selected)
           if (provider.selectedTaskType == TaskTypeEnum.COUNTER) ...[
-            const SizedBox(height: 5),
+            const SizedBox(height: 16),
             SelectTargetCount(isStore: widget.isStore),
           ],
+
+          // Task type info
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    _getTaskTypeDescription(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  InkWell taskTypeButton(TaskTypeEnum taskType) {
-    return InkWell(
-      borderRadius: AppColors.borderRadiusAll,
-      onTap: () {
-        // Unfocus any text fields when selecting task type
-        if (!widget.isStore) {
-          (provider as AddTaskProvider).unfocusAll();
-        } else {
-          (provider as AddStoreItemProvider).unfocusAll();
-        }
-        // Also unfocus using FocusScope for any other fields
-        FocusScope.of(context).unfocus();
-        setState(() {
-          provider.selectedTaskType = taskType;
-        });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: AppColors.borderRadiusAll,
-          color: provider.selectedTaskType == taskType ? AppColors.main : Colors.transparent,
-        ),
-        padding: const EdgeInsets.all(5),
-        child: Icon(
-          taskType == TaskTypeEnum.CHECKBOX
-              ? Icons.check_box
-              : taskType == TaskTypeEnum.COUNTER
-                  ? Icons.add
-                  : Icons.timer,
-          size: 30,
-          color: provider.selectedTaskType == taskType ? AppColors.white : null,
+  String _getTaskTypeDescription() {
+    switch (provider.selectedTaskType) {
+      case TaskTypeEnum.CHECKBOX:
+        return "Checkbox: Simple task that can be marked as completed.";
+      case TaskTypeEnum.COUNTER:
+        return "Counter: Task with a target count that can be incremented.";
+      case TaskTypeEnum.TIMER:
+        return "Timer: Task with a timer that counts down from a set duration.";
+      default:
+        return "Select a task type to see description.";
+    }
+  }
+
+  Widget taskTypeButton(TaskTypeEnum taskType) {
+    final bool isSelected = provider.selectedTaskType == taskType;
+
+    String taskTypeName;
+    IconData taskTypeIcon;
+
+    switch (taskType) {
+      case TaskTypeEnum.CHECKBOX:
+        taskTypeName = "Checkbox";
+        taskTypeIcon = Icons.check_box_rounded;
+        break;
+      case TaskTypeEnum.COUNTER:
+        taskTypeName = "Counter";
+        taskTypeIcon = Icons.add_circle_rounded;
+        break;
+      case TaskTypeEnum.TIMER:
+        taskTypeName = "Timer";
+        taskTypeIcon = Icons.timer_rounded;
+        break;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          // Unfocus any text fields when selecting task type
+          if (!widget.isStore) {
+            (provider as AddTaskProvider).unfocusAll();
+          } else {
+            (provider as AddStoreItemProvider).unfocusAll();
+          }
+          // Also unfocus using FocusScope for any other fields
+          FocusScope.of(context).unfocus();
+          setState(() {
+            provider.selectedTaskType = taskType;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.main.withValues(alpha: 0.9) : AppColors.panelBackground.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.1),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.main.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                taskTypeIcon,
+                size: 28,
+                color: isSelected ? Colors.white : AppColors.text.withValues(alpha: 0.7),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                taskTypeName,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? Colors.white : AppColors.text.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

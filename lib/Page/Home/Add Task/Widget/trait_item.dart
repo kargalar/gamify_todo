@@ -38,63 +38,112 @@ class _TraitItemState extends State<TraitItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2),
-      child: SizedBox(
-        width: 50,
-        height: 50,
-        child: InkWell(
-          borderRadius: AppColors.borderRadiusAll,
-          highlightColor: widget.trait.color,
-          splashColor: isSelected ? null : widget.trait.color,
-          onTap: () async {
-            // Unfocus any text fields when selecting trait
-            if (!widget.isStatisticsPage) {
-              addTaskProvider.unfocusAll();
-            }
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () async {
+          // Unfocus any text fields when selecting trait
+          if (!widget.isStatisticsPage) {
+            addTaskProvider.unfocusAll();
+          }
 
-            if (widget.isStatisticsPage) {
-              await NavigatorService().goTo(
-                TraitDetailPage(traitModel: widget.trait),
-              );
-            } else {
-              if (isSelected) {
-                addTaskProvider.selectedTraits.remove(widget.trait);
-              } else {
-                addTaskProvider.selectedTraits.add(widget.trait);
-              }
-
-              setState(() {
-                isSelected = !isSelected;
-              });
-            }
-          },
-          onLongPress: () async {
-            // Unfocus any text fields when long pressing trait
-            if (!widget.isStatisticsPage) {
-              addTaskProvider.unfocusAll();
-            }
-
+          if (widget.isStatisticsPage) {
             await NavigatorService().goTo(
-              TraitDetailPage(
-                traitModel: widget.trait,
-              ),
-              transition: Transition.rightToLeft,
+              TraitDetailPage(traitModel: widget.trait),
             );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? widget.trait.color : AppColors.panelBackground2,
-              borderRadius: AppColors.borderRadiusAll,
+          } else {
+            if (isSelected) {
+              addTaskProvider.selectedTraits.remove(widget.trait);
+            } else {
+              addTaskProvider.selectedTraits.add(widget.trait);
+            }
+
+            setState(() {
+              isSelected = !isSelected;
+            });
+          }
+        },
+        onLongPress: () async {
+          // Unfocus any text fields when long pressing trait
+          if (!widget.isStatisticsPage) {
+            addTaskProvider.unfocusAll();
+          }
+
+          await NavigatorService().goTo(
+            TraitDetailPage(
+              traitModel: widget.trait,
             ),
-            child: Center(
-              child: Text(
-                widget.trait.icon,
-                style: const TextStyle(
-                  fontSize: 25,
+            transition: Transition.rightToLeft,
+          );
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: isSelected ? widget.trait.color.withValues(alpha: 0.9) : AppColors.panelBackground.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? widget.trait.color : AppColors.text.withValues(alpha: 0.1),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: widget.trait.color.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Stack(
+            children: [
+              // Main icon
+              Center(
+                child: Text(
+                  widget.trait.icon,
+                  style: TextStyle(
+                    fontSize: 28,
+                    shadows: isSelected
+                        ? [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                        : null,
+                  ),
                 ),
               ),
-            ),
+
+              // Selected indicator
+              if (isSelected && !widget.isStatisticsPage)
+                Positioned(
+                  top: 2,
+                  right: 2,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.trait.color,
+                        width: 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.check,
+                        size: 12,
+                        color: widget.trait.color,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),

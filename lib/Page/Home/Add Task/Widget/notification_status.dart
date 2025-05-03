@@ -40,172 +40,301 @@ class _NotificationStatusState extends State<NotificationStatus> {
             : "Kapalı";
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
-        borderRadius: AppColors.borderRadiusAll,
-        border: Border.all(
-          color: activeColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
+      padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Bildirim durumu seçici
-          InkWell(
-            borderRadius: BorderRadius.only(
-              topLeft: AppColors.borderRadiusAll.topLeft,
-              topRight: AppColors.borderRadiusAll.topRight,
-              bottomLeft: addTaskProvider.isAlarmOn ? Radius.zero : AppColors.borderRadiusAll.bottomLeft,
-              bottomRight: addTaskProvider.isAlarmOn ? Radius.zero : AppColors.borderRadiusAll.bottomRight,
-            ),
-            onTap: () async {
-              // Unfocus any text fields when changing notification status
-              addTaskProvider.unfocusAll();
-              await changeNotificationStatus();
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
+          // Header with title and icon
+          Row(
+            children: [
+              Icon(
+                Icons.notifications_rounded,
+                color: AppColors.main,
+                size: 20,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Bildirim simgesi
-                  Icon(
-                    notificationIcon,
-                    size: 24,
-                    color: activeColor,
+              const SizedBox(width: 8),
+              const Text(
+                "Notifications",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+            ),
+          ),
+
+          // Notification status selector
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.panelBackground.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: activeColor.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () async {
+                  // Unfocus any text fields when changing notification status
+                  addTaskProvider.unfocusAll();
+                  await changeNotificationStatus();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Column(
+                    children: [
+                      // Main notification row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Notification icon
+                          Icon(
+                            notificationIcon,
+                            size: 24,
+                            color: activeColor,
+                          ),
+                          const SizedBox(width: 12),
+                          // Notification status text
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: activeColor,
+                            ),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
+
+                      // Time display if set (in a separate row to avoid overflow)
+                      if (addTaskProvider.selectedTime != null) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: activeColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.access_time_rounded,
+                                size: 16,
+                                color: activeColor,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "${addTaskProvider.selectedTime!.hour.toString().padLeft(2, '0')}:${addTaskProvider.selectedTime!.minute.toString().padLeft(2, '0')}",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: activeColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(width: 6),
-                  // Bildirim durumu metni
-                  Text(
-                    statusText,
+                ),
+              ),
+            ),
+          ),
+
+          // Notification status info
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    addTaskProvider.selectedTime == null
+                        ? "Tap to set a notification time for this task"
+                        : addTaskProvider.isNotificationOn
+                            ? "Standard notification will appear at the set time"
+                            : addTaskProvider.isAlarmOn
+                                ? "Full-screen alarm will appear at the set time"
+                                : "No notifications will be sent for this task",
                     style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: activeColor,
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Early reminder section (only show if alarm is on)
+          if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null) ...[
+            // Early reminder title
+            Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.timer_rounded,
+                    size: 18,
+                    color: AppColors.red.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Early Reminder",
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
 
-          // Erken hatırlatma seçici (sadece alarm açıksa göster)
-          if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null)
-            Column(
-              children: [
-                // Ayırıcı çizgi
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: activeColor.withValues(alpha: 0.1),
+            // Early reminder options
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.panelBackground.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.red.withValues(alpha: 0.2),
+                  width: 1,
                 ),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: _buildEarlyReminderOptions(),
+            ),
 
-                // Erken hatırlatma başlığı
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
+            // Early reminder info
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 14,
+                    color: AppColors.text.withValues(alpha: 0.5),
                   ),
-                  child: Text(
-                    "Erken Hatırlatma",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.text.withValues(alpha: 0.7),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      addTaskProvider.earlyReminderMinutes == null ? "No early reminder will be sent" : "A notification will be sent ${Duration(minutes: addTaskProvider.earlyReminderMinutes!).compactFormat()} before the alarm",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.text.withValues(alpha: 0.5),
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
-                ),
-
-                // Erken hatırlatma seçenekleri
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-                  child: _buildEarlyReminderOptions(),
-                ),
-              ],
+                ],
+              ),
             ),
+          ],
         ],
       ),
     );
   }
 
-  // Erken hatırlatma seçeneklerini oluştur
+  // Build early reminder options grid
   Widget _buildEarlyReminderOptions() {
-    // İki sütun halinde düzenlemek için Column ve Row kullanıyoruz
-    return Column(
+    // Use a grid layout for better organization
+    return GridView.count(
+      crossAxisCount: 4,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 1.5, // Increased for better text fitting
       children: [
-        // İlk sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(null)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(5)),
-          ],
-        ),
-        const SizedBox(height: 8), // Sıralar arası boşluk
-        // İkinci sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(10)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(15)),
-          ],
-        ),
-        const SizedBox(height: 8), // Sıralar arası boşluk
-        // Üçüncü sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(20)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(30)),
-          ],
-        ),
-        const SizedBox(height: 8), // Sıralar arası boşluk
-        // Dördüncü sıra - 2 öğe
-        Row(
-          children: [
-            Expanded(child: _buildReminderOption(60)),
-            const SizedBox(width: 8),
-            Expanded(child: _buildReminderOption(120)),
-          ],
-        ),
+        _buildReminderOption(null),
+        _buildReminderOption(5),
+        _buildReminderOption(10),
+        _buildReminderOption(15),
+        _buildReminderOption(20),
+        _buildReminderOption(30),
+        _buildReminderOption(60),
+        _buildReminderOption(120),
       ],
     );
   }
 
-  // Erken hatırlatma seçeneği oluştur
+  // Build early reminder option button
   Widget _buildReminderOption(int? minutes) {
     final bool isSelected = addTaskProvider.earlyReminderMinutes == minutes;
     final Color optionColor = isSelected ? AppColors.red : AppColors.text.withValues(alpha: 0.5);
 
-    return InkWell(
-      onTap: () {
-        addTaskProvider.updateEarlyReminderMinutes(minutes);
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        // Yüksekliği sabit tutalım
-        height: 30,
-        decoration: BoxDecoration(
-          color: isSelected ? optionColor.withValues(alpha: 0.2) : Colors.transparent,
-          borderRadius: AppColors.borderRadiusAll,
-          border: Border.all(
-            color: isSelected ? optionColor : AppColors.text.withValues(alpha: 0.3),
-            width: 1,
-          ),
-        ),
-        // İçeriği ortalayalım
-        child: Center(
-          child: Text(
-            Duration(minutes: minutes ?? 0).compactFormat(),
-            style: TextStyle(
-              fontSize: 10, // Yazı boyutunu artıralım
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? optionColor : AppColors.text,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          addTaskProvider.updateEarlyReminderMinutes(minutes);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: isSelected ? optionColor.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? optionColor : AppColors.text.withValues(alpha: 0.2),
+              width: isSelected ? 2 : 1,
             ),
-            textAlign: TextAlign.center,
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: optionColor.withValues(alpha: 0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              Duration(minutes: minutes ?? 0).compactFormat(),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? optionColor : AppColors.text.withValues(alpha: 0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),

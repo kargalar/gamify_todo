@@ -27,104 +27,178 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
     } else {
       targetCount = context.read<AddTaskProvider>().targetCount;
     }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        InkWell(
-          borderRadius: AppColors.borderRadiusAll,
-          onTap: () {
-            // Unfocus any text fields when changing target count
-            if (!widget.isStore) {
-              (provider as AddTaskProvider).unfocusAll();
-            } else {
-              (provider as AddStoreItemProvider).unfocusAll();
-            }
-            // Also unfocus using FocusScope for any other fields
-            FocusScope.of(context).unfocus();
-            if (targetCount > 1) {
-              provider.updateTargetCount(targetCount - 1);
-            }
-            setState(() {});
-          },
-          onLongPress: () {
-            // Unfocus any text fields when changing target count
-            if (!widget.isStore) {
-              (provider as AddTaskProvider).unfocusAll();
-            } else {
-              (provider as AddStoreItemProvider).unfocusAll();
-            }
-            // Also unfocus using FocusScope for any other fields
-            FocusScope.of(context).unfocus();
-            if (targetCount > 20) {
-              provider.updateTargetCount(targetCount - 20);
-            } else {
-              provider.updateTargetCount(1);
-            }
-            setState(() {});
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: AppColors.borderRadiusAll,
-            ),
-            padding: const EdgeInsets.all(5),
-            child: const Icon(
-              Icons.remove,
-              size: 30,
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.panelBackground.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.text.withValues(alpha: 0.1),
+          width: 1,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Target count title
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.format_list_numbered_rounded,
+                  size: 18,
+                  color: AppColors.main.withValues(alpha: 0.7),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Target Count",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.text.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        Container(
+
+          // Target count selector
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Decrease button
+              _buildCountButton(
+                icon: Icons.remove_rounded,
+                onTap: () {
+                  _unfocusFields();
+                  if (targetCount > 1) {
+                    provider.updateTargetCount(targetCount - 1);
+                  }
+                  setState(() {});
+                },
+                onLongPress: () {
+                  _unfocusFields();
+                  if (targetCount > 20) {
+                    provider.updateTargetCount(targetCount - 20);
+                  } else {
+                    provider.updateTargetCount(1);
+                  }
+                  setState(() {});
+                },
+              ),
+
+              // Count display
+              Container(
+                width: 80,
+                height: 50,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.main.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.main.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    targetCount.toString(),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.main,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Increase button
+              _buildCountButton(
+                icon: Icons.add_rounded,
+                onTap: () {
+                  _unfocusFields();
+                  provider.updateTargetCount(targetCount + 1);
+                  setState(() {});
+                },
+                onLongPress: () {
+                  _unfocusFields();
+                  provider.updateTargetCount(targetCount + 20);
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+
+          // Target count info
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    "Set how many times this task needs to be completed. Long press to change by 20.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _unfocusFields() {
+    // Unfocus any text fields when changing target count
+    if (!widget.isStore) {
+      (provider as AddTaskProvider).unfocusAll();
+    } else {
+      (provider as AddStoreItemProvider).unfocusAll();
+    }
+    // Also unfocus using FocusScope for any other fields
+    FocusScope.of(context).unfocus();
+  }
+
+  Widget _buildCountButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required VoidCallback onLongPress,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Container(
+          width: 50,
+          height: 50,
           decoration: BoxDecoration(
-            borderRadius: AppColors.borderRadiusAll,
+            color: AppColors.main.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.all(5),
-          child: Text(
-            targetCount.toString(),
-            style: const TextStyle(
-              fontSize: 20,
+          child: Center(
+            child: Icon(
+              icon,
+              size: 28,
+              color: AppColors.main,
             ),
           ),
         ),
-        InkWell(
-          borderRadius: AppColors.borderRadiusAll,
-          onTap: () {
-            // Unfocus any text fields when changing target count
-            if (!widget.isStore) {
-              (provider as AddTaskProvider).unfocusAll();
-            } else {
-              (provider as AddStoreItemProvider).unfocusAll();
-            }
-            // Also unfocus using FocusScope for any other fields
-            FocusScope.of(context).unfocus();
-            provider.updateTargetCount(targetCount + 1);
-
-            setState(() {});
-          },
-          onLongPress: () {
-            // Unfocus any text fields when changing target count
-            if (!widget.isStore) {
-              (provider as AddTaskProvider).unfocusAll();
-            } else {
-              (provider as AddStoreItemProvider).unfocusAll();
-            }
-            // Also unfocus using FocusScope for any other fields
-            FocusScope.of(context).unfocus();
-            provider.updateTargetCount(targetCount + 20);
-
-            setState(() {});
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: AppColors.borderRadiusAll,
-            ),
-            padding: const EdgeInsets.all(5),
-            child: const Icon(
-              Icons.add,
-              size: 30,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

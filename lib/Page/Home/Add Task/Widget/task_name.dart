@@ -23,31 +23,132 @@ class TaskName extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
-        borderRadius: AppColors.borderRadiusAll,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Center(
-        child: SizedBox(
-          width: 375,
-          child: TextField(
-            autofocus: autoFocus,
-            controller: provider.taskNameController,
-            focusNode: provider.taskNameFocus,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: InputDecoration(
-              hintText: LocaleKeys.TaskName.tr(),
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-            ),
-            textInputAction: TextInputAction.next,
-            onEditingComplete: () {
-              // Move focus to description when done
-              if (provider.descriptionFocus.hashCode != 0) {
-                provider.descriptionFocus.requestFocus();
-              }
-            },
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with title and icon
+          Row(
+            children: [
+              Icon(
+                Icons.title_rounded,
+                color: AppColors.main,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                LocaleKeys.TaskName.tr(),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+            ),
+          ),
+
+          // Task name input field
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.panelBackground.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.main.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: TextField(
+              autofocus: autoFocus,
+              controller: provider.taskNameController,
+              focusNode: provider.taskNameFocus,
+              textCapitalization: TextCapitalization.sentences,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+              decoration: InputDecoration(
+                hintText: LocaleKeys.TaskName.tr(),
+                hintStyle: TextStyle(
+                  color: AppColors.text.withValues(alpha: 0.4),
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                prefixIcon: Icon(
+                  Icons.edit_rounded,
+                  color: AppColors.text.withValues(alpha: 0.4),
+                  size: 20,
+                ),
+                suffixIcon: provider.taskNameController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.clear_rounded,
+                          color: AppColors.text.withValues(alpha: 0.6),
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          provider.taskNameController.clear();
+                          provider.notifyListeners();
+                        },
+                      )
+                    : null,
+              ),
+              textInputAction: TextInputAction.next,
+              onChanged: (value) {
+                provider.notifyListeners();
+              },
+              onEditingComplete: () {
+                // Move focus to description when done
+                if (provider.descriptionFocus.hashCode != 0) {
+                  provider.descriptionFocus.requestFocus();
+                }
+              },
+            ),
+          ),
+
+          // Task name info
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    "Give your task a clear, descriptive name",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

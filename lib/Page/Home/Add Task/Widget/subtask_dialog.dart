@@ -82,53 +82,112 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with title and close button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                widget.subtask == null ? LocaleKeys.AddSubtask.tr() : LocaleKeys.EditSubtask.tr(),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    widget.subtask == null ? Icons.add_task_rounded : Icons.edit_note_rounded,
+                    color: AppColors.main,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    widget.subtask == null ? LocaleKeys.AddSubtask.tr() : LocaleKeys.EditSubtask.tr(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+            ),
+          ),
 
           // Title field
-          Text(
-            LocaleKeys.Title.tr(),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Icon(
+                Icons.title_rounded,
+                size: 18,
+                color: AppColors.main.withValues(alpha: 0.7),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                LocaleKeys.Title.tr(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground,
-              borderRadius: AppColors.borderRadiusAll,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.main.withValues(alpha: 0.2),
+                width: 1,
+              ),
             ),
             child: TextField(
               controller: _titleController,
               focusNode: _titleFocus,
               textCapitalization: TextCapitalization.sentences,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
               decoration: InputDecoration(
                 hintText: LocaleKeys.EnterTitle.tr(),
+                hintStyle: TextStyle(
+                  color: AppColors.text.withValues(alpha: 0.4),
+                  fontSize: 15,
+                ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               textInputAction: TextInputAction.next,
               onSubmitted: (_) {
@@ -139,26 +198,56 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
           const SizedBox(height: 16),
 
           // Description field
-          Text(
-            LocaleKeys.Description.tr(),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Icon(
+                Icons.description_rounded,
+                size: 18,
+                color: AppColors.main.withValues(alpha: 0.7),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                LocaleKeys.Description.tr(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              Text(
+                " (Optional)",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 13,
+                  color: AppColors.text.withValues(alpha: 0.5),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground,
-              borderRadius: AppColors.borderRadiusAll,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.main.withValues(alpha: 0.2),
+                width: 1,
+              ),
             ),
             child: TextField(
               controller: _descriptionController,
               focusNode: _descriptionFocus,
               textCapitalization: TextCapitalization.sentences,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
               decoration: InputDecoration(
                 hintText: LocaleKeys.EnterDescription.tr(),
+                hintStyle: TextStyle(
+                  color: AppColors.text.withValues(alpha: 0.4),
+                  fontSize: 15,
+                ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               maxLines: 3,
               textInputAction: TextInputAction.done,
@@ -169,26 +258,54 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
           ),
           const SizedBox(height: 24),
 
-          // Save button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _saveSubtask,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.main,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppColors.borderRadiusAll,
+          // Action buttons
+          Row(
+            children: [
+              // Cancel button
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text.withValues(alpha: 0.7),
+                    ),
+                  ),
                 ),
               ),
-              child: Text(
-                LocaleKeys.Save.tr(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
+              const SizedBox(width: 12),
+
+              // Save button
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: _saveSubtask,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.main,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    LocaleKeys.Save.tr(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
           const SizedBox(height: 16),
         ],
