@@ -133,11 +133,11 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
 
   SlidableAction deleteAction() {
     return SlidableAction(
-      onPressed: (context) {
+      onPressed: (context) async {
         if (widget.taskModel.routineID == null) {
-          taskProvider.deleteTask(widget.taskModel);
+          await taskProvider.deleteTask(widget.taskModel.id);
         } else {
-          taskProvider.deleteRoutine(widget.taskModel.routineID!);
+          await taskProvider.deleteRoutine(widget.taskModel.routineID!);
         }
       },
       backgroundColor: AppColors.red,

@@ -306,19 +306,19 @@ class TaskProvider with ChangeNotifier {
   }
 
   // Delete a task and its associated logs
-  Future<void> deleteTask(TaskModel taskModel) async {
+  Future<void> deleteTask(int taskID) async {
     // First delete all logs associated with this task
-    await TaskLogProvider().deleteLogsByTaskId(taskModel.id);
+    await TaskLogProvider().deleteLogsByTaskId(taskID);
 
     // Remove the task from the list
-    taskList.remove(taskModel);
+    taskList.removeWhere((task) => task.id == taskID);
 
     // Delete the task from storage
-    await ServerManager().deleteTask(id: taskModel.id);
-    HomeWidgetService.updateTaskCount();
+    await ServerManager().deleteTask(id: taskID);
+    await HomeWidgetService.updateTaskCount();
 
     // Cancel any notifications for this task
-    NotificationService().cancelNotificationOrAlarm(taskModel.id);
+    await NotificationService().cancelNotificationOrAlarm(taskID);
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
     notifyListeners();

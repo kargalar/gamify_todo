@@ -546,7 +546,7 @@ class ServerManager {
   Future<void> deleteTask({
     required int id,
   }) async {
-    HiveService().deleteTask(id);
+    await HiveService().deleteTask(id);
 
     // var response = await dio.delete(
     //   "$_baseUrl/deleteTask",

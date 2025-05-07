@@ -124,6 +124,13 @@ class HiveService {
   Future<void> deleteRoutine(int id) async {
     final box = await _routineBox;
     await box.delete(id);
+
+    // delete success check
+    if (!box.containsKey(id)) {
+      debugPrint('Routine with ID $id deleted from Hive storage');
+    } else {
+      debugPrint('Routine with ID $id not deleted from Hive storage');
+    }
   }
 
   // Task methods
@@ -145,6 +152,13 @@ class HiveService {
   Future<void> deleteTask(int id) async {
     final box = await _taskBox;
     await box.delete(id);
+
+    // delete succes check
+    if (!box.containsKey(id)) {
+      debugPrint('Task with ID $id deleted from Hive storage');
+    } else {
+      debugPrint('Task with ID $id not deleted from Hive storage');
+    }
   }
 
   // Category methods

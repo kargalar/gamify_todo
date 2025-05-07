@@ -250,22 +250,23 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     if (addTaskProvider.editTask != null)
                       InkWell(
                         borderRadius: AppColors.borderRadiusAll,
-                        onTap: () {
+                        onTap: () async {
                           // Unfocus all fields before showing dialog
                           addTaskProvider.unfocusAll();
                           FocusScope.of(context).unfocus();
 
-                          Helper().getDialog(
-                              message: "Are you sure delete?",
-                              onAccept: () {
-                                if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
-                                  taskProvider.deleteTask(addTaskProvider.editTask!);
-                                } else {
-                                  taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
-                                }
+                          await Helper().getDialog(
+                            message: "Are you sure delete?",
+                            onAccept: () async {
+                              NavigatorService().goBackNavbar();
 
-                                NavigatorService().goBackNavbar();
-                              });
+                              if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
+                                await taskProvider.deleteTask(addTaskProvider.editTask!.id);
+                              } else {
+                                await taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
+                              }
+                            },
+                          );
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

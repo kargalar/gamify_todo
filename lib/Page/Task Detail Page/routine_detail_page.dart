@@ -84,11 +84,11 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                   onPressed: () async {
                     Helper().getDialog(
                         message: "Are you sure delete?",
-                        onAccept: () {
+                        onAccept: () async {
                           if (widget.taskModel.routineID == null) {
-                            TaskProvider().deleteTask(widget.taskModel);
+                            await TaskProvider().deleteTask(widget.taskModel.id);
                           } else {
-                            TaskProvider().deleteRoutine(widget.taskModel.routineID!);
+                            await TaskProvider().deleteRoutine(widget.taskModel.routineID!);
                           }
 
                           NavigatorService().goBackNavbar();
