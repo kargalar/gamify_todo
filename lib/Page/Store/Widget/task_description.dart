@@ -15,9 +15,7 @@ class TaskDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = isStore 
-        ? context.read<AddStoreItemProvider>()
-        : null;
+    final provider = isStore ? context.read<AddStoreItemProvider>() : null;
 
     return Container(
       decoration: BoxDecoration(
@@ -25,7 +23,7 @@ class TaskDescription extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13), // 0.05 * 255 ≈ 13
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -56,7 +54,7 @@ class TaskDescription extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 13,
-                  color: AppColors.text.withOpacity(0.5),
+                  color: AppColors.text.withAlpha(128), // 0.5 * 255 ≈ 128
                 ),
               ),
             ],
@@ -66,7 +64,7 @@ class TaskDescription extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(
-              color: AppColors.text.withOpacity(0.1),
+              color: AppColors.text.withAlpha(26), // 0.1 * 255 ≈ 26
               height: 1,
             ),
           ),
@@ -74,10 +72,10 @@ class TaskDescription extends StatelessWidget {
           // Description input field
           Container(
             decoration: BoxDecoration(
-              color: AppColors.panelBackground.withOpacity(0.7),
+              color: AppColors.panelBackground.withAlpha(179), // 0.7 * 255 ≈ 179
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.main.withOpacity(0.2),
+                color: AppColors.main.withAlpha(51), // 0.2 * 255 ≈ 51
                 width: 1,
               ),
             ),
@@ -91,7 +89,7 @@ class TaskDescription extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: LocaleKeys.EnterDescription.tr(),
                 hintStyle: TextStyle(
-                  color: AppColors.text.withOpacity(0.4),
+                  color: AppColors.text.withAlpha(102), // 0.4 * 255 ≈ 102
                   fontSize: 15,
                   fontStyle: FontStyle.italic,
                 ),
@@ -101,7 +99,7 @@ class TaskDescription extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 16, right: 8),
                   child: Icon(
                     Icons.notes_rounded,
-                    color: AppColors.text.withOpacity(0.4),
+                    color: AppColors.text.withAlpha(102), // 0.4 * 255 ≈ 102
                     size: 20,
                   ),
                 ),
@@ -110,7 +108,7 @@ class TaskDescription extends StatelessWidget {
                     ? IconButton(
                         icon: Icon(
                           Icons.clear_rounded,
-                          color: AppColors.text.withOpacity(0.6),
+                          color: AppColors.text.withAlpha(153), // 0.6 * 255 ≈ 153
                           size: 20,
                         ),
                         onPressed: () {
@@ -147,7 +145,7 @@ class TaskDescription extends StatelessWidget {
                 Icon(
                   Icons.info_outline_rounded,
                   size: 14,
-                  color: AppColors.text.withOpacity(0.5),
+                  color: AppColors.text.withAlpha(128), // 0.5 * 255 ≈ 128
                 ),
                 const SizedBox(width: 6),
                 Expanded(
@@ -155,7 +153,7 @@ class TaskDescription extends StatelessWidget {
                     "Add details, notes, or instructions for your item",
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.text.withOpacity(0.5),
+                      color: AppColors.text.withAlpha(128), // 0.5 * 255 ≈ 128
                       fontStyle: FontStyle.italic,
                     ),
                   ),

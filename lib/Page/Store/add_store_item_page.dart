@@ -170,22 +170,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(16),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Duration",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        // Duration picker
-                        DurationPickerWidget(isStore: true),
-                      ],
-                    ),
+                    child: const DurationPickerWidget(isStore: true),
                   ),
                   const SizedBox(height: 16),
 
@@ -202,43 +187,23 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.editItemModel == null
-                              ? "Type"
-                              : widget.editItemModel!.type == TaskTypeEnum.COUNTER
-                                  ? "Count"
-                                  : "Type",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Task type or target count
-                        widget.editItemModel == null
-                            ? const SelectTaskType(isStore: true)
-                            : widget.editItemModel!.type == TaskTypeEnum.COUNTER
-                                ? const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Add Count",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      SizedBox(height: 8),
-                                      SelectTargetCount(isStore: true),
-                                    ],
-                                  )
-                                : const SizedBox(),
-                      ],
-                    ),
+                    child: widget.editItemModel == null
+                        ? const SelectTaskType(isStore: true)
+                        : widget.editItemModel!.type == TaskTypeEnum.COUNTER
+                            ? const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Add Count",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  SelectTargetCount(isStore: true),
+                                ],
+                              )
+                            : const SizedBox(),
                   ),
 
                   const SizedBox(height: 20),
