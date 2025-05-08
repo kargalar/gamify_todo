@@ -2,37 +2,30 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
 import 'package:provider/provider.dart';
 
 class TaskDescription extends StatelessWidget {
   const TaskDescription({
     super.key,
-    this.isStore = false,
+    required this.isStore,
   });
 
   final bool isStore;
 
   @override
   Widget build(BuildContext context) {
-    if (isStore) {
-      final provider = context.read<AddStoreItemProvider>();
-      return _buildContent(context, provider);
-    } else {
-      final provider = context.read<AddTaskProvider>();
-      return _buildContent(context, provider);
-    }
-  }
+    final provider = isStore 
+        ? context.read<AddStoreItemProvider>()
+        : null;
 
-  Widget _buildContent(BuildContext context, dynamic provider) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -52,7 +45,7 @@ class TaskDescription extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                isStore ? LocaleKeys.Description.tr() : LocaleKeys.TaskDescription.tr(),
+                LocaleKeys.Description.tr(),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -63,7 +56,7 @@ class TaskDescription extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontSize: 13,
-                  color: AppColors.text.withValues(alpha: 0.5),
+                  color: AppColors.text.withOpacity(0.5),
                 ),
               ),
             ],
@@ -73,7 +66,7 @@ class TaskDescription extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(
-              color: AppColors.text.withValues(alpha: 0.1),
+              color: AppColors.text.withOpacity(0.1),
               height: 1,
             ),
           ),
@@ -81,10 +74,10 @@ class TaskDescription extends StatelessWidget {
           // Description input field
           Container(
             decoration: BoxDecoration(
-              color: AppColors.panelBackground.withValues(alpha: 0.7),
+              color: AppColors.panelBackground.withOpacity(0.7),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.main.withValues(alpha: 0.2),
+                color: AppColors.main.withOpacity(0.2),
                 width: 1,
               ),
             ),
@@ -98,7 +91,7 @@ class TaskDescription extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: LocaleKeys.EnterDescription.tr(),
                 hintStyle: TextStyle(
-                  color: AppColors.text.withValues(alpha: 0.4),
+                  color: AppColors.text.withOpacity(0.4),
                   fontSize: 15,
                   fontStyle: FontStyle.italic,
                 ),
@@ -108,7 +101,7 @@ class TaskDescription extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 16, right: 8),
                   child: Icon(
                     Icons.notes_rounded,
-                    color: AppColors.text.withValues(alpha: 0.4),
+                    color: AppColors.text.withOpacity(0.4),
                     size: 20,
                   ),
                 ),
@@ -117,7 +110,7 @@ class TaskDescription extends StatelessWidget {
                     ? IconButton(
                         icon: Icon(
                           Icons.clear_rounded,
-                          color: AppColors.text.withValues(alpha: 0.6),
+                          color: AppColors.text.withOpacity(0.6),
                           size: 20,
                         ),
                         onPressed: () {
@@ -154,15 +147,15 @@ class TaskDescription extends StatelessWidget {
                 Icon(
                   Icons.info_outline_rounded,
                   size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
+                  color: AppColors.text.withOpacity(0.5),
                 ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    isStore ? "Add details, notes, or instructions for your item" : "Add details, notes, or instructions for your task",
+                    "Add details, notes, or instructions for your item",
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
+                      color: AppColors.text.withOpacity(0.5),
                       fontStyle: FontStyle.italic,
                     ),
                   ),

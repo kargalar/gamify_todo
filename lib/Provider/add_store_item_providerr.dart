@@ -6,20 +6,26 @@ import 'package:gamify_todo/Model/store_item_model.dart';
 class AddStoreItemProvider with ChangeNotifier {
   // Widget variables
   TextEditingController taskNameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
 
   // Focus nodes for managing keyboard focus
   final FocusNode taskNameFocus = FocusNode();
-  final FocusNode descriptionFocus = FocusNode(); // Uyumluluk için eklendi
+  final FocusNode descriptionFocus = FocusNode();
 
   int addCount = 1;
   Duration taskDuration = const Duration(hours: 0, minutes: 0);
   TaskTypeEnum selectedTaskType = TaskTypeEnum.COUNTER;
   int credit = 0;
 
+  // Getter/setter for targetCount to maintain compatibility
+  int get targetCount => addCount;
+  set targetCount(int value) => addCount = value;
+
   void addItem() {
     StoreProvider().addItem(
       ItemModel(
         title: taskNameController.text,
+        description: descriptionController.text.isNotEmpty ? descriptionController.text : null,
         type: selectedTaskType,
         credit: credit,
         currentCount: selectedTaskType == TaskTypeEnum.COUNTER ? 0 : null,
@@ -36,6 +42,7 @@ class AddStoreItemProvider with ChangeNotifier {
       ItemModel(
         id: existingItem.id,
         title: taskNameController.text,
+        description: descriptionController.text.isNotEmpty ? descriptionController.text : null,
         type: selectedTaskType,
         credit: credit,
         currentCount: selectedTaskType == TaskTypeEnum.COUNTER ? existingItem.currentCount : null,

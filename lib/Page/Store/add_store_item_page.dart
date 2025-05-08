@@ -6,6 +6,7 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_task_type.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_description.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:gamify_todo/Page/Store/Widget/set_credit.dart';
@@ -15,7 +16,6 @@ import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
 import 'package:gamify_todo/Provider/store_provider.dart';
 import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/Model/store_item_model.dart';
-import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 class AddStoreItemPage extends StatefulWidget {
@@ -34,20 +34,26 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
   late final addStoreItemProvider = context.read<AddStoreItemProvider>();
   late final storeProvider = context.read<StoreProvider>();
 
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
 
     if (widget.editItemModel != null) {
       addStoreItemProvider.taskNameController.text = widget.editItemModel!.title;
+      addStoreItemProvider.descriptionController.text = widget.editItemModel!.description ?? '';
       addStoreItemProvider.credit = widget.editItemModel!.credit;
       addStoreItemProvider.taskDuration = widget.editItemModel!.addDuration!;
       addStoreItemProvider.selectedTaskType = widget.editItemModel!.type;
+      addStoreItemProvider.targetCount = widget.editItemModel!.addCount ?? 1;
     } else {
       addStoreItemProvider.taskNameController.clear();
+      addStoreItemProvider.descriptionController.clear();
       addStoreItemProvider.credit = 0;
       addStoreItemProvider.taskDuration = const Duration(hours: 0, minutes: 0);
       addStoreItemProvider.selectedTaskType = TaskTypeEnum.COUNTER;
+      addStoreItemProvider.targetCount = 1;
     }
   }
 
@@ -67,7 +73,8 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
         },
         child: Scaffold(
           appBar: AppBar(
-            title: Text(LocaleKeys.AddItem.tr()),
+            // title: Text(widget.editItemModel != null ? LocaleKeys.EditItem.tr() : LocaleKeys.AddItem.tr()),
+            title: Text(widget.editItemModel != null ? "LocaleKeys.EditItem.tr()" : LocaleKeys.AddItem.tr()),
             leading: InkWell(
               borderRadius: AppColors.borderRadiusAll,
               onTap: () {
@@ -80,37 +87,19 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
             ),
             actions: [
               if (widget.editItemModel == null)
-                Consumer(
-                  builder: (context, AddStoreItemProvider addStoreItemProvider, child) {
-                    return InkWell(
-                      borderRadius: AppColors.borderRadiusAll,
-                      onTap: () {
-                        // TODO: ardarda basıp yanlış kopyalar ekleyebiliyorum düzelt. bir kere basınca tekrar basılamasın tüm sayfaya olabilir.
-
-                        // Unfocus before saving
-                        addStoreItemProvider.unfocusAll();
-                        FocusScope.of(context).unfocus();
-
-                        if (addStoreItemProvider.taskNameController.text.trim().isEmpty) {
-                          addStoreItemProvider.taskNameController.clear();
-
-                          Helper().getMessage(
-                            message: LocaleKeys.NameEmpty.tr(),
-                            status: StatusEnum.WARNING,
-                          );
-                          return;
-                        }
-
-                        addStoreItemProvider.addItem();
-
-                        Get.back();
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: Icon(Icons.check),
-                      ),
-                    );
+                TextButton(
+                  onPressed: () {
+                    // Unfocus before saving
+                    addStoreItemProvider.unfocusAll();
+                    FocusScope.of(context).unfocus();
+                    addItem();
                   },
+                  child: Text(
+                    LocaleKeys.Save.tr(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -118,66 +107,179 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
             // Add keyboard dismiss behavior
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   if (widget.editItemModel != null) EditProgressWidget.forStoreItem(item: widget.editItemModel!),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
+
+                  // Item name
                   TaskName(
                     isStore: true,
                     autoFocus: widget.editItemModel == null,
                   ),
-                  const SizedBox(height: 10),
-                  const SetCredit(),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const DurationPickerWidget(isStore: true),
-                      const SizedBox(width: 20),
-                      if (widget.editItemModel == null) const SelectTaskType(isStore: true),
-                      if (widget.editItemModel != null && widget.editItemModel!.type == TaskTypeEnum.COUNTER)
-                        const Column(
-                          children: [
-                            // TODO: localization
-                            Text("Add Count"),
-                            SelectTargetCount(isStore: true),
-                          ],
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  if (widget.editItemModel != null) ...[
-                    const SizedBox(height: 30),
-                    InkWell(
-                      borderRadius: AppColors.borderRadiusAll,
-                      onTap: () {
-                        // Unfocus before deleting
-                        addStoreItemProvider.unfocusAll();
-                        FocusScope.of(context).unfocus();
+                  const SizedBox(height: 5),
 
-                        storeProvider.deleteItem(widget.editItemModel!.id);
-                        Get.back();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: AppColors.borderRadiusAll,
-                          color: AppColors.red,
+                  // Item description
+                  const TaskDescription(isStore: true),
+                  const SizedBox(height: 10),
+
+                  // Credit section
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.panelBackground,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        child: Text(
-                          LocaleKeys.Delete.tr(),
-                          style: const TextStyle(
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Credit",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        SetCredit(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Duration section
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.panelBackground,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Duration",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        // Duration picker
+                        DurationPickerWidget(isStore: true),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Type section
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.panelBackground,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.editItemModel == null
+                              ? "Type"
+                              : widget.editItemModel!.type == TaskTypeEnum.COUNTER
+                                  ? "Count"
+                                  : "Type",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Task type or target count
+                        widget.editItemModel == null
+                            ? const SelectTaskType(isStore: true)
+                            : widget.editItemModel!.type == TaskTypeEnum.COUNTER
+                                ? const Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Add Count",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      SelectTargetCount(isStore: true),
+                                    ],
+                                  )
+                                : const SizedBox(),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Delete button for edit mode
+                  if (widget.editItemModel != null) ...[
+                    const SizedBox(height: 20),
+                    Center(
+                      child: InkWell(
+                        borderRadius: AppColors.borderRadiusAll,
+                        onTap: () {
+                          // Unfocus before showing dialog
+                          addStoreItemProvider.unfocusAll();
+                          FocusScope.of(context).unfocus();
+
+                          Helper().getDialog(
+                            message: "Are you sure you want to delete this item?",
+                            onAccept: () {
+                              storeProvider.deleteItem(widget.editItemModel!.id);
+                              NavigatorService().goBackNavbar();
+                            },
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: AppColors.borderRadiusAll,
+                            color: AppColors.red,
+                          ),
+                          child: Text(
+                            LocaleKeys.Delete.tr(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.white,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ],
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -185,6 +287,24 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
         ),
       ),
     );
+  }
+
+  void addItem() {
+    if (addStoreItemProvider.taskNameController.text.trim().isEmpty) {
+      addStoreItemProvider.taskNameController.clear();
+
+      Helper().getMessage(
+        message: LocaleKeys.NameEmpty.tr(),
+        status: StatusEnum.WARNING,
+      );
+      return;
+    }
+
+    if (isLoading) return;
+    isLoading = true;
+
+    addStoreItemProvider.addItem();
+    NavigatorService().goBackNavbar();
   }
 
   void goBackCheck() {
@@ -199,8 +319,10 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
         return;
       }
 
-      addStoreItemProvider.updateItem(widget.editItemModel!);
+      if (isLoading) return;
+      isLoading = true;
 
+      addStoreItemProvider.updateItem(widget.editItemModel!);
       NavigatorService().back();
     } else {
       NavigatorService().back();

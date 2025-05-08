@@ -23,6 +23,8 @@ class ItemModel extends HiveObject {
   int credit;
   @HiveField(8)
   int? addCount;
+  @HiveField(9)
+  final String? description;
 
   ItemModel({
     this.id = 0,
@@ -34,6 +36,7 @@ class ItemModel extends HiveObject {
     this.addCount,
     this.isTimerActive,
     required this.credit,
+    this.description,
   });
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +57,7 @@ class ItemModel extends HiveObject {
       isTimerActive: json['is_timer_active'] ?? (type == TaskTypeEnum.TIMER ? false : null),
       credit: json['credit'],
       addCount: json['add_count'],
+      description: json['description'],
     );
   }
 
@@ -76,6 +80,7 @@ class ItemModel extends HiveObject {
       'credit': credit,
       'is_timer_active': isTimerActive,
       'add_count': addCount,
+      'description': description,
     };
   }
 }
