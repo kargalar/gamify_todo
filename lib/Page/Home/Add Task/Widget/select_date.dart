@@ -18,6 +18,9 @@ class _SelectDateState extends State<SelectDate> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to changes in selectedDays to rebuild the widget
+    context.watch<AddTaskProvider>();
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
@@ -51,8 +54,8 @@ class _SelectDateState extends State<SelectDate> {
                 ),
               ),
               const Spacer(),
-              // Clear date button
-              if (addTaskProvider.selectedDate != null)
+              // Clear date button - only show if no repeat days are selected
+              if (addTaskProvider.selectedDate != null && addTaskProvider.selectedDays.isEmpty)
                 InkWell(
                   onTap: () {
                     setState(() {
@@ -92,86 +95,72 @@ class _SelectDateState extends State<SelectDate> {
               ),
             ),
             padding: const EdgeInsets.all(8),
-            child: addTaskProvider.selectedDate == null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        "No date selected",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.text.withValues(alpha: 0.5),
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  )
-                : TableCalendar(
-                    rowHeight: 36,
-                    firstDay: DateTime.now().subtract(const Duration(days: 365)),
-                    lastDay: DateTime.now().add(const Duration(days: 365)),
-                    focusedDay: addTaskProvider.selectedDate!,
-                    selectedDayPredicate: (day) => isSameDay(addTaskProvider.selectedDate!, day),
-                    calendarFormat: CalendarFormat.month,
-                    startingDayOfWeek: StartingDayOfWeek.monday,
-                    headerStyle: HeaderStyle(
-                      formatButtonVisible: false,
-                      titleCentered: true,
-                      titleTextStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.main,
-                      ),
-                      leftChevronIcon: Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.main),
-                      rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
-                      headerPadding: const EdgeInsets.symmetric(vertical: 8),
-                      headerMargin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.main.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    daysOfWeekStyle: DaysOfWeekStyle(
-                      weekdayStyle: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.text.withValues(alpha: 0.7),
-                      ),
-                      weekendStyle: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.text.withValues(alpha: 0.7),
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.panelBackground.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    calendarStyle: CalendarStyle(
-                      selectedDecoration: BoxDecoration(
-                        color: AppColors.main,
-                        shape: BoxShape.circle,
-                      ),
-                      todayDecoration: BoxDecoration(
-                        color: AppColors.main.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
-                      weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
-                      selectedTextStyle: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
-                      todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
-                      outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
-                      cellMargin: const EdgeInsets.all(2),
-                      cellPadding: EdgeInsets.zero,
-                    ),
-                    onDaySelected: (selectedDay, focusedDay) {
-                      // Unfocus any text fields when selecting a date
-                      addTaskProvider.unfocusAll();
-                      setState(() {
-                        addTaskProvider.selectedDate = selectedDay;
-                      });
-                    },
-                  ),
+            child: TableCalendar(
+              rowHeight: 36,
+              firstDay: DateTime.now().subtract(const Duration(days: 365)),
+              lastDay: DateTime.now().add(const Duration(days: 365)),
+              focusedDay: addTaskProvider.selectedDate!,
+              selectedDayPredicate: (day) => isSameDay(addTaskProvider.selectedDate!, day),
+              calendarFormat: CalendarFormat.month,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.main,
+                ),
+                leftChevronIcon: Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.main),
+                rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
+                headerPadding: const EdgeInsets.symmetric(vertical: 8),
+                headerMargin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.main.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              daysOfWeekStyle: DaysOfWeekStyle(
+                weekdayStyle: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text.withValues(alpha: 0.7),
+                ),
+                weekendStyle: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text.withValues(alpha: 0.7),
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              calendarStyle: CalendarStyle(
+                selectedDecoration: BoxDecoration(
+                  color: AppColors.main,
+                  shape: BoxShape.circle,
+                ),
+                todayDecoration: BoxDecoration(
+                  color: AppColors.main.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                selectedTextStyle: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+                todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
+                outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
+                cellMargin: const EdgeInsets.all(2),
+                cellPadding: EdgeInsets.zero,
+              ),
+              onDaySelected: (selectedDay, focusedDay) {
+                // Unfocus any text fields when selecting a date
+                addTaskProvider.unfocusAll();
+                setState(() {
+                  addTaskProvider.selectedDate = selectedDay;
+                });
+              },
+            ),
           ),
 
           // Date info
@@ -187,11 +176,16 @@ class _SelectDateState extends State<SelectDate> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    addTaskProvider.selectedDate == null ? "No date selected. Task will be added to your inbox." : "Select the date when this task should be completed",
+                    addTaskProvider.selectedDate == null
+                        ? addTaskProvider.selectedDays.isNotEmpty
+                            ? "Rutin oluşturmak için başlangıç tarihi seçmelisiniz."
+                            : "No date selected. Task will be added to your inbox."
+                        : "Select the date when this task should be completed",
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
+                      color: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? AppColors.dirtyRed : AppColors.text.withValues(alpha: 0.5),
                       fontStyle: FontStyle.italic,
+                      fontWeight: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),

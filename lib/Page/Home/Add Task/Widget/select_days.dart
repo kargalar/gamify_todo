@@ -18,6 +18,9 @@ class _SelectDaysState extends State<SelectDays> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to changes in selectedDays and selectedDate to rebuild the widget
+    context.watch<AddTaskProvider>();
+
     if (context.locale == const Locale('en', 'US')) {
       days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     } else {
@@ -93,11 +96,16 @@ class _SelectDaysState extends State<SelectDays> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    addTaskProvider.selectedDays.isEmpty ? "No repeat days selected. This will be a one-time task." : "This task will repeat on the selected days.",
+                    addTaskProvider.selectedDays.isEmpty
+                        ? "No repeat days selected. This will be a one-time task."
+                        : addTaskProvider.selectedDate == null
+                            ? "Rutin oluşturmak için başlangıç tarihi seçmelisiniz."
+                            : "This task will repeat on the selected days.",
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
+                      color: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? AppColors.dirtyRed : AppColors.text.withValues(alpha: 0.5),
                       fontStyle: FontStyle.italic,
+                      fontWeight: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -150,6 +158,13 @@ class _DayButtonState extends State<DayButton> {
             addTaskProvider.selectedDays.remove(widget.index);
           } else {
             addTaskProvider.selectedDays.add(widget.index);
+
+            // Eğer ilk tekrar günü seçiliyorsa ve tarih seçili değilse, uyarı göster
+            if (addTaskProvider.selectedDays.length == 1 && addTaskProvider.selectedDate == null) {
+              // Uyarı göstermek yerine, kullanıcıyı bilgilendirmek için state'i güncelliyoruz
+              // Bilgi mesajı zaten güncellenecek
+              setState(() {});
+            }
           }
         },
         child: AnimatedContainer(

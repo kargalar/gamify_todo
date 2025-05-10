@@ -115,7 +115,7 @@
     "Title": "Titre",
     "Description": "Description",
     "EnterTitle": "Entrer le titre",
-    "EnterDescription": "Entrer la description (optionnel)",
+    "EnterDescription": "Entrer la description",
     "AddManualLog": "Ajouter un journal manuel",
     "NoLogsYet": "Pas encore de journaux",
     "Date": "Date",

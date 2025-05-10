@@ -112,7 +112,7 @@
     "Title": "Заголовок",
     "Description": "Описание",
     "EnterTitle": "Введите заголовок",
-    "EnterDescription": "Введите описание (необязательно)",
+    "EnterDescription": "Введите описание",
     "Location": "Местоположение",
     "EnterLocation": "Введите местоположение",
     "ShowOnMap": "Показать на карте",
