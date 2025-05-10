@@ -18,7 +18,7 @@ class RoutineModel extends HiveObject {
   @HiveField(4)
   final DateTime createdDate; // oluşturulma tarihi
   @HiveField(5)
-  DateTime startDate; // başlama tarihi
+  DateTime? startDate; // başlama tarihi
   @HiveField(6)
   TimeOfDay? time; // saati
   @HiveField(7)
@@ -50,7 +50,7 @@ class RoutineModel extends HiveObject {
     required this.description,
     required this.type,
     required this.createdDate,
-    required this.startDate,
+    this.startDate,
     this.time,
     required this.isNotificationOn,
     required this.isAlarmOn,
@@ -79,7 +79,7 @@ class RoutineModel extends HiveObject {
       description: json['description'],
       type: type,
       createdDate: DateTime.parse(json['created_date']),
-      startDate: DateTime.parse(json['start_date']),
+      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
       time: json['time'] != null ? TimeOfDay.fromDateTime(DateTime.parse("1970-01-01 ${json['time']}")) : null,
       isNotificationOn: json['is_notification_on'],
       isAlarmOn: json['is_alarm_on'],
@@ -110,7 +110,7 @@ class RoutineModel extends HiveObject {
       'description': description,
       'type': type.toString().split('.').last,
       'created_date': createdDate.toIso8601String(),
-      'start_date': startDate.toIso8601String(),
+      'start_date': startDate?.toIso8601String(),
       'time': time != null ? '${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}:00' : null,
       'is_notification_on': isNotificationOn,
       'is_alarm_on': isAlarmOn,
@@ -129,6 +129,6 @@ class RoutineModel extends HiveObject {
 
 extension RoutineModelExtension on RoutineModel {
   bool isActiveForThisDate(DateTime date) {
-    return repeatDays.contains(date.weekday - 1) && startDate.isBeforeOrSameDay(date) && !isArchived;
+    return repeatDays.contains(date.weekday - 1) && (startDate == null || startDate!.isBeforeOrSameDay(date)) && !isArchived;
   }
 }

@@ -38,7 +38,7 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
   }
 
   ActionPane? startPane() {
-    if (widget.taskModel.routineID != null && !widget.taskModel.taskDate.isSameDay(DateTime.now())) return null;
+    if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isSameDay(DateTime.now()))) return null;
 
     return ActionPane(
       motion: const ScrollMotion(),

@@ -72,7 +72,7 @@ class CategorySelector extends StatelessWidget {
           activeCategories.isEmpty
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Column(
                       children: [
                         Icon(
@@ -88,14 +88,14 @@ class CategorySelector extends StatelessWidget {
                             fontSize: 14,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Tap + to add a category",
-                          style: TextStyle(
-                            color: AppColors.text.withValues(alpha: 0.4),
-                            fontSize: 12,
-                          ),
-                        ),
+                        // const SizedBox(height: 4),
+                        // Text(
+                        //   "Tap + to add a category",
+                        //   style: TextStyle(
+                        //     color: AppColors.text.withValues(alpha: 0.4),
+                        //     fontSize: 12,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

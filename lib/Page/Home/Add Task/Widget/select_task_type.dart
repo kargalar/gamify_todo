@@ -40,7 +40,7 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -69,19 +69,6 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
             child: Divider(
               color: AppColors.text.withValues(alpha: 0.1),
               height: 1,
-            ),
-          ),
-
-          // Task type description
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              "Select the type of task you want to create",
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.text.withValues(alpha: 0.6),
-                fontStyle: FontStyle.italic,
-              ),
             ),
           ),
 

@@ -22,7 +22,7 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       title: fields[2] as String,
       description: fields[3] as String?,
       type: fields[4] as TaskTypeEnum,
-      taskDate: fields[5] as DateTime,
+      taskDate: fields[5] as DateTime?,
       time: fields[6] as TimeOfDay?,
       isNotificationOn: fields[7] as bool,
       isAlarmOn: fields[8] as bool,
@@ -99,9 +99,5 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TaskModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is TaskModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

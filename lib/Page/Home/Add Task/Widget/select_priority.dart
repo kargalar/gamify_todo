@@ -24,7 +24,7 @@ class SelectPriority extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -53,19 +53,6 @@ class SelectPriority extends StatelessWidget {
             child: Divider(
               color: AppColors.text.withValues(alpha: 0.1),
               height: 1,
-            ),
-          ),
-
-          // Priority description
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              "Select task priority level",
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.text.withValues(alpha: 0.6),
-                fontStyle: FontStyle.italic,
-              ),
             ),
           ),
 

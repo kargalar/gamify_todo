@@ -114,7 +114,7 @@ class TaskDetailViewModel with ChangeNotifier {
       taskRutinCreatedDate = TaskProvider().routineList.firstWhere((element) => element.id == taskModel.routineID).createdDate;
     } else {
       // Tek task için oluşturulma tarihi - taskDate'i kullan
-      taskRutinCreatedDate = taskModel.taskDate;
+      taskRutinCreatedDate = taskModel.taskDate ?? DateTime.now();
     }
   }
 

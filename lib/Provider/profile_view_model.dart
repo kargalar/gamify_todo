@@ -13,13 +13,13 @@ class ProfileViewModel extends ChangeNotifier {
     Map<int, Map<DateTime, Duration>> skillDurations = {};
 
     for (var task in TaskProvider().taskList) {
-      if (task.taskDate.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
+      if (task.taskDate != null && task.taskDate!.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
         if (task.skillIDList != null) {
           for (var skillId in task.skillIDList!) {
             skillDurations[skillId] ??= {};
 
             Duration taskDuration = _calculateTaskDuration(task);
-            DateTime dateKey = DateTime(task.taskDate.year, task.taskDate.month, task.taskDate.day);
+            DateTime dateKey = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
             skillDurations[skillId]![dateKey] = (skillDurations[skillId]![dateKey] ?? Duration.zero) + taskDuration;
           }
         }
@@ -53,12 +53,14 @@ class ProfileViewModel extends ChangeNotifier {
     Map<int, int> dayCount = {};
 
     for (var task in TaskProvider().taskList) {
-      // TODO: belki burada -1 yazmak doğru olur. verileri kontrol et
-      int weekday = task.taskDate.weekday;
-      Duration taskDuration = task.remainingDuration!;
+      if (task.taskDate != null) {
+        // TODO: belki burada -1 yazmak doğru olur. verileri kontrol et
+        int weekday = task.taskDate!.weekday;
+        Duration taskDuration = task.remainingDuration ?? Duration.zero;
 
-      dayTotals[weekday] = (dayTotals[weekday] ?? Duration.zero) + taskDuration;
-      dayCount[weekday] = (dayCount[weekday] ?? 0) + 1;
+        dayTotals[weekday] = (dayTotals[weekday] ?? Duration.zero) + taskDuration;
+        dayCount[weekday] = (dayCount[weekday] ?? 0) + 1;
+      }
     }
 
     int bestDay = 1;
@@ -85,11 +87,13 @@ class ProfileViewModel extends ChangeNotifier {
     int tempStreak = 0;
     DateTime? lastDate;
 
-    var sortedTasks = TaskProvider().taskList.toList()..sort((a, b) => b.taskDate.compareTo(a.taskDate));
+    // Filter out tasks without dates and sort the rest
+    var tasksWithDates = TaskProvider().taskList.where((task) => task.taskDate != null).toList();
+    tasksWithDates.sort((a, b) => b.taskDate!.compareTo(a.taskDate!));
 
-    for (var task in sortedTasks) {
+    for (var task in tasksWithDates) {
       if (task.status == TaskStatusEnum.COMPLETED) {
-        if (lastDate == null || task.taskDate.difference(lastDate).inDays == 1) {
+        if (lastDate == null || task.taskDate!.difference(lastDate).inDays == 1) {
           tempStreak++;
         } else {
           tempStreak = 1;
@@ -98,7 +102,7 @@ class ProfileViewModel extends ChangeNotifier {
 
         longestStreak = tempStreak > longestStreak ? tempStreak : longestStreak;
 
-        if (DateTime.now().difference(task.taskDate).inDays <= 1) {
+        if (DateTime.now().difference(task.taskDate!).inDays <= 1) {
           currentStreak = tempStreak;
         }
       }

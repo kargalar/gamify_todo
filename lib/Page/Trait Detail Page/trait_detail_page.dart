@@ -383,7 +383,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                   Row(
                                     children: [
                                       Text(
-                                        task.taskDate.toLocal().toString().split(' ')[0],
+                                        task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[400],
@@ -451,7 +451,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                   Row(
                                     children: [
                                       Text(
-                                        task.taskDate.toLocal().toString().split(' ')[0],
+                                        task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[400],

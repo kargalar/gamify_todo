@@ -170,7 +170,7 @@ class _SubtaskManagerState extends State<SubtaskManager> {
           if (addTaskProvider.subtasks.isEmpty)
             Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Column(
                   children: [
                     Icon(
@@ -184,14 +184,6 @@ class _SubtaskManagerState extends State<SubtaskManager> {
                       style: TextStyle(
                         color: AppColors.text.withValues(alpha: 0.5),
                         fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "Tap + to add a subtask",
-                      style: TextStyle(
-                        color: AppColors.text.withValues(alpha: 0.4),
-                        fontSize: 12,
                       ),
                     ),
                   ],

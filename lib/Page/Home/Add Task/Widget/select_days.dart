@@ -68,19 +68,6 @@ class _SelectDaysState extends State<SelectDays> {
             ),
           ),
 
-          // Days description
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              "Select days to repeat this task",
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.text.withValues(alpha: 0.6),
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-
           // Days selector
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

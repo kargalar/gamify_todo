@@ -58,14 +58,6 @@ class TaskDescription extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
-                " (Optional)",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 13,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-              ),
             ],
           ),
 

@@ -44,24 +44,40 @@ class TaskCalendarPage extends StatelessWidget {
 
   Map<DateTime, List<TaskModel>> _groupTasksByDate(List<TaskModel> tasks) {
     final Map<DateTime, List<TaskModel>> grouped = {};
+    final List<TaskModel> tasksWithoutDate = [];
 
     for (var task in tasks) {
-      final date = DateTime(
-        task.taskDate.year,
-        task.taskDate.month,
-        task.taskDate.day,
-      );
+      if (task.taskDate == null) {
+        tasksWithoutDate.add(task);
+      } else {
+        final date = DateTime(
+          task.taskDate!.year,
+          task.taskDate!.month,
+          task.taskDate!.day,
+        );
 
-      if (!grouped.containsKey(date)) {
-        grouped[date] = [];
+        if (!grouped.containsKey(date)) {
+          grouped[date] = [];
+        }
+        grouped[date]!.add(task);
       }
-      grouped[date]!.add(task);
+    }
+
+    // Add tasks without dates at the top with a special key
+    if (tasksWithoutDate.isNotEmpty) {
+      final inboxDate = DateTime(1970, 1, 1); // Special date for inbox/no date
+      grouped[inboxDate] = tasksWithoutDate;
     }
 
     return grouped;
   }
 
   String _formatDate(DateTime date) {
+    // Special case for inbox/no date
+    if (date.year == 1970 && date.month == 1 && date.day == 1) {
+      return 'Gelen Kutusu';
+    }
+
     // Bugün, yarın veya dün ise özel metin göster
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);

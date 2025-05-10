@@ -83,7 +83,7 @@ class _SelectTraitListState extends State<SelectTraitList> {
           traits.isEmpty
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Column(
                       children: [
                         Icon(
@@ -97,14 +97,6 @@ class _SelectTraitListState extends State<SelectTraitList> {
                           style: TextStyle(
                             color: AppColors.text.withValues(alpha: 0.5),
                             fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Tap + to add a ${widget.isSkill ? 'skill' : 'attribute'}",
-                          style: TextStyle(
-                            color: AppColors.text.withValues(alpha: 0.4),
-                            fontSize: 12,
                           ),
                         ),
                       ],

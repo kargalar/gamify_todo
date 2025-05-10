@@ -302,7 +302,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
       return;
     }
 
-    if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate.isBeforeDay(DateTime.now())) {
+    // Rutin oluşturulurken tarih seçimi zorunlu
+    if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
+      Helper().getMessage(
+        message: "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
+        status: StatusEnum.WARNING,
+      );
+      return;
+    }
+
+    // Rutin başlangıç tarihi geçmiş bir tarih olamaz
+    if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeDay(DateTime.now())) {
       Helper().getMessage(
         message: LocaleKeys.RoutineStartDateError.tr(),
         status: StatusEnum.WARNING,
@@ -361,7 +371,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         ),
       );
 
-      if (addTaskProvider.selectedDays.contains(DateTime.now().weekday - 1) && addTaskProvider.selectedDate.isBeforeOrSameDay(DateTime.now())) {
+      if (addTaskProvider.selectedDays.contains(DateTime.now().weekday - 1) && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeOrSameDay(DateTime.now())) {
         taskProvider.addTask(
           TaskModel(
             title: addTaskProvider.taskNameController.text,
@@ -406,7 +416,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
         return;
       }
 
-      if (addTaskProvider.editTask == null && addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate.isBeforeDay(DateTime.now())) {
+      // Rutin oluşturulurken tarih seçimi zorunlu
+      if (addTaskProvider.editTask == null && addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
+        Helper().getMessage(
+          message: "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
+          status: StatusEnum.WARNING,
+        );
+        return;
+      }
+
+      // Rutin başlangıç tarihi geçmiş bir tarih olamaz
+      if (addTaskProvider.editTask == null && addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeDay(DateTime.now())) {
         Helper().getMessage(
           message: LocaleKeys.RoutineStartDateError.tr(),
           status: StatusEnum.WARNING,

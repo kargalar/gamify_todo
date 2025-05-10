@@ -22,7 +22,7 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       description: fields[2] as String?,
       type: fields[3] as TaskTypeEnum,
       createdDate: fields[4] as DateTime,
-      startDate: fields[5] as DateTime,
+      startDate: fields[5] as DateTime?,
       time: fields[6] as TimeOfDay?,
       isNotificationOn: fields[7] as bool,
       isAlarmOn: fields[8] as bool,
@@ -84,9 +84,5 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is RoutineModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is RoutineModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

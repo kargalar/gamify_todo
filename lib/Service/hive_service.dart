@@ -274,7 +274,7 @@ class HiveService {
     if (TaskProvider().taskList.isNotEmpty) {
       // failed all past tasks if status null
       for (TaskModel task in TaskProvider().taskList) {
-        if (task.status == null && task.taskDate.isBeforeDay(today)) {
+        if (task.status == null && task.taskDate != null && task.taskDate!.isBeforeDay(today)) {
           // Set to failed, clearing any other status
           task.status = TaskStatusEnum.FAILED;
 

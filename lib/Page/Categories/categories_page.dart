@@ -169,12 +169,24 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
     // Group tasks by date
     final Map<DateTime, List<TaskModel>> groupedTasks = {};
+    final List<TaskModel> tasksWithoutDate = [];
+
     for (var task in tasks) {
-      final date = DateTime(task.taskDate.year, task.taskDate.month, task.taskDate.day);
-      if (!groupedTasks.containsKey(date)) {
-        groupedTasks[date] = [];
+      if (task.taskDate == null) {
+        tasksWithoutDate.add(task);
+      } else {
+        final date = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+        if (!groupedTasks.containsKey(date)) {
+          groupedTasks[date] = [];
+        }
+        groupedTasks[date]!.add(task);
       }
-      groupedTasks[date]!.add(task);
+    }
+
+    // Add tasks without dates at the top with a special key
+    if (tasksWithoutDate.isNotEmpty) {
+      final inboxDate = DateTime(1970, 1, 1); // Special date for inbox/no date
+      groupedTasks[inboxDate] = tasksWithoutDate;
     }
 
     // Sort dates

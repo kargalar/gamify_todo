@@ -98,8 +98,8 @@ class TaskProvider with ChangeNotifier {
           task.description = taskModel.description;
           task.attributeIDList = taskModel.attributeIDList;
           task.skillIDList = taskModel.skillIDList;
-          task.remainingDuration = task.taskDate.isSameDay(DateTime.now()) ? taskModel.remainingDuration : task.remainingDuration;
-          task.targetCount = task.taskDate.isSameDay(DateTime.now()) ? taskModel.targetCount : task.targetCount;
+          task.remainingDuration = task.taskDate != null && task.taskDate!.isSameDay(DateTime.now()) ? taskModel.remainingDuration : task.remainingDuration;
+          task.targetCount = task.taskDate != null && task.taskDate!.isSameDay(DateTime.now()) ? taskModel.targetCount : task.targetCount;
           task.isNotificationOn = taskModel.isNotificationOn;
           task.time = taskModel.time;
           task.priority = taskModel.priority;
@@ -224,10 +224,10 @@ class TaskProvider with ChangeNotifier {
       return;
     }
 
-    // Bildirim veya alarm açıksa ve zaman ayarlanmışsa
-    if (taskModel.time != null && (taskModel.isNotificationOn || taskModel.isAlarmOn)) {
+    // Bildirim veya alarm açıksa ve zaman ayarlanmışsa ve tarih ayarlanmışsa
+    if (taskModel.time != null && taskModel.taskDate != null && (taskModel.isNotificationOn || taskModel.isAlarmOn)) {
       // Görev zamanı gelecekteyse bildirim planla
-      DateTime taskDateTime = taskModel.taskDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute, second: 0);
+      DateTime taskDateTime = taskModel.taskDate!.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute, second: 0);
 
       if (taskDateTime.isAfter(DateTime.now())) {
         NotificationService().scheduleNotification(
@@ -540,9 +540,18 @@ class TaskProvider with ChangeNotifier {
 
     // Sort tasks by date, priority, and time
     tasks.sort((a, b) {
-      // First sort by date
-      int dateCompare = a.taskDate.compareTo(b.taskDate);
-      if (dateCompare != 0) return dateCompare;
+      // First sort by date (null dates at the top)
+      if (a.taskDate == null && b.taskDate == null) {
+        // Both null, no sorting needed for date
+      } else if (a.taskDate == null) {
+        return -1; // a is null, so it comes first
+      } else if (b.taskDate == null) {
+        return 1; // b is null, so it comes first
+      } else {
+        // Both have dates, compare them
+        int dateCompare = a.taskDate!.compareTo(b.taskDate!);
+        if (dateCompare != 0) return dateCompare;
+      }
 
       // If same date, sort by status (active tasks first)
       if (a.status != null && b.status == null) return 1;
@@ -574,9 +583,18 @@ class TaskProvider with ChangeNotifier {
 
     // Sort tasks by date, priority, and time
     tasks.sort((a, b) {
-      // First sort by date
-      int dateCompare = a.taskDate.compareTo(b.taskDate);
-      if (dateCompare != 0) return dateCompare;
+      // First sort by date (null dates at the top)
+      if (a.taskDate == null && b.taskDate == null) {
+        // Both null, no sorting needed for date
+      } else if (a.taskDate == null) {
+        return -1; // a is null, so it comes first
+      } else if (b.taskDate == null) {
+        return 1; // b is null, so it comes first
+      } else {
+        // Both have dates, compare them
+        int dateCompare = a.taskDate!.compareTo(b.taskDate!);
+        if (dateCompare != 0) return dateCompare;
+      }
 
       // If same date, sort by status (active tasks first)
       if (a.status != null && b.status == null) return 1;

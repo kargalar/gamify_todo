@@ -18,7 +18,7 @@ class AddTaskProvider with ChangeNotifier {
   final FocusNode subtaskFocus = FocusNode();
 
   TimeOfDay? selectedTime;
-  DateTime selectedDate = DateTime.now();
+  DateTime? selectedDate = DateTime.now();
   bool isNotificationOn = false;
   bool isAlarmOn = false;
   int targetCount = 1;

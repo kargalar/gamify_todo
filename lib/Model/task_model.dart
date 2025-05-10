@@ -20,7 +20,7 @@ class TaskModel extends HiveObject {
   @HiveField(4)
   final TaskTypeEnum type; // türü
   @HiveField(5)
-  DateTime taskDate; // yapılacağı tarih
+  DateTime? taskDate; // yapılacağı tarih
   @HiveField(6)
   TimeOfDay? time; // saati
   @HiveField(7)
@@ -62,7 +62,7 @@ class TaskModel extends HiveObject {
     required this.title,
     this.description,
     required this.type,
-    required this.taskDate,
+    this.taskDate,
     this.time,
     required this.isNotificationOn,
     required this.isAlarmOn,
@@ -96,7 +96,7 @@ class TaskModel extends HiveObject {
       title: json['title'],
       description: json['description'],
       type: type,
-      taskDate: DateTime.parse(json['task_date']),
+      taskDate: json['task_date'] != null ? DateTime.parse(json['task_date']) : null,
       time: json['time'] != null ? TimeOfDay.fromDateTime(DateTime.parse("1970-01-01 ${json['time']}")) : null,
       isNotificationOn: json['is_notification_on'],
       isAlarmOn: json['is_alarm_on'],
@@ -138,7 +138,7 @@ class TaskModel extends HiveObject {
       'title': title,
       'description': description,
       'type': type.toString().split('.').last,
-      'task_date': taskDate.toIso8601String(),
+      'task_date': taskDate?.toIso8601String(),
       'time': time != null ? "${time!.hour.toString().padLeft(2, '0')}:${time!.minute.toString().padLeft(2, '0')}:00" : null,
       'is_notification_on': isNotificationOn,
       'is_alarm_on': isAlarmOn,
@@ -174,6 +174,6 @@ extension TaskModelExtension on TaskModel {
       return isCompleted ? status == null || (type == TaskTypeEnum.TIMER && isTimerActive == true && isRoutineCheck()) : true;
     }
 
-    return taskDate.isSameDay(date) && isRoutineCheck() && isCompletedCheck();
+    return taskDate?.isSameDay(date) == true && isRoutineCheck() && isCompletedCheck();
   }
 }
