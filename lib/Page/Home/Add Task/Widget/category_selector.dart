@@ -2,12 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Model/category_model.dart';
-import 'package:gamify_todo/Page/Home/Widget/create_category_dialog.dart';
+import 'package:gamify_todo/Page/Home/Widget/create_category_bottom_sheet.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
-import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 class CategorySelector extends StatelessWidget {
@@ -121,9 +120,14 @@ class CategorySelector extends StatelessWidget {
                                 addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
                               },
                               onLongPress: () {
-                                // Unfocus any text fields before showing dialog
+                                // Unfocus any text fields before showing bottom sheet
                                 addTaskProvider.unfocusAll();
-                                Get.dialog(CreateCategoryDialog(categoryModel: category));
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+                                );
                               },
                             )),
                       ],
@@ -230,9 +234,14 @@ class CategorySelector extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: () {
-          // Unfocus any text fields before showing dialog
+          // Unfocus any text fields before showing bottom sheet
           context.read<AddTaskProvider>().unfocusAll();
-          Get.dialog(const CreateCategoryDialog());
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const CreateCategoryBottomSheet(),
+          );
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(

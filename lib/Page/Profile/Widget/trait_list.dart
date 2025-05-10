@@ -1,12 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/create_trait_dialog.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/create_trait_bottom_sheet.dart';
 import 'package:gamify_todo/Page/Profile/Widget/trait_item_detailed.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/trait_provider.dart';
 import 'package:gamify_todo/Enum/trait_type_enum.dart';
-import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 class TraitList extends StatefulWidget {
@@ -41,9 +40,12 @@ class _TraitListState extends State<TraitList> {
             // Add Button
             InkWell(
               borderRadius: AppColors.borderRadiusAll / 2,
-              onTap: () async {
-                await Get.dialog(
-                  CreateTraitDialog(isSkill: widget.isSkill),
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => CreateTraitBottomSheet(isSkill: widget.isSkill),
                 ).then(
                   (value) {
                     setState(() {});

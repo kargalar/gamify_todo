@@ -4,12 +4,11 @@ import 'package:gamify_todo/Enum/task_type_enum.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Model/category_model.dart';
 import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Page/Home/Widget/create_category_dialog.dart';
+import 'package:gamify_todo/Page/Home/Widget/create_category_bottom_sheet.dart';
 import 'package:gamify_todo/Page/Home/Widget/task_item.dart';
 import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 class CategoriesPage extends StatefulWidget {
@@ -555,7 +554,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () {
-                      Get.dialog(const CreateCategoryDialog());
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => const CreateCategoryBottomSheet(),
+                      );
                     },
                     icon: const Icon(Icons.add),
                     label: const Text(LocaleKeys.AddCategory),
@@ -597,7 +601,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  Get.dialog(const CreateCategoryDialog());
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => const CreateCategoryBottomSheet(),
+                  );
                 },
                 borderRadius: BorderRadius.circular(16),
                 child: Container(

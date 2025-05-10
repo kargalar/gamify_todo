@@ -1,14 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/create_trait_dialog.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/create_trait_bottom_sheet.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/trait_item.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/trait_provider.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Enum/trait_type_enum.dart';
 import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
-import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 class SelectTraitList extends StatefulWidget {
@@ -143,12 +142,15 @@ class _SelectTraitListState extends State<SelectTraitList> {
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        onTap: () async {
-          // Unfocus any text fields when opening dialog
+        onTap: () {
+          // Unfocus any text fields when opening bottom sheet
           context.read<AddTaskProvider>().unfocusAll();
 
-          await Get.dialog(
-            CreateTraitDialog(isSkill: widget.isSkill),
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => CreateTraitBottomSheet(isSkill: widget.isSkill),
           ).then(
             (value) {
               setState(() {});
