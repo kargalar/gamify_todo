@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SelectDays extends StatefulWidget {
@@ -44,22 +45,26 @@ class _SelectDaysState extends State<SelectDays> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_today_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                "Repeat Days",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: "Repeat Days",
+            bulletPoints: const ["Select days for recurring tasks", "No selection means one-time task", "Routines require a start date", "Tasks will repeat on selected days"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Text(
+                  "Repeat Days",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -83,35 +88,31 @@ class _SelectDaysState extends State<SelectDays> {
             ),
           ),
 
-          // Selected days info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    addTaskProvider.selectedDays.isEmpty
-                        ? "No repeat days selected. This will be a one-time task."
-                        : addTaskProvider.selectedDate == null
-                            ? "Rutin oluşturmak için başlangıç tarihi seçmelisiniz."
-                            : "This task will repeat on the selected days.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? AppColors.dirtyRed : AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                      fontWeight: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? FontWeight.bold : FontWeight.normal,
-                    ),
+          // Warning message for routines without date
+          if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.dirtyRed.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColors.dirtyRed,
+                    width: 1,
                   ),
                 ),
-              ],
+                child: const Text(
+                  "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.dirtyRed,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );

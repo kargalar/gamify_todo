@@ -5,6 +5,7 @@ import 'package:gamify_todo/Model/subtask_model.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SubtaskManager extends StatefulWidget {
@@ -102,22 +103,26 @@ class _SubtaskManagerState extends State<SubtaskManager> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.checklist_rounded,
-                    color: AppColors.main,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    LocaleKeys.Subtasks.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+              ClickableTooltip(
+                title: LocaleKeys.Subtasks.tr(),
+                bulletPoints: const ["Break down your task into smaller steps", "Tap checkbox to mark subtask as completed", "Long press to edit a subtask", "Swipe left to delete a subtask", "Drag to reorder subtasks"],
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.checklist_rounded,
+                      color: AppColors.main,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      LocaleKeys.Subtasks.tr(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Material(
                 color: Colors.transparent,

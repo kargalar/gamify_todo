@@ -4,6 +4,7 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class TaskName extends StatelessWidget {
@@ -37,22 +38,26 @@ class TaskName extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.title_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                LocaleKeys.TaskName.tr(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: LocaleKeys.TaskName.tr(),
+            bulletPoints: const ["Give your task a clear, descriptive name", "Use specific names to easily identify tasks", "Keep names concise but informative"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.title_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  LocaleKeys.TaskName.tr(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -121,31 +126,6 @@ class TaskName extends StatelessWidget {
                   provider.descriptionFocus.requestFocus();
                 }
               },
-            ),
-          ),
-
-          // Task name info
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    "Give your task a clear, descriptive name",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
         ],

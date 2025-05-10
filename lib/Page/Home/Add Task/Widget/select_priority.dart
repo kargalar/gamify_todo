@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SelectPriority extends StatelessWidget {
@@ -29,22 +30,26 @@ class SelectPriority extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.flag_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                LocaleKeys.Priority.tr(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: LocaleKeys.Priority.tr(),
+            bulletPoints: const ["High priority: Tasks appear at the top of your list", "Medium priority: Tasks appear in the middle of your list", "Low priority: Tasks appear at the bottom of your list"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.flag_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  LocaleKeys.Priority.tr(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -85,47 +90,9 @@ class SelectPriority extends StatelessWidget {
               ),
             ],
           ),
-
-          // Priority info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    _getPriorityInfoText(addTaskProvider.priority),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
-  }
-
-  String _getPriorityInfoText(int priority) {
-    switch (priority) {
-      case 1:
-        return "High priority tasks will appear at the top of your list.";
-      case 2:
-        return "Medium priority tasks will appear in the middle of your list.";
-      case 3:
-        return "Low priority tasks will appear at the bottom of your list.";
-      default:
-        return "Select a priority level for your task.";
-    }
   }
 }
 

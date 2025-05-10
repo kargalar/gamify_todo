@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SelectTargetCount extends StatefulWidget {
@@ -34,23 +35,27 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
         // Target count title
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: Row(
-            children: [
-              Icon(
-                Icons.format_list_numbered_rounded,
-                size: 18,
-                color: AppColors.main.withValues(alpha: 0.7),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                "Target Count",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text.withValues(alpha: 0.8),
+          child: ClickableTooltip(
+            title: "Target Count",
+            bulletPoints: const ["Set how many times this task needs to be completed", "Tap +/- to change by 1", "Long press +/- to change by 20", "Counter will track your progress"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.format_list_numbered_rounded,
+                  size: 18,
+                  color: AppColors.main.withValues(alpha: 0.7),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  "Target Count",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.text.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
 
@@ -119,31 +124,6 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
               },
             ),
           ],
-        ),
-
-        // Target count info
-        Padding(
-          padding: const EdgeInsets.only(top: 12.0),
-          child: Row(
-            children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 14,
-                color: AppColors.text.withValues(alpha: 0.5),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  "Set how many times this task needs to be completed. Long press to change by 20.",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ],
     );

@@ -4,6 +4,7 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_target_count.dart
 import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Enum/task_type_enum.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SelectTaskType extends StatefulWidget {
@@ -45,22 +46,26 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.category_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                "Task Type",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: "Task Type",
+            bulletPoints: const ["Checkbox: Simple task that can be marked as completed", "Counter: Task with a target count that can be incremented", "Timer: Task with a timer that counts down from a set duration"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.category_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Text(
+                  "Task Type",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -91,44 +96,9 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
             const SizedBox(height: 16),
             SelectTargetCount(isStore: widget.isStore),
           ],
-
-          // Task type info
-          Row(
-            children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 14,
-                color: AppColors.text.withValues(alpha: 0.5),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  _getTaskTypeDescription(),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
-  }
-
-  String _getTaskTypeDescription() {
-    switch (provider.selectedTaskType) {
-      case TaskTypeEnum.CHECKBOX:
-        return "Checkbox: Simple task that can be marked as completed.";
-      case TaskTypeEnum.COUNTER:
-        return "Counter: Task with a target count that can be incremented.";
-      case TaskTypeEnum.TIMER:
-        return "Timer: Task with a timer that counts down from a set duration.";
-      default:
-        return "Select a task type to see description.";
-    }
   }
 
   Widget taskTypeButton(TaskTypeEnum taskType) {

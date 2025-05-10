@@ -5,6 +5,7 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Service/notification_services.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -51,22 +52,26 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.notifications_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                "Time & Notifications",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: "Time & Notifications",
+            bulletPoints: const ["Set a specific time for your task", "Choose notification type: none, standard, or alarm", "Standard: Normal notification at set time", "Alarm: Full-screen alert at set time", "Early reminder: Optional notification before alarm"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.notifications_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Text(
+                  "Time & Notifications",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -212,59 +217,32 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               ),
             ),
 
-          // Notification info
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    addTaskProvider.selectedTime == null
-                        ? "Tap to select a time for this task"
-                        : addTaskProvider.isNotificationOn
-                            ? "Standard notification will appear at the set time"
-                            : addTaskProvider.isAlarmOn
-                                ? "Full-screen alarm will appear at the set time"
-                                : "No notifications will be sent for this task",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Early reminder section (only show if alarm is on)
           if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null) ...[
             // Early reminder title
             Padding(
               padding: const EdgeInsets.only(top: 16, bottom: 12),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.timer_rounded,
-                    size: 18,
-                    color: AppColors.red.withValues(alpha: 0.7),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Early Reminder",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.text.withValues(alpha: 0.8),
+              child: ClickableTooltip(
+                title: "Early Reminder",
+                bulletPoints: const ["Optional notification before the main alarm", "Select how much advance notice you want", "Helps you prepare for upcoming tasks", "Select '0m' to disable early reminder"],
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.timer_rounded,
+                      size: 18,
+                      color: AppColors.red.withValues(alpha: 0.7),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      "Early Reminder",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -276,31 +254,6 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               ),
               padding: const EdgeInsets.all(12),
               child: _buildEarlyReminderOptions(),
-            ),
-
-            // Early reminder info
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 14,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      addTaskProvider.earlyReminderMinutes == null ? "No early reminder will be sent" : "A notification will be sent ${Duration(minutes: addTaskProvider.earlyReminderMinutes!).compactFormat()} before the alarm",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.text.withValues(alpha: 0.5),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ],

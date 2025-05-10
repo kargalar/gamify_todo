@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class DurationPickerWidget extends StatefulWidget {
@@ -39,22 +40,26 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.timer_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                "Duration",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: "Duration",
+            bulletPoints: const ["Rotate the dial to set task duration", "For timer tasks: counts down from this duration", "For other tasks: estimated time to complete"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.timer_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Text(
+                  "Duration",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -103,27 +108,6 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
                 ),
               ),
             ),
-          ),
-
-          // Duration info
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 14,
-                color: AppColors.text.withValues(alpha: 0.5),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                "Rotate to set task duration",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
           ),
         ],
       ),

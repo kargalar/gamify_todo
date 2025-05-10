@@ -7,6 +7,7 @@ import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/trait_provider.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Enum/trait_type_enum.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -49,22 +50,26 @@ class _SelectTraitListState extends State<SelectTraitList> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    widget.isSkill ? Icons.psychology_rounded : Icons.auto_awesome_rounded,
-                    color: AppColors.main,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+              ClickableTooltip(
+                title: widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
+                bulletPoints: ["Tap to select/deselect a ${widget.isSkill ? 'skill' : 'attribute'}", "Long press to view ${widget.isSkill ? 'skill' : 'attribute'} details", widget.isSkill ? "Skills improve as you complete tasks" : "Attributes represent qualities needed for tasks"],
+                child: Row(
+                  children: [
+                    Icon(
+                      widget.isSkill ? Icons.psychology_rounded : Icons.auto_awesome_rounded,
+                      color: AppColors.main,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               _buildAddTraitButton(context),
             ],
@@ -149,31 +154,6 @@ class _SelectTraitListState extends State<SelectTraitList> {
                     ),
                   ],
                 ),
-
-          // Trait info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    "Long press on a ${widget.isSkill ? 'skill' : 'attribute'} to view details. Tap to select/deselect.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

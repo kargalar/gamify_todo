@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -30,22 +31,26 @@ class LocationInput extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.location_on_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                LocaleKeys.Location.tr(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: LocaleKeys.Location.tr(),
+            bulletPoints: const ["Enter a location for your task", "Location will be displayed with an icon", "Click location to open in Google Maps", "Limited to 20 characters for display"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.location_on_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  LocaleKeys.Location.tr(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -163,32 +168,6 @@ class LocationInput extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-            ),
-
-          // Location info
-          if (addTaskProvider.locationController.text.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 14,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      "Location will be displayed under an icon and can be clicked to open Google Maps.",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.text.withValues(alpha: 0.5),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
         ],

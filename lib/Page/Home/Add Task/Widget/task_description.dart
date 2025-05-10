@@ -4,6 +4,7 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Provider/add_store_item_providerr.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class TaskDescription extends StatelessWidget {
@@ -43,22 +44,26 @@ class TaskDescription extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.description_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                isStore ? LocaleKeys.Description.tr() : LocaleKeys.TaskDescription.tr(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: isStore ? LocaleKeys.Description.tr() : LocaleKeys.TaskDescription.tr(),
+            bulletPoints: [isStore ? "Add details about your item" : "Add details about your task", "Include any special instructions", "Note important information or reminders"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.description_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  isStore ? LocaleKeys.Description.tr() : LocaleKeys.TaskDescription.tr(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Divider
@@ -135,31 +140,6 @@ class TaskDescription extends StatelessWidget {
                   // Focus node may have issues
                 }
               },
-            ),
-          ),
-
-          // Description info
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    isStore ? "Add details, notes, or instructions for your item" : "Add details, notes, or instructions for your task",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
         ],

@@ -6,6 +6,7 @@ import 'package:gamify_todo/Page/Home/Widget/create_category_dialog.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -38,22 +39,26 @@ class CategorySelector extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.label_rounded,
-                    color: AppColors.main,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    LocaleKeys.Category.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+              ClickableTooltip(
+                title: LocaleKeys.Category.tr(),
+                bulletPoints: const ["Tap a category to select/deselect it", "Long press to edit a category", "Use + button to create a new category", "Categories help organize your tasks"],
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.label_rounded,
+                      color: AppColors.main,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      LocaleKeys.Category.tr(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               _buildAddCategoryButton(context),
             ],
@@ -127,31 +132,6 @@ class CategorySelector extends StatelessWidget {
                     ],
                   ),
                 ),
-
-          // Category info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    "Long press on a category to edit it. Tap to select/deselect.",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -38,41 +39,45 @@ class _SelectDateState extends State<SelectDate> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_month_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                "Date",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+          ClickableTooltip(
+            title: "Date",
+            bulletPoints: const ["Select a date for your task", "Tasks without dates go to inbox", "Routines require a start date", "Use today/tomorrow buttons for quick selection"],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_month_rounded,
+                  color: AppColors.main,
+                  size: 20,
                 ),
-              ),
-              const Spacer(),
-              // Clear date button - only show if no repeat days are selected
-              if (addTaskProvider.selectedDate != null && addTaskProvider.selectedDays.isEmpty)
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      addTaskProvider.selectedDate = null;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Icon(
-                      Icons.close,
-                      color: AppColors.text.withValues(alpha: 0.5),
-                      size: 18,
-                    ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Date",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-            ],
+                const Spacer(),
+                // Clear date button - only show if no repeat days are selected
+                if (addTaskProvider.selectedDate != null && addTaskProvider.selectedDays.isEmpty)
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        addTaskProvider.selectedDate = null;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.close,
+                        color: AppColors.text.withValues(alpha: 0.5),
+                        size: 18,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
 
           // Divider
@@ -304,56 +309,35 @@ class _SelectDateState extends State<SelectDate> {
             ],
           ),
 
-          // Date info
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline_rounded,
-                  size: 14,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: addTaskProvider.selectedDate == null
-                      ? Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: addTaskProvider.selectedDays.isNotEmpty ? AppColors.dirtyRed.withValues(alpha: 0.1) : AppColors.blue.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: addTaskProvider.selectedDays.isNotEmpty ? AppColors.dirtyRed : AppColors.blue,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                addTaskProvider.selectedDays.isNotEmpty ? "Rutin oluşturmak için başlangıç tarihi seçmelisiniz." : "No date selected. Task will be added to your inbox.",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: addTaskProvider.selectedDays.isNotEmpty ? AppColors.dirtyRed : AppColors.blue,
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          "Select the date when this task should be completed",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.text.withValues(alpha: 0.5),
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                ),
-              ],
+          // Warning message for routines without date
+          if (addTaskProvider.selectedDate == null && addTaskProvider.selectedDays.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.dirtyRed.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColors.dirtyRed,
+                        width: 1,
+                      ),
+                    ),
+                    child: const Text(
+                      "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.dirtyRed,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
