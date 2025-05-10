@@ -43,22 +43,25 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
           ClickableTooltip(
             title: "Duration",
             bulletPoints: const ["Rotate the dial to set task duration", "For timer tasks: counts down from this duration", "For other tasks: estimated time to complete"],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.timer_rounded,
-                  color: AppColors.main,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Duration",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              color: AppColors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.timer_rounded,
+                    color: AppColors.main,
+                    size: 20,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Duration",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 

@@ -26,7 +26,7 @@ class LocationInput extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,28 +34,31 @@ class LocationInput extends StatelessWidget {
           ClickableTooltip(
             title: LocaleKeys.Location.tr(),
             bulletPoints: const ["Enter a location for your task", "Location will be displayed with an icon", "Click location to open in Google Maps", "Limited to 20 characters for display"],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  color: AppColors.main,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  LocaleKeys.Location.tr(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              color: AppColors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.main,
+                    size: 18,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  Text(
+                    LocaleKeys.Location.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
           // Divider
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Divider(
               color: AppColors.text.withValues(alpha: 0.1),
               height: 1,
@@ -66,7 +69,7 @@ class LocationInput extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: AppColors.main.withValues(alpha: 0.2),
                 width: 1,
@@ -77,27 +80,27 @@ class LocationInput extends StatelessWidget {
               focusNode: addTaskProvider.locationFocus,
               textCapitalization: TextCapitalization.sentences,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 13,
               ),
               decoration: InputDecoration(
                 hintText: LocaleKeys.EnterLocation.tr(),
                 hintStyle: TextStyle(
                   color: AppColors.text.withValues(alpha: 0.4),
-                  fontSize: 15,
+                  fontSize: 13,
                 ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 prefixIcon: Icon(
                   Icons.search_rounded,
                   color: AppColors.text.withValues(alpha: 0.4),
-                  size: 20,
+                  size: 16,
                 ),
                 suffixIcon: addTaskProvider.locationController.text.isNotEmpty
                     ? IconButton(
                         icon: Icon(
                           Icons.clear_rounded,
                           color: AppColors.text.withValues(alpha: 0.6),
-                          size: 20,
+                          size: 16,
                         ),
                         onPressed: () {
                           addTaskProvider.locationController.clear();
@@ -134,34 +137,34 @@ class LocationInput extends StatelessWidget {
           // Show on map button
           if (addTaskProvider.locationController.text.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: 12.0),
+              padding: const EdgeInsets.only(top: 8.0),
               child: Material(
                 color: Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                   onTap: () => _launchMaps(addTaskProvider.locationController.text),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.main.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.map_rounded,
-                          size: 18,
+                          size: 14,
                           color: AppColors.main,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 4),
                         Text(
                           LocaleKeys.ShowOnMap.tr(),
                           style: TextStyle(
                             color: AppColors.main,
                             fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                            fontSize: 11,
                           ),
                         ),
                       ],

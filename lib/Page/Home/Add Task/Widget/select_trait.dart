@@ -53,22 +53,25 @@ class _SelectTraitListState extends State<SelectTraitList> {
               ClickableTooltip(
                 title: widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
                 bulletPoints: ["Tap to select/deselect a ${widget.isSkill ? 'skill' : 'attribute'}", "Long press to view ${widget.isSkill ? 'skill' : 'attribute'} details", widget.isSkill ? "Skills improve as you complete tasks" : "Attributes represent qualities needed for tasks"],
-                child: Row(
-                  children: [
-                    Icon(
-                      widget.isSkill ? Icons.psychology_rounded : Icons.auto_awesome_rounded,
-                      color: AppColors.main,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                child: Container(
+                  color: AppColors.transparent,
+                  child: Row(
+                    children: [
+                      Icon(
+                        widget.isSkill ? Icons.psychology_rounded : Icons.auto_awesome_rounded,
+                        color: AppColors.main,
+                        size: 20,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               _buildAddTraitButton(context),
@@ -111,46 +114,22 @@ class _SelectTraitListState extends State<SelectTraitList> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Traits description
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        widget.isSkill ? "Select skills that will improve with this task" : "Select attributes that this task requires",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.text.withValues(alpha: 0.6),
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-
                     // Traits grid
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.panelBackground.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.text.withValues(alpha: 0.1),
-                          width: 1,
-                        ),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 6,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
                       ),
-                      padding: const EdgeInsets.all(12),
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          childAspectRatio: 1,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemCount: traits.length,
-                        itemBuilder: (context, index) {
-                          return TraitItem(
-                            trait: traits[index],
-                          );
-                        },
-                      ),
+                      itemCount: traits.length,
+                      itemBuilder: (context, index) {
+                        return TraitItem(
+                          trait: traits[index],
+                        );
+                      },
                     ),
                   ],
                 ),

@@ -25,7 +25,7 @@ class SelectPriority extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -33,28 +33,31 @@ class SelectPriority extends StatelessWidget {
           ClickableTooltip(
             title: LocaleKeys.Priority.tr(),
             bulletPoints: const ["High priority: Tasks appear at the top of your list", "Medium priority: Tasks appear in the middle of your list", "Low priority: Tasks appear at the bottom of your list"],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.flag_rounded,
-                  color: AppColors.main,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  LocaleKeys.Priority.tr(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              color: AppColors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.flag_rounded,
+                    color: AppColors.main,
+                    size: 18,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  Text(
+                    LocaleKeys.Priority.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
           // Divider
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Divider(
               color: AppColors.text.withValues(alpha: 0.1),
               height: 1,
@@ -72,7 +75,7 @@ class SelectPriority extends StatelessWidget {
                 icon: Icons.priority_high_rounded,
                 isSelected: addTaskProvider.priority == 1,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 6),
               PriorityButton(
                 title: LocaleKeys.MediumPriority.tr(),
                 value: 2,
@@ -80,7 +83,7 @@ class SelectPriority extends StatelessWidget {
                 icon: Icons.drag_handle_rounded,
                 isSelected: addTaskProvider.priority == 2,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 6),
               PriorityButton(
                 title: LocaleKeys.LowPriority.tr(),
                 value: 3,
@@ -140,7 +143,7 @@ class _PriorityButtonState extends State<PriorityButton> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           onTap: () {
             // Unfocus any text fields when selecting priority
             addTaskProvider.unfocusAll();
@@ -153,20 +156,20 @@ class _PriorityButtonState extends State<PriorityButton> {
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            height: 40,
+            height: 32,
             decoration: BoxDecoration(
               color: isSelected ? widget.color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isSelected ? widget.color : AppColors.text.withValues(alpha: 0.1),
-                width: isSelected ? 2 : 1,
+                width: isSelected ? 1.5 : 1,
               ),
             ),
             child: Center(
               child: Text(
                 widget.title,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   color: isSelected ? widget.color : AppColors.text.withValues(alpha: 0.7),
                 ),

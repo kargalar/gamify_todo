@@ -48,22 +48,25 @@ class _SelectDaysState extends State<SelectDays> {
           ClickableTooltip(
             title: "Repeat Days",
             bulletPoints: const ["Select days for recurring tasks", "No selection means one-time task", "Routines require a start date", "Tasks will repeat on selected days"],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today_rounded,
-                  color: AppColors.main,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Repeat Days",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              color: AppColors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    color: AppColors.main,
+                    size: 20,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Repeat Days",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 

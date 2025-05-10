@@ -92,7 +92,7 @@ class _ClickableTooltipState extends State<ClickableTooltip> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppColors.main.withValues(alpha: 0.3),
+                            color: AppColors.white.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),

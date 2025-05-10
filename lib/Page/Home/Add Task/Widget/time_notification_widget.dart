@@ -55,22 +55,25 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
           ClickableTooltip(
             title: "Time & Notifications",
             bulletPoints: const ["Set a specific time for your task", "Choose notification type: none, standard, or alarm", "Standard: Normal notification at set time", "Alarm: Full-screen alert at set time", "Early reminder: Optional notification before alarm"],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.notifications_rounded,
-                  color: AppColors.main,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Time & Notifications",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              color: AppColors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.notifications_rounded,
+                    color: AppColors.main,
+                    size: 20,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Time & Notifications",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 

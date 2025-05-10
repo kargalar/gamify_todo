@@ -42,41 +42,26 @@ class _SelectDateState extends State<SelectDate> {
           ClickableTooltip(
             title: "Date",
             bulletPoints: const ["Select a date for your task", "Tasks without dates go to inbox", "Routines require a start date", "Use today/tomorrow buttons for quick selection"],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_month_rounded,
-                  color: AppColors.main,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Date",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              color: AppColors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_month_rounded,
+                    color: AppColors.main,
+                    size: 20,
                   ),
-                ),
-                const Spacer(),
-                // Clear date button - only show if no repeat days are selected
-                if (addTaskProvider.selectedDate != null && addTaskProvider.selectedDays.isEmpty)
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        addTaskProvider.selectedDate = null;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Icon(
-                        Icons.close,
-                        color: AppColors.text.withValues(alpha: 0.5),
-                        size: 18,
-                      ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Date",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-              ],
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
 
@@ -95,7 +80,7 @@ class _SelectDateState extends State<SelectDate> {
             children: [
               // Calendar (reduced width)
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: Container(
                   decoration: BoxDecoration(
                     color: AppColors.panelBackground.withValues(alpha: 0.5),
@@ -149,17 +134,17 @@ class _SelectDateState extends State<SelectDate> {
                     ),
                     calendarStyle: CalendarStyle(
                       selectedDecoration: BoxDecoration(
-                        color: addTaskProvider.selectedDate == null ? Colors.transparent : AppColors.main,
+                        color: AppColors.main,
+                        shape: BoxShape.circle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: addTaskProvider.selectedDate == null ? AppColors.main.withValues(alpha: 0.2) : AppColors.main.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                         border: addTaskProvider.selectedDate == null ? Border.all(color: AppColors.main, width: 1) : null,
                       ),
-                      todayDecoration: BoxDecoration(
-                        color: AppColors.main.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
                       defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
                       weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
-                      selectedTextStyle: TextStyle(fontSize: 14, color: addTaskProvider.selectedDate == null ? AppColors.main : Colors.white, fontWeight: FontWeight.bold),
+                      selectedTextStyle: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
                       todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
                       outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
                       cellMargin: const EdgeInsets.all(2),
@@ -196,16 +181,12 @@ class _SelectDateState extends State<SelectDate> {
                           decoration: BoxDecoration(
                             color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
                                 ? AppColors.main.withValues(alpha: 0.15)
-                                : addTaskProvider.selectedDate == null
-                                    ? AppColors.blue.withValues(alpha: 0.1)
-                                    : AppColors.panelBackground.withValues(alpha: 0.5),
+                                : AppColors.panelBackground.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
                                   ? AppColors.main
-                                  : addTaskProvider.selectedDate == null
-                                      ? AppColors.blue
-                                      : AppColors.text.withValues(alpha: 0.1),
+                                  : AppColors.text.withValues(alpha: 0.1),
                               width: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day || addTaskProvider.selectedDate == null
                                   ? 2
                                   : 1,
@@ -219,9 +200,7 @@ class _SelectDateState extends State<SelectDate> {
                                 Icons.today_rounded,
                                 color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
                                     ? AppColors.main
-                                    : addTaskProvider.selectedDate == null
-                                        ? AppColors.blue
-                                        : AppColors.main.withValues(alpha: 0.7),
+                                    : AppColors.main.withValues(alpha: 0.7),
                                 size: 24,
                               ),
                               const SizedBox(height: 4),
@@ -230,11 +209,7 @@ class _SelectDateState extends State<SelectDate> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
-                                      ? AppColors.main
-                                      : addTaskProvider.selectedDate == null
-                                          ? AppColors.blue
-                                          : AppColors.text,
+                                  color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day ? AppColors.main : AppColors.text,
                                 ),
                               ),
                             ],
@@ -257,18 +232,10 @@ class _SelectDateState extends State<SelectDate> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
-                                ? AppColors.main.withValues(alpha: 0.15)
-                                : addTaskProvider.selectedDate == null
-                                    ? AppColors.blue.withValues(alpha: 0.1)
-                                    : AppColors.panelBackground.withValues(alpha: 0.5),
+                            color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1))) ? AppColors.green.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
-                                  ? AppColors.main
-                                  : addTaskProvider.selectedDate == null
-                                      ? AppColors.blue
-                                      : AppColors.text.withValues(alpha: 0.1),
+                              color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1))) ? AppColors.green : AppColors.text.withValues(alpha: 0.1),
                               width: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1))) || addTaskProvider.selectedDate == null ? 2 : 1,
                             ),
                           ),
@@ -278,11 +245,7 @@ class _SelectDateState extends State<SelectDate> {
                             children: [
                               Icon(
                                 Icons.event_rounded,
-                                color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
-                                    ? AppColors.main
-                                    : addTaskProvider.selectedDate == null
-                                        ? AppColors.blue
-                                        : AppColors.main.withValues(alpha: 0.7),
+                                color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1))) ? AppColors.green : AppColors.green.withValues(alpha: 0.7),
                                 size: 24,
                               ),
                               const SizedBox(height: 4),
@@ -291,11 +254,7 @@ class _SelectDateState extends State<SelectDate> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
-                                      ? AppColors.main
-                                      : addTaskProvider.selectedDate == null
-                                          ? AppColors.blue
-                                          : AppColors.text,
+                                  color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1))) ? AppColors.green : AppColors.text,
                                 ),
                               ),
                             ],
@@ -303,6 +262,54 @@ class _SelectDateState extends State<SelectDate> {
                         ),
                       ),
                     ),
+
+                    // Only show clear date button if no repeat days are selected
+                    if (addTaskProvider.selectedDays.isEmpty) ...[
+                      const SizedBox(height: 10),
+
+                      // No Date button
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            setState(() {
+                              addTaskProvider.selectedDate = null;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: addTaskProvider.selectedDate == null ? AppColors.red.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: addTaskProvider.selectedDate == null ? AppColors.red : AppColors.text.withValues(alpha: 0.1),
+                                width: addTaskProvider.selectedDate == null ? 2 : 1,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            width: double.infinity,
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.event_busy_rounded,
+                                  color: addTaskProvider.selectedDate == null ? AppColors.red : AppColors.red.withValues(alpha: 0.7),
+                                  size: 24,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Tarihsiz",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: addTaskProvider.selectedDate == null ? AppColors.red : AppColors.text,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

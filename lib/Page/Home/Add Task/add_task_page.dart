@@ -18,7 +18,6 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_task_type.dart';
 
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_trait.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_manager.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_description.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
@@ -188,15 +187,40 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       EditProgressWidget.forTask(task: addTaskProvider.editTask!),
                     ],
                     const SizedBox(height: 10),
+                    // Combined Task Name and Description in a simpler way
                     TaskName(autoFocus: addTaskProvider.editTask == null),
-                    const SizedBox(height: 5),
-                    const TaskDescription(),
                     const SizedBox(height: 10),
-                    const LocationInput(),
+
+                    // First row of compact widgets: Location and Subtasks
+                    const Row(
+                      children: [
+                        // Location widget (left side)
+                        Expanded(
+                          child: LocationInput(),
+                        ),
+                        SizedBox(width: 10),
+                        // Subtasks widget (right side)
+                        Expanded(
+                          child: SubtaskManager(),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 10),
-                    const SelectPriority(),
-                    const SizedBox(height: 10),
-                    const CategorySelector(),
+
+                    // Second row of compact widgets: Priority and Category
+                    const Row(
+                      children: [
+                        // Priority widget (left side)
+                        Expanded(
+                          child: SelectPriority(),
+                        ),
+                        SizedBox(width: 10),
+                        // Category widget (right side)
+                        Expanded(
+                          child: CategorySelector(),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 10),
                     // Date selector
                     if (addTaskProvider.editTask == null) const SelectDate(),

@@ -31,7 +31,7 @@ class CategorySelector extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,22 +42,25 @@ class CategorySelector extends StatelessWidget {
               ClickableTooltip(
                 title: LocaleKeys.Category.tr(),
                 bulletPoints: const ["Tap a category to select/deselect it", "Long press to edit a category", "Use + button to create a new category", "Categories help organize your tasks"],
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.label_rounded,
-                      color: AppColors.main,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      LocaleKeys.Category.tr(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                child: Container(
+                  color: AppColors.transparent,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.label_rounded,
+                        color: AppColors.main,
+                        size: 18,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Text(
+                        LocaleKeys.Category.tr(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               _buildAddCategoryButton(context),
@@ -66,7 +69,7 @@ class CategorySelector extends StatelessWidget {
 
           // Divider
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Divider(
               color: AppColors.text.withValues(alpha: 0.1),
               height: 1,
@@ -77,59 +80,54 @@ class CategorySelector extends StatelessWidget {
           activeCategories.isEmpty
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Column(
                       children: [
                         Icon(
                           Icons.category_outlined,
                           color: AppColors.text.withValues(alpha: 0.3),
-                          size: 40,
+                          size: 24,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
                           LocaleKeys.NoCategory.tr(),
                           style: TextStyle(
                             color: AppColors.text.withValues(alpha: 0.5),
-                            fontSize: 14,
+                            fontSize: 12,
                           ),
                         ),
-                        // const SizedBox(height: 4),
-                        // Text(
-                        //   "Tap + to add a category",
-                        //   style: TextStyle(
-                        //     color: AppColors.text.withValues(alpha: 0.4),
-                        //     fontSize: 12,
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
                 )
               : Container(
+                  constraints: const BoxConstraints(maxHeight: 120),
                   decoration: BoxDecoration(
                     color: AppColors.panelBackground.withValues(alpha: 0.5),
                   ),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 10,
-                    children: [
-                      // Category Tags
-                      ...activeCategories.map((category) => _buildCategoryTag(
-                            context: context,
-                            category: category,
-                            isSelected: addTaskProvider.categoryId == category.id,
-                            onTap: () {
-                              // Unfocus any text fields before updating category
-                              addTaskProvider.unfocusAll();
-                              addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
-                            },
-                            onLongPress: () {
-                              // Unfocus any text fields before showing dialog
-                              addTaskProvider.unfocusAll();
-                              Get.dialog(CreateCategoryDialog(categoryModel: category));
-                            },
-                          )),
-                    ],
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        // Category Tags
+                        ...activeCategories.map((category) => _buildCategoryTag(
+                              context: context,
+                              category: category,
+                              isSelected: addTaskProvider.categoryId == category.id,
+                              onTap: () {
+                                // Unfocus any text fields before updating category
+                                addTaskProvider.unfocusAll();
+                                addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
+                              },
+                              onLongPress: () {
+                                // Unfocus any text fields before showing dialog
+                                addTaskProvider.unfocusAll();
+                                Get.dialog(CreateCategoryDialog(categoryModel: category));
+                              },
+                            )),
+                      ],
+                    ),
                   ),
                 ),
         ],
@@ -152,12 +150,12 @@ class CategorySelector extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected ? color.withValues(alpha: 0.7) : AppColors.text.withValues(alpha: 0.1),
               width: isSelected ? 1.5 : 1.0,
@@ -166,22 +164,22 @@ class CategorySelector extends StatelessWidget {
                 ? [
                     BoxShadow(
                       color: color.withValues(alpha: 0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
                     ),
                   ]
                 : null,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Color indicator with animation
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 12,
-                  height: 12,
+                  width: 8,
+                  height: 8,
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
@@ -189,32 +187,32 @@ class CategorySelector extends StatelessWidget {
                         ? [
                             BoxShadow(
                               color: color.withValues(alpha: 0.3),
-                              blurRadius: 2,
+                              blurRadius: 1,
                               offset: const Offset(0, 1),
                             ),
                           ]
                         : null,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
 
                 // Category name with animation
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     color: isSelected ? color : AppColors.text.withValues(alpha: 0.7),
-                    letterSpacing: 0.2,
+                    letterSpacing: 0.1,
                   ),
                 ),
 
                 // Selected indicator
                 if (isSelected) ...[
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 3),
                   Icon(
                     Icons.check_circle_rounded,
-                    size: 14,
+                    size: 10,
                     color: color,
                   ),
                 ],
@@ -229,38 +227,24 @@ class CategorySelector extends StatelessWidget {
   Widget _buildAddCategoryButton(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: () {
           // Unfocus any text fields before showing dialog
           context.read<AddTaskProvider>().unfocusAll();
           Get.dialog(const CreateCategoryDialog());
         },
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: AppColors.main.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.add_rounded,
-                size: 18,
-                color: AppColors.main,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                "Add",
-                style: TextStyle(
-                  color: AppColors.main,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-            ],
+          child: Icon(
+            Icons.add_rounded,
+            size: 16,
+            color: AppColors.main,
           ),
         ),
       ),

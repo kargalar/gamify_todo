@@ -41,22 +41,25 @@ class TaskName extends StatelessWidget {
           ClickableTooltip(
             title: LocaleKeys.TaskName.tr(),
             bulletPoints: const ["Give your task a clear, descriptive name", "Use specific names to easily identify tasks", "Keep names concise but informative"],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.title_rounded,
-                  color: AppColors.main,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  LocaleKeys.TaskName.tr(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Container(
+              color: AppColors.transparent,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.title_rounded,
+                    color: AppColors.main,
+                    size: 20,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Text(
+                    LocaleKeys.TaskName.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -125,6 +128,66 @@ class TaskName extends StatelessWidget {
                 if (provider.descriptionFocus.hashCode != 0) {
                   provider.descriptionFocus.requestFocus();
                 }
+              },
+            ),
+          ),
+
+          // Description input field
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.panelBackground.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.main.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: TextField(
+              controller: provider.descriptionController,
+              focusNode: provider.descriptionFocus,
+              textCapitalization: TextCapitalization.sentences,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+              decoration: InputDecoration(
+                hintText: LocaleKeys.EnterDescription.tr(),
+                hintStyle: TextStyle(
+                  color: AppColors.text.withValues(alpha: 0.4),
+                  fontSize: 15,
+                  fontStyle: FontStyle.italic,
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.all(16),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 8),
+                  child: Icon(
+                    Icons.notes_rounded,
+                    color: AppColors.text.withValues(alpha: 0.4),
+                    size: 20,
+                  ),
+                ),
+                prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                suffixIcon: provider.descriptionController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.clear_rounded,
+                          color: AppColors.text.withValues(alpha: 0.6),
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          provider.descriptionController.clear();
+                          provider.notifyListeners();
+                        },
+                      )
+                    : null,
+              ),
+              maxLines: 3,
+              minLines: 2,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.newline,
+              onChanged: (value) {
+                provider.notifyListeners();
               },
             ),
           ),
