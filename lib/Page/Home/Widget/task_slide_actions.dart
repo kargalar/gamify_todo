@@ -63,8 +63,6 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
   }
 
   ActionPane? endPane() {
-    if (widget.taskModel.routineID != null) return null;
-
     return ActionPane(
       motion: const ScrollMotion(),
       extentRatio: 0.5,
@@ -85,7 +83,7 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
       ),
       children: [
         deleteAction(),
-        changeDateAction(),
+        if (widget.taskModel.routineID == null) changeDateAction(),
       ],
     );
   }
