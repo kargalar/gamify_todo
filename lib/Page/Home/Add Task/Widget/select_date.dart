@@ -84,83 +84,224 @@ class _SelectDateState extends State<SelectDate> {
             ),
           ),
 
-          // Calendar
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.panelBackground.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.text.withValues(alpha: 0.1),
-                width: 1,
+          // Quick date buttons and Calendar
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Calendar (reduced width)
+              Expanded(
+                flex: 3,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.panelBackground.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.text.withValues(alpha: 0.1),
+                      width: 1,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: TableCalendar(
+                    rowHeight: 36,
+                    firstDay: DateTime.now().subtract(const Duration(days: 365)),
+                    lastDay: DateTime.now().add(const Duration(days: 365)),
+                    focusedDay: addTaskProvider.selectedDate ?? DateTime.now(),
+                    selectedDayPredicate: (day) => addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, day),
+                    calendarFormat: CalendarFormat.month,
+                    startingDayOfWeek: StartingDayOfWeek.monday,
+                    headerStyle: HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                      titleTextStyle: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.main,
+                      ),
+                      leftChevronIcon: Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.main),
+                      rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
+                      headerPadding: const EdgeInsets.symmetric(vertical: 8),
+                      headerMargin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.main.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    daysOfWeekStyle: DaysOfWeekStyle(
+                      weekdayStyle: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text.withValues(alpha: 0.7),
+                      ),
+                      weekendStyle: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text.withValues(alpha: 0.7),
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    calendarStyle: CalendarStyle(
+                      selectedDecoration: BoxDecoration(
+                        color: addTaskProvider.selectedDate == null ? Colors.transparent : AppColors.main,
+                        shape: BoxShape.circle,
+                        border: addTaskProvider.selectedDate == null ? Border.all(color: AppColors.main, width: 1) : null,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: AppColors.main.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                      weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                      selectedTextStyle: TextStyle(fontSize: 14, color: addTaskProvider.selectedDate == null ? AppColors.main : Colors.white, fontWeight: FontWeight.bold),
+                      todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
+                      outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
+                      cellMargin: const EdgeInsets.all(2),
+                      cellPadding: EdgeInsets.zero,
+                    ),
+                    onDaySelected: (selectedDay, focusedDay) {
+                      // Unfocus any text fields when selecting a date
+                      addTaskProvider.unfocusAll();
+                      setState(() {
+                        addTaskProvider.selectedDate = selectedDay;
+                      });
+                    },
+                  ),
+                ),
               ),
-            ),
-            padding: const EdgeInsets.all(8),
-            child: TableCalendar(
-              rowHeight: 36,
-              firstDay: DateTime.now().subtract(const Duration(days: 365)),
-              lastDay: DateTime.now().add(const Duration(days: 365)),
-              focusedDay: addTaskProvider.selectedDate!,
-              selectedDayPredicate: (day) => isSameDay(addTaskProvider.selectedDate!, day),
-              calendarFormat: CalendarFormat.month,
-              startingDayOfWeek: StartingDayOfWeek.monday,
-              headerStyle: HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
-                titleTextStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.main,
-                ),
-                leftChevronIcon: Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.main),
-                rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
-                headerPadding: const EdgeInsets.symmetric(vertical: 8),
-                headerMargin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.main.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(8),
+
+              // Quick date buttons column
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    // Today button
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          setState(() {
+                            addTaskProvider.selectedDate = DateTime.now();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
+                                ? AppColors.main.withValues(alpha: 0.15)
+                                : addTaskProvider.selectedDate == null
+                                    ? AppColors.blue.withValues(alpha: 0.1)
+                                    : AppColors.panelBackground.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
+                                  ? AppColors.main
+                                  : addTaskProvider.selectedDate == null
+                                      ? AppColors.blue
+                                      : AppColors.text.withValues(alpha: 0.1),
+                              width: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day || addTaskProvider.selectedDate == null
+                                  ? 2
+                                  : 1,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          width: double.infinity,
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.today_rounded,
+                                color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
+                                    ? AppColors.main
+                                    : addTaskProvider.selectedDate == null
+                                        ? AppColors.blue
+                                        : AppColors.main.withValues(alpha: 0.7),
+                                size: 24,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Bugün",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.year == DateTime.now().year && addTaskProvider.selectedDate!.month == DateTime.now().month && addTaskProvider.selectedDate!.day == DateTime.now().day
+                                      ? AppColors.main
+                                      : addTaskProvider.selectedDate == null
+                                          ? AppColors.blue
+                                          : AppColors.text,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Tomorrow button
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          setState(() {
+                            addTaskProvider.selectedDate = DateTime.now().add(const Duration(days: 1));
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
+                                ? AppColors.main.withValues(alpha: 0.15)
+                                : addTaskProvider.selectedDate == null
+                                    ? AppColors.blue.withValues(alpha: 0.1)
+                                    : AppColors.panelBackground.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
+                                  ? AppColors.main
+                                  : addTaskProvider.selectedDate == null
+                                      ? AppColors.blue
+                                      : AppColors.text.withValues(alpha: 0.1),
+                              width: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1))) || addTaskProvider.selectedDate == null ? 2 : 1,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          width: double.infinity,
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.event_rounded,
+                                color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
+                                    ? AppColors.main
+                                    : addTaskProvider.selectedDate == null
+                                        ? AppColors.blue
+                                        : AppColors.main.withValues(alpha: 0.7),
+                                size: 24,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Yarın",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, DateTime.now().add(const Duration(days: 1)))
+                                      ? AppColors.main
+                                      : addTaskProvider.selectedDate == null
+                                          ? AppColors.blue
+                                          : AppColors.text,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              daysOfWeekStyle: DaysOfWeekStyle(
-                weekdayStyle: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text.withValues(alpha: 0.7),
-                ),
-                weekendStyle: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text.withValues(alpha: 0.7),
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              calendarStyle: CalendarStyle(
-                selectedDecoration: BoxDecoration(
-                  color: AppColors.main,
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  color: AppColors.main.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
-                weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
-                selectedTextStyle: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
-                todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
-                outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
-                cellMargin: const EdgeInsets.all(2),
-                cellPadding: EdgeInsets.zero,
-              ),
-              onDaySelected: (selectedDay, focusedDay) {
-                // Unfocus any text fields when selecting a date
-                addTaskProvider.unfocusAll();
-                setState(() {
-                  addTaskProvider.selectedDate = selectedDay;
-                });
-              },
-            ),
+            ],
           ),
 
           // Date info
@@ -175,19 +316,40 @@ class _SelectDateState extends State<SelectDate> {
                 ),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: Text(
-                    addTaskProvider.selectedDate == null
-                        ? addTaskProvider.selectedDays.isNotEmpty
-                            ? "Rutin oluşturmak için başlangıç tarihi seçmelisiniz."
-                            : "No date selected. Task will be added to your inbox."
-                        : "Select the date when this task should be completed",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? AppColors.dirtyRed : AppColors.text.withValues(alpha: 0.5),
-                      fontStyle: FontStyle.italic,
-                      fontWeight: addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
+                  child: addTaskProvider.selectedDate == null
+                      ? Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: addTaskProvider.selectedDays.isNotEmpty ? AppColors.dirtyRed.withValues(alpha: 0.1) : AppColors.blue.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: addTaskProvider.selectedDays.isNotEmpty ? AppColors.dirtyRed : AppColors.blue,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                addTaskProvider.selectedDays.isNotEmpty ? "Rutin oluşturmak için başlangıç tarihi seçmelisiniz." : "No date selected. Task will be added to your inbox.",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: addTaskProvider.selectedDays.isNotEmpty ? AppColors.dirtyRed : AppColors.blue,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          "Select the date when this task should be completed",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.text.withValues(alpha: 0.5),
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
                 ),
               ],
             ),
