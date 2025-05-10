@@ -42,11 +42,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          // Filter menu button
+          IconButton(
+            icon: Icon(
+              Icons.filter_list_rounded,
+              size: 20,
+              color: AppColors.text,
+            ),
+            tooltip: "Filters",
+            onPressed: () {
+              _showFilterDialog();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
-          // Filter section (now includes categories)
-          _buildFilterSection(),
+          // Categories section only
+          _buildCategoriesSection(),
 
           // Divider
           Divider(
@@ -231,23 +245,24 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  Widget _buildFilterSection() {
+  // Method to build only the categories section
+  Widget _buildCategoriesSection() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filter title with icon
+          // Categories title with icon
           Row(
             children: [
               Icon(
-                Icons.filter_list_rounded,
+                Icons.category_rounded,
                 size: 20,
                 color: AppColors.main,
               ),
               const SizedBox(width: 8),
               Text(
-                "Filters",
+                "Categories",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -258,138 +273,199 @@ class _CategoriesPageState extends State<CategoriesPage> {
           ),
           const SizedBox(height: 16),
 
-          // Categories section
+          // Categories content
           _buildCategoryContent(),
-          const SizedBox(height: 16),
-
-          // Task/Routine filter section
-          Container(
-            margin: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              "Task Type",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.text.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              // Task filter
-              _buildFilterChip(
-                label: "Tasks",
-                icon: Icons.task_alt_rounded,
-                isSelected: _showTasks,
-                onTap: () {
-                  setState(() {
-                    _showTasks = !_showTasks;
-                    // Ensure at least one filter is selected
-                    if (!_showTasks && !_showRoutines) {
-                      _showRoutines = true;
-                    }
-                  });
-                },
-              ),
-              const SizedBox(width: 8),
-
-              // Routine filter
-              _buildFilterChip(
-                label: "Routines",
-                icon: Icons.repeat_rounded,
-                isSelected: _showRoutines,
-                onTap: () {
-                  setState(() {
-                    _showRoutines = !_showRoutines;
-                    // Ensure at least one filter is selected
-                    if (!_showRoutines && !_showTasks) {
-                      _showTasks = true;
-                    }
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Task format filter section
-          Container(
-            margin: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              "Task Format",
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.text.withValues(alpha: 0.6),
-              ),
-            ),
-          ),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              // Checkbox filter
-              _buildFilterChip(
-                label: "Checkbox",
-                icon: Icons.check_box_rounded,
-                isSelected: _selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX),
-                onTap: () {
-                  setState(() {
-                    if (_selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX)) {
-                      _selectedTaskTypes.remove(TaskTypeEnum.CHECKBOX);
-                      // Ensure at least one type is selected
-                      if (_selectedTaskTypes.isEmpty) {
-                        _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
-                      }
-                    } else {
-                      _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
-                    }
-                  });
-                },
-              ),
-
-              // Counter filter
-              _buildFilterChip(
-                label: "Counter",
-                icon: Icons.add_circle_outline_rounded,
-                isSelected: _selectedTaskTypes.contains(TaskTypeEnum.COUNTER),
-                onTap: () {
-                  setState(() {
-                    if (_selectedTaskTypes.contains(TaskTypeEnum.COUNTER)) {
-                      _selectedTaskTypes.remove(TaskTypeEnum.COUNTER);
-                      // Ensure at least one type is selected
-                      if (_selectedTaskTypes.isEmpty) {
-                        _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
-                      }
-                    } else {
-                      _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
-                    }
-                  });
-                },
-              ),
-
-              // Timer filter
-              _buildFilterChip(
-                label: "Timer",
-                icon: Icons.timer_rounded,
-                isSelected: _selectedTaskTypes.contains(TaskTypeEnum.TIMER),
-                onTap: () {
-                  setState(() {
-                    if (_selectedTaskTypes.contains(TaskTypeEnum.TIMER)) {
-                      _selectedTaskTypes.remove(TaskTypeEnum.TIMER);
-                      // Ensure at least one type is selected
-                      if (_selectedTaskTypes.isEmpty) {
-                        _selectedTaskTypes.add(TaskTypeEnum.TIMER);
-                      }
-                    } else {
-                      _selectedTaskTypes.add(TaskTypeEnum.TIMER);
-                    }
-                  });
-                },
-              ),
-            ],
-          ),
         ],
+      ),
+    );
+  }
+
+  // Method to show the filter dialog
+  void _showFilterDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+          ),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Filters",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                      color: AppColors.text,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Task/Routine filter section
+                Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    "Task Type",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    // Task filter
+                    _buildFilterChip(
+                      label: "Tasks",
+                      icon: Icons.task_alt_rounded,
+                      isSelected: _showTasks,
+                      onTap: () {
+                        setState(() {
+                          _showTasks = !_showTasks;
+                          // Ensure at least one filter is selected
+                          if (!_showTasks && !_showRoutines) {
+                            _showRoutines = true;
+                          }
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Routine filter
+                    _buildFilterChip(
+                      label: "Routines",
+                      icon: Icons.repeat_rounded,
+                      isSelected: _showRoutines,
+                      onTap: () {
+                        setState(() {
+                          _showRoutines = !_showRoutines;
+                          // Ensure at least one filter is selected
+                          if (!_showRoutines && !_showTasks) {
+                            _showTasks = true;
+                          }
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Task format filter section
+                Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    "Task Format",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    // Checkbox filter
+                    _buildFilterChip(
+                      label: "Checkbox",
+                      icon: Icons.check_box_rounded,
+                      isSelected: _selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX),
+                      onTap: () {
+                        setState(() {
+                          if (_selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX)) {
+                            _selectedTaskTypes.remove(TaskTypeEnum.CHECKBOX);
+                            // Ensure at least one type is selected
+                            if (_selectedTaskTypes.isEmpty) {
+                              _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+                            }
+                          } else {
+                            _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+                          }
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
+                    ),
+
+                    // Counter filter
+                    _buildFilterChip(
+                      label: "Counter",
+                      icon: Icons.add_circle_outline_rounded,
+                      isSelected: _selectedTaskTypes.contains(TaskTypeEnum.COUNTER),
+                      onTap: () {
+                        setState(() {
+                          if (_selectedTaskTypes.contains(TaskTypeEnum.COUNTER)) {
+                            _selectedTaskTypes.remove(TaskTypeEnum.COUNTER);
+                            // Ensure at least one type is selected
+                            if (_selectedTaskTypes.isEmpty) {
+                              _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
+                            }
+                          } else {
+                            _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
+                          }
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
+                    ),
+
+                    // Timer filter
+                    _buildFilterChip(
+                      label: "Timer",
+                      icon: Icons.timer_rounded,
+                      isSelected: _selectedTaskTypes.contains(TaskTypeEnum.TIMER),
+                      onTap: () {
+                        setState(() {
+                          if (_selectedTaskTypes.contains(TaskTypeEnum.TIMER)) {
+                            _selectedTaskTypes.remove(TaskTypeEnum.TIMER);
+                            // Ensure at least one type is selected
+                            if (_selectedTaskTypes.isEmpty) {
+                              _selectedTaskTypes.add(TaskTypeEnum.TIMER);
+                            }
+                          } else {
+                            _selectedTaskTypes.add(TaskTypeEnum.TIMER);
+                          }
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Add extra space at the bottom for devices with notches
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -443,35 +519,28 @@ class _CategoriesPageState extends State<CategoriesPage> {
     final activeCategories = categoryProvider.getActiveCategories();
 
     // Category title
-    Widget categoryTitle = Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        "Categories",
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: AppColors.text.withValues(alpha: 0.6),
-        ),
-      ),
-    );
+    // Widget categoryTitle = Container(
+    //   margin: const EdgeInsets.only(bottom: 8),
+    //   child: Text(
+    //     "Categories",
+    //     style: TextStyle(
+    //       fontSize: 14,
+    //       fontWeight: FontWeight.w500,
+    //       color: AppColors.text.withValues(alpha: 0.6),
+    //     ),
+    //   ),
+    // );
 
     if (activeCategories.isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          categoryTitle,
+          // categoryTitle,
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 children: [
-                  Text(
-                    LocaleKeys.NoCategoriesYet,
-                    style: TextStyle(
-                      color: AppColors.text.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
                   ElevatedButton.icon(
                     onPressed: () {
                       Get.dialog(const CreateCategoryDialog());
@@ -494,7 +563,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        categoryTitle,
+        // categoryTitle,
         Wrap(
           spacing: 8,
           runSpacing: 8,
