@@ -66,74 +66,77 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
           _animationController.reverse();
         });
       },
-      child: GestureDetector(
-        onTap: storeItemAction,
-        onLongPress: () async {
-          await NavigatorService()
-              .goTo(
-                AddStoreItemPage(editItemModel: widget.storeItemModel),
-                transition: Transition.size,
-              )
-              .then(
-                (value) => StoreProvider().setStateItems(),
-              );
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.panelBackground,
-                borderRadius: AppColors.borderRadiusAll,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.black.withValues(alpha: 0.1),
-                    blurRadius: _isHovering ? 50 : 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-                border: Border.all(
-                  color: _isHovering ? AppColors.white.withValues(alpha: 0.1) : AppColors.transparent,
-                  width: 1.5,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              child: Row(
-                children: [
-                  // Type icon
-                  _buildTypeIcon(),
-                  const SizedBox(width: 12),
-
-                  // Title and progress
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          widget.storeItemModel.title,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.text,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        _buildProgressIndicator(),
-                      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: AppColors.borderRadiusAll,
+            child: InkWell(
+              borderRadius: AppColors.borderRadiusAll,
+              splashColor: AppColors.red.withValues(alpha: 0.9),
+              highlightColor: AppColors.main.withValues(alpha: 0.1),
+              onTap: storeItemAction,
+              onLongPress: () async {
+                await NavigatorService()
+                    .goTo(
+                      AddStoreItemPage(editItemModel: widget.storeItemModel),
+                      transition: Transition.size,
+                    )
+                    .then(
+                      (value) => StoreProvider().setStateItems(),
+                    );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground,
+                  borderRadius: AppColors.borderRadiusAll,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.black.withValues(alpha: 0.1),
+                      blurRadius: _isHovering ? 50 : 4,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                child: Row(
+                  children: [
+                    // Type icon
+                    _buildTypeIcon(),
+                    const SizedBox(width: 12),
 
-                  // Buy button
-                  _buildBuyButton(),
-                  const SizedBox(width: 8),
+                    // Title and progress
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            widget.storeItemModel.title,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          _buildProgressIndicator(),
+                        ],
+                      ),
+                    ),
 
-                  // Credit amount
-                  _buildCreditAmount(),
-                ],
+                    // Buy button
+                    _buildBuyButton(),
+                    const SizedBox(width: 8),
+
+                    // Credit amount
+                    _buildCreditAmount(),
+                  ],
+                ),
               ),
             ),
           ),
