@@ -6,7 +6,6 @@ import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_task_type.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_description.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:gamify_todo/Page/Store/Widget/set_credit.dart';
@@ -73,8 +72,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
         },
         child: Scaffold(
           appBar: AppBar(
-            // title: Text(widget.editItemModel != null ? LocaleKeys.EditItem.tr() : LocaleKeys.AddItem.tr()),
-            title: Text(widget.editItemModel != null ? "LocaleKeys.EditItem.tr()" : LocaleKeys.AddItem.tr()),
+            title: Text(widget.editItemModel != null ? LocaleKeys.EditItem.tr() : LocaleKeys.AddItem.tr()),
             leading: InkWell(
               borderRadius: AppColors.borderRadiusAll,
               onTap: () {
@@ -120,10 +118,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                     isStore: true,
                     autoFocus: widget.editItemModel == null,
                   ),
-                  const SizedBox(height: 5),
-
-                  // Item description
-                  const TaskDescription(isStore: true),
                   const SizedBox(height: 10),
 
                   // Credit section
@@ -155,7 +149,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
 
                   // Duration section
                   Container(
@@ -172,7 +166,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                     ),
                     child: const DurationPickerWidget(isStore: true),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
 
                   // Type section
                   Container(
@@ -190,23 +184,14 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                     child: widget.editItemModel == null
                         ? const SelectTaskType(isStore: true)
                         : widget.editItemModel!.type == TaskTypeEnum.COUNTER
-                            ? const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Add Count",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  SelectTargetCount(isStore: true),
-                                ],
+                            ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: SelectTargetCount(isStore: true),
                               )
                             : const SizedBox(),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 5),
 
                   // Delete button for edit mode
                   if (widget.editItemModel != null) ...[

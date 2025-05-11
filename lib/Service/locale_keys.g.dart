@@ -55,6 +55,7 @@ abstract class  LocaleKeys {
   static const Completed = 'Completed';
   static const NameEmpty = 'NameEmpty';
   static const AddItem = 'AddItem';
+  static const EditItem = 'EditItem';
   static const TaskDescription = 'TaskDescription';
   static const SelectTime = 'SelectTime';
   static const Average = 'Average';

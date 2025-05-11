@@ -51,6 +51,7 @@
     "Completed": "Abgeschlossen",
     "NameEmpty": "Name darf nicht leer sein.",
     "AddItem": "Element hinzufügen",
+    "EditItem": "Element bearbeiten",
     "TaskDescription": "Aufgabenbeschreibung",
     "SelectTime": "Zeit auswählen",
     "Average": "Durchschnitt",

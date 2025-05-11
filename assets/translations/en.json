@@ -51,6 +51,7 @@
     "Completed": "Completed",
     "NameEmpty": "Name cannot be empty.",
     "AddItem": "Add Item",
+    "EditItem": "Edit Item",
     "TaskDescription": "Task Description",
     "SelectTime": "Select Time",
     "Average": "Average",

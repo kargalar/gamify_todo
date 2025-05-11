@@ -51,6 +51,7 @@
     "Completed": "Terminé",
     "NameEmpty": "Le nom ne peut pas être vide.",
     "AddItem": "Ajouter un élément",
+    "EditItem": "Modifier l'élément",
     "TaskDescription": "Description de la tâche",
     "SelectTime": "Sélectionner l'heure",
     "Average": "Moyenne",
