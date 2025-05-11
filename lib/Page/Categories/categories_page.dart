@@ -10,6 +10,7 @@ import 'package:gamify_todo/Provider/category_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -27,15 +28,104 @@ enum DateFilterState {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   CategoryModel? _selectedCategory;
+  int? _selectedCategoryId;
 
   // Filter states
   bool _showRoutines = true;
   bool _showTasks = true;
+  DateFilterState _dateFilterState = DateFilterState.withoutDate; // Default to showing tasks without dates
   final Set<TaskTypeEnum> _selectedTaskTypes = {
     TaskTypeEnum.CHECKBOX,
     TaskTypeEnum.COUNTER,
     TaskTypeEnum.TIMER,
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFilterPreferences();
+  }
+
+  // Load saved filter preferences from SharedPreferences
+  Future<void> _loadFilterPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      // Load task/routine filter preferences
+      _showTasks = prefs.getBool('categories_show_tasks') ?? true;
+      _showRoutines = prefs.getBool('categories_show_routines') ?? true;
+
+      // Load date filter preference
+      final dateFilterIndex = prefs.getInt('categories_date_filter');
+      if (dateFilterIndex != null && dateFilterIndex >= 0 && dateFilterIndex < DateFilterState.values.length) {
+        _dateFilterState = DateFilterState.values[dateFilterIndex];
+      } else {
+        _dateFilterState = DateFilterState.withoutDate; // Default to withoutDate if no valid preference is found
+      }
+      debugPrint('Loaded date filter: $_dateFilterState (index: $dateFilterIndex)');
+
+      // Load task type filter preferences
+      final hasCheckbox = prefs.getBool('categories_show_checkbox') ?? true;
+      final hasCounter = prefs.getBool('categories_show_counter') ?? true;
+      final hasTimer = prefs.getBool('categories_show_timer') ?? true;
+
+      // Clear and rebuild the set based on saved preferences
+      _selectedTaskTypes.clear();
+      if (hasCheckbox) _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+      if (hasCounter) _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
+      if (hasTimer) _selectedTaskTypes.add(TaskTypeEnum.TIMER);
+
+      // Ensure at least one task type is selected
+      if (_selectedTaskTypes.isEmpty) {
+        _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+      }
+
+      // Load selected category
+      _selectedCategoryId = prefs.getInt('categories_selected_category_id');
+    });
+
+    // Load the selected category if there's a saved ID
+    if (_selectedCategoryId != null) {
+      // Use a mounted check to avoid using BuildContext across async gaps
+      if (!mounted) return;
+
+      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+      final categories = categoryProvider.getActiveCategories();
+      for (var category in categories) {
+        if (category.id == _selectedCategoryId) {
+          setState(() {
+            _selectedCategory = category;
+          });
+          break;
+        }
+      }
+    }
+  }
+
+  // Save filter preferences to SharedPreferences
+  Future<void> _saveFilterPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save task/routine filter preferences
+    await prefs.setBool('categories_show_tasks', _showTasks);
+    await prefs.setBool('categories_show_routines', _showRoutines);
+
+    // Save date filter preference
+    await prefs.setInt('categories_date_filter', _dateFilterState.index);
+    debugPrint('Saved date filter: $_dateFilterState (index: ${_dateFilterState.index})');
+
+    // Save task type filter preferences
+    await prefs.setBool('categories_show_checkbox', _selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX));
+    await prefs.setBool('categories_show_counter', _selectedTaskTypes.contains(TaskTypeEnum.COUNTER));
+    await prefs.setBool('categories_show_timer', _selectedTaskTypes.contains(TaskTypeEnum.TIMER));
+
+    // Save selected category
+    if (_selectedCategory != null) {
+      await prefs.setInt('categories_selected_category_id', _selectedCategory!.id);
+    } else {
+      await prefs.remove('categories_selected_category_id');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +139,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
           ),
         ),
         actions: [
+          // Date filter button
+          IconButton(
+            icon: Icon(
+              _getDateFilterIcon(),
+              size: 20,
+              color: AppColors.text,
+            ),
+            tooltip: "Date Filter",
+            onPressed: _cycleDateFilter,
+          ),
           // Filter menu button
           IconButton(
             icon: Icon(
@@ -86,6 +186,37 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
+  // Get the appropriate icon for the current date filter state
+  IconData _getDateFilterIcon() {
+    switch (_dateFilterState) {
+      case DateFilterState.all:
+        return Icons.calendar_view_month_rounded;
+      case DateFilterState.withDate:
+        return Icons.event_rounded;
+      case DateFilterState.withoutDate:
+        return Icons.event_busy_rounded;
+    }
+  }
+
+  // Cycle through date filter states
+  void _cycleDateFilter() {
+    setState(() {
+      switch (_dateFilterState) {
+        case DateFilterState.all:
+          _dateFilterState = DateFilterState.withDate;
+          break;
+        case DateFilterState.withDate:
+          _dateFilterState = DateFilterState.withoutDate;
+          break;
+        case DateFilterState.withoutDate:
+          _dateFilterState = DateFilterState.all;
+          break;
+      }
+      debugPrint('Cycled date filter to: $_dateFilterState');
+    });
+    _saveFilterPreferences();
+  }
+
   Widget _buildCategoryTag(CategoryModel? category, {required bool isSelected}) {
     final color = category?.color ?? AppColors.main;
 
@@ -96,6 +227,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
           setState(() {
             _selectedCategory = category;
           });
+          _saveFilterPreferences();
         },
         // Add onLongPress to open the edit dialog as a bottom sheet
         onLongPress: category != null
@@ -167,6 +299,18 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
     // Apply task type filter
     tasks = tasks.where((task) => _selectedTaskTypes.contains(task.type)).toList();
+
+    // Apply date filter
+    tasks = tasks.where((task) {
+      switch (_dateFilterState) {
+        case DateFilterState.all:
+          return true; // Show all tasks
+        case DateFilterState.withDate:
+          return task.taskDate != null; // Show only tasks with dates
+        case DateFilterState.withoutDate:
+          return task.taskDate == null; // Show only tasks without dates
+      }
+    }).toList();
 
     if (tasks.isEmpty) {
       return Center(
@@ -247,7 +391,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
     final yesterday = today.subtract(const Duration(days: 1));
 
     String dateText;
-    if (date.isAtSameMomentAs(today)) {
+    if (date.year == 1970 && date.month == 1 && date.day == 1) {
+      dateText = "Inbox"; // Special case for tasks without dates
+    } else if (date.isAtSameMomentAs(today)) {
       dateText = LocaleKeys.Today;
     } else if (date.isAtSameMomentAs(tomorrow)) {
       dateText = LocaleKeys.Tomorrow;
@@ -283,19 +429,52 @@ class _CategoriesPageState extends State<CategoriesPage> {
         children: [
           // Categories title with icon
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                Icons.category_rounded,
-                size: 20,
-                color: AppColors.main,
+              Row(
+                children: [
+                  Icon(
+                    Icons.category_rounded,
+                    size: 20,
+                    color: AppColors.main,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Categories",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text.withValues(alpha: 0.9),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                "Categories",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text.withValues(alpha: 0.9),
+
+              // Date filter indicator
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.main.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _getDateFilterIcon(),
+                      size: 14,
+                      color: AppColors.main,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _getDateFilterText(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.main,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -304,6 +483,80 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
           // Categories content
           _buildCategoryContent(),
+        ],
+      ),
+    );
+  }
+
+  // Get text description for current date filter state
+  String _getDateFilterText() {
+    switch (_dateFilterState) {
+      case DateFilterState.all:
+        return "All Tasks";
+      case DateFilterState.withDate:
+        return "With Date";
+      case DateFilterState.withoutDate:
+        return "No Date";
+    }
+  }
+
+  // Method to build the category content
+  Widget _buildCategoryContent() {
+    final categoryProvider = context.watch<CategoryProvider>();
+    final categories = categoryProvider.getActiveCategories();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          // All tasks option
+          _buildCategoryTag(
+            null,
+            isSelected: _selectedCategory == null,
+          ),
+          const SizedBox(width: 8),
+
+          // Category tags
+          ...categories.map((category) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: _buildCategoryTag(
+                  category,
+                  isSelected: _selectedCategory?.id == category.id,
+                ),
+              )),
+
+          // Add category button
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const CreateCategoryBottomSheet(),
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.text.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  Icons.add_rounded,
+                  size: 20,
+                  color: AppColors.text.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -351,6 +604,73 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 ),
                 const SizedBox(height: 16),
 
+                // Date filter section
+                Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    "Date Filter",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    // All tasks filter
+                    _buildFilterChip(
+                      label: "All Tasks",
+                      icon: Icons.calendar_view_month_rounded,
+                      isSelected: _dateFilterState == DateFilterState.all,
+                      onTap: () {
+                        setState(() {
+                          _dateFilterState = DateFilterState.all;
+                          debugPrint('Selected date filter: $_dateFilterState');
+                        });
+                        // Update the parent state and save preferences
+                        this.setState(() {});
+                        _saveFilterPreferences();
+                      },
+                    ),
+                    const SizedBox(width: 8),
+
+                    // With date filter
+                    _buildFilterChip(
+                      label: "With Date",
+                      icon: Icons.event_rounded,
+                      isSelected: _dateFilterState == DateFilterState.withDate,
+                      onTap: () {
+                        setState(() {
+                          _dateFilterState = DateFilterState.withDate;
+                          debugPrint('Selected date filter: $_dateFilterState');
+                        });
+                        // Update the parent state and save preferences
+                        this.setState(() {});
+                        _saveFilterPreferences();
+                      },
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Without date filter
+                    _buildFilterChip(
+                      label: "No Date",
+                      icon: Icons.event_busy_rounded,
+                      isSelected: _dateFilterState == DateFilterState.withoutDate,
+                      onTap: () {
+                        setState(() {
+                          _dateFilterState = DateFilterState.withoutDate;
+                          debugPrint('Selected date filter: $_dateFilterState');
+                        });
+                        // Update the parent state and save preferences
+                        this.setState(() {});
+                        _saveFilterPreferences();
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
                 // Task/Routine filter section
                 Container(
                   margin: const EdgeInsets.only(bottom: 4),
@@ -378,8 +698,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             _showRoutines = true;
                           }
                         });
-                        // Update the parent state
+                        // Update the parent state and save preferences
                         this.setState(() {});
+                        _saveFilterPreferences();
                       },
                     ),
                     const SizedBox(width: 8),
@@ -397,8 +718,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             _showTasks = true;
                           }
                         });
-                        // Update the parent state
+                        // Update the parent state and save preferences
                         this.setState(() {});
+                        _saveFilterPreferences();
                       },
                     ),
                   ],
@@ -438,8 +760,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
                           }
                         });
-                        // Update the parent state
+                        // Update the parent state and save preferences
                         this.setState(() {});
+                        _saveFilterPreferences();
                       },
                     ),
 
@@ -460,8 +783,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
                           }
                         });
-                        // Update the parent state
+                        // Update the parent state and save preferences
                         this.setState(() {});
+                        _saveFilterPreferences();
                       },
                     ),
 
@@ -482,8 +806,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             _selectedTaskTypes.add(TaskTypeEnum.TIMER);
                           }
                         });
-                        // Update the parent state
+                        // Update the parent state and save preferences
                         this.setState(() {});
+                        _saveFilterPreferences();
                       },
                     ),
                   ],
@@ -531,119 +856,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? AppColors.text : AppColors.text.withValues(alpha: 0.7),
+                  color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCategoryContent() {
-    final categoryProvider = context.watch<CategoryProvider>();
-    final activeCategories = categoryProvider.getActiveCategories();
-
-    // Category title
-    // Widget categoryTitle = Container(
-    //   margin: const EdgeInsets.only(bottom: 8),
-    //   child: Text(
-    //     "Categories",
-    //     style: TextStyle(
-    //       fontSize: 14,
-    //       fontWeight: FontWeight.w500,
-    //       color: AppColors.text.withValues(alpha: 0.6),
-    //     ),
-    //   ),
-    // );
-
-    if (activeCategories.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // categoryTitle,
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => const CreateCategoryBottomSheet(),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text(LocaleKeys.AddCategory),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.main,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // categoryTitle,
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            // "All" tag
-            _buildCategoryTag(
-              null,
-              isSelected: _selectedCategory == null,
-            ),
-
-            // Category tags
-            ...activeCategories.map((category) => _buildCategoryTag(
-                  category,
-                  isSelected: _selectedCategory?.id == category.id,
-                )),
-
-            // Add category button
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => const CreateCategoryBottomSheet(),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.panelBackground.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    Icons.add_rounded,
-                    size: 18,
-                    color: AppColors.main,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }
