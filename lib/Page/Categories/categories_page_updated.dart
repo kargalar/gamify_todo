@@ -31,6 +31,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   // Filter states
   bool _showRoutines = true;
   bool _showTasks = true;
+  DateFilterState _dateFilterState = DateFilterState.withoutDate; // Default to showing tasks without dates
   final Set<TaskTypeEnum> _selectedTaskTypes = {
     TaskTypeEnum.CHECKBOX,
     TaskTypeEnum.COUNTER,
@@ -49,6 +50,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
           ),
         ),
         actions: [
+          // Date filter button
+          IconButton(
+            icon: Icon(
+              _getDateFilterIcon(),
+              size: 20,
+              color: AppColors.text,
+            ),
+            tooltip: "Date Filter",
+            onPressed: _cycleDateFilter,
+          ),
           // Filter menu button
           IconButton(
             icon: Icon(
@@ -84,6 +95,35 @@ class _CategoriesPageState extends State<CategoriesPage> {
         ],
       ),
     );
+  }
+
+  // Get the appropriate icon for the current date filter state
+  IconData _getDateFilterIcon() {
+    switch (_dateFilterState) {
+      case DateFilterState.all:
+        return Icons.calendar_view_month_rounded;
+      case DateFilterState.withDate:
+        return Icons.event_rounded;
+      case DateFilterState.withoutDate:
+        return Icons.event_busy_rounded;
+    }
+  }
+
+  // Cycle through date filter states
+  void _cycleDateFilter() {
+    setState(() {
+      switch (_dateFilterState) {
+        case DateFilterState.all:
+          _dateFilterState = DateFilterState.withDate;
+          break;
+        case DateFilterState.withDate:
+          _dateFilterState = DateFilterState.withoutDate;
+          break;
+        case DateFilterState.withoutDate:
+          _dateFilterState = DateFilterState.all;
+          break;
+      }
+    });
   }
 
   Widget _buildCategoryTag(CategoryModel? category, {required bool isSelected}) {
@@ -168,6 +208,18 @@ class _CategoriesPageState extends State<CategoriesPage> {
     // Apply task type filter
     tasks = tasks.where((task) => _selectedTaskTypes.contains(task.type)).toList();
 
+    // Apply date filter
+    tasks = tasks.where((task) {
+      switch (_dateFilterState) {
+        case DateFilterState.all:
+          return true; // Show all tasks
+        case DateFilterState.withDate:
+          return task.taskDate != null; // Show only tasks with dates
+        case DateFilterState.withoutDate:
+          return task.taskDate == null; // Show only tasks without dates
+      }
+    }).toList();
+
     if (tasks.isEmpty) {
       return Center(
         child: Column(
@@ -247,7 +299,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
     final yesterday = today.subtract(const Duration(days: 1));
 
     String dateText;
-    if (date.isAtSameMomentAs(today)) {
+    if (date.year == 1970 && date.month == 1 && date.day == 1) {
+      dateText = "Inbox"; // Special case for tasks without dates
+    } else if (date.isAtSameMomentAs(today)) {
       dateText = LocaleKeys.Today;
     } else if (date.isAtSameMomentAs(tomorrow)) {
       dateText = LocaleKeys.Tomorrow;
@@ -283,19 +337,52 @@ class _CategoriesPageState extends State<CategoriesPage> {
         children: [
           // Categories title with icon
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                Icons.category_rounded,
-                size: 20,
-                color: AppColors.main,
+              Row(
+                children: [
+                  Icon(
+                    Icons.category_rounded,
+                    size: 20,
+                    color: AppColors.main,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Categories",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text.withValues(alpha: 0.9),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                "Categories",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text.withValues(alpha: 0.9),
+
+              // Date filter indicator
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.main.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _getDateFilterIcon(),
+                      size: 14,
+                      color: AppColors.main,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _getDateFilterText(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.main,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -304,6 +391,80 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
           // Categories content
           _buildCategoryContent(),
+        ],
+      ),
+    );
+  }
+
+  // Get text description for current date filter state
+  String _getDateFilterText() {
+    switch (_dateFilterState) {
+      case DateFilterState.all:
+        return "All Tasks";
+      case DateFilterState.withDate:
+        return "With Date";
+      case DateFilterState.withoutDate:
+        return "No Date";
+    }
+  }
+
+  // Method to build the category content
+  Widget _buildCategoryContent() {
+    final categoryProvider = context.watch<CategoryProvider>();
+    final categories = categoryProvider.getActiveCategories();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          // All tasks option
+          _buildCategoryTag(
+            null,
+            isSelected: _selectedCategory == null,
+          ),
+          const SizedBox(width: 8),
+
+          // Category tags
+          ...categories.map((category) => Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: _buildCategoryTag(
+                  category,
+                  isSelected: _selectedCategory?.id == category.id,
+                ),
+              )),
+
+          // Add category button
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const CreateCategoryBottomSheet(),
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.text.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  Icons.add_rounded,
+                  size: 20,
+                  color: AppColors.text.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -346,6 +507,67 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(context),
                       color: AppColors.text,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Date filter section
+                Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    "Date Filter",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    // All tasks filter
+                    _buildFilterChip(
+                      label: "All Tasks",
+                      icon: Icons.calendar_view_month_rounded,
+                      isSelected: _dateFilterState == DateFilterState.all,
+                      onTap: () {
+                        setState(() {
+                          _dateFilterState = DateFilterState.all;
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
+                    ),
+                    const SizedBox(width: 8),
+
+                    // With date filter
+                    _buildFilterChip(
+                      label: "With Date",
+                      icon: Icons.event_rounded,
+                      isSelected: _dateFilterState == DateFilterState.withDate,
+                      onTap: () {
+                        setState(() {
+                          _dateFilterState = DateFilterState.withDate;
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
+                    ),
+                    const SizedBox(width: 8),
+
+                    // Without date filter
+                    _buildFilterChip(
+                      label: "No Date",
+                      icon: Icons.event_busy_rounded,
+                      isSelected: _dateFilterState == DateFilterState.withoutDate,
+                      onTap: () {
+                        setState(() {
+                          _dateFilterState = DateFilterState.withoutDate;
+                        });
+                        // Update the parent state
+                        this.setState(() {});
+                      },
                     ),
                   ],
                 ),
@@ -531,119 +753,15 @@ class _CategoriesPageState extends State<CategoriesPage> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? AppColors.text : AppColors.text.withValues(alpha: 0.7),
+                  color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCategoryContent() {
-    final categoryProvider = context.watch<CategoryProvider>();
-    final activeCategories = categoryProvider.getActiveCategories();
-
-    // Category title
-    // Widget categoryTitle = Container(
-    //   margin: const EdgeInsets.only(bottom: 8),
-    //   child: Text(
-    //     "Categories",
-    //     style: TextStyle(
-    //       fontSize: 14,
-    //       fontWeight: FontWeight.w500,
-    //       color: AppColors.text.withValues(alpha: 0.6),
-    //     ),
-    //   ),
-    // );
-
-    if (activeCategories.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // categoryTitle,
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => const CreateCategoryBottomSheet(),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text(LocaleKeys.AddCategory),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.main,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // categoryTitle,
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            // "All" tag
-            _buildCategoryTag(
-              null,
-              isSelected: _selectedCategory == null,
-            ),
-
-            // Category tags
-            ...activeCategories.map((category) => _buildCategoryTag(
-                  category,
-                  isSelected: _selectedCategory?.id == category.id,
-                )),
-
-            // Add category button
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => const CreateCategoryBottomSheet(),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.panelBackground.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    Icons.add_rounded,
-                    size: 18,
-                    color: AppColors.main,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

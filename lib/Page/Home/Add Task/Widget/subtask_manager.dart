@@ -140,10 +140,23 @@ class _SubtaskManagerState extends State<SubtaskManager> {
                       color: AppColors.main.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
-                      Icons.add_rounded,
-                      color: AppColors.main,
-                      size: 16,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.add_rounded,
+                          color: AppColors.main,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          LocaleKeys.Add.tr(),
+                          style: TextStyle(
+                            color: AppColors.main,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

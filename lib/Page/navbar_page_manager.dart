@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/General/accessible.dart';
 import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Categories/categories_page.dart';
+import 'package:gamify_todo/Page/Categories/categories_page_updated.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:gamify_todo/Page/Home/home_page.dart';
 import 'package:gamify_todo/Page/Profile/profile_page.dart';

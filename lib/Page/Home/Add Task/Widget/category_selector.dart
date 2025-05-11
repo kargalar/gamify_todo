@@ -250,10 +250,23 @@ class CategorySelector extends StatelessWidget {
             color: AppColors.main.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(
-            Icons.add_rounded,
-            size: 16,
-            color: AppColors.main,
+          child: Row(
+            children: [
+              Icon(
+                Icons.add_rounded,
+                size: 16,
+                color: AppColors.main,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                LocaleKeys.Add.tr(),
+                style: TextStyle(
+                  color: AppColors.main,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -10,7 +10,7 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/location_input.dart';
 
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_date.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/date_time_notification_widget.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_days.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_priority.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_target_count.dart';
@@ -22,7 +22,6 @@ import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/time_notification_widget.dart';
 import 'package:gamify_todo/Service/navigator_service.dart';
 import 'package:gamify_todo/Provider/add_task_provider.dart';
 import 'package:gamify_todo/Provider/task_provider.dart';
@@ -222,13 +221,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    // Date selector
-                    if (addTaskProvider.editTask == null) const SelectDate(),
-
-                    if (addTaskProvider.editTask == null) const SizedBox(height: 10),
-
-                    // Combined Time & Notification widget
-                    const TimeNotificationWidget(),
+                    // Combined Date, Time & Notification widget
+                    const DateTimeNotificationWidget(),
                     const SizedBox(height: 10),
                     Column(
                       children: [
