@@ -140,16 +140,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
           ),
         ),
         actions: [
-          // Date filter button
-          IconButton(
-            icon: Icon(
-              _getDateFilterIcon(),
-              size: 20,
-              color: AppColors.text,
-            ),
-            tooltip: "Date Filter",
-            onPressed: _cycleDateFilter,
-          ),
           // Filter menu button
           IconButton(
             icon: Icon(
@@ -188,37 +178,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
         ],
       ),
     );
-  }
-
-  // Get the appropriate icon for the current date filter state
-  IconData _getDateFilterIcon() {
-    switch (_dateFilterState) {
-      case DateFilterState.all:
-        return Icons.calendar_view_month_rounded;
-      case DateFilterState.withDate:
-        return Icons.event_rounded;
-      case DateFilterState.withoutDate:
-        return Icons.event_busy_rounded;
-    }
-  }
-
-  // Cycle through date filter states
-  void _cycleDateFilter() {
-    setState(() {
-      switch (_dateFilterState) {
-        case DateFilterState.all:
-          _dateFilterState = DateFilterState.withDate;
-          break;
-        case DateFilterState.withDate:
-          _dateFilterState = DateFilterState.withoutDate;
-          break;
-        case DateFilterState.withoutDate:
-          _dateFilterState = DateFilterState.all;
-          break;
-      }
-      debugPrint('Cycled date filter to: $_dateFilterState');
-    });
-    _saveFilterPreferences();
   }
 
   Widget _buildCategoryTag(CategoryModel? category, {required bool isSelected}) {
@@ -438,60 +397,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Categories title with icon
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.category_rounded,
-                    size: 20,
-                    color: AppColors.main,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Categories",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.text.withValues(alpha: 0.9),
-                    ),
-                  ),
-                ],
-              ),
-
-              // Date filter indicator
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.main.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _getDateFilterIcon(),
-                      size: 14,
-                      color: AppColors.main,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _getDateFilterText(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.main,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
           // Categories content
           _buildCategoryContent(),
         ],
@@ -499,38 +404,37 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  // Get text description for current date filter state
-  String _getDateFilterText() {
-    switch (_dateFilterState) {
-      case DateFilterState.all:
-        return "All Tasks";
-      case DateFilterState.withDate:
-        return "With Date";
-      case DateFilterState.withoutDate:
-        return "No Date";
-    }
-  }
-
   // Arama çubuğunu oluşturan metod
   Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+    return Container(
+      height: 36,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      decoration: BoxDecoration(
+        color: AppColors.panelBackground,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: TextField(
         onChanged: (value) {
           setState(() {
             _searchQuery = value;
           });
         },
+        style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
           hintText: "Search tasks...", // TODO: Add to locale keys
-          prefixIcon: const Icon(Icons.search),
-          filled: true,
-          fillColor: AppColors.panelBackground,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+          hintStyle: TextStyle(
+            fontSize: 14,
+            color: AppColors.text.withValues(alpha: 0.5),
           ),
+          prefixIcon: Icon(
+            Icons.search,
+            size: 18,
+            color: AppColors.text.withValues(alpha: 0.5),
+          ),
+          filled: false,
+          border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          isDense: true,
         ),
       ),
     );
