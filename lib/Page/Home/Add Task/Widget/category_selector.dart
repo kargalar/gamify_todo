@@ -16,124 +16,277 @@ class CategorySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final addTaskProvider = context.watch<AddTaskProvider>();
     final categoryProvider = context.watch<CategoryProvider>();
-    final activeCategories = categoryProvider.getActiveCategories();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
+    // Get selected category if any
+    CategoryModel? selectedCategory;
+    if (addTaskProvider.categoryId != null) {
+      selectedCategory = categoryProvider.categoryList.firstWhere(
+        (category) => category.id == addTaskProvider.categoryId,
+        orElse: () => CategoryModel(title: LocaleKeys.NoCategory.tr(), color: AppColors.main),
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // Unfocus any text fields before showing bottom sheet
+          addTaskProvider.unfocusAll();
+
+          // Show the category selection bottom sheet
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const CategoryBottomSheet(),
+          );
+        },
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.panelBackground,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with title and add button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
             children: [
-              ClickableTooltip(
-                title: LocaleKeys.Category.tr(),
-                bulletPoints: const ["Tap a category to select/deselect it", "Long press to edit a category", "Use + button to create a new category", "Categories help organize your tasks"],
-                child: Container(
-                  color: AppColors.transparent,
+              // Category icon
+              Icon(
+                Icons.label_rounded,
+                color: AppColors.main,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+
+              // Category text
+              Text(
+                LocaleKeys.Category.tr(),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // Selected category indicator
+              if (selectedCategory != null) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: selectedCategory.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: selectedCategory.color.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.label_rounded,
-                        color: AppColors.main,
-                        size: 18,
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: selectedCategory.color,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 4),
                       Text(
-                        LocaleKeys.Category.tr(),
-                        style: const TextStyle(
-                          fontSize: 14,
+                        selectedCategory.title,
+                        style: TextStyle(
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
+                          color: selectedCategory.color,
                         ),
                       ),
                     ],
                   ),
                 ),
+              ] else ...[
+                Text(
+                  LocaleKeys.NoCategory.tr(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.text.withValues(alpha: 0.5),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+
+              const Spacer(),
+
+              // Arrow icon to indicate it opens a bottom sheet
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.text.withValues(alpha: 0.3),
+                size: 14,
               ),
-              _buildAddCategoryButton(context),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
 
-          // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Divider(
-              color: AppColors.text.withValues(alpha: 0.1),
-              height: 1,
+class CategoryBottomSheet extends StatelessWidget {
+  const CategoryBottomSheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final addTaskProvider = context.watch<AddTaskProvider>();
+    final categoryProvider = context.watch<CategoryProvider>();
+    final activeCategories = categoryProvider.getActiveCategories();
+
+    return Container(
+      padding: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 16),
+              decoration: BoxDecoration(
+                color: AppColors.text.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
 
+          // Header with title and add button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.label_rounded,
+                      color: AppColors.main,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 10),
+                    ClickableTooltip(
+                      title: LocaleKeys.Category.tr(),
+                      bulletPoints: const ["Tap a category to select/deselect it", "Long press to edit a category", "Use + button to create a new category", "Categories help organize your tasks"],
+                      child: Text(
+                        LocaleKeys.Category.tr(),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                _buildAddCategoryButton(context),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Categories content
-          activeCategories.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.category_outlined,
-                          color: AppColors.text.withValues(alpha: 0.3),
-                          size: 24,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          LocaleKeys.NoCategory.tr(),
-                          style: TextStyle(
-                            color: AppColors.text.withValues(alpha: 0.5),
-                            fontSize: 12,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: activeCategories.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.category_outlined,
+                            color: AppColors.text.withValues(alpha: 0.3),
+                            size: 48,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            LocaleKeys.NoCategory.tr(),
+                            style: TextStyle(
+                              color: AppColors.text.withValues(alpha: 0.5),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Container(
+                    constraints: const BoxConstraints(maxHeight: 300),
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          // Category Tags
+                          ...activeCategories.map((category) => _buildCategoryTag(
+                                context: context,
+                                category: category,
+                                isSelected: addTaskProvider.categoryId == category.id,
+                                onTap: () {
+                                  // Unfocus any text fields before updating category
+                                  addTaskProvider.unfocusAll();
+                                  addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
+                                },
+                                onLongPress: () {
+                                  // Unfocus any text fields before showing bottom sheet
+                                  addTaskProvider.unfocusAll();
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+                                  );
+                                },
+                              )),
+                        ],
+                      ),
                     ),
                   ),
-                )
-              : Container(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  decoration: BoxDecoration(
-                    color: AppColors.panelBackground.withValues(alpha: 0.5),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        // Category Tags
-                        ...activeCategories.map((category) => _buildCategoryTag(
-                              context: context,
-                              category: category,
-                              isSelected: addTaskProvider.categoryId == category.id,
-                              onTap: () {
-                                // Unfocus any text fields before updating category
-                                addTaskProvider.unfocusAll();
-                                addTaskProvider.categoryId == category.id ? addTaskProvider.updateCategory(null) : addTaskProvider.updateCategory(category.id);
-                              },
-                              onLongPress: () {
-                                // Unfocus any text fields before showing bottom sheet
-                                addTaskProvider.unfocusAll();
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
-                                );
-                              },
-                            )),
-                      ],
+          ),
+
+          // Action buttons
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0, right: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    LocaleKeys.Save.tr(),
+                    style: TextStyle(
+                      color: AppColors.main,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
         ],
       ),
     );

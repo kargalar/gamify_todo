@@ -13,167 +13,281 @@ class LocationInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final addTaskProvider = context.watch<AddTaskProvider>();
+    final hasLocation = addTaskProvider.locationController.text.isNotEmpty;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // Unfocus any text fields before showing bottom sheet
+          addTaskProvider.unfocusAll();
+
+          // Show the location bottom sheet
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const LocationBottomSheet(),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.panelBackground,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              // Location icon
+              Icon(
+                Icons.location_on_rounded,
+                color: hasLocation ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+
+              // Location text or placeholder
+              Expanded(
+                child: Text(
+                  hasLocation ? addTaskProvider.locationController.text : LocaleKeys.Location.tr(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: hasLocation ? AppColors.text : AppColors.text.withValues(alpha: 0.5),
+                    fontWeight: hasLocation ? FontWeight.w500 : FontWeight.normal,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+
+              // Clear button if location is set
+              if (hasLocation)
+                IconButton(
+                  icon: Icon(
+                    Icons.clear_rounded,
+                    color: AppColors.text.withValues(alpha: 0.6),
+                    size: 16,
+                  ),
+                  onPressed: () {
+                    addTaskProvider.locationController.clear();
+                    addTaskProvider.updateLocation();
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 24,
+                    minHeight: 24,
+                  ),
+                ),
+
+              // Arrow icon to indicate it opens a bottom sheet
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.text.withValues(alpha: 0.3),
+                size: 14,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LocationBottomSheet extends StatelessWidget {
+  const LocationBottomSheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final addTaskProvider = context.watch<AddTaskProvider>();
 
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with title and icon
-          ClickableTooltip(
-            title: LocaleKeys.Location.tr(),
-            bulletPoints: const ["Enter a location for your task", "Location will be displayed with an icon", "Click location to open in Google Maps", "Limited to 20 characters for display"],
-            child: Container(
-              color: AppColors.transparent,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.location_on_rounded,
-                    color: AppColors.main,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.text.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Header
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on_rounded,
+                  color: AppColors.main,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                ClickableTooltip(
+                  title: LocaleKeys.Location.tr(),
+                  bulletPoints: const ["Enter a location for your task", "Location will be displayed with an icon", "Click location to open in Google Maps", "Limited to 20 characters for display"],
+                  child: Text(
                     LocaleKeys.Location.tr(),
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Location input field
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.panelBackground,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.main.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: TextField(
+                controller: addTaskProvider.locationController,
+                focusNode: addTaskProvider.locationFocus,
+                textCapitalization: TextCapitalization.sentences,
+                style: const TextStyle(
+                  fontSize: 15,
+                ),
+                decoration: InputDecoration(
+                  hintText: LocaleKeys.EnterLocation.tr(),
+                  hintStyle: TextStyle(
+                    color: AppColors.text.withValues(alpha: 0.4),
+                    fontSize: 15,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: AppColors.text.withValues(alpha: 0.4),
+                    size: 18,
+                  ),
+                  suffixIcon: addTaskProvider.locationController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.clear_rounded,
+                            color: AppColors.text.withValues(alpha: 0.6),
+                            size: 18,
+                          ),
+                          onPressed: () {
+                            addTaskProvider.locationController.clear();
+                            addTaskProvider.updateLocation();
+                            // Unfocus after clearing
+                            try {
+                              if (addTaskProvider.locationFocus.hashCode != 0) {
+                                addTaskProvider.locationFocus.unfocus();
+                              }
+                            } catch (e) {
+                              // Focus node may have issues
+                            }
+                          },
+                        )
+                      : null,
+                ),
+                onChanged: (value) {
+                  addTaskProvider.updateLocation();
+                },
+                textInputAction: TextInputAction.done,
+                onEditingComplete: () {
+                  // Close the bottom sheet when done
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Show on map button
+            if (addTaskProvider.locationController.text.isNotEmpty)
+              Center(
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => _launchMaps(addTaskProvider.locationController.text),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.main.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.map_rounded,
+                            size: 18,
+                            color: AppColors.main,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            LocaleKeys.ShowOnMap.tr(),
+                            style: TextStyle(
+                              color: AppColors.main,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Action buttons
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      LocaleKeys.Save.tr(),
+                      style: TextStyle(
+                        color: AppColors.main,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-
-          // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Divider(
-              color: AppColors.text.withValues(alpha: 0.1),
-              height: 1,
-            ),
-          ),
-
-          // Location input field
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.panelBackground.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.main.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: TextField(
-              controller: addTaskProvider.locationController,
-              focusNode: addTaskProvider.locationFocus,
-              textCapitalization: TextCapitalization.sentences,
-              style: const TextStyle(
-                fontSize: 13,
-              ),
-              decoration: InputDecoration(
-                hintText: LocaleKeys.EnterLocation.tr(),
-                hintStyle: TextStyle(
-                  color: AppColors.text.withValues(alpha: 0.4),
-                  fontSize: 13,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: AppColors.text.withValues(alpha: 0.4),
-                  size: 16,
-                ),
-                suffixIcon: addTaskProvider.locationController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.clear_rounded,
-                          color: AppColors.text.withValues(alpha: 0.6),
-                          size: 16,
-                        ),
-                        onPressed: () {
-                          addTaskProvider.locationController.clear();
-                          addTaskProvider.updateLocation();
-                          // Unfocus after clearing
-                          try {
-                            if (addTaskProvider.locationFocus.hashCode != 0) {
-                              addTaskProvider.locationFocus.unfocus();
-                            }
-                          } catch (e) {
-                            // Focus node may have issues
-                          }
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: (value) {
-                addTaskProvider.updateLocation();
-              },
-              textInputAction: TextInputAction.done,
-              onEditingComplete: () {
-                // Unfocus when done editing
-                try {
-                  if (addTaskProvider.locationFocus.hashCode != 0) {
-                    addTaskProvider.locationFocus.unfocus();
-                  }
-                } catch (e) {
-                  // Focus node may have issues
-                }
-              },
-            ),
-          ),
-
-          // Show on map button
-          if (addTaskProvider.locationController.text.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(6),
-                  onTap: () => _launchMaps(addTaskProvider.locationController.text),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.main.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.map_rounded,
-                          size: 14,
-                          color: AppColors.main,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          LocaleKeys.ShowOnMap.tr(),
-                          style: TextStyle(
-                            color: AppColors.main,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

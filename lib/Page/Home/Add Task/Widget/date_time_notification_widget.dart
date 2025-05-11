@@ -74,7 +74,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    "Date, Time & Notifications",
+                    "Date",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

@@ -13,168 +13,298 @@ class SelectPriority extends StatelessWidget {
   Widget build(BuildContext context) {
     final addTaskProvider = context.watch<AddTaskProvider>();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
+    // Get priority color and icon
+    Color priorityColor;
+    IconData priorityIcon;
+    String priorityText;
+
+    switch (addTaskProvider.priority) {
+      case 1:
+        priorityColor = Colors.red;
+        priorityIcon = Icons.priority_high_rounded;
+        priorityText = LocaleKeys.HighPriority.tr();
+        break;
+      case 2:
+        priorityColor = Colors.orange;
+        priorityIcon = Icons.drag_handle_rounded;
+        priorityText = LocaleKeys.MediumPriority.tr();
+        break;
+      default:
+        priorityColor = Colors.green;
+        priorityIcon = Icons.arrow_downward_rounded;
+        priorityText = LocaleKeys.LowPriority.tr();
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          // Unfocus any text fields before showing bottom sheet
+          addTaskProvider.unfocusAll();
+
+          // Show the priority bottom sheet
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const PriorityBottomSheet(),
+          );
+        },
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with title and icon
-          ClickableTooltip(
-            title: LocaleKeys.Priority.tr(),
-            bulletPoints: const ["High priority: Tasks appear at the top of your list", "Medium priority: Tasks appear in the middle of your list", "Low priority: Tasks appear at the bottom of your list"],
-            child: Container(
-              color: AppColors.transparent,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.flag_rounded,
-                    color: AppColors.main,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    LocaleKeys.Priority.tr(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Divider(
-              color: AppColors.text.withValues(alpha: 0.1),
-              height: 1,
-            ),
-          ),
-
-          // Priority selector
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              PriorityButton(
-                title: LocaleKeys.HighPriority.tr(),
-                value: 1,
-                color: Colors.red,
-                icon: Icons.priority_high_rounded,
-                isSelected: addTaskProvider.priority == 1,
-              ),
-              const SizedBox(width: 6),
-              PriorityButton(
-                title: LocaleKeys.MediumPriority.tr(),
-                value: 2,
-                color: Colors.orange,
-                icon: Icons.drag_handle_rounded,
-                isSelected: addTaskProvider.priority == 2,
-              ),
-              const SizedBox(width: 6),
-              PriorityButton(
-                title: LocaleKeys.LowPriority.tr(),
-                value: 3,
-                color: Colors.green,
-                icon: Icons.arrow_downward_rounded,
-                isSelected: addTaskProvider.priority == 3,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.panelBackground,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-        ],
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              // Priority icon
+              Icon(
+                Icons.flag_rounded,
+                color: AppColors.main,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+
+              // Priority text
+              Text(
+                LocaleKeys.Priority.tr(),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // Selected priority indicator
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: priorityColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: priorityColor.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      priorityIcon,
+                      size: 12,
+                      color: priorityColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      priorityText,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: priorityColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // Arrow icon to indicate it opens a bottom sheet
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColors.text.withValues(alpha: 0.3),
+                size: 14,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-class PriorityButton extends StatefulWidget {
-  const PriorityButton({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.color,
-    required this.icon,
-    required this.isSelected,
-  });
-
-  final String title;
-  final int value;
-  final Color color;
-  final IconData icon;
-  final bool isSelected;
-
-  @override
-  State<PriorityButton> createState() => _PriorityButtonState();
-}
-
-class _PriorityButtonState extends State<PriorityButton> {
-  late final addTaskProvider = context.read<AddTaskProvider>();
-  late bool isSelected;
-
-  @override
-  void initState() {
-    super.initState();
-    isSelected = widget.isSelected;
-  }
-
-  @override
-  void didUpdateWidget(PriorityButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isSelected != widget.isSelected) {
-      isSelected = widget.isSelected;
-    }
-  }
+class PriorityBottomSheet extends StatelessWidget {
+  const PriorityBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () {
-            // Unfocus any text fields when selecting priority
-            addTaskProvider.unfocusAll();
+    final addTaskProvider = context.watch<AddTaskProvider>();
 
-            setState(() {
-              isSelected = true;
-            });
-
-            addTaskProvider.updatePriority(widget.value);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: 32,
-            decoration: BoxDecoration(
-              color: isSelected ? widget.color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isSelected ? widget.color : AppColors.text.withValues(alpha: 0.1),
-                width: isSelected ? 1.5 : 1,
+    return Container(
+      padding: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 16),
+              decoration: BoxDecoration(
+                color: AppColors.text.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            child: Center(
-              child: Text(
-                widget.title,
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.flag_rounded,
+                  color: AppColors.main,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                ClickableTooltip(
+                  title: LocaleKeys.Priority.tr(),
+                  bulletPoints: const ["High priority: Tasks appear at the top of your list", "Medium priority: Tasks appear in the middle of your list", "Low priority: Tasks appear at the bottom of your list"],
+                  child: Text(
+                    LocaleKeys.Priority.tr(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Priority options
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                _buildPriorityOption(
+                  context,
+                  title: LocaleKeys.HighPriority.tr(),
+                  value: 1,
+                  color: Colors.red,
+                  icon: Icons.priority_high_rounded,
+                  isSelected: addTaskProvider.priority == 1,
+                ),
+                const SizedBox(height: 8),
+                _buildPriorityOption(
+                  context,
+                  title: LocaleKeys.MediumPriority.tr(),
+                  value: 2,
+                  color: Colors.orange,
+                  icon: Icons.drag_handle_rounded,
+                  isSelected: addTaskProvider.priority == 2,
+                ),
+                const SizedBox(height: 8),
+                _buildPriorityOption(
+                  context,
+                  title: LocaleKeys.LowPriority.tr(),
+                  value: 3,
+                  color: Colors.green,
+                  icon: Icons.arrow_downward_rounded,
+                  isSelected: addTaskProvider.priority == 3,
+                ),
+              ],
+            ),
+          ),
+
+          // Action buttons
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0, right: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    LocaleKeys.Save.tr(),
+                    style: TextStyle(
+                      color: AppColors.main,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriorityOption(
+    BuildContext context, {
+    required String title,
+    required int value,
+    required Color color,
+    required IconData icon,
+    required bool isSelected,
+  }) {
+    final addTaskProvider = context.read<AddTaskProvider>();
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          addTaskProvider.updatePriority(value);
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? color : AppColors.text.withValues(alpha: 0.1),
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: color,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 16,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? widget.color : AppColors.text.withValues(alpha: 0.7),
+                  color: isSelected ? color : AppColors.text,
                 ),
               ),
-            ),
+              const Spacer(),
+              if (isSelected)
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: color,
+                  size: 20,
+                ),
+            ],
           ),
         ),
       ),
