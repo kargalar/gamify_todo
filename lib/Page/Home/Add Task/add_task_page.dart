@@ -5,19 +5,13 @@ import 'package:gamify_todo/Core/Enums/status_enum.dart';
 import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Core/helper.dart';
 import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/category_selector.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/compact_task_options.dart';
+import 'package:gamify_todo/Page/Home/Add%20Task/Widget/compact_trait_options.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
-
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/location_input.dart';
-
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/date_time_notification_widget.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_days.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_priority.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_task_type.dart';
-
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/select_trait.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_manager.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
@@ -190,36 +184,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     TaskName(autoFocus: addTaskProvider.editTask == null),
                     const SizedBox(height: 10),
 
-                    // First row of compact widgets: Location and Subtasks
-                    const Row(
-                      children: [
-                        // Location widget (left side)
-                        Expanded(
-                          child: LocationInput(),
-                        ),
-                        SizedBox(width: 10),
-                        // Subtasks widget (right side)
-                        Expanded(
-                          child: SubtaskManager(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Second row of compact widgets: Priority and Category
-                    const Row(
-                      children: [
-                        // Priority widget (left side)
-                        Expanded(
-                          child: SelectPriority(),
-                        ),
-                        SizedBox(width: 10),
-                        // Category widget (right side)
-                        Expanded(
-                          child: CategorySelector(),
-                        ),
-                      ],
-                    ),
+                    // Compact task options (Location, Priority, Category, Subtasks)
+                    const CompactTaskOptions(),
                     const SizedBox(height: 10),
                     // Combined Date, Time & Notification widget
                     const DateTimeNotificationWidget(),
@@ -247,11 +213,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
                     const SizedBox(height: 10),
-                    const SubtaskManager(),
-                    const SizedBox(height: 10),
-                    const SelectTraitList(isSkill: false),
-                    const SizedBox(height: 10),
-                    const SelectTraitList(isSkill: true),
+                    const CompactTraitOptions(),
                     const SizedBox(height: 20),
 
                     // Add Recent Logs section for edit task
