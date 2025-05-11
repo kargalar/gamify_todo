@@ -182,10 +182,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     const SizedBox(height: 10),
                     // Combined Task Name and Description in a simpler way
                     TaskName(autoFocus: addTaskProvider.editTask == null),
-                    const SizedBox(height: 10),
 
-                    // Compact task options (Location, Priority, Category, Subtasks)
-                    const CompactTaskOptions(),
                     const SizedBox(height: 10),
                     // Combined Date, Time & Notification widget
                     const DateTimeNotificationWidget(),
@@ -210,11 +207,16 @@ class _AddTaskPageState extends State<AddTaskPage> {
                           ),
                       ],
                     ),
+
+                    const SizedBox(height: 10),
+                    const CompactTraitOptions(),
+                    const SizedBox(height: 10),
+
+                    // Compact task options (Location, Priority, Category, Subtasks)
+                    const CompactTaskOptions(),
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
                     const SizedBox(height: 10),
-                    const CompactTraitOptions(),
-                    const SizedBox(height: 20),
 
                     // Add Recent Logs section for edit task
                     if (addTaskProvider.editTask != null && _taskDetailViewModel != null)

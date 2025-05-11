@@ -30,22 +30,26 @@ class CompactTaskOptions extends StatelessWidget {
       );
     }
 
-    // Get priority color and icon
+    // Get priority color, icon and text
     Color priorityColor;
     IconData priorityIcon;
+    String priorityText;
 
     switch (addTaskProvider.priority) {
       case 1:
         priorityColor = Colors.red;
         priorityIcon = Icons.priority_high_rounded;
+        priorityText = LocaleKeys.HighPriority.tr();
         break;
       case 2:
         priorityColor = Colors.orange;
         priorityIcon = Icons.drag_handle_rounded;
+        priorityText = LocaleKeys.MediumPriority.tr();
         break;
       default:
         priorityColor = Colors.green;
         priorityIcon = Icons.arrow_downward_rounded;
+        priorityText = LocaleKeys.LowPriority.tr();
     }
 
     // Get subtask info
@@ -128,6 +132,7 @@ class CompactTaskOptions extends StatelessWidget {
                 icon: priorityIcon,
                 iconColor: priorityColor,
                 label: LocaleKeys.Priority.tr(),
+                value: priorityText,
                 valueColor: priorityColor,
                 onTap: () {
                   addTaskProvider.unfocusAll();
