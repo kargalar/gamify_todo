@@ -110,8 +110,59 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
-                  if (widget.editItemModel != null) EditProgressWidget.forStoreItem(item: widget.editItemModel!),
-                  const SizedBox(height: 10),
+                  if (widget.editItemModel != null) ...[
+                    // Current Progress Container
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header with title and icon
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.track_changes_rounded,
+                                color: AppColors.main,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "Current Progress",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // Divider
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              color: AppColors.text.withValues(alpha: 0.1),
+                              height: 1,
+                            ),
+                          ),
+
+                          // Progress Widget
+                          EditProgressWidget.forStoreItem(item: widget.editItemModel!),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
 
                   // Item name
                   TaskName(

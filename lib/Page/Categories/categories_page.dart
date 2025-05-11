@@ -29,6 +29,7 @@ enum DateFilterState {
 class _CategoriesPageState extends State<CategoriesPage> {
   CategoryModel? _selectedCategory;
   int? _selectedCategoryId;
+  String _searchQuery = ''; // Arama sorgusu için değişken
 
   // Filter states
   bool _showRoutines = true;
@@ -165,6 +166,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
       ),
       body: Column(
         children: [
+          // Search bar
+          _buildSearchBar(),
+
           // Categories section only
           _buildCategoriesSection(),
 
@@ -311,6 +315,13 @@ class _CategoriesPageState extends State<CategoriesPage> {
           return task.taskDate == null; // Show only tasks without dates
       }
     }).toList();
+
+    // Apply search filter if search query is not empty
+    if (_searchQuery.isNotEmpty) {
+      tasks = tasks.where((task) {
+        return task.title.toLowerCase().contains(_searchQuery.toLowerCase()) || (task.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+      }).toList();
+    }
 
     if (tasks.isEmpty) {
       return Center(
@@ -498,6 +509,31 @@ class _CategoriesPageState extends State<CategoriesPage> {
       case DateFilterState.withoutDate:
         return "No Date";
     }
+  }
+
+  // Arama çubuğunu oluşturan metod
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: TextField(
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        decoration: InputDecoration(
+          hintText: "Search tasks...", // TODO: Add to locale keys
+          prefixIcon: const Icon(Icons.search),
+          filled: true,
+          fillColor: AppColors.panelBackground,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+        ),
+      ),
+    );
   }
 
   // Method to build the category content

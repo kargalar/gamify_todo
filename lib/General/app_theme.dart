@@ -121,42 +121,42 @@ class AppTheme {
         borderRadius: AppColors.borderRadiusAll,
         borderSide: BorderSide(
           color: AppColors.onBackground,
-          width: 1,
+          width: 0.2,
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: AppColors.borderRadiusAll * 1.5,
+        borderRadius: AppColors.borderRadiusAll * 1.2,
         borderSide: BorderSide(
           color: AppColors.onBackground,
-          width: 2,
+          width: 0.5,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppColors.borderRadiusAll,
         borderSide: BorderSide(
           color: AppColors.onBackground,
-          width: 1,
+          width: 0.2,
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: AppColors.borderRadiusAll,
         borderSide: const BorderSide(
           color: AppColors.red,
-          width: 2,
+          width: 0.5,
         ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: AppColors.borderRadiusAll,
         borderSide: const BorderSide(
           color: AppColors.red,
-          width: 3,
+          width: 1,
         ),
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: AppColors.borderRadiusAll,
         borderSide: BorderSide(
           color: AppColors.onBackground,
-          width: 1,
+          width: 0.2,
         ),
       ),
       labelStyle: TextStyle(

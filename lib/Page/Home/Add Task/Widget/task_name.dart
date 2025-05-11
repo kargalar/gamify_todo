@@ -76,11 +76,6 @@ class TaskName extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.main.withValues(alpha: 0.2),
-                width: 1,
-              ),
             ),
             child: TextField(
               autofocus: autoFocus,
@@ -137,11 +132,6 @@ class TaskName extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.main.withValues(alpha: 0.2),
-                width: 1,
-              ),
             ),
             child: TextField(
               controller: provider.descriptionController,
