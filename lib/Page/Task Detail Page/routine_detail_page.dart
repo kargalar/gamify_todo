@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gamify_todo/Core/helper.dart';
+import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/all_time_stats_widget.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/archive_button.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
-import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/success_metrics_widget.dart';
 import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/trait_progress_widget.dart';
 import 'package:gamify_todo/Service/locale_keys.g.dart';
 import 'package:gamify_todo/Service/navigator_service.dart';
@@ -63,10 +63,17 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       builder: (context, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(widget.taskModel.title + (widget.taskModel.status == TaskStatusEnum.ARCHIVED ? " (Archived)" : "")),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
-              onPressed: () => NavigatorService().back(),
+            title: Text(
+              widget.taskModel.title + (widget.taskModel.status == TaskStatusEnum.ARCHIVED ? " (Archived)" : ""),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            leading: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => NavigatorService().back(),
+              child: const Icon(Icons.arrow_back_ios),
             ),
             actions: [
               if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
@@ -77,7 +84,13 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                       transition: Transition.rightToLeft,
                     );
                   },
-                  child: Text(LocaleKeys.Edit.tr()),
+                  child: Text(
+                    LocaleKeys.Edit.tr(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.main,
+                    ),
+                  ),
                 ),
               if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
                 TextButton(
@@ -94,51 +107,248 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                           NavigatorService().goBackNavbar();
                         });
                   },
-                  child: Text(LocaleKeys.Delete.tr()),
+                  child: Text(
+                    LocaleKeys.Delete.tr(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.red,
+                    ),
+                  ),
                 ),
             ],
           ),
           body: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: IgnorePointer(
               ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    const SizedBox(height: 10),
+
                     // Current Progress
-                    EditProgressWidget.forTask(task: widget.taskModel),
-                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header with title and icon
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.track_changes_rounded,
+                                color: AppColors.main,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "Current Progress",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                    // All Time Stats
-                    AllTimeStatsWidget(
-                      viewModel: _viewModel,
-                      taskType: widget.taskModel.type,
+                          // Divider
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              color: AppColors.text.withValues(alpha: 0.1),
+                              height: 1,
+                            ),
+                          ),
+
+                          EditProgressWidget.forTask(task: widget.taskModel),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
 
-                    // // Best Performance
-                    // BestPerformanceWidget(viewModel: _viewModel),
-                    // const SizedBox(height: 30),
+                    // All Time Stats and Success Metrics
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header with title and icon
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.bar_chart_rounded,
+                                color: AppColors.main,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "Statistics",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                    // Success Metrics
-                    SuccessMetricsWidget(viewModel: _viewModel),
+                          // Divider
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              color: AppColors.text.withValues(alpha: 0.1),
+                              height: 1,
+                            ),
+                          ),
+
+                          // All Time Stats
+                          AllTimeStatsWidget(
+                            viewModel: _viewModel,
+                            taskType: widget.taskModel.type,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
 
                     // Trait Progress
-                    TraitProgressWidget(viewModel: _viewModel),
-                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header with title and icon
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.psychology_rounded,
+                                color: AppColors.main,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "Trait Progress",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // Divider
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              color: AppColors.text.withValues(alpha: 0.1),
+                              height: 1,
+                            ),
+                          ),
+
+                          TraitProgressWidget(viewModel: _viewModel),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
 
                     // Recent Logs
-                    RecentLogsWidget(viewModel: _viewModel),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header with title and icon
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.history_rounded,
+                                color: AppColors.main,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                LocaleKeys.RecentLogs.tr(),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                    const SizedBox(height: 40),
+                          // Divider
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              color: AppColors.text.withValues(alpha: 0.1),
+                              height: 1,
+                            ),
+                          ),
+
+                          RecentLogsWidget(viewModel: _viewModel),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
 
                     // Archive Button
                     if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
-                      ArchiveButton(
-                        routine: routine,
-                        taskModel: widget.taskModel,
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: ArchiveButton(
+                          routine: routine,
+                          taskModel: widget.taskModel,
+                        ),
                       ),
+
+                    const SizedBox(height: 30),
                   ],
                 ),
               ),
