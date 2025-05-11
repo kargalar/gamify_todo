@@ -363,16 +363,6 @@ class CategoryBottomSheet extends StatelessWidget {
                     letterSpacing: 0.1,
                   ),
                 ),
-
-                // Selected indicator
-                if (isSelected) ...[
-                  const SizedBox(width: 3),
-                  Icon(
-                    Icons.check_circle_rounded,
-                    size: 10,
-                    color: color,
-                  ),
-                ],
               ],
             ),
           ),

@@ -168,7 +168,7 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
               children: [
                 Icon(
                   taskTypeIcon,
-                  size: 28,
+                  size: 24,
                   color: isSelected ? Colors.white : AppColors.text.withValues(alpha: 0.7),
                 ),
                 const SizedBox(height: 6),

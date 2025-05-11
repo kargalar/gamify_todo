@@ -142,7 +142,7 @@ class _CreateTraitBottomSheetState extends State<CreateTraitBottomSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
 
             // Icon and color selection
             Row(
@@ -262,69 +262,7 @@ class _CreateTraitBottomSheetState extends State<CreateTraitBottomSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
 
-            // Preview
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.panelBackground.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.text.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    "Preview:",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.text.withValues(alpha: 0.6),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: selectedColor,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: selectedColor.withValues(alpha: 0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        traitIcon,
-                        style: const TextStyle(
-                          fontSize: 25,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      traitTitleController.text.isEmpty ? "Trait Name" : traitTitleController.text,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.text,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 24),
 
             // Action buttons

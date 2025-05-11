@@ -80,6 +80,7 @@ class _TraitItemState extends State<TraitItem> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           decoration: BoxDecoration(
             color: isSelected ? widget.trait.color.withValues(alpha: 0.9) : AppColors.panelBackground.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(12),
@@ -97,53 +98,49 @@ class _TraitItemState extends State<TraitItem> {
                   ]
                 : null,
           ),
-          child: Stack(
-            children: [
-              // Main icon
-              Center(
-                child: Text(
-                  widget.trait.icon,
-                  style: TextStyle(
-                    fontSize: 28,
-                    shadows: isSelected
-                        ? [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 2,
-                              offset: const Offset(0, 1),
-                            ),
-                          ]
-                        : null,
-                  ),
-                ),
-              ),
+          child: Center(
+            child: Stack(
+              children: [
+                // Main content (icon and title)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Icon
+                    Text(
+                      widget.trait.icon,
+                      style: TextStyle(
+                        fontSize: 24,
+                        shadows: isSelected
+                            ? [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ]
+                            : null,
+                      ),
+                    ),
 
-              // Selected indicator
-              if (isSelected && !widget.isStatisticsPage)
-                Positioned(
-                  top: 2,
-                  right: 2,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: widget.trait.color,
-                        width: 1,
+                    // Small space between icon and title
+                    const SizedBox(height: 4),
+
+                    // Trait title
+                    Text(
+                      widget.trait.title,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: AppColors.text,
                       ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    child: Center(
-                      child: Icon(
-                        Icons.check,
-                        size: 12,
-                        color: widget.trait.color,
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
