@@ -75,8 +75,8 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
             borderRadius: AppColors.borderRadiusAll,
             child: InkWell(
               borderRadius: AppColors.borderRadiusAll,
-              splashColor: AppColors.red.withValues(alpha: 0.9),
-              highlightColor: AppColors.main.withValues(alpha: 0.1),
+              splashColor: AppColors.panelBackground.withValues(alpha: 0.9),
+              highlightColor: AppColors.panelBackground.withValues(alpha: 0.1),
               onTap: storeItemAction,
               onLongPress: () async {
                 await NavigatorService()
