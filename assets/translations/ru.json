@@ -146,5 +146,8 @@
     "Yesterday": "Вчера",
     "AllTasks": "Все задачи",
     "NoTasksYet": "Пока нет задач",
-    "Tasks": "Задачи"
+    "Tasks": "Задачи",
+    "Close": "Закрыть",
+    "ShowCompleted": "Показать завершенные",
+    "HideCompleted": "Скрыть завершенные"
 }

@@ -151,5 +151,8 @@ abstract class  LocaleKeys {
   static const AllTasks = 'AllTasks';
   static const NoTasksYet = 'NoTasksYet';
   static const Tasks = 'Tasks';
+  static const Close = 'Close';
+  static const ShowCompleted = 'ShowCompleted';
+  static const HideCompleted = 'HideCompleted';
 
 }

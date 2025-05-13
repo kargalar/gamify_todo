@@ -146,5 +146,8 @@
     "Yesterday": "Yesterday",
     "AllTasks": "All Tasks",
     "NoTasksYet": "No tasks yet",
-    "Tasks": "Tasks"
+    "Tasks": "Tasks",
+    "Close": "Close",
+    "ShowCompleted": "Show completed",
+    "HideCompleted": "Hide completed"
 }

@@ -387,7 +387,7 @@ class TaskProvider with ChangeNotifier {
   }
 
   // Subtask methods
-  void addSubtask(TaskModel taskModel, String subtaskTitle) {
+  void addSubtask(TaskModel taskModel, String subtaskTitle, [String? description]) {
     taskModel.subtasks ??= [];
 
     // Generate a unique ID for the subtask
@@ -399,6 +399,7 @@ class TaskProvider with ChangeNotifier {
     final subtask = SubTaskModel(
       id: subtaskId,
       title: subtaskTitle,
+      description: description,
     );
 
     taskModel.subtasks!.add(subtask);

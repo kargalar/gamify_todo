@@ -146,5 +146,8 @@
     "Yesterday": "Dün",
     "AllTasks": "Tüm Görevler",
     "NoTasksYet": "Henüz görev yok",
-    "Tasks": "Görevler"
+    "Tasks": "Görevler",
+    "Close": "Kapat",
+    "ShowCompleted": "Tamamlananları göster",
+    "HideCompleted": "Tamamlananları gizle"
 }

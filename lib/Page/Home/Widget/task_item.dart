@@ -6,7 +6,7 @@ import 'package:gamify_todo/Core/extensions.dart';
 import 'package:gamify_todo/Core/helper.dart';
 import 'package:gamify_todo/General/app_colors.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/priority_line.dart';
-import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/subtask_list.dart';
+import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/subtasks_bottom_sheet.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/task_location.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/task_time.dart';
 import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/title_and_decription.dart';
@@ -74,7 +74,7 @@ class _TaskItemState extends State<TaskItem> {
                       ],
                     ),
                   ),
-                  if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) SubtaskList(taskModel: widget.taskModel),
+                  if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
                   PriorityLine(taskModel: widget.taskModel),
                 ],
               ),
@@ -160,6 +160,62 @@ class _TaskItemState extends State<TaskItem> {
           setState(() {});
         }
       },
+    );
+  }
+
+  Widget _buildSubtasksButton() {
+    final subtaskCount = widget.taskModel.subtasks?.length ?? 0;
+    final completedCount = widget.taskModel.subtasks?.where((subtask) => subtask.isCompleted).length ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 32, top: 4, bottom: 4),
+      child: GestureDetector(
+        onTap: () {
+          _showSubtasksBottomSheet();
+        },
+        child: Row(
+          children: [
+            Icon(
+              Icons.checklist_rounded,
+              size: 16,
+              color: AppColors.text.withValues(alpha: 0.7),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              LocaleKeys.ShowSubtasks.tr(),
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.text.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: AppColors.main.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                "$completedCount/$subtaskCount",
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.main,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSubtasksBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SubtasksBottomSheet(taskModel: widget.taskModel),
     );
   }
 }

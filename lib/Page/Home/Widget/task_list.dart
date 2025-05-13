@@ -158,7 +158,7 @@ class _TaskListState extends State<TaskList> {
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(0),
+                    padding: const EdgeInsets.all(10),
                     itemCount: selectedDateTaskList.length,
                     itemBuilder: (context, index) {
                       return TaskItem(taskModel: selectedDateTaskList[index]);
@@ -175,7 +175,7 @@ class _TaskListState extends State<TaskList> {
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(0),
+                    padding: const EdgeInsets.all(10),
                     itemCount: selectedDateRutinTaskList.length,
                     itemBuilder: (context, index) {
                       return TaskItem(
@@ -196,7 +196,7 @@ class _TaskListState extends State<TaskList> {
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(0),
+                    padding: const EdgeInsets.all(10),
                     itemCount: selectedDateGhostRutinTaskList.length,
                     itemBuilder: (context, index) {
                       return TaskItem(

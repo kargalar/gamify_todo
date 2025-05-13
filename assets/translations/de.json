@@ -146,5 +146,8 @@
     "Yesterday": "Gestern",
     "AllTasks": "Alle Aufgaben",
     "NoTasksYet": "Noch keine Aufgaben",
-    "Tasks": "Aufgaben"
+    "Tasks": "Aufgaben",
+    "Close": "Schließen",
+    "ShowCompleted": "Abgeschlossene anzeigen",
+    "HideCompleted": "Abgeschlossene ausblenden"
 }
