@@ -149,5 +149,8 @@
     "Tasks": "Tasks",
     "Close": "Close",
     "ShowCompleted": "Show completed",
-    "HideCompleted": "Hide completed"
+    "HideCompleted": "Hide completed",
+    "SearchTasks": "Search tasks...",
+    "Search": "Search",
+    "Filters": "Filters"
 }

@@ -29,7 +29,8 @@ enum DateFilterState {
 class _CategoriesPageState extends State<CategoriesPage> {
   CategoryModel? _selectedCategory;
   int? _selectedCategoryId;
-  String _searchQuery = ''; // Arama sorgusu için değişken
+  bool _isSearchActive = false; // Track if search is active
+  final TextEditingController _searchController = TextEditingController();
 
   // Filter states
   bool _showRoutines = true;
@@ -45,6 +46,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
   void initState() {
     super.initState();
     _loadFilterPreferences();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   // Load saved filter preferences from SharedPreferences
@@ -140,6 +147,24 @@ class _CategoriesPageState extends State<CategoriesPage> {
           ),
         ),
         actions: [
+          // Search button
+          IconButton(
+            icon: Icon(
+              Icons.search,
+              size: 20,
+              color: _isSearchActive ? AppColors.main : AppColors.text,
+            ),
+            tooltip: LocaleKeys.Search.tr(),
+            onPressed: () {
+              setState(() {
+                _isSearchActive = !_isSearchActive;
+                // Clear search query when deactivating search
+                if (!_isSearchActive) {
+                  _searchController.clear();
+                }
+              });
+            },
+          ),
           // Filter menu button
           IconButton(
             icon: Icon(
@@ -147,7 +172,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               size: 20,
               color: AppColors.text,
             ),
-            tooltip: "Filters",
+            tooltip: LocaleKeys.Filters.tr(),
             onPressed: () {
               _showFilterDialog();
             },
@@ -156,8 +181,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
       ),
       body: Column(
         children: [
-          // Search bar
-          _buildSearchBar(),
+          // Search bar - only show when search is active
+          if (_isSearchActive) _buildSearchBar(),
 
           // Categories section only
           _buildCategoriesSection(),
@@ -276,9 +301,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }).toList();
 
     // Apply search filter if search query is not empty
-    if (_searchQuery.isNotEmpty) {
+    if (_searchController.text.isNotEmpty) {
       tasks = tasks.where((task) {
-        return task.title.toLowerCase().contains(_searchQuery.toLowerCase()) || (task.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+        return task.title.toLowerCase().contains(_searchController.text.toLowerCase()) || (task.description?.toLowerCase().contains(_searchController.text.toLowerCase()) ?? false);
       }).toList();
     }
 
@@ -404,24 +429,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
-  // Arama çubuğunu oluşturan metod
+  // Search bar builder method
   Widget _buildSearchBar() {
     return Container(
-      height: 36,
+      height: 40,
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextField(
+        // Auto-focus when search is activated
+        controller: _searchController,
+        autofocus: true,
         onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
+          setState(() {});
         },
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
-          hintText: "Search tasks...", // TODO: Add to locale keys
+          hintText: LocaleKeys.SearchTasks.tr(),
           hintStyle: TextStyle(
             fontSize: 14,
             color: AppColors.text.withValues(alpha: 0.5),
@@ -431,6 +457,21 @@ class _CategoriesPageState extends State<CategoriesPage> {
             size: 18,
             color: AppColors.text.withValues(alpha: 0.5),
           ),
+          // Add a clear button when there's text
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    size: 18,
+                    color: AppColors.text.withValues(alpha: 0.5),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _searchController.clear();
+                    });
+                  },
+                )
+              : null,
           filled: false,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -528,7 +569,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Filters",
+                      LocaleKeys.Filters.tr(),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
