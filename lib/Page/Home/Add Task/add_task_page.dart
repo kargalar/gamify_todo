@@ -274,7 +274,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   void addTask() async {
-    if (addTaskProvider.taskNameController.text.trim().isEmpty) {
+    addTaskProvider.taskNameController.text = addTaskProvider.taskNameController.text.trim();
+    addTaskProvider.descriptionController.text = addTaskProvider.descriptionController.text.trim();
+    addTaskProvider.locationController.text = addTaskProvider.locationController.text.trim();
+    if (addTaskProvider.taskNameController.text.isEmpty) {
       addTaskProvider.taskNameController.clear();
 
       Helper().getMessage(
@@ -310,7 +313,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       taskProvider.addTask(
         TaskModel(
           title: addTaskProvider.taskNameController.text,
-          description: addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text,
+          description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
           type: addTaskProvider.selectedTaskType,
           taskDate: addTaskProvider.selectedDate,
           time: addTaskProvider.selectedTime,
@@ -325,7 +328,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
           priority: addTaskProvider.priority,
           subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
-          location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
+          location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
           categoryId: addTaskProvider.categoryId,
           earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
         ),
@@ -334,7 +337,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       await taskProvider.addRoutine(
         RoutineModel(
           title: addTaskProvider.taskNameController.text,
-          description: addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text,
+          description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
           type: addTaskProvider.selectedTaskType,
           createdDate: DateTime.now(),
           startDate: addTaskProvider.selectedDate,
@@ -357,7 +360,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         taskProvider.addTask(
           TaskModel(
             title: addTaskProvider.taskNameController.text,
-            description: addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text,
+            description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
             routineID: taskProvider.routineList.last.id,
             type: addTaskProvider.selectedTaskType,
             taskDate: addTaskProvider.selectedDate,
@@ -373,7 +376,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
             priority: addTaskProvider.priority,
             subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
-            location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
+            location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
             categoryId: addTaskProvider.categoryId,
             earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
           ),
@@ -388,7 +391,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   void goBack() {
     if (addTaskProvider.editTask != null) {
-      if (addTaskProvider.taskNameController.text.trim().isEmpty) {
+      addTaskProvider.taskNameController.text = addTaskProvider.taskNameController.text.trim();
+      addTaskProvider.descriptionController.text = addTaskProvider.descriptionController.text.trim();
+      addTaskProvider.locationController.text = addTaskProvider.locationController.text.trim();
+      if (addTaskProvider.taskNameController.text.isEmpty) {
         addTaskProvider.taskNameController.clear();
 
         Helper().getMessage(
@@ -430,7 +436,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
           // Update all properties
           existingTask.title = addTaskProvider.taskNameController.text;
-          existingTask.description = addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text;
+          existingTask.description = addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text;
           existingTask.taskDate = addTaskProvider.selectedDate;
           existingTask.time = addTaskProvider.selectedTime;
           existingTask.isNotificationOn = addTaskProvider.isNotificationOn;
@@ -441,7 +447,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           existingTask.skillIDList = addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList();
           existingTask.priority = addTaskProvider.priority;
           existingTask.subtasks = addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null;
-          existingTask.location = addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim();
+          existingTask.location = addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text;
           existingTask.categoryId = addTaskProvider.categoryId;
           existingTask.earlyReminderMinutes = addTaskProvider.earlyReminderMinutes;
 
@@ -470,7 +476,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             id: addTaskProvider.editTask!.id,
             routineID: addTaskProvider.editTask!.routineID,
             title: addTaskProvider.taskNameController.text,
-            description: addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text,
+            description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
             type: addTaskProvider.selectedTaskType,
             taskDate: addTaskProvider.selectedDate,
             time: addTaskProvider.selectedTime,
@@ -486,7 +492,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             status: addTaskProvider.editTask!.status,
             priority: addTaskProvider.priority,
             subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
-            location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
+            location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
             categoryId: addTaskProvider.categoryId,
             earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
           ),

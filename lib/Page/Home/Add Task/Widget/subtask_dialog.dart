@@ -203,7 +203,7 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               maxLines: 3,
-              textInputAction: TextInputAction.done,
+              textInputAction: TextInputAction.newline,
               onSubmitted: (_) {
                 _saveSubtask();
               },

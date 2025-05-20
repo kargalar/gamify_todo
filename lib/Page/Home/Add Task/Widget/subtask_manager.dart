@@ -408,6 +408,10 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
           // Edit subtask on long press
           widget.onEditSubtask(subtask);
         },
+        onTap: () {
+          // Edit subtask on long press
+          widget.onEditSubtask(subtask);
+        },
         child: Container(
           key: Key('subtask_item_${subtask.id}'),
           margin: const EdgeInsets.symmetric(vertical: 4),

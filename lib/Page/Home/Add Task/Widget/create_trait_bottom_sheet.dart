@@ -95,24 +95,6 @@ class _CreateTraitBottomSheetState extends State<CreateTraitBottomSheet> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.title_rounded,
-                      size: 18,
-                      color: AppColors.main.withValues(alpha: 0.7),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      LocaleKeys.Name.tr(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.panelBackground,
@@ -149,115 +131,69 @@ class _CreateTraitBottomSheetState extends State<CreateTraitBottomSheet> {
               children: [
                 // Icon selection
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.emoji_emotions_rounded,
-                            size: 18,
-                            color: AppColors.main.withValues(alpha: 0.7),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            "Icon",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        child: InkWell(
+                  child: Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () async {
+                        traitIcon = await Helper().showEmojiPicker(context);
+                        setState(() {});
+                      },
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: AppColors.panelBackground,
                           borderRadius: BorderRadius.circular(12),
-                          onTap: () async {
-                            traitIcon = await Helper().showEmojiPicker(context);
-                            setState(() {});
-                          },
-                          child: Container(
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.panelBackground,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColors.main.withValues(alpha: 0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                traitIcon,
-                                style: const TextStyle(
-                                  fontSize: 30,
-                                ),
-                              ),
+                          border: Border.all(
+                            color: AppColors.main.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            traitIcon,
+                            style: const TextStyle(
+                              fontSize: 30,
                             ),
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
 
                 // Color selection
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.color_lens_rounded,
-                            size: 18,
-                            color: AppColors.main.withValues(alpha: 0.7),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            "Color",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        child: InkWell(
+                  child: Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () async {
+                        selectedColor = await Helper().selectColor();
+                        setState(() {});
+                      },
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: selectedColor,
                           borderRadius: BorderRadius.circular(12),
-                          onTap: () async {
-                            selectedColor = await Helper().selectColor();
-                            setState(() {});
-                          },
-                          child: Container(
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: selectedColor,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColors.main.withValues(alpha: 0.2),
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: selectedColor.withValues(alpha: 0.3),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
+                          border: Border.all(
+                            color: AppColors.main.withValues(alpha: 0.2),
+                            width: 1,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: selectedColor.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ],
