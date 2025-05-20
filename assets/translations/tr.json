@@ -149,5 +149,8 @@
     "Tasks": "Görevler",
     "Close": "Kapat",
     "ShowCompleted": "Tamamlananları göster",
-    "HideCompleted": "Tamamlananları gizle"
+    "HideCompleted": "Tamamlananları gizle",
+    "SearchTasks": "Görevleri Ara",
+    "Search": "Ara",
+    "Filters": "Filtreler"
 }

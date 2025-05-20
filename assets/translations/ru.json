@@ -149,5 +149,8 @@
     "Tasks": "Задачи",
     "Close": "Закрыть",
     "ShowCompleted": "Показать завершенные",
-    "HideCompleted": "Скрыть завершенные"
+    "HideCompleted": "Скрыть завершенные",
+    "SearchTasks": "Поиск задач...",
+    "Search": "Поиск",
+    "Filters": "Фильтры"
 }

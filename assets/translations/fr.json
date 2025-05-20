@@ -149,5 +149,8 @@
     "Tasks": "Tâches",
     "Close": "Fermer",
     "ShowCompleted": "Afficher les tâches terminées",
-    "HideCompleted": "Masquer les tâches terminées"
+    "HideCompleted": "Masquer les tâches terminées",
+    "SearchTasks": "Rechercher des tâches...",
+    "Search": "Rechercher",
+    "Filters": "Filtres"
 }

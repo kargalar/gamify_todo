@@ -149,5 +149,8 @@
     "Tasks": "Aufgaben",
     "Close": "Schließen",
     "ShowCompleted": "Abgeschlossene anzeigen",
-    "HideCompleted": "Abgeschlossene ausblenden"
+    "HideCompleted": "Abgeschlossene ausblenden",
+    "SearchTasks": "Aufgaben suchen...",
+    "Search": "Suchen",
+    "Filters": "Filter"
 }
