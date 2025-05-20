@@ -74,9 +74,16 @@ class TaskProvider with ChangeNotifier {
     required TaskModel taskModel,
     required List<int> selectedDays,
   }) {
+    debugPrint('Editing task: ID=${taskModel.id}, Title=${taskModel.title}');
+
     if (taskModel.routineID != null) {
+      // Editing a task that belongs to a routine
+      debugPrint('Task belongs to routine ID=${taskModel.routineID}');
+
+      // Find the routine in the list
       RoutineModel routine = routineList.firstWhere((element) => element.id == taskModel.routineID);
 
+      // Update routine properties
       routine.title = taskModel.title;
       routine.description = taskModel.description;
       routine.type = taskModel.type;
@@ -89,11 +96,17 @@ class TaskProvider with ChangeNotifier {
       routine.skillIDList = taskModel.skillIDList;
       routine.isArchived = taskModel.status == TaskStatusEnum.COMPLETED ? true : false;
       routine.priority = taskModel.priority;
+      routine.categoryId = taskModel.categoryId;
+      routine.earlyReminderMinutes = taskModel.earlyReminderMinutes;
 
+      // Save the routine to Hive
+      debugPrint('Updating routine in Hive');
       ServerManager().updateRoutine(routineModel: routine);
 
+      // Update all tasks associated with this routine
       for (var task in taskList) {
         if (task.routineID == taskModel.routineID) {
+          // Update task properties
           task.title = taskModel.title;
           task.description = taskModel.description;
           task.attributeIDList = taskModel.attributeIDList;
@@ -101,31 +114,54 @@ class TaskProvider with ChangeNotifier {
           task.remainingDuration = task.taskDate != null && task.taskDate!.isSameDay(DateTime.now()) ? taskModel.remainingDuration : task.remainingDuration;
           task.targetCount = task.taskDate != null && task.taskDate!.isSameDay(DateTime.now()) ? taskModel.targetCount : task.targetCount;
           task.isNotificationOn = taskModel.isNotificationOn;
+          task.isAlarmOn = taskModel.isAlarmOn;
           task.time = taskModel.time;
           task.priority = taskModel.priority;
+          task.categoryId = taskModel.categoryId;
+          task.earlyReminderMinutes = taskModel.earlyReminderMinutes;
+          task.location = taskModel.location;
+          task.subtasks = taskModel.subtasks;
+          task.showSubtasks = taskModel.showSubtasks;
 
+          // Handle timer if active
           if (task.isTimerActive != null && task.isTimerActive!) {
             GlobalTimer().startStopTimer(taskModel: task);
           }
 
+          // Update notifications
           checkNotification(task);
 
+          // Save the task to Hive
+          debugPrint('Updating task in Hive: ID=${task.id}');
           ServerManager().updateTask(taskModel: task);
         }
       }
     } else {
+      // Editing a standalone task
+      debugPrint('Editing standalone task');
+
+      // Find the task in the list and replace it
       final index = taskList.indexWhere((element) => element.id == taskModel.id);
-      taskList[index] = taskModel;
+      if (index != -1) {
+        taskList[index] = taskModel;
 
-      if (taskModel.isTimerActive != null && taskModel.isTimerActive!) {
-        GlobalTimer().startStopTimer(taskModel: taskModel);
+        // Handle timer if active
+        if (taskModel.isTimerActive != null && taskModel.isTimerActive!) {
+          GlobalTimer().startStopTimer(taskModel: taskModel);
+        }
+
+        // Update notifications
+        checkNotification(taskModel);
+
+        // Save the task to Hive
+        debugPrint('Updating task in Hive: ID=${taskModel.id}');
+        ServerManager().updateTask(taskModel: taskModel);
+      } else {
+        debugPrint('ERROR: Task not found in taskList: ID=${taskModel.id}');
       }
-
-      checkNotification(taskModel);
-
-      ServerManager().updateTask(taskModel: taskModel);
     }
 
+    // Notify listeners to update UI
     notifyListeners();
   }
 
@@ -171,6 +207,8 @@ class TaskProvider with ChangeNotifier {
     required TaskModel taskModel,
     required DateTime newDate,
   }) {
+    debugPrint('Changing task date without dialog: ID=${taskModel.id}, Title=${taskModel.title}');
+
     // Preserve the time if it exists
     if (taskModel.time != null) {
       newDate = newDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute);
@@ -183,6 +221,14 @@ class TaskProvider with ChangeNotifier {
 
     // Update the task date
     taskModel.taskDate = newDate;
+
+    // Save the task to ensure changes are persisted
+    try {
+      taskModel.save();
+      debugPrint('Task saved after date change: ID=${taskModel.id}');
+    } catch (e) {
+      debugPrint('ERROR saving task after date change: $e');
+    }
 
     // Update in storage
     ServerManager().updateTask(taskModel: taskModel);
@@ -244,9 +290,12 @@ class TaskProvider with ChangeNotifier {
 
   // iptal de kullanıcıya ceza yansıtılmayacak
   cancelTask(TaskModel taskModel) {
+    debugPrint('Canceling task: ID=${taskModel.id}, Title=${taskModel.title}');
+
     if (taskModel.status == TaskStatusEnum.CANCEL) {
       // If already cancelled, set to null (in progress)
       taskModel.status = null;
+      debugPrint('Task was already canceled, setting to in-progress');
 
       // Create log for the status change to null (in progress)
       TaskLogProvider().addTaskLog(
@@ -256,12 +305,21 @@ class TaskProvider with ChangeNotifier {
     } else {
       // Set to cancelled, clearing any other status
       taskModel.status = TaskStatusEnum.CANCEL;
+      debugPrint('Setting task to canceled');
 
       // Create log for cancelled task
       TaskLogProvider().addTaskLog(
         taskModel,
         customStatus: TaskStatusEnum.CANCEL,
       );
+    }
+
+    // Save the task to ensure changes are persisted
+    try {
+      taskModel.save();
+      debugPrint('Task saved after status change: ID=${taskModel.id}');
+    } catch (e) {
+      debugPrint('ERROR saving task after status change: $e');
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -275,9 +333,12 @@ class TaskProvider with ChangeNotifier {
   }
 
   failedTask(TaskModel taskModel) {
+    debugPrint('Marking task as failed: ID=${taskModel.id}, Title=${taskModel.title}');
+
     if (taskModel.status == TaskStatusEnum.FAILED) {
       // If already failed, set to null (in progress)
       taskModel.status = null;
+      debugPrint('Task was already failed, setting to in-progress');
 
       // Create log for the status change to null (in progress)
       TaskLogProvider().addTaskLog(
@@ -287,12 +348,21 @@ class TaskProvider with ChangeNotifier {
     } else {
       // Set to failed, clearing any other status
       taskModel.status = TaskStatusEnum.FAILED;
+      debugPrint('Setting task to failed');
 
       // Create log for failed task
       TaskLogProvider().addTaskLog(
         taskModel,
         customStatus: TaskStatusEnum.FAILED,
       );
+    }
+
+    // Save the task to ensure changes are persisted
+    try {
+      taskModel.save();
+      debugPrint('Task saved after status change: ID=${taskModel.id}');
+    } catch (e) {
+      debugPrint('ERROR saving task after status change: $e');
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -356,8 +426,18 @@ class TaskProvider with ChangeNotifier {
   // TODO: just for routine
   // ? rutin model mi task model mi
   completeRoutine(TaskModel taskModel) {
+    debugPrint('Completing routine task: ID=${taskModel.id}, Title=${taskModel.title}');
+
     // Clear any existing status before setting to COMPLETED
     taskModel.status = TaskStatusEnum.COMPLETED;
+
+    // Save the task to ensure changes are persisted
+    try {
+      taskModel.save();
+      debugPrint('Task saved after completion: ID=${taskModel.id}');
+    } catch (e) {
+      debugPrint('ERROR saving task after completion: $e');
+    }
 
     ServerManager().updateTask(taskModel: taskModel);
     HomeWidgetService.updateTaskCount();
@@ -388,6 +468,8 @@ class TaskProvider with ChangeNotifier {
 
   // Subtask methods
   void addSubtask(TaskModel taskModel, String subtaskTitle, [String? description]) {
+    debugPrint('Adding subtask to task: ID=${taskModel.id}, Title=${taskModel.title}');
+
     taskModel.subtasks ??= [];
 
     // Generate a unique ID for the subtask
@@ -403,6 +485,15 @@ class TaskProvider with ChangeNotifier {
     );
 
     taskModel.subtasks!.add(subtask);
+
+    // Save the task to ensure changes are persisted
+    try {
+      taskModel.save();
+      debugPrint('Task saved after adding subtask: ID=${taskModel.id}');
+    } catch (e) {
+      debugPrint('ERROR saving task after adding subtask: $e');
+    }
+
     ServerManager().updateTask(taskModel: taskModel);
 
     notifyListeners();
@@ -410,7 +501,18 @@ class TaskProvider with ChangeNotifier {
 
   void removeSubtask(TaskModel taskModel, SubTaskModel subtask) {
     if (taskModel.subtasks != null) {
+      debugPrint('Removing subtask from task: TaskID=${taskModel.id}, SubtaskID=${subtask.id}');
+
       taskModel.subtasks!.removeWhere((s) => s.id == subtask.id);
+
+      // Save the task to ensure changes are persisted
+      try {
+        taskModel.save();
+        debugPrint('Task saved after removing subtask: ID=${taskModel.id}');
+      } catch (e) {
+        debugPrint('ERROR saving task after removing subtask: $e');
+      }
+
       ServerManager().updateTask(taskModel: taskModel);
 
       notifyListeners();
@@ -423,6 +525,17 @@ class TaskProvider with ChangeNotifier {
       if (index != -1) {
         bool wasCompleted = taskModel.subtasks![index].isCompleted;
         taskModel.subtasks![index].isCompleted = !wasCompleted;
+
+        debugPrint('Toggling subtask completion: TaskID=${taskModel.id}, SubtaskID=${subtask.id}, Completed=${!wasCompleted}');
+
+        // Save the task to ensure changes are persisted
+        try {
+          taskModel.save();
+          debugPrint('Task saved after toggling subtask: ID=${taskModel.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after toggling subtask: $e');
+        }
+
         ServerManager().updateTask(taskModel: taskModel);
 
         // Alt görev tamamlandığında log oluştur
@@ -443,9 +556,19 @@ class TaskProvider with ChangeNotifier {
     if (taskModel.subtasks != null) {
       final index = taskModel.subtasks!.indexWhere((s) => s.id == subtask.id);
       if (index != -1) {
+        debugPrint('Updating subtask: TaskID=${taskModel.id}, SubtaskID=${subtask.id}');
+
         // Update the subtask with new title and description
         taskModel.subtasks![index].title = title;
         taskModel.subtasks![index].description = description;
+
+        // Save the task to ensure changes are persisted
+        try {
+          taskModel.save();
+          debugPrint('Task saved after updating subtask: ID=${taskModel.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after updating subtask: $e');
+        }
 
         // Save changes to server
         ServerManager().updateTask(taskModel: taskModel);

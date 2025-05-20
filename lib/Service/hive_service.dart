@@ -118,7 +118,26 @@ class HiveService {
 
   Future<void> updateRoutine(RoutineModel routineModel) async {
     final box = await _routineBox;
-    await box.put(routineModel.id, routineModel);
+    debugPrint('Updating routine in Hive: ID=${routineModel.id}, Title=${routineModel.title}');
+
+    try {
+      // First save the HiveObject to ensure changes are persisted
+      routineModel.save();
+
+      // Then update the box with the routine model
+      await box.put(routineModel.id, routineModel);
+
+      // Verify the routine was saved correctly
+      final savedRoutine = box.get(routineModel.id);
+      if (savedRoutine != null) {
+        debugPrint('Routine successfully saved to Hive: ID=${savedRoutine.id}, Title=${savedRoutine.title}');
+      } else {
+        debugPrint('ERROR: Failed to retrieve saved routine from Hive');
+      }
+    } catch (e) {
+      debugPrint('ERROR saving routine to Hive: $e');
+      rethrow;
+    }
   }
 
   Future<void> deleteRoutine(int id) async {
@@ -146,7 +165,26 @@ class HiveService {
 
   Future<void> updateTask(TaskModel taskModel) async {
     final box = await _taskBox;
-    await box.put(taskModel.id, taskModel);
+    debugPrint('Updating task in Hive: ID=${taskModel.id}, Title=${taskModel.title}');
+
+    try {
+      // First save the HiveObject to ensure changes are persisted
+      taskModel.save();
+
+      // Then update the box with the task model
+      await box.put(taskModel.id, taskModel);
+
+      // Verify the task was saved correctly
+      final savedTask = box.get(taskModel.id);
+      if (savedTask != null) {
+        debugPrint('Task successfully saved to Hive: ID=${savedTask.id}, Title=${savedTask.title}');
+      } else {
+        debugPrint('ERROR: Failed to retrieve saved task from Hive');
+      }
+    } catch (e) {
+      debugPrint('ERROR saving task to Hive: $e');
+      rethrow;
+    }
   }
 
   Future<void> deleteTask(int id) async {
