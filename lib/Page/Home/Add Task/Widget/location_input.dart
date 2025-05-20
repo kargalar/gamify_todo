@@ -264,28 +264,6 @@ class LocationBottomSheet extends StatelessWidget {
                   ),
                 ),
               ),
-
-            // Action buttons
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      LocaleKeys.Save.tr(),
-                      style: TextStyle(
-                        color: AppColors.main,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

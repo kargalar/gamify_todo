@@ -527,28 +527,6 @@ class _TraitsBottomSheetState extends State<TraitsBottomSheet> {
                     ),
                   ),
           ),
-
-          // Action buttons
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0, right: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    LocaleKeys.Save.tr(),
-                    style: TextStyle(
-                      color: AppColors.main,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

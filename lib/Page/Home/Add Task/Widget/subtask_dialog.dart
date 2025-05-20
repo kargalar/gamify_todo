@@ -144,26 +144,6 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
               height: 1,
             ),
           ),
-
-          // Title field
-          Row(
-            children: [
-              Icon(
-                Icons.title_rounded,
-                size: 18,
-                color: AppColors.main.withValues(alpha: 0.7),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                LocaleKeys.Title.tr(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground,
@@ -195,35 +175,8 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
               },
             ),
           ),
-          const SizedBox(height: 16),
-
-          // Description field
-          Row(
-            children: [
-              Icon(
-                Icons.description_rounded,
-                size: 18,
-                color: AppColors.main.withValues(alpha: 0.7),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                LocaleKeys.Description.tr(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-              ),
-              Text(
-                " (Optional)",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 13,
-                  color: AppColors.text.withValues(alpha: 0.5),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 8),
+
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground,
