@@ -143,7 +143,16 @@ class TaskProvider with ChangeNotifier {
       // Find the task in the list and replace it
       final index = taskList.indexWhere((element) => element.id == taskModel.id);
       if (index != -1) {
-        taskList[index] = taskModel;
+        debugPrint('Found task in taskList at index $index: ID=${taskModel.id}');
+
+        // Check if we're replacing with a new instance or using the existing one
+        final bool isExistingInstance = identical(taskList[index], taskModel);
+        debugPrint('Using existing task instance: $isExistingInstance');
+
+        if (!isExistingInstance) {
+          debugPrint('WARNING: Replacing task with new instance may lose Hive object identity');
+          taskList[index] = taskModel;
+        }
 
         // Handle timer if active
         if (taskModel.isTimerActive != null && taskModel.isTimerActive!) {

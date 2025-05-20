@@ -420,33 +420,78 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
       isLoadign = true;
 
-      TaskProvider().editTask(
-        selectedDays: addTaskProvider.selectedDays,
-        taskModel: TaskModel(
-          id: addTaskProvider.editTask!.id,
-          routineID: addTaskProvider.editTask!.routineID,
-          title: addTaskProvider.taskNameController.text,
-          description: addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text,
-          type: addTaskProvider.selectedTaskType,
-          taskDate: addTaskProvider.selectedDate,
-          time: addTaskProvider.selectedTime,
-          isNotificationOn: addTaskProvider.isNotificationOn,
-          isAlarmOn: addTaskProvider.isAlarmOn,
-          currentDuration: addTaskProvider.selectedTaskType == TaskTypeEnum.TIMER ? addTaskProvider.editTask!.currentDuration ?? const Duration(seconds: 0) : null,
-          remainingDuration: addTaskProvider.taskDuration,
-          currentCount: addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER ? addTaskProvider.editTask!.currentCount ?? 0 : null,
-          targetCount: addTaskProvider.targetCount,
-          isTimerActive: addTaskProvider.selectedTaskType == TaskTypeEnum.TIMER ? addTaskProvider.editTask!.isTimerActive : null,
-          attributeIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
-          skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
-          status: addTaskProvider.editTask!.status,
-          priority: addTaskProvider.priority,
-          subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
-          location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
-          categoryId: addTaskProvider.categoryId,
-          earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
-        ),
-      );
+      // Find the existing task in the taskList to preserve Hive object identity
+      if (addTaskProvider.editTask!.routineID == null) {
+        // For standalone tasks, find the task in the list
+        final index = taskProvider.taskList.indexWhere((element) => element.id == addTaskProvider.editTask!.id);
+        if (index != -1) {
+          // Update the existing task model directly to preserve Hive object identity
+          TaskModel existingTask = taskProvider.taskList[index];
+
+          // Update all properties
+          existingTask.title = addTaskProvider.taskNameController.text;
+          existingTask.description = addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text;
+          existingTask.taskDate = addTaskProvider.selectedDate;
+          existingTask.time = addTaskProvider.selectedTime;
+          existingTask.isNotificationOn = addTaskProvider.isNotificationOn;
+          existingTask.isAlarmOn = addTaskProvider.isAlarmOn;
+          existingTask.remainingDuration = addTaskProvider.taskDuration;
+          existingTask.targetCount = addTaskProvider.targetCount;
+          existingTask.attributeIDList = addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList();
+          existingTask.skillIDList = addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList();
+          existingTask.priority = addTaskProvider.priority;
+          existingTask.subtasks = addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null;
+          existingTask.location = addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim();
+          existingTask.categoryId = addTaskProvider.categoryId;
+          existingTask.earlyReminderMinutes = addTaskProvider.earlyReminderMinutes;
+
+          // For type-specific properties
+          if (addTaskProvider.selectedTaskType == TaskTypeEnum.TIMER) {
+            existingTask.currentDuration = addTaskProvider.editTask!.currentDuration ?? const Duration(seconds: 0);
+            existingTask.isTimerActive = addTaskProvider.editTask!.isTimerActive;
+          } else if (addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER) {
+            existingTask.currentCount = addTaskProvider.editTask!.currentCount ?? 0;
+          }
+
+          // Now call editTask with the updated existing task
+          debugPrint('Updating existing task with preserved Hive identity: ID=${existingTask.id}');
+          TaskProvider().editTask(
+            selectedDays: addTaskProvider.selectedDays,
+            taskModel: existingTask,
+          );
+        } else {
+          debugPrint('ERROR: Task not found in taskList: ID=${addTaskProvider.editTask!.id}');
+        }
+      } else {
+        // For routine tasks, use the original method as it already preserves Hive object identity
+        TaskProvider().editTask(
+          selectedDays: addTaskProvider.selectedDays,
+          taskModel: TaskModel(
+            id: addTaskProvider.editTask!.id,
+            routineID: addTaskProvider.editTask!.routineID,
+            title: addTaskProvider.taskNameController.text,
+            description: addTaskProvider.descriptionController.text.trim().isEmpty ? null : addTaskProvider.descriptionController.text,
+            type: addTaskProvider.selectedTaskType,
+            taskDate: addTaskProvider.selectedDate,
+            time: addTaskProvider.selectedTime,
+            isNotificationOn: addTaskProvider.isNotificationOn,
+            isAlarmOn: addTaskProvider.isAlarmOn,
+            currentDuration: addTaskProvider.selectedTaskType == TaskTypeEnum.TIMER ? addTaskProvider.editTask!.currentDuration ?? const Duration(seconds: 0) : null,
+            remainingDuration: addTaskProvider.taskDuration,
+            currentCount: addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER ? addTaskProvider.editTask!.currentCount ?? 0 : null,
+            targetCount: addTaskProvider.targetCount,
+            isTimerActive: addTaskProvider.selectedTaskType == TaskTypeEnum.TIMER ? addTaskProvider.editTask!.isTimerActive : null,
+            attributeIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
+            skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
+            status: addTaskProvider.editTask!.status,
+            priority: addTaskProvider.priority,
+            subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
+            location: addTaskProvider.locationController.text.trim().isEmpty ? null : addTaskProvider.locationController.text.trim(),
+            categoryId: addTaskProvider.categoryId,
+            earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+          ),
+        );
+      }
 
       NavigatorService().back();
     } else {
