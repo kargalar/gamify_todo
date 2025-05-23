@@ -117,48 +117,48 @@ class AppTheme {
     // Textfield
     inputDecorationTheme: InputDecorationTheme(
       filled: false,
-      border: OutlineInputBorder(
-        borderRadius: AppColors.borderRadiusAll,
-        borderSide: BorderSide(
-          color: AppColors.onBackground,
-          width: 0.2,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: AppColors.borderRadiusAll * 1.2,
-        borderSide: BorderSide(
-          color: AppColors.onBackground,
-          width: 0.5,
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: AppColors.borderRadiusAll,
-        borderSide: BorderSide(
-          color: AppColors.onBackground,
-          width: 0.2,
-        ),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: AppColors.borderRadiusAll,
-        borderSide: const BorderSide(
-          color: AppColors.red,
-          width: 0.5,
-        ),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: AppColors.borderRadiusAll,
-        borderSide: const BorderSide(
-          color: AppColors.red,
-          width: 1,
-        ),
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: AppColors.borderRadiusAll,
-        borderSide: BorderSide(
-          color: AppColors.onBackground,
-          width: 0.2,
-        ),
-      ),
+      // border: OutlineInputBorder(
+      //   borderRadius: AppColors.borderRadiusAll,
+      //   borderSide: BorderSide(
+      //     color: AppColors.onBackground,
+      //     width: 0.2,
+      //   ),
+      // ),
+      // focusedBorder: OutlineInputBorder(
+      //   borderRadius: AppColors.borderRadiusAll * 1.2,
+      //   borderSide: BorderSide(
+      //     color: AppColors.onBackground,
+      //     width: 0.5,
+      //   ),
+      // ),
+      // enabledBorder: OutlineInputBorder(
+      //   borderRadius: AppColors.borderRadiusAll,
+      //   borderSide: BorderSide(
+      //     color: AppColors.onBackground,
+      //     width: 0.2,
+      //   ),
+      // ),
+      // errorBorder: OutlineInputBorder(
+      //   borderRadius: AppColors.borderRadiusAll,
+      //   borderSide: const BorderSide(
+      //     color: AppColors.red,
+      //     width: 0.5,
+      //   ),
+      // ),
+      // focusedErrorBorder: OutlineInputBorder(
+      //   borderRadius: AppColors.borderRadiusAll,
+      //   borderSide: const BorderSide(
+      //     color: AppColors.red,
+      //     width: 1,
+      //   ),
+      // ),
+      // disabledBorder: OutlineInputBorder(
+      //   borderRadius: AppColors.borderRadiusAll,
+      //   borderSide: BorderSide(
+      //     color: AppColors.onBackground,
+      //     width: 0.2,
+      //   ),
+      // ),
       labelStyle: TextStyle(
         color: AppColors.text,
       ),

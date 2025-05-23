@@ -33,152 +33,162 @@ class TaskName extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with title and icon
-          ClickableTooltip(
-            title: LocaleKeys.TaskName.tr(),
-            bulletPoints: const ["Give your task a clear, descriptive name", "Use specific names to easily identify tasks", "Keep names concise but informative"],
-            child: Container(
-              color: AppColors.transparent,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.title_rounded,
-                    color: AppColors.main,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    LocaleKeys.TaskName.tr(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+            ),
+            child: Column(
+              children: [
+                ClickableTooltip(
+                  title: LocaleKeys.TaskName.tr(),
+                  bulletPoints: const ["Give your task a clear, descriptive name", "Use specific names to easily identify tasks", "Keep names concise but informative"],
+                  child: Container(
+                    color: AppColors.transparent,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.title_rounded,
+                          color: AppColors.main,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          LocaleKeys.TaskName.tr(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 10),
+
+                // Divider
+                Divider(
+                  color: AppColors.text.withValues(alpha: 0.1),
+                  height: 1,
+                ),
+              ],
             ),
           ),
 
-          // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Divider(
-              color: AppColors.text.withValues(alpha: 0.1),
-              height: 1,
-            ),
-          ),
-
-          // Task name input field
+          // Combined task name and description container
           Container(
             decoration: BoxDecoration(
               color: AppColors.panelBackground.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: TextField(
-              autofocus: autoFocus,
-              controller: provider.taskNameController,
-              focusNode: provider.taskNameFocus,
-              textCapitalization: TextCapitalization.sentences,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              decoration: InputDecoration(
-                hintText: LocaleKeys.TaskName.tr(),
-                hintStyle: TextStyle(
-                  color: AppColors.text.withValues(alpha: 0.4),
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                prefixIcon: Icon(
-                  Icons.edit_rounded,
-                  color: AppColors.text.withValues(alpha: 0.4),
-                  size: 20,
-                ),
-                suffixIcon: provider.taskNameController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.clear_rounded,
-                          color: AppColors.text.withValues(alpha: 0.6),
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          provider.taskNameController.clear();
-                          provider.notifyListeners();
-                        },
-                      )
-                    : null,
-              ),
-              textInputAction: TextInputAction.next,
-              onChanged: (value) {
-                provider.notifyListeners();
-              },
-              onEditingComplete: () {
-                // Move focus to description when done
-                if (provider.descriptionFocus.hashCode != 0) {
-                  provider.descriptionFocus.requestFocus();
-                }
-              },
-            ),
-          ),
-
-          // Description input field
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.panelBackground.withValues(alpha: 0.7),
-            ),
-            child: TextField(
-              controller: provider.descriptionController,
-              focusNode: provider.descriptionFocus,
-              textCapitalization: TextCapitalization.sentences,
-              style: const TextStyle(
-                fontSize: 15,
-              ),
-              decoration: InputDecoration(
-                hintText: LocaleKeys.EnterDescription.tr(),
-                hintStyle: TextStyle(
-                  color: AppColors.text.withValues(alpha: 0.4),
-                  fontSize: 15,
-                  fontStyle: FontStyle.italic,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 8),
-                  child: Icon(
-                    Icons.notes_rounded,
-                    color: AppColors.text.withValues(alpha: 0.4),
-                    size: 20,
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Task name input field
+                TextField(
+                  autofocus: autoFocus,
+                  controller: provider.taskNameController,
+                  focusNode: provider.taskNameFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
+                  decoration: InputDecoration(
+                    hintText: LocaleKeys.TaskName.tr(),
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    // prefixIcon: Icon(
+                    //   Icons.edit_rounded,
+                    //   color: AppColors.text.withValues(alpha: 0.4),
+                    //   size: 20,
+                    // ),
+                    // suffixIcon: provider.taskNameController.text.isNotEmpty
+                    //     ? IconButton(
+                    //         icon: Icon(
+                    //           Icons.clear_rounded,
+                    //           color: AppColors.text.withValues(alpha: 0.6),
+                    //           size: 20,
+                    //         ),
+                    //         onPressed: () {
+                    //           provider.taskNameController.clear();
+                    //           provider.notifyListeners();
+                    //         },
+                    //       )
+                    //     : null,
+                  ),
+                  textInputAction: TextInputAction.next,
+                  onChanged: (value) {
+                    provider.notifyListeners();
+                  },
+                  onEditingComplete: () {
+                    // Move focus to description when done
+                    if (provider.descriptionFocus.hashCode != 0) {
+                      provider.descriptionFocus.requestFocus();
+                    }
+                  },
                 ),
-                prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-                suffixIcon: provider.descriptionController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.clear_rounded,
-                          color: AppColors.text.withValues(alpha: 0.6),
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          provider.descriptionController.clear();
-                          provider.notifyListeners();
-                        },
-                      )
-                    : null,
-              ),
-              maxLines: 3,
-              minLines: 2,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-              onChanged: (value) {
-                provider.notifyListeners();
-              },
+
+                // Description input field
+                TextField(
+                  controller: provider.descriptionController,
+                  focusNode: provider.descriptionFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: LocaleKeys.EnterDescription.tr(),
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    // prefixIcon: Padding(
+                    //   padding: const EdgeInsets.only(left: 12, right: 8),
+                    //   child: Icon(
+                    //     Icons.notes_rounded,
+                    //     color: AppColors.text.withValues(alpha: 0.4),
+                    //     size: 20,
+                    //   ),
+                    // ),
+                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                    // suffixIcon: provider.descriptionController.text.isNotEmpty
+                    //     ? IconButton(
+                    //         icon: Icon(
+                    //           Icons.clear_rounded,
+                    //           color: AppColors.text.withValues(alpha: 0.6),
+                    //           size: 20,
+                    //         ),
+                    //         onPressed: () {
+                    //           provider.descriptionController.clear();
+                    //           provider.notifyListeners();
+                    //         },
+                    //       )
+                    //     : null,
+                  ),
+                  maxLines: 5,
+                  minLines: 2,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                  onChanged: (value) {
+                    provider.notifyListeners();
+                  },
+                ),
+              ],
             ),
           ),
         ],

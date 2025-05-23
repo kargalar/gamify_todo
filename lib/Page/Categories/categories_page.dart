@@ -146,25 +146,43 @@ class _CategoriesPageState extends State<CategoriesPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        leading: // Search button
+            IconButton(
+          icon: Icon(
+            Icons.search,
+            size: 20,
+            color: _isSearchActive ? AppColors.main : AppColors.text,
+          ),
+          tooltip: LocaleKeys.Search.tr(),
+          onPressed: () {
+            setState(() {
+              _isSearchActive = !_isSearchActive;
+              // Clear search query when deactivating search
+              if (!_isSearchActive) {
+                _searchController.clear();
+              }
+            });
+          },
+        ),
         actions: [
-          // Search button
+          // add category button
           IconButton(
             icon: Icon(
-              Icons.search,
+              Icons.add_rounded,
               size: 20,
-              color: _isSearchActive ? AppColors.main : AppColors.text,
+              color: AppColors.text,
             ),
-            tooltip: LocaleKeys.Search.tr(),
+            tooltip: LocaleKeys.AddCategory.tr(),
             onPressed: () {
-              setState(() {
-                _isSearchActive = !_isSearchActive;
-                // Clear search query when deactivating search
-                if (!_isSearchActive) {
-                  _searchController.clear();
-                }
-              });
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const CreateCategoryBottomSheet(),
+              );
             },
           ),
+
           // Filter menu button
           IconButton(
             icon: Icon(
@@ -184,8 +202,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
           // Search bar - only show when search is active
           if (_isSearchActive) _buildSearchBar(),
 
-          // Categories section only
-          _buildCategoriesSection(),
+          // Categories section only if have any category
+          if (context.read<CategoryProvider>().getActiveCategories().isNotEmpty) ...[
+            _buildCategoriesSection(),
+          ],
 
           // Divider
           Divider(
@@ -505,38 +525,38 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 ),
               )),
 
-          // Add category button
-          Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            child: InkWell(
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => const CreateCategoryBottomSheet(),
-                );
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppColors.text.withValues(alpha: 0.1),
-                    width: 1,
-                  ),
-                ),
-                child: Icon(
-                  Icons.add_rounded,
-                  size: 20,
-                  color: AppColors.text.withValues(alpha: 0.7),
-                ),
-              ),
-            ),
-          ),
+          // // Add category button
+          // Material(
+          //   color: Colors.transparent,
+          //   borderRadius: BorderRadius.circular(16),
+          //   child: InkWell(
+          //     onTap: () {
+          //       showModalBottomSheet(
+          //         context: context,
+          //         isScrollControlled: true,
+          //         backgroundColor: Colors.transparent,
+          //         builder: (context) => const CreateCategoryBottomSheet(),
+          //       );
+          //     },
+          //     borderRadius: BorderRadius.circular(16),
+          //     child: Container(
+          //       padding: const EdgeInsets.all(8),
+          //       decoration: BoxDecoration(
+          //         color: AppColors.panelBackground,
+          //         borderRadius: BorderRadius.circular(16),
+          //         border: Border.all(
+          //           color: AppColors.text.withValues(alpha: 0.1),
+          //           width: 1,
+          //         ),
+          //       ),
+          //       child: Icon(
+          //         Icons.add_rounded,
+          //         size: 20,
+          //         color: AppColors.text.withValues(alpha: 0.7),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

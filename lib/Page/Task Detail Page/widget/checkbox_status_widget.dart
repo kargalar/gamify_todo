@@ -51,36 +51,38 @@ class _CheckboxStatusWidgetState extends State<CheckboxStatusWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          _getCheckboxStatus(),
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _buildStatusButton(
-              label: LocaleKeys.Completed.tr(),
-              status: TaskStatusEnum.COMPLETED,
-              color: AppColors.green,
-            ),
-            _buildStatusButton(
-              label: LocaleKeys.Failed.tr(),
-              status: TaskStatusEnum.FAILED,
-              color: AppColors.red,
-            ),
-            _buildStatusButton(
-              label: LocaleKeys.Cancelled.tr(),
-              status: TaskStatusEnum.CANCEL,
-              color: AppColors.purple,
-            ),
-          ],
-        ),
-      ],
+    return Center(
+      child: Column(
+        children: [
+          Text(
+            _getCheckboxStatus(),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildStatusButton(
+                label: LocaleKeys.Completed.tr(),
+                status: TaskStatusEnum.COMPLETED,
+                color: AppColors.green,
+              ),
+              _buildStatusButton(
+                label: LocaleKeys.Failed.tr(),
+                status: TaskStatusEnum.FAILED,
+                color: AppColors.red,
+              ),
+              _buildStatusButton(
+                label: LocaleKeys.Cancelled.tr(),
+                status: TaskStatusEnum.CANCEL,
+                color: AppColors.purple,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
