@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Service/notification_services.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:provider/provider.dart';
 
 class NotificationStatus extends StatefulWidget {
@@ -25,19 +25,19 @@ class _NotificationStatusState extends State<NotificationStatus> {
         : addTaskProvider.isAlarmOn
             ? AppColors.red
             : AppColors.text.withValues(alpha: 0.5);
-    
+
     final IconData notificationIcon = addTaskProvider.isNotificationOn
         ? Icons.notifications_active
         : addTaskProvider.isAlarmOn
             ? Icons.alarm
             : Icons.notifications_off;
-    
+
     final String statusText = addTaskProvider.isNotificationOn
         ? "Bildirim"
         : addTaskProvider.isAlarmOn
             ? "Alarm"
             : "Kapalı";
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -95,7 +95,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
               ),
             ),
           ),
-          
+
           // Erken hatırlatma seçici (sadece alarm açıksa göster)
           if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null)
             Column(
@@ -106,7 +106,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
                   thickness: 1,
                   color: activeColor.withValues(alpha: 0.1),
                 ),
-                
+
                 // Erken hatırlatma başlığı
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 8),
@@ -129,7 +129,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
                     ],
                   ),
                 ),
-                
+
                 // Erken hatırlatma seçenekleri
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),

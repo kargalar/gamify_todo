@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Service/notification_services.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 

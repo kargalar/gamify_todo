@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/subtask_model.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/subtask_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'task_model.g.dart';

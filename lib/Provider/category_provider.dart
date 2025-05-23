@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Model/category_model.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Service/server_manager.dart';
 
 class CategoryProvider extends ChangeNotifier {
   static final CategoryProvider _instance = CategoryProvider._internal();
@@ -55,7 +55,7 @@ class CategoryProvider extends ChangeNotifier {
 
   CategoryModel? getCategoryById(int? categoryId) {
     if (categoryId == null) return null;
-    
+
     try {
       return categoryList.firstWhere((category) => category.id == categoryId);
     } catch (e) {

@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Model/subtask_model.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/subtask_model.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SubtaskManager extends StatefulWidget {

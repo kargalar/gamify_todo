@@ -1,24 +1,24 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/accessible.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Categories/categories_page.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
-import 'package:gamify_todo/Page/Home/home_page.dart';
-import 'package:gamify_todo/Page/Profile/profile_page.dart';
-import 'package:gamify_todo/Page/Store/add_store_item_page.dart';
-import 'package:gamify_todo/Page/Store/store_page.dart';
-import 'package:gamify_todo/Service/global_timer.dart';
-import 'package:gamify_todo/Service/hive_service.dart';
-import 'package:gamify_todo/Service/home_widget_service.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
-import 'package:gamify_todo/Service/notification_services.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Provider/navbar_provider.dart';
-import 'package:gamify_todo/Provider/store_provider.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Provider/trait_provider.dart';
+import 'package:next_level/General/accessible.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Categories/categories_page.dart';
+import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:next_level/Page/Home/home_page.dart';
+import 'package:next_level/Page/Profile/profile_page.dart';
+import 'package:next_level/Page/Store/add_store_item_page.dart';
+import 'package:next_level/Page/Store/store_page.dart';
+import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/store_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/trait_provider.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 

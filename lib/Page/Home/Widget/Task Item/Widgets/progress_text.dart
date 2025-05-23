@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/task_status.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/task_model.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_status.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/task_model.dart';
 
 class ProgressText extends StatelessWidget {
   const ProgressText({

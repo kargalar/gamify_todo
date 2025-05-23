@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:gamify_todo/Core/Handlers/task_action_handler.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Model/task_model.dart';
+import 'package:next_level/Core/Handlers/task_action_handler.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Model/task_model.dart';
 import 'package:provider/provider.dart';
 
 class TaskSlideActinos extends StatefulWidget {

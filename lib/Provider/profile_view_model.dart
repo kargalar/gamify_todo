@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Provider/trait_provider.dart';
-import 'package:gamify_todo/Provider/task_log_provider.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/trait_model.dart';
-import 'package:gamify_todo/Model/task_log_model.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/trait_model.dart';
+import 'package:next_level/Model/task_log_model.dart';
 
 class ProfileViewModel extends ChangeNotifier {
   // Weekly Progress Data

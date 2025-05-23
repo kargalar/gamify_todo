@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 
 extension DurationFormatting on Duration {
   String integer2() {

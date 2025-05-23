@@ -1,4 +1,4 @@
-import 'package:gamify_todo/Enum/trait_type_enum.dart';
+import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class TraitTypeEnumAdapter extends TypeAdapter<TraitTypeEnum> {

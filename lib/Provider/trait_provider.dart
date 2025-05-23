@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Model/trait_model.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Model/trait_model.dart';
 
 class TraitProvider with ChangeNotifier {
   // singelton

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/subtask_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Model/trait_model.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/subtask_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Model/trait_model.dart';
 
 class AddTaskProvider with ChangeNotifier {
   // Widget variables

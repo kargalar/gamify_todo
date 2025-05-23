@@ -1,6 +1,6 @@
-import 'package:gamify_todo/Model/store_item_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Service/notification_services.dart';
+import 'package:next_level/Model/store_item_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Service/notification_services.dart';
 
 class NotificationHelper {
   // Görev için bildirim durumunu kontrol et ve güncelle

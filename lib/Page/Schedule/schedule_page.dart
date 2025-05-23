@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Task%20Detail%20Page/routine_detail_page.dart';
-import 'package:gamify_todo/Page/Schedule/task_calendar_page.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/task_model.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/routine_detail_page.dart';
+import 'package:next_level/Page/Schedule/task_calendar_page.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/task_model.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 

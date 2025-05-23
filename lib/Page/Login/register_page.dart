@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/accessible.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Login/login_page.dart';
-import 'package:gamify_todo/Page/navbar_page_manager.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Provider/navbar_provider.dart';
+import 'package:next_level/General/accessible.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Login/login_page.dart';
+import 'package:next_level/Page/navbar_page_manager.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:get/route_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

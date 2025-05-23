@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Profile/Widget/profile_page_top_section.dart';
-import 'package:gamify_todo/Page/Profile/Widget/trait_list.dart';
-import 'package:gamify_todo/Page/Profile/Widget/weekly_total_progress_chart.dart';
-import 'package:gamify_todo/Page/Settings/settings_page.dart';
-import 'package:gamify_todo/Page/Schedule/schedule_page.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
-import 'package:gamify_todo/Provider/navbar_provider.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Profile/Widget/profile_page_top_section.dart';
+import 'package:next_level/Page/Profile/Widget/trait_list.dart';
+import 'package:next_level/Page/Profile/Widget/weekly_total_progress_chart.dart';
+import 'package:next_level/Page/Settings/settings_page.dart';
+import 'package:next_level/Page/Schedule/schedule_page.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
-import 'package:gamify_todo/Page/Profile/Widget/streak_analysis.dart';
-import 'package:gamify_todo/Provider/profile_view_model.dart';
+import 'package:next_level/Page/Profile/Widget/streak_analysis.dart';
+import 'package:next_level/Provider/profile_view_model.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

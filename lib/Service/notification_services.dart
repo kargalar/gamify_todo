@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/navigator_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;

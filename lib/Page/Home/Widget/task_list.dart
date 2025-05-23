@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Page/Home/Widget/task_item.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Page/Home/Widget/task_item.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
 import 'package:provider/provider.dart';
 
 class TaskList extends StatefulWidget {

@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/Enums/locales_enum.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Service/product_localization.dart';
+import 'package:next_level/Core/Enums/locales_enum.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/product_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LanguageSelectionPopup extends StatefulWidget {

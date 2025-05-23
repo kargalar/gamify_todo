@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Model/routine_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Model/routine_model.dart';
+import 'package:next_level/Model/task_model.dart';
 
 class ArchiveButton extends StatelessWidget {
   const ArchiveButton({

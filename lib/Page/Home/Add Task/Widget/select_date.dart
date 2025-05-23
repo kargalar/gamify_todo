@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
-import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 

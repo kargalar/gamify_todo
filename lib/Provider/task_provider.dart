@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/Service/global_timer.dart';
-import 'package:gamify_todo/Service/notification_services.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Service/home_widget_service.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/routine_model.dart';
-import 'package:gamify_todo/Model/subtask_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Provider/category_provider.dart';
-import 'package:gamify_todo/Provider/task_log_provider.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/routine_model.dart';
+import 'package:next_level/Model/subtask_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Provider/category_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskProvider with ChangeNotifier {

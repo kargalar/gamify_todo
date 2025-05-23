@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 
 class ProfilePageTopSection extends StatefulWidget {
   const ProfilePageTopSection({

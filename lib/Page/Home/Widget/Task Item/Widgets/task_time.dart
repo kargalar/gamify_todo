@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Model/task_model.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/task_model.dart';
 
 class TaskTime extends StatelessWidget {
   const TaskTime({

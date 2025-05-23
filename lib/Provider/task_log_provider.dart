@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/task_log_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Service/hive_service.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/task_log_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/server_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskLogProvider with ChangeNotifier {

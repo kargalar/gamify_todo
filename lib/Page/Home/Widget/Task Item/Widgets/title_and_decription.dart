@@ -1,9 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/progress_text.dart';
-import 'package:gamify_todo/Page/Home/Widget/Task%20Item/Widgets/task_category.dart';
-import 'package:gamify_todo/Model/task_model.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/progress_text.dart';
+import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_category.dart';
+import 'package:next_level/Model/task_model.dart';
 
 class TitleAndDescription extends StatelessWidget {
   const TitleAndDescription({

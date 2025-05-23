@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/Enums/status_enum.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Provider/trait_provider.dart';
-import 'package:gamify_todo/Enum/trait_type_enum.dart';
-import 'package:gamify_todo/Model/trait_model.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Enum/trait_type_enum.dart';
+import 'package:next_level/Model/trait_model.dart';
 
 class CreateTraitBottomSheet extends StatefulWidget {
   const CreateTraitBottomSheet({

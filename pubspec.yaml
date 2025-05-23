@@ -1,4 +1,4 @@
-name: gamify_todo
+name: next_level
 description: "Gamify your todo list"
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -54,7 +54,7 @@ dependencies:
   device_info_plus: ^9.1.1
 
   # Rename App
-  rename_app: ^1.6.1
+  rename_app: ^1.6.3
 
   # Auto Size Text
   auto_size_text: ^3.0.0

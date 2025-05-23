@@ -1,4 +1,4 @@
-import 'package:gamify_todo/Enum/task_type_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class TaskTypeEnumAdapter extends TypeAdapter<TaskTypeEnum> {

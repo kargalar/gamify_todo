@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:gamify_todo/General/app_colors.dart';
+import 'package:next_level/General/app_colors.dart';
 import 'package:provider/provider.dart';
-import 'package:gamify_todo/Provider/profile_view_model.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Core/extensions.dart';
+import 'package:next_level/Provider/profile_view_model.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Core/extensions.dart';
 
 // This chart shows total weekly progress for all tasks combined
 // Displays total time spent on all tasks per day

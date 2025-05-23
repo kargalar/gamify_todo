@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Trait%20Detail%20Page/trait_detail_page.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
-import 'package:gamify_todo/Model/trait_model.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Trait%20Detail%20Page/trait_detail_page.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Model/trait_model.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
 

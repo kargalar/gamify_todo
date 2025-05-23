@@ -5,16 +5,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/General/accessible.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Service/notification_services.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Service/home_widget_service.dart';
-import 'package:gamify_todo/Provider/task_log_provider.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Provider/theme_provider.dart';
-import 'package:gamify_todo/firebase_options.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/accessible.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/theme_provider.dart';
+import 'package:next_level/firebase_options.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> initApp() async {

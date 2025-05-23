@@ -1,9 +1,9 @@
 // import 'package:easy_localization/easy_localization.dart';
 // import 'package:flutter/material.dart';
 // import 'package:fl_chart/fl_chart.dart';
-// import 'package:gamify_todo/2%20General/app_colors.dart';
+// import 'package:next_level/2%20General/app_colors.dart';
 // import 'package:provider/provider.dart';
-// import 'package:gamify_todo/6%20Provider/profile_view_model.dart';
+// import 'package:next_level/6%20Provider/profile_view_model.dart';
 
 // // This chart shows weekly progress for each skill
 // // Displays how much time spent on each skill per day of the week

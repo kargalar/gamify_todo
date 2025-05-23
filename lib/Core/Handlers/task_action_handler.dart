@@ -1,15 +1,15 @@
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/add_task_page.dart';
-import 'package:gamify_todo/Page/Task%20Detail%20Page/routine_detail_page.dart';
-import 'package:gamify_todo/Provider/task_log_provider.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Service/app_helper.dart';
-import 'package:gamify_todo/Service/global_timer.dart';
-import 'package:gamify_todo/Service/home_widget_service.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/routine_detail_page.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Service/app_helper.dart';
+import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/server_manager.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 
 /// A centralized handler for task-related actions

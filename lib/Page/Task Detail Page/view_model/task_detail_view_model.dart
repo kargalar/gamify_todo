@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Page/Task%20Detail%20Page/widget/progress_bar.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Provider/task_log_provider.dart';
-import 'package:gamify_todo/Provider/trait_provider.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Model/task_log_model.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/widget/progress_bar.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Model/task_log_model.dart';
 import 'package:intl/intl.dart';
 
 class TaskLog {

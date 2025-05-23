@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/Handlers/task_action_handler.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Model/category_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Page/Home/Add Task/add_task_page.dart';
-import 'package:gamify_todo/Page/Home/Widget/task_item.dart';
-import 'package:gamify_todo/Provider/add_task_provider.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
+import 'package:next_level/Core/Handlers/task_action_handler.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Page/Home/Add Task/add_task_page.dart';
+import 'package:next_level/Page/Home/Widget/task_item.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/navigator_service.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 

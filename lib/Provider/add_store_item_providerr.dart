@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Provider/store_provider.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/store_item_model.dart';
+import 'package:next_level/Provider/store_provider.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/store_item_model.dart';
 
 class AddStoreItemProvider with ChangeNotifier {
   // Widget variables

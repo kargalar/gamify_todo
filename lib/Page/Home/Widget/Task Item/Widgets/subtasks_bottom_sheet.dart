@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Model/subtask_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Widgets/clickable_tooltip.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/subtask_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SubtasksBottomSheet extends StatefulWidget {
@@ -35,9 +35,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
     final subtasks = widget.taskModel.subtasks ?? [];
-    final displayedSubtasks = _showCompleted 
-        ? subtasks 
-        : subtasks.where((subtask) => !subtask.isCompleted).toList();
+    final displayedSubtasks = _showCompleted ? subtasks : subtasks.where((subtask) => !subtask.isCompleted).toList();
     final completedCount = subtasks.where((subtask) => subtask.isCompleted).length;
 
     return Container(
@@ -82,11 +80,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                     const SizedBox(width: 10),
                     ClickableTooltip(
                       title: LocaleKeys.Subtasks.tr(),
-                      bulletPoints: const [
-                        "Tap checkbox to mark subtask as completed", 
-                        "Long press to edit a subtask", 
-                        "Swipe left to delete a subtask"
-                      ],
+                      bulletPoints: const ["Tap checkbox to mark subtask as completed", "Long press to edit a subtask", "Swipe left to delete a subtask"],
                       child: Text(
                         LocaleKeys.Subtasks.tr(),
                         style: const TextStyle(
@@ -134,7 +128,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
               ],
             ),
           ),
-          
+
           // Show/Hide completed subtasks toggle
           if (completedCount > 0)
             Padding(
@@ -413,7 +407,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
         subtask: subtask,
         onSave: (title, description) {
           final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-          
+
           if (subtask == null) {
             // Add new subtask
             taskProvider.addSubtask(widget.taskModel, title, description);
@@ -421,7 +415,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
             // Update existing subtask
             taskProvider.updateSubtask(widget.taskModel, subtask, title, description);
           }
-          
+
           setState(() {});
         },
       ),

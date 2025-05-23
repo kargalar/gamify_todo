@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
+import 'package:next_level/General/app_colors.dart';
 
 // Aktif tooltip'i takip etmek için statik değişken
 _ClickableTooltipState? _activeTooltip;

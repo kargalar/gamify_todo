@@ -1,20 +1,20 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/Enums/status_enum.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
-import 'package:gamify_todo/Provider/task_log_provider.dart';
-import 'package:gamify_todo/Provider/trait_provider.dart';
-import 'package:gamify_todo/Enum/task_status_enum.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Enum/trait_type_enum.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Model/trait_model.dart';
-import 'package:gamify_todo/Model/task_log_model.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Enum/trait_type_enum.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Model/trait_model.dart';
+import 'package:next_level/Model/task_log_model.dart';
 import 'package:get/route_manager.dart';
 
 class TraitDetailPage extends StatefulWidget {

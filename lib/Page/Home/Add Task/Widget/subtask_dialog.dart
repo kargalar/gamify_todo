@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/Enums/status_enum.dart';
-import 'package:gamify_todo/Core/helper.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Model/subtask_model.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/subtask_model.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 
 class SubtaskDialog extends StatefulWidget {
   final SubTaskModel? subtask; // If provided, we're editing an existing subtask

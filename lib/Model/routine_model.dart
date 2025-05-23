@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'routine_model.g.dart';

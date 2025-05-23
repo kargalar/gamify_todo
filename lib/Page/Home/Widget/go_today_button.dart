@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Provider/task_provider.dart';
 
 class GoTodayButton extends StatelessWidget {
   const GoTodayButton({

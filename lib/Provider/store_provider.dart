@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Service/global_timer.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Model/store_item_model.dart';
+import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Model/store_item_model.dart';
 
 class StoreProvider with ChangeNotifier {
   // burayı singelton yaptım gayet de iyi oldu neden normalde de context den kullanıyoruz anlamadım. galiba "watch" için olabilir. sibelton kısmını global timer için yaptım.

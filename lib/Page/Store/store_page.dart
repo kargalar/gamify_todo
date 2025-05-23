@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/accessible.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Store/Widget/store_item.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Provider/navbar_provider.dart';
-import 'package:gamify_todo/Provider/store_provider.dart';
+import 'package:next_level/General/accessible.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Store/Widget/store_item.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/store_provider.dart';
 import 'package:provider/provider.dart';
 
 class StorePage extends StatefulWidget {

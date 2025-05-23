@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Model/category_model.dart';
-import 'package:gamify_todo/Service/hive_service.dart';
-import 'package:gamify_todo/Model/routine_model.dart';
-import 'package:gamify_todo/Model/store_item_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Model/trait_model.dart';
-import 'package:gamify_todo/Model/user_model.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Model/routine_model.dart';
+import 'package:next_level/Model/store_item_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Model/trait_model.dart';
+import 'package:next_level/Model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServerManager {

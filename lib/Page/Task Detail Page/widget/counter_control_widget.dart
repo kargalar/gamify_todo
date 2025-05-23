@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Model/task_model.dart';
+import 'package:next_level/Model/task_model.dart';
 
 class CounterControlWidget extends StatefulWidget {
   final TaskModel? taskModel;

@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 
 class TraitProgressWidget extends StatelessWidget {
   final TaskDetailViewModel viewModel;

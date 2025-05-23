@@ -1,5 +1,5 @@
-import 'package:gamify_todo/General/accessible.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
+import 'package:next_level/General/accessible.dart';
+import 'package:next_level/Service/server_manager.dart';
 
 class AppHelper {
   void addCreditByProgress(Duration? progress) async {

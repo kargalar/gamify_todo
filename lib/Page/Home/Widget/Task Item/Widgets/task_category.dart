@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Model/category_model.dart';
-import 'package:gamify_todo/Model/task_model.dart';
-import 'package:gamify_todo/Provider/category_provider.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Provider/category_provider.dart';
 
 class TaskCategory extends StatelessWidget {
   const TaskCategory({

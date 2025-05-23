@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Page/Login/login_page.dart';
-import 'package:gamify_todo/Service/hive_service.dart';
-import 'package:gamify_todo/Service/home_widget_service.dart';
-import 'package:gamify_todo/Provider/navbar_provider.dart';
+import 'package:next_level/Page/Login/login_page.dart';
+import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:get/route_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

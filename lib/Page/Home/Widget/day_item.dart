@@ -1,8 +1,8 @@
 // hanig gün olduğunu gösterecek tıkalyınca selected date o tarih oalcak. listede şimdiki günün 1 gün öncesi, şimdiki gün, sonraki gün ve ondan sonraki gün oalcak.
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Provider/task_provider.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Provider/task_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 

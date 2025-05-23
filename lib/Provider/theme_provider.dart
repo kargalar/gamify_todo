@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/General/app_colors.dart';
+import 'package:next_level/General/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {

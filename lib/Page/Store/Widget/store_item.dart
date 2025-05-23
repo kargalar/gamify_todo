@@ -1,16 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:gamify_todo/Core/extensions.dart';
-import 'package:gamify_todo/General/accessible.dart';
-import 'package:gamify_todo/General/app_colors.dart';
-import 'package:gamify_todo/Page/Store/add_store_item_page.dart';
-import 'package:gamify_todo/Service/global_timer.dart';
-import 'package:gamify_todo/Service/locale_keys.g.dart';
-import 'package:gamify_todo/Service/navigator_service.dart';
-import 'package:gamify_todo/Service/server_manager.dart';
-import 'package:gamify_todo/Provider/store_provider.dart';
-import 'package:gamify_todo/Enum/task_type_enum.dart';
-import 'package:gamify_todo/Model/store_item_model.dart';
+import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/General/accessible.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Store/add_store_item_page.dart';
+import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Provider/store_provider.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/store_item_model.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 
 class StoreItem extends StatefulWidget {
