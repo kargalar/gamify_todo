@@ -202,28 +202,6 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                     ),
                   ),
           ),
-
-          // Action buttons
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0, right: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    LocaleKeys.Close.tr(),
-                    style: TextStyle(
-                      color: AppColors.main,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -333,50 +311,6 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                         ),
                     ],
                   ),
-                ),
-
-                // Action buttons
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Edit button
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          _showSubtaskDialog(subtask);
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: Icon(
-                            Icons.edit_outlined,
-                            size: 16,
-                            color: AppColors.main.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Delete button
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          _removeSubtask(subtask);
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: Icon(
-                            Icons.delete_outline_rounded,
-                            size: 16,
-                            color: AppColors.red.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),

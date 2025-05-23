@@ -349,7 +349,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
     final sortedDates = groupedTasks.keys.toList()..sort();
 
     return ListView.builder(
-      padding: const EdgeInsets.all(10),
       itemCount: sortedDates.length,
       itemBuilder: (context, index) {
         final date = sortedDates[index];
@@ -399,7 +398,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(8),
