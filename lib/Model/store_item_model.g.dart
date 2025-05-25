@@ -26,13 +26,14 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       addCount: fields[8] as int?,
       isTimerActive: fields[6] as bool?,
       credit: fields[7] as int,
+      description: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ItemModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       ..writeByte(7)
       ..write(obj.credit)
       ..writeByte(8)
-      ..write(obj.addCount);
+      ..write(obj.addCount)
+      ..writeByte(9)
+      ..write(obj.description);
   }
 
   @override

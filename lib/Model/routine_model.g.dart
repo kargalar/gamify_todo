@@ -35,13 +35,14 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       priority: fields[15] as int,
       categoryId: fields[16] as int?,
       earlyReminderMinutes: fields[17] as int?,
+      subtasks: (fields[18] as List?)?.cast<SubTaskModel>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, RoutineModel obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -77,12 +78,18 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(16)
       ..write(obj.categoryId)
       ..writeByte(17)
-      ..write(obj.earlyReminderMinutes);
+      ..write(obj.earlyReminderMinutes)
+      ..writeByte(18)
+      ..write(obj.subtasks);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is RoutineModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RoutineModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

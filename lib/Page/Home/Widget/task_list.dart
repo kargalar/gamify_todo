@@ -154,15 +154,16 @@ class _TaskListState extends State<TaskList> {
             child: Column(
               children: [
                 // Normal tasks
-                // if (selectedDateTaskList.isNotEmpty)
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: selectedDateTaskList.length,
-                  itemBuilder: (context, index) {
-                    return TaskItem(taskModel: selectedDateTaskList[index]);
-                  },
-                ),
+                if (selectedDateTaskList.isNotEmpty)
+                  ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.all(0),
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: selectedDateTaskList.length,
+                    itemBuilder: (context, index) {
+                      return TaskItem(taskModel: selectedDateTaskList[index]);
+                    },
+                  ),
 
                 // Routine Tasks
                 if (selectedDateRutinTaskList.isNotEmpty) ...[

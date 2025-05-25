@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:next_level/Model/subtask_model.dart';
 
 part 'routine_model.g.dart';
 
@@ -43,6 +44,8 @@ class RoutineModel extends HiveObject {
   int? categoryId; // kategori id'si
   @HiveField(17)
   int? earlyReminderMinutes; // erken hatırlatma süresi (dakika cinsinden)
+  @HiveField(18)
+  List<SubTaskModel>? subtasks; // alt görevler
 
   RoutineModel({
     this.id = 0,
@@ -63,6 +66,7 @@ class RoutineModel extends HiveObject {
     this.priority = 3,
     this.categoryId,
     this.earlyReminderMinutes,
+    this.subtasks,
   });
 
   factory RoutineModel.fromJson(Map<String, dynamic> json) {
@@ -92,6 +96,7 @@ class RoutineModel extends HiveObject {
       priority: json['priority'] ?? 3,
       categoryId: json['category_id'],
       earlyReminderMinutes: json['early_reminder_minutes'],
+      subtasks: json['subtasks'] != null ? (json['subtasks'] as List).map((i) => SubTaskModel.fromJson(i)).toList() : null,
     );
   }
 
@@ -123,6 +128,7 @@ class RoutineModel extends HiveObject {
       'priority': priority,
       'category_id': categoryId,
       'early_reminder_minutes': earlyReminderMinutes,
+      'subtasks': subtasks?.map((i) => i.toJson()).toList(),
     };
   }
 }

@@ -658,7 +658,8 @@ class TaskProvider with ChangeNotifier {
               attributeIDList: routine.attirbuteIDList,
               skillIDList: routine.skillIDList,
               priority: routine.priority,
-              subtasks: [],
+              categoryId: routine.categoryId,
+              subtasks: routine.subtasks,
             ))
         .toList();
 
