@@ -356,8 +356,6 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
             // Update existing subtask
             taskProvider.updateSubtask(widget.taskModel, subtask, title, description);
           }
-
-          setState(() {});
         },
       ),
     );

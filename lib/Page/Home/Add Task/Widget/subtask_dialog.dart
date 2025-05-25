@@ -67,7 +67,13 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
 
     widget.onSave(title, description.isEmpty ? null : description);
 
-    Navigator.of(context).pop();
+    if (widget.subtask != null) {
+      Navigator.of(context).pop();
+    } else {
+      _titleController.clear();
+      _descriptionController.clear();
+      _titleFocus.requestFocus();
+    }
   }
 
   @override
