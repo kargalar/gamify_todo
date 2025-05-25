@@ -303,6 +303,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
               selectedDayPredicate: (day) => addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, day),
               calendarFormat: CalendarFormat.month,
               startingDayOfWeek: StartingDayOfWeek.monday,
+              availableGestures: AvailableGestures.horizontalSwipe,
               headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,

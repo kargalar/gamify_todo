@@ -153,64 +153,67 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
                 width: 1,
               ),
             ),
-            child: TextField(
-              controller: _titleController,
-              focusNode: _titleFocus,
-              textCapitalization: TextCapitalization.sentences,
-              style: const TextStyle(
-                fontSize: 15,
-              ),
-              decoration: InputDecoration(
-                hintText: LocaleKeys.EnterTitle.tr(),
-                hintStyle: TextStyle(
-                  color: AppColors.text.withValues(alpha: 0.4),
-                  fontSize: 15,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Task name input field
+                TextField(
+                  autofocus: true,
+                  controller: _titleController,
+                  focusNode: _titleFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: LocaleKeys.TaskName.tr(),
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  ),
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    _descriptionFocus.requestFocus();
+                  },
                 ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              textInputAction: TextInputAction.next,
-              onSubmitted: (_) {
-                _descriptionFocus.requestFocus();
-              },
+
+                // Description input field
+                TextField(
+                  controller: _descriptionController,
+                  focusNode: _descriptionFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: LocaleKeys.EnterDescription.tr(),
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                  ),
+                  maxLines: 5,
+                  minLines: 2,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                  onSubmitted: (_) {
+                    _saveSubtask();
+                  },
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
 
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.panelBackground,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.main.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: TextField(
-              controller: _descriptionController,
-              focusNode: _descriptionFocus,
-              textCapitalization: TextCapitalization.sentences,
-              style: const TextStyle(
-                fontSize: 15,
-              ),
-              decoration: InputDecoration(
-                hintText: LocaleKeys.EnterDescription.tr(),
-                hintStyle: TextStyle(
-                  color: AppColors.text.withValues(alpha: 0.4),
-                  fontSize: 15,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              maxLines: 3,
-              textInputAction: TextInputAction.newline,
-              onSubmitted: (_) {
-                _saveSubtask();
-              },
-            ),
-          ),
-          const SizedBox(height: 24),
-
+          const SizedBox(height: 16),
           // Action buttons
           Row(
             children: [

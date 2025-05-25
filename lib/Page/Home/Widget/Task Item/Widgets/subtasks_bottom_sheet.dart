@@ -91,81 +91,85 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                     ),
                   ],
                 ),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      _showSubtaskDialog(null);
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.main.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
+                Row(
+                  children: [
+                    // Show/Hide completed subtasks toggle
+                    if (completedCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showCompleted = !_showCompleted;
+                              // Save the state to the task model
+                              widget.taskModel.showSubtasks = _showCompleted;
+                              taskProvider.editTask(taskModel: widget.taskModel, selectedDays: []);
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                _showCompleted ? Icons.visibility_off : Icons.visibility,
+                                size: 14,
+                                color: AppColors.text.withValues(alpha: 0.6),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _showCompleted ? LocaleKeys.HideCompleted.tr() : LocaleKeys.ShowCompleted.tr(),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.text.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.add_rounded,
-                            color: AppColors.main,
-                            size: 16,
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          _showSubtaskDialog(null);
+                        },
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.main.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            LocaleKeys.Add.tr(),
-                            style: TextStyle(
-                              color: AppColors.main,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.add_rounded,
+                                color: AppColors.main,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                LocaleKeys.Add.tr(),
+                                style: TextStyle(
+                                  color: AppColors.main,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
           ),
 
-          // Show/Hide completed subtasks toggle
-          if (completedCount > 0)
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _showCompleted = !_showCompleted;
-                    // Save the state to the task model
-                    widget.taskModel.showSubtasks = _showCompleted;
-                    taskProvider.editTask(taskModel: widget.taskModel, selectedDays: []);
-                  });
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      _showCompleted ? Icons.visibility_off : Icons.visibility,
-                      size: 14,
-                      color: AppColors.text.withValues(alpha: 0.6),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _showCompleted ? LocaleKeys.HideCompleted.tr() : LocaleKeys.ShowCompleted.tr(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.text.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           const SizedBox(height: 16),
 
           // Subtasks list or empty state
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: subtasks.isEmpty
                 ? Center(
                     child: Padding(
@@ -190,7 +194,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                     ),
                   )
                 : Container(
-                    constraints: const BoxConstraints(maxHeight: 300),
+                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
                     child: ListView.builder(
                       shrinkWrap: true,
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -229,6 +233,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
         _removeSubtask(subtask);
       },
       child: GestureDetector(
+        onTap: () {
+          _toggleSubtaskCompletion(subtask);
+        },
         onLongPress: () {
           // Edit subtask on long press
           _showSubtaskDialog(subtask);
