@@ -121,6 +121,7 @@ class CompactTaskOptions extends StatelessWidget {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
+                    barrierColor: Colors.transparent,
                     builder: (context) => const LocationBottomSheet(),
                   );
                 },
@@ -140,6 +141,7 @@ class CompactTaskOptions extends StatelessWidget {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
+                    barrierColor: Colors.transparent,
                     builder: (context) => const PriorityBottomSheet(),
                   );
                 },
@@ -159,6 +161,7 @@ class CompactTaskOptions extends StatelessWidget {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
+                    barrierColor: Colors.transparent,
                     builder: (context) => const CategoryBottomSheet(),
                   );
                 },
@@ -178,6 +181,7 @@ class CompactTaskOptions extends StatelessWidget {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
+                    barrierColor: Colors.transparent,
                     builder: (context) => SubtasksBottomSheet(
                       onAddSubtask: () => _showSubtaskDialog(context),
                       onEditSubtask: (subtask) => _showSubtaskDialog(context, subtask: subtask),
@@ -274,6 +278,7 @@ class CompactTaskOptions extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       builder: (context) => SubtaskDialog(
         subtask: subtask,
         onSave: (title, description) {

@@ -30,6 +30,7 @@ class _SubtaskManagerState extends State<SubtaskManager> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       builder: (context) => SubtaskDialog(
         subtask: subtask,
         onSave: (title, description) {
@@ -107,6 +108,7 @@ class _SubtaskManagerState extends State<SubtaskManager> {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
+            barrierColor: Colors.transparent,
             builder: (context) => SubtasksBottomSheet(
               onAddSubtask: () => _showSubtaskDialog(),
               onEditSubtask: (subtask) => _showSubtaskDialog(subtask: subtask),

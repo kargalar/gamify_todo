@@ -38,6 +38,7 @@ class CategorySelector extends StatelessWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
+            barrierColor: Colors.transparent,
             builder: (context) => const CategoryBottomSheet(),
           );
         },
@@ -256,6 +257,7 @@ class CategoryBottomSheet extends StatelessWidget {
                                     context: context,
                                     isScrollControlled: true,
                                     backgroundColor: Colors.transparent,
+                                    barrierColor: Colors.transparent,
                                     builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
                                   );
                                 },
@@ -361,6 +363,7 @@ class CategoryBottomSheet extends StatelessWidget {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
+            barrierColor: Colors.transparent,
             builder: (context) => const CreateCategoryBottomSheet(),
           );
         },

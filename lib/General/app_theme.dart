@@ -217,6 +217,8 @@ class AppTheme {
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: AppColors.background,
       surfaceTintColor: AppColors.background,
+      modalBarrierColor: AppColors.transparent,
+      modalBackgroundColor: AppColors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: AppColors.borderRadiusTop,
       ),

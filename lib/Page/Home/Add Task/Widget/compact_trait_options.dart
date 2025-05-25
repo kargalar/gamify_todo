@@ -378,6 +378,7 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       builder: (context) => CreateTraitBottomSheet(isSkill: isSkill),
     ).then(
       (value) {
@@ -394,6 +395,7 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       builder: (context) => TraitsBottomSheet(isSkill: isSkill),
     ).then(
       (value) {
@@ -545,6 +547,7 @@ class _TraitsBottomSheetState extends State<TraitsBottomSheet> {
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
+            barrierColor: Colors.transparent,
             builder: (context) => CreateTraitBottomSheet(isSkill: widget.isSkill),
           ).then(
             (value) {

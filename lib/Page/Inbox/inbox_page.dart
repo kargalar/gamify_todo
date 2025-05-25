@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
@@ -40,6 +41,13 @@ class _InboxPageState extends State<InboxPage> {
     TaskTypeEnum.CHECKBOX,
     TaskTypeEnum.COUNTER,
     TaskTypeEnum.TIMER,
+  };
+
+  // Add a new state variable for selected statuses
+  final Set<TaskStatusEnum> _selectedStatuses = {
+    TaskStatusEnum.COMPLETED,
+    TaskStatusEnum.FAILED,
+    TaskStatusEnum.CANCEL,
   };
 
   @override
@@ -178,6 +186,7 @@ class _InboxPageState extends State<InboxPage> {
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
+                barrierColor: Colors.transparent,
                 builder: (context) => const CreateCategoryBottomSheet(),
               );
             },
@@ -244,6 +253,7 @@ class _InboxPageState extends State<InboxPage> {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
+                  barrierColor: Colors.transparent,
                   builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
                 );
               }
@@ -319,6 +329,9 @@ class _InboxPageState extends State<InboxPage> {
           return task.taskDate == null; // Show only tasks without dates
       }
     }).toList();
+
+    // Apply status filtering
+    tasks = tasks.where((task) => _selectedStatuses.contains(task.status)).toList();
 
     // Apply search filter if search query is not empty
     if (_searchController.text.isNotEmpty) {
@@ -535,6 +548,8 @@ class _InboxPageState extends State<InboxPage> {
           //         context: context,
           //         isScrollControlled: true,
           //         backgroundColor: Colors.transparent,
+          // barrierColor: Colors.transparent,
+
           //         builder: (context) => const CreateCategoryBottomSheet(),
           //       );
           //     },
@@ -568,6 +583,7 @@ class _InboxPageState extends State<InboxPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: AppColors.background,
@@ -814,6 +830,49 @@ class _InboxPageState extends State<InboxPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
+
+                // Status filter section
+                Container(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    "Status",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: TaskStatusEnum.values.map((status) {
+                    return _buildFilterChip(
+                      label: status.toString().split('.').last,
+                      icon: Icons.label,
+                      isSelected: _selectedStatuses.contains(status),
+                      onTap: () {
+                        setState(() {
+                          if (_selectedStatuses.contains(status)) {
+                            _selectedStatuses.remove(status);
+                            // Ensure at least one status is selected
+                            if (_selectedStatuses.isEmpty) {
+                              _selectedStatuses.add(TaskStatusEnum.COMPLETED);
+                            }
+                          } else {
+                            _selectedStatuses.add(status);
+                          }
+                        });
+
+                        // Update the parent state and save preferences
+                        this.setState(() {});
+                        _saveFilterPreferences();
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+
                 // Add extra space at the bottom for devices with notches
                 SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],

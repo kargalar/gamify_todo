@@ -215,6 +215,7 @@ class _TaskItemState extends State<TaskItem> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       builder: (context) => SubtasksBottomSheet(taskModel: widget.taskModel),
     );
   }

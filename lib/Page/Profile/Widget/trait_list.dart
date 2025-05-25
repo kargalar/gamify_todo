@@ -45,6 +45,7 @@ class _TraitListState extends State<TraitList> {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
+                  barrierColor: Colors.transparent,
                   builder: (context) => CreateTraitBottomSheet(isSkill: widget.isSkill),
                 ).then(
                   (value) {

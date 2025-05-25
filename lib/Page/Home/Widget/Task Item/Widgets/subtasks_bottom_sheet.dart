@@ -344,6 +344,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       builder: (context) => SubtaskDialog(
         subtask: subtask,
         onSave: (title, description) {

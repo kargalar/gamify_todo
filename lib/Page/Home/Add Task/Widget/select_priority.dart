@@ -46,7 +46,7 @@ class SelectPriority extends StatelessWidget {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
-            backgroundColor: Colors.transparent,
+            barrierColor: Colors.transparent,
             builder: (context) => const PriorityBottomSheet(),
           );
         },
