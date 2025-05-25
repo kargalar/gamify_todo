@@ -12,11 +12,11 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CategoriesPage extends StatefulWidget {
-  const CategoriesPage({super.key});
+class InboxPage extends StatefulWidget {
+  const InboxPage({super.key});
 
   @override
-  State<CategoriesPage> createState() => _CategoriesPageState();
+  State<InboxPage> createState() => _InboxPageState();
 }
 
 // Enum for date filter states
@@ -26,7 +26,7 @@ enum DateFilterState {
   withoutDate // Show only tasks without dates
 }
 
-class _CategoriesPageState extends State<CategoriesPage> {
+class _InboxPageState extends State<InboxPage> {
   CategoryModel? _selectedCategory;
   int? _selectedCategoryId;
   bool _isSearchActive = false; // Track if search is active

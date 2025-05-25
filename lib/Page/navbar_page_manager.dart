@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Page/Categories/categories_page.dart';
+import 'package:next_level/Page/Inbox/inbox_page.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Page/Home/home_page.dart';
 import 'package:next_level/Page/Profile/profile_page.dart';
@@ -105,7 +105,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   children: const <Widget>[
                     StorePage(),
                     HomePage(),
-                    CategoriesPage(),
+                    InboxPage(),
                     ProfilePage(),
                   ],
                 ),

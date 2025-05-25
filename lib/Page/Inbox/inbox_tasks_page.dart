@@ -16,10 +16,10 @@ import 'package:next_level/Service/navigator_service.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
-class CategoryTasksPage extends StatelessWidget {
+class InboxTasksPage extends StatelessWidget {
   final CategoryModel? category; // Optional category for filtering
 
-  const CategoryTasksPage({
+  const InboxTasksPage({
     super.key,
     this.category,
   });
