@@ -5,6 +5,7 @@ import 'package:next_level/Model/store_item_model.dart';
 
 class AddStoreItemProvider with ChangeNotifier {
   // Widget variables
+  ItemModel? editItem;
   TextEditingController taskNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
@@ -38,20 +39,43 @@ class AddStoreItemProvider with ChangeNotifier {
   }
 
   void updateItem(ItemModel existingItem) {
-    StoreProvider().editItem(
-      ItemModel(
-        id: existingItem.id,
-        title: taskNameController.text,
-        description: descriptionController.text.isNotEmpty ? descriptionController.text : null,
-        type: selectedTaskType,
-        credit: credit,
-        currentCount: selectedTaskType == TaskTypeEnum.COUNTER ? existingItem.currentCount : null,
-        currentDuration: selectedTaskType == TaskTypeEnum.TIMER ? existingItem.currentDuration : null,
-        addDuration: taskDuration,
-        addCount: addCount,
-        isTimerActive: selectedTaskType == TaskTypeEnum.TIMER ? existingItem.isTimerActive : null,
-      ),
+    final updatedItem = ItemModel(
+      id: existingItem.id,
+      title: taskNameController.text,
+      description: descriptionController.text.isNotEmpty ? descriptionController.text : null,
+      type: selectedTaskType,
+      credit: credit,
+      currentCount: selectedTaskType == TaskTypeEnum.COUNTER ? existingItem.currentCount : null,
+      currentDuration: selectedTaskType == TaskTypeEnum.TIMER ? existingItem.currentDuration : null,
+      addDuration: taskDuration,
+      addCount: addCount,
+      isTimerActive: selectedTaskType == TaskTypeEnum.TIMER ? existingItem.isTimerActive : null,
     );
+
+    // Update the editItem reference
+    editItem = updatedItem;
+
+    StoreProvider().editItem(updatedItem);
+  }
+
+  void setEditItem(ItemModel? item) {
+    editItem = item;
+    if (item != null) {
+      taskNameController.text = item.title;
+      descriptionController.text = item.description ?? '';
+      credit = item.credit;
+      taskDuration = item.addDuration!;
+      selectedTaskType = item.type;
+      addCount = item.addCount ?? 1;
+    } else {
+      taskNameController.clear();
+      descriptionController.clear();
+      credit = 0;
+      taskDuration = const Duration(hours: 0, minutes: 0);
+      selectedTaskType = TaskTypeEnum.COUNTER;
+      addCount = 1;
+    }
+    notifyListeners();
   }
 
   void updateTargetCount(int value) {

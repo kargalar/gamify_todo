@@ -109,7 +109,7 @@ class TaskName extends StatelessWidget {
                       fontWeight: FontWeight.normal,
                     ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     // prefixIcon: Icon(
                     //   Icons.edit_rounded,
                     //   color: AppColors.text.withValues(alpha: 0.4),
@@ -164,7 +164,7 @@ class TaskName extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       child: Row(
                         children: [
                           Expanded(
@@ -174,7 +174,7 @@ class TaskName extends StatelessWidget {
                                     style: const TextStyle(
                                       fontSize: 14,
                                     ),
-                                    maxLines: 2,
+                                    maxLines: 4,
                                     overflow: TextOverflow.ellipsis,
                                   )
                                 : Text(

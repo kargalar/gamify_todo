@@ -39,21 +39,8 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
   void initState() {
     super.initState();
 
-    if (widget.editItemModel != null) {
-      addStoreItemProvider.taskNameController.text = widget.editItemModel!.title;
-      addStoreItemProvider.descriptionController.text = widget.editItemModel!.description ?? '';
-      addStoreItemProvider.credit = widget.editItemModel!.credit;
-      addStoreItemProvider.taskDuration = widget.editItemModel!.addDuration!;
-      addStoreItemProvider.selectedTaskType = widget.editItemModel!.type;
-      addStoreItemProvider.targetCount = widget.editItemModel!.addCount ?? 1;
-    } else {
-      addStoreItemProvider.taskNameController.clear();
-      addStoreItemProvider.descriptionController.clear();
-      addStoreItemProvider.credit = 0;
-      addStoreItemProvider.taskDuration = const Duration(hours: 0, minutes: 0);
-      addStoreItemProvider.selectedTaskType = TaskTypeEnum.COUNTER;
-      addStoreItemProvider.targetCount = 1;
-    }
+    // Use the new setEditItem method
+    addStoreItemProvider.setEditItem(widget.editItemModel);
   }
 
   @override

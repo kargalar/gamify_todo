@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -45,8 +46,30 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
       }
       // For new tasks, the description will be saved when the task is created
     } else {
-      final itemProvider = _provider as AddStoreItemProvider;
-      ServerManager().updateItem(itemModel: itemProvider.editItemModel!);
+      // For store items, check if we're editing an existing item
+      final storeProvider = _provider as AddStoreItemProvider;
+      if (storeProvider.editItem != null) {
+        // Create a new ItemModel with updated description since description is final
+        final updatedItem = ItemModel(
+          id: storeProvider.editItem!.id,
+          title: storeProvider.editItem!.title,
+          description: text.isNotEmpty ? text : null,
+          type: storeProvider.editItem!.type,
+          credit: storeProvider.editItem!.credit,
+          currentCount: storeProvider.editItem!.currentCount,
+          currentDuration: storeProvider.editItem!.currentDuration,
+          addDuration: storeProvider.editItem!.addDuration,
+          addCount: storeProvider.editItem!.addCount,
+          isTimerActive: storeProvider.editItem!.isTimerActive,
+        );
+
+        // Update the editItem reference
+        storeProvider.editItem = updatedItem;
+
+        // Save to database
+        ServerManager().updateItem(itemModel: updatedItem);
+      }
+      // For new store items, the description will be saved when the item is created
     }
   }
 
@@ -127,7 +150,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Characters: ${context.read<AddTaskProvider>().descriptionController.text.length}',
+                        'Characters: ${_provider.descriptionController.text.length}',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.text.withValues(alpha: 0.6),
