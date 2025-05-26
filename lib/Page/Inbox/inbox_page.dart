@@ -91,6 +91,7 @@ class _InboxPageState extends State<InboxPage> {
       final hasFailed = prefs.getBool('categories_show_failed') ?? false;
       final hasCancel = prefs.getBool('categories_show_cancel') ?? false;
       final hasArchived = prefs.getBool('categories_show_archived') ?? false;
+      final hasOverdue = prefs.getBool('categories_show_overdue') ?? false;
       _showEmptyStatus = prefs.getBool('categories_show_empty_status') ?? true;
 
       // Clear and rebuild the status set based on saved preferences
@@ -99,6 +100,7 @@ class _InboxPageState extends State<InboxPage> {
       if (hasFailed) _selectedStatuses.add(TaskStatusEnum.FAILED);
       if (hasCancel) _selectedStatuses.add(TaskStatusEnum.CANCEL);
       if (hasArchived) _selectedStatuses.add(TaskStatusEnum.ARCHIVED);
+      if (hasOverdue) _selectedStatuses.add(TaskStatusEnum.OVERDUE);
 
       // Load selected category
       _selectedCategoryId = prefs.getInt('categories_selected_category_id');
@@ -144,6 +146,7 @@ class _InboxPageState extends State<InboxPage> {
     await prefs.setBool('categories_show_failed', _selectedStatuses.contains(TaskStatusEnum.FAILED));
     await prefs.setBool('categories_show_cancel', _selectedStatuses.contains(TaskStatusEnum.CANCEL));
     await prefs.setBool('categories_show_archived', _selectedStatuses.contains(TaskStatusEnum.ARCHIVED));
+    await prefs.setBool('categories_show_overdue', _selectedStatuses.contains(TaskStatusEnum.OVERDUE));
     await prefs.setBool('categories_show_empty_status', _showEmptyStatus);
 
     // Save selected category
