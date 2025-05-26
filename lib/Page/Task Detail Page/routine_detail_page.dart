@@ -99,9 +99,9 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                         message: "Are you sure delete?",
                         onAccept: () async {
                           if (widget.taskModel.routineID == null) {
-                            await TaskProvider().deleteTask(widget.taskModel.id);
+                            await TaskProvider().deleteTask(widget.taskModel.id, showUndo: false);
                           } else {
-                            await TaskProvider().deleteRoutine(widget.taskModel.routineID!);
+                            await TaskProvider().deleteRoutine(widget.taskModel.routineID!, showUndo: false);
                           }
 
                           NavigatorService().goBackNavbar();

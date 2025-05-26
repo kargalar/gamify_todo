@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
@@ -30,6 +31,12 @@ class TaskProvider with ChangeNotifier {
   List<RoutineModel> routineList = [];
 
   List<TaskModel> taskList = [];
+
+  // Undo functionality for deleted tasks and subtasks
+  final Map<int, TaskModel> _deletedTasks = {};
+  final Map<int, RoutineModel> _deletedRoutines = {};
+  final Map<String, SubTaskModel> _deletedSubtasks = {}; // key: "taskId_subtaskId"
+  final Map<String, Timer> _undoTimers = {};
 
   // Load categories when tasks are loaded
   Future<void> loadCategories() async {
@@ -426,52 +433,146 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Delete a task and its associated logs
-  Future<void> deleteTask(int taskID) async {
-    // First delete all logs associated with this task
-    await TaskLogProvider().deleteLogsByTaskId(taskID);
+  // Delete a task with undo functionality
+  Future<void> deleteTask(int taskID, {bool showUndo = true}) async {
+    final task = taskList.firstWhere((task) => task.id == taskID);
 
-    // Remove the task from the list
-    taskList.removeWhere((task) => task.id == taskID);
+    if (showUndo) {
+      // Store the task for potential undo
+      _deletedTasks[taskID] = task;
 
-    // Delete the task from storage
-    await ServerManager().deleteTask(id: taskID);
-    await HomeWidgetService.updateTaskCount();
+      // Remove from UI immediately
+      taskList.removeWhere((task) => task.id == taskID);
+      notifyListeners();
 
-    // Cancel any notifications for this task
-    await NotificationService().cancelNotificationOrAlarm(taskID);
+      // Show undo snackbar
+      Helper().getUndoMessage(
+        message: "Task deleted",
+        onUndo: () => _undoDeleteTask(taskID),
+      );
 
-    // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
-    notifyListeners();
+      // Set timer for permanent deletion
+      _undoTimers['task_$taskID'] = Timer(const Duration(seconds: 3), () {
+        _permanentlyDeleteTask(taskID);
+      });
+    } else {
+      // Direct deletion without undo
+      await _permanentlyDeleteTask(taskID);
+    }
   }
 
-  // Delete routine
-  Future<void> deleteRoutine(int routineID) async {
-    final routineModel = routineList.firstWhere((element) => element.id == routineID);
+  // Permanently delete a task
+  Future<void> _permanentlyDeleteTask(int taskID) async {
+    // Clean up undo data
+    final task = _deletedTasks.remove(taskID);
+    _undoTimers.remove('task_$taskID');
 
-    // Delete all logs associated with this routine
-    await TaskLogProvider().deleteLogsByRoutineId(routineID);
+    if (task != null) {
+      // First delete all logs associated with this task
+      await TaskLogProvider().deleteLogsByTaskId(taskID);
 
-    // Delete all associated tasks and their logs
-    final tasksToDelete = taskList.where((task) => task.routineID == routineID).toList();
-    for (final task in tasksToDelete) {
-      // Delete logs for each task
-      await TaskLogProvider().deleteLogsByTaskId(task.id);
+      // Delete the task from storage
+      await ServerManager().deleteTask(id: taskID);
+      await HomeWidgetService.updateTaskCount();
 
-      // Cancel notifications
-      NotificationService().cancelNotificationOrAlarm(task.id);
-
-      // Delete the task
-      await ServerManager().deleteTask(id: task.id);
-      taskList.remove(task);
+      // Cancel any notifications for this task
+      await NotificationService().cancelNotificationOrAlarm(taskID);
     }
+  }
 
-    // Delete the routine
-    routineList.remove(routineModel);
-    await ServerManager().deleteRoutine(id: routineModel.id);
+  // Undo task deletion
+  void _undoDeleteTask(int taskID) {
+    final task = _deletedTasks.remove(taskID);
+    final timer = _undoTimers.remove('task_$taskID');
 
-    HomeWidgetService.updateTaskCount();
-    notifyListeners();
+    if (task != null && timer != null) {
+      timer.cancel();
+      taskList.add(task);
+      notifyListeners();
+    }
+  }
+
+  // Delete routine with undo functionality
+  Future<void> deleteRoutine(int routineID, {bool showUndo = true}) async {
+    final routineModel = routineList.firstWhere((element) => element.id == routineID);
+    final associatedTasks = taskList.where((task) => task.routineID == routineID).toList();
+
+    if (showUndo) {
+      // Store the routine and associated tasks for potential undo
+      _deletedRoutines[routineID] = routineModel;
+      for (final task in associatedTasks) {
+        _deletedTasks[task.id] = task;
+      }
+
+      // Remove from UI immediately
+      routineList.remove(routineModel);
+      taskList.removeWhere((task) => task.routineID == routineID);
+      notifyListeners();
+
+      // Show undo snackbar
+      Helper().getUndoMessage(
+        message: "Routine deleted",
+        onUndo: () => _undoDeleteRoutine(routineID),
+      );
+
+      // Set timer for permanent deletion
+      _undoTimers['routine_$routineID'] = Timer(const Duration(seconds: 3), () {
+        _permanentlyDeleteRoutine(routineID);
+      });
+    } else {
+      // Direct deletion without undo
+      await _permanentlyDeleteRoutine(routineID);
+    }
+  }
+
+  // Permanently delete a routine
+  Future<void> _permanentlyDeleteRoutine(int routineID) async {
+    // Clean up undo data
+    final routine = _deletedRoutines.remove(routineID);
+    _undoTimers.remove('routine_$routineID');
+
+    if (routine != null) {
+      // Delete all logs associated with this routine
+      await TaskLogProvider().deleteLogsByRoutineId(routineID);
+
+      // Delete all associated tasks and their logs
+      final tasksToDelete = _deletedTasks.values.where((task) => task.routineID == routineID).toList();
+      for (final task in tasksToDelete) {
+        // Delete logs for each task
+        await TaskLogProvider().deleteLogsByTaskId(task.id);
+
+        // Cancel notifications
+        NotificationService().cancelNotificationOrAlarm(task.id);
+
+        // Delete the task
+        await ServerManager().deleteTask(id: task.id);
+        _deletedTasks.remove(task.id);
+      }
+
+      // Delete the routine
+      await ServerManager().deleteRoutine(id: routine.id);
+      HomeWidgetService.updateTaskCount();
+    }
+  }
+
+  // Undo routine deletion
+  void _undoDeleteRoutine(int routineID) {
+    final routine = _deletedRoutines.remove(routineID);
+    final timer = _undoTimers.remove('routine_$routineID');
+
+    if (routine != null && timer != null) {
+      timer.cancel();
+      routineList.add(routine);
+
+      // Restore associated tasks
+      final associatedTasks = _deletedTasks.values.where((task) => task.routineID == routineID).toList();
+      for (final task in associatedTasks) {
+        taskList.add(task);
+        _deletedTasks.remove(task.id);
+      }
+
+      notifyListeners();
+    }
   }
 
   // TODO: just for routine
@@ -550,22 +651,82 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeSubtask(TaskModel taskModel, SubTaskModel subtask) {
+  void removeSubtask(TaskModel taskModel, SubTaskModel subtask, {bool showUndo = true}) {
     if (taskModel.subtasks != null) {
       debugPrint('Removing subtask from task: TaskID=${taskModel.id}, SubtaskID=${subtask.id}');
 
-      taskModel.subtasks!.removeWhere((s) => s.id == subtask.id);
+      if (showUndo) {
+        // Store the subtask for potential undo
+        final undoKey = '${taskModel.id}_${subtask.id}';
+        _deletedSubtasks[undoKey] = subtask;
+
+        // Remove from UI immediately
+        taskModel.subtasks!.removeWhere((s) => s.id == subtask.id);
+
+        // Save the task to ensure changes are persisted
+        try {
+          taskModel.save();
+          debugPrint('Task saved after removing subtask: ID=${taskModel.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after removing subtask: $e');
+        }
+
+        ServerManager().updateTask(taskModel: taskModel);
+        notifyListeners();
+
+        // Show undo snackbar
+        Helper().getUndoMessage(
+          message: "Subtask deleted",
+          onUndo: () => _undoRemoveSubtask(taskModel, undoKey),
+        );
+
+        // Set timer for permanent deletion
+        _undoTimers['subtask_$undoKey'] = Timer(const Duration(seconds: 3), () {
+          _permanentlyRemoveSubtask(undoKey);
+        });
+      } else {
+        // Direct removal without undo
+        taskModel.subtasks!.removeWhere((s) => s.id == subtask.id);
+
+        // Save the task to ensure changes are persisted
+        try {
+          taskModel.save();
+          debugPrint('Task saved after removing subtask: ID=${taskModel.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after removing subtask: $e');
+        }
+
+        ServerManager().updateTask(taskModel: taskModel);
+        notifyListeners();
+      }
+    }
+  }
+
+  // Permanently remove a subtask
+  void _permanentlyRemoveSubtask(String undoKey) {
+    _deletedSubtasks.remove(undoKey);
+    _undoTimers.remove('subtask_$undoKey');
+  }
+
+  // Undo subtask removal
+  void _undoRemoveSubtask(TaskModel taskModel, String undoKey) {
+    final subtask = _deletedSubtasks.remove(undoKey);
+    final timer = _undoTimers.remove('subtask_$undoKey');
+
+    if (subtask != null && timer != null) {
+      timer.cancel();
+      taskModel.subtasks ??= [];
+      taskModel.subtasks!.add(subtask);
 
       // Save the task to ensure changes are persisted
       try {
         taskModel.save();
-        debugPrint('Task saved after removing subtask: ID=${taskModel.id}');
+        debugPrint('Task saved after restoring subtask: ID=${taskModel.id}');
       } catch (e) {
-        debugPrint('ERROR saving task after removing subtask: $e');
+        debugPrint('ERROR saving task after restoring subtask: $e');
       }
 
       ServerManager().updateTask(taskModel: taskModel);
-
       notifyListeners();
     }
   }

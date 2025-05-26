@@ -119,6 +119,41 @@ class Helper {
     );
   }
 
+  void getUndoMessage({
+    required String message,
+    required Function onUndo,
+  }) {
+    Get.closeCurrentSnackbar();
+
+    Get.snackbar(
+      "",
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.panelBackground.withValues(alpha: 0.9),
+      animationDuration: const Duration(milliseconds: 400),
+      duration: const Duration(seconds: 3),
+      dismissDirection: DismissDirection.horizontal,
+      icon: const Icon(
+        Icons.delete_rounded,
+        color: AppColors.red,
+      ),
+      mainButton: TextButton(
+        onPressed: () {
+          onUndo();
+          Get.back();
+        },
+        child: Text(
+          "UNDO",
+          style: TextStyle(
+            color: AppColors.main,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      titleText: const SizedBox.shrink(), // Hide title
+    );
+  }
+
   Future<bool> photosAccessRequest() async {
     // android sürüm 33 den büyük ise photos izni alınmalı yoksa storage izni yeterli
     final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();

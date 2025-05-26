@@ -243,9 +243,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
                               NavigatorService().goBackNavbar();
 
                               if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
-                                await taskProvider.deleteTask(addTaskProvider.editTask!.id);
+                                await taskProvider.deleteTask(addTaskProvider.editTask!.id, showUndo: false);
                               } else {
-                                await taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
+                                await taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!, showUndo: false);
                               }
                             },
                           );
