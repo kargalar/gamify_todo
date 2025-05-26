@@ -5,6 +5,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_store_item_providerr.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
+import 'package:next_level/Page/Home/Add Task/Widget/description_editor.dart';
 import 'package:provider/provider.dart';
 
 class TaskName extends StatelessWidget {
@@ -140,53 +141,79 @@ class TaskName extends StatelessWidget {
                   },
                 ),
 
-                // Description input field
-                TextField(
-                  controller: provider.descriptionController,
-                  focusNode: provider.descriptionFocus,
-                  textCapitalization: TextCapitalization.sentences,
-                  style: const TextStyle(
-                    fontSize: 14,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: LocaleKeys.EnterDescription.tr(),
-                    hintStyle: TextStyle(
-                      color: AppColors.text.withValues(alpha: 0.4),
-                      fontSize: 14,
-                      fontStyle: FontStyle.italic,
+                // Description clickable field
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      // Unfocus any text fields before showing full-screen editor
+                      provider.unfocusAll();
+
+                      // Show the full-screen description editor
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const DescriptionEditor(),
+                          fullscreenDialog: true,
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(minHeight: 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: provider.descriptionController.text.isNotEmpty
+                                ? Text(
+                                    provider.descriptionController.text,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                : Text(
+                                    LocaleKeys.EnterDescription.tr(),
+                                    style: TextStyle(
+                                      color: AppColors.text.withValues(alpha: 0.4),
+                                      fontSize: 14,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(width: 8),
+
+                          // Clear button if description is set
+                          if (provider.descriptionController.text.isNotEmpty)
+                            IconButton(
+                              icon: Icon(
+                                Icons.clear_rounded,
+                                color: AppColors.text.withValues(alpha: 0.6),
+                                size: 16,
+                              ),
+                              onPressed: () {
+                                provider.descriptionController.clear();
+                                provider.notifyListeners();
+                              },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 24,
+                                minHeight: 24,
+                              ),
+                            ),
+
+                          // Arrow icon to indicate it opens a full-screen editor
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: AppColors.text.withValues(alpha: 0.3),
+                            size: 14,
+                          ),
+                        ],
+                      ),
                     ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    // prefixIcon: Padding(
-                    //   padding: const EdgeInsets.only(left: 12, right: 8),
-                    //   child: Icon(
-                    //     Icons.notes_rounded,
-                    //     color: AppColors.text.withValues(alpha: 0.4),
-                    //     size: 20,
-                    //   ),
-                    // ),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-                    // suffixIcon: provider.descriptionController.text.isNotEmpty
-                    //     ? IconButton(
-                    //         icon: Icon(
-                    //           Icons.clear_rounded,
-                    //           color: AppColors.text.withValues(alpha: 0.6),
-                    //           size: 20,
-                    //         ),
-                    //         onPressed: () {
-                    //           provider.descriptionController.clear();
-                    //           provider.notifyListeners();
-                    //         },
-                    //       )
-                    //     : null,
                   ),
-                  maxLines: 5,
-                  minLines: 2,
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
-                  onChanged: (value) {
-                    provider.notifyListeners();
-                  },
                 ),
               ],
             ),
