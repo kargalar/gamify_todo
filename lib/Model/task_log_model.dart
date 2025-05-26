@@ -92,6 +92,8 @@ class TaskLogModel extends HiveObject {
         return 'Cancelled';
       case TaskStatusEnum.ARCHIVED:
         return 'Archived';
+      case TaskStatusEnum.OVERDUE:
+        return 'Overdue';
       default:
         return ''; // Boş string döndür - hiçbir durum seçili değil
     }

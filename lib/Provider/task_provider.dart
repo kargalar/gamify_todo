@@ -249,8 +249,8 @@ class TaskProvider with ChangeNotifier {
 
   // Task durumu değiştiğinde bildirimleri kontrol et
   void checkTaskStatusForNotifications(TaskModel taskModel) {
-    // Eğer task tamamlandıysa, iptal edildiyse veya başarısız olduysa bildirimleri iptal et
-    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED) {
+    // Eğer task tamamlandıysa, iptal edildiyse, başarısız olduysa veya tarihi geçmişse bildirimleri iptal et
+    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
       // Task bildirimi iptal et
       NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
@@ -273,8 +273,8 @@ class TaskProvider with ChangeNotifier {
     // Önce mevcut bildirimi iptal et
     NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
-    // Eğer task tamamlandıysa, iptal edildiyse veya başarısız olduysa bildirim oluşturma
-    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED) {
+    // Eğer task tamamlandıysa, iptal edildiyse, başarısız olduysa veya tarihi geçmişse bildirim oluşturma
+    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
       return;
     }
 

@@ -106,6 +106,24 @@ class TaskStatus extends StatelessWidget {
             ),
           );
           break;
+        case TaskStatusEnum.OVERDUE:
+          statusWidgets.add(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.orange.withAlpha(100),
+                borderRadius: AppColors.borderRadiusAll,
+              ),
+              child: const Text(
+                'Overdue', // TODO: Add to localization
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+          break;
         default:
           break;
       }

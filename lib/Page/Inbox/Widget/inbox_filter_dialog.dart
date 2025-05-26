@@ -61,6 +61,8 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
         return AppColors.purple;
       case TaskStatusEnum.ARCHIVED:
         return AppColors.blue;
+      case TaskStatusEnum.OVERDUE:
+        return AppColors.orange;
     }
   }
 
@@ -75,6 +77,8 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
         return Icons.block;
       case TaskStatusEnum.ARCHIVED:
         return Icons.archive_outlined;
+      case TaskStatusEnum.OVERDUE:
+        return Icons.schedule;
     }
   }
 
@@ -89,6 +93,8 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
         return LocaleKeys.Cancel.tr();
       case TaskStatusEnum.ARCHIVED:
         return "Archived";
+      case TaskStatusEnum.OVERDUE:
+        return "Overdue"; // TODO: Add to localization
     }
   }
 

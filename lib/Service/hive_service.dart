@@ -314,11 +314,28 @@ class HiveService {
     }
 
     if (TaskProvider().taskList.isNotEmpty) {
-      // failed all past tasks if status null
+      // Mark past tasks as overdue and past routines as failed
       for (TaskModel task in TaskProvider().taskList) {
         if (task.status == null && task.taskDate != null && task.taskDate!.isBeforeDay(today)) {
-          // Set to failed, clearing any other status
-          task.status = TaskStatusEnum.FAILED;
+          if (task.routineID != null) {
+            // Routine tasks that are past due should be marked as failed
+            task.status = TaskStatusEnum.FAILED;
+
+            // Create log for failed routine task
+            TaskLogProvider().addTaskLog(
+              task,
+              customStatus: TaskStatusEnum.FAILED,
+            );
+          } else {
+            // Regular tasks that are past due should be marked as overdue
+            task.status = TaskStatusEnum.OVERDUE;
+
+            // Create log for overdue task
+            TaskLogProvider().addTaskLog(
+              task,
+              customStatus: TaskStatusEnum.OVERDUE,
+            );
+          }
 
           updateTask(task);
         }
