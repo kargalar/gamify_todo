@@ -33,7 +33,7 @@ class _DayItemState extends State<DayItem> {
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: context.watch<TaskProvider>().selectedDate.isSameDay(widget.date) ? AppColors.main : AppColors.transparent,
+          color: context.watch<TaskProvider>().selectedDate.isSameDay(widget.date) ? AppColors.main : AppColors.transparantBlack,
           borderRadius: AppColors.borderRadiusAll,
         ),
         child: Column(

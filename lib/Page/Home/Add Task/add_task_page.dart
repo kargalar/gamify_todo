@@ -135,11 +135,14 @@ class _AddTaskPageState extends State<AddTaskPage> {
         },
         child: Scaffold(
           appBar: AppBar(
-            title: Text(addTaskProvider.editTask != null
-                ? LocaleKeys.EditTask.tr()
-                : addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null
-                    ? LocaleKeys.EditRoutine.tr()
-                    : LocaleKeys.AddTask.tr()),
+            elevation: 0,
+            title: Text(
+              addTaskProvider.editTask != null
+                  ? LocaleKeys.EditTask.tr()
+                  : addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null
+                      ? LocaleKeys.EditRoutine.tr()
+                      : LocaleKeys.AddTask.tr(),
+            ),
             leading: InkWell(
               borderRadius: AppColors.borderRadiusAll,
               onTap: () {

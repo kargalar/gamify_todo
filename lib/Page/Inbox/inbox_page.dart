@@ -164,10 +164,6 @@ class _InboxPageState extends State<InboxPage> {
       appBar: AppBar(
         title: Text(
           LocaleKeys.Tasks.tr(),
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
         ),
         leading: IconButton(
           icon: Icon(

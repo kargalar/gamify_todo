@@ -44,20 +44,12 @@ class InboxTasksPage extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     category!.title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ],
               )
             // Show "All Tasks" title if no category is provided
             : Text(
                 LocaleKeys.AllTasks.tr(),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
       ),
       body: _TaskList(category: category),

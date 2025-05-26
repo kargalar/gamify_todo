@@ -9,7 +9,7 @@ class AppTheme {
     // Bottom Navigation Bar
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: AppColors.panelBackground,
+      backgroundColor: AppColors.panelBackground6,
       elevation: 0,
       unselectedIconTheme: IconThemeData(
         color: AppColors.text.withValues(alpha: 0.7),
@@ -32,14 +32,15 @@ class AppTheme {
     // AppBar
     appBarTheme: AppBarTheme(
       toolbarHeight: 40,
-      backgroundColor: AppColors.appbar,
+      backgroundColor: AppColors.background,
+      elevation: 0,
       surfaceTintColor: AppColors.appbar,
       iconTheme: IconThemeData(
         color: AppColors.text,
       ),
       titleTextStyle: TextStyle(
         color: AppColors.text,
-        fontSize: 22,
+        fontSize: 19,
         fontWeight: FontWeight.bold,
       ),
       actionsIconTheme: IconThemeData(

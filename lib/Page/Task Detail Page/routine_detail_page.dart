@@ -65,10 +65,6 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
           appBar: AppBar(
             title: Text(
               widget.taskModel.title + (widget.taskModel.status == TaskStatusEnum.ARCHIVED ? " (Archived)" : ""),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
             ),
             leading: InkWell(
               borderRadius: BorderRadius.circular(12),

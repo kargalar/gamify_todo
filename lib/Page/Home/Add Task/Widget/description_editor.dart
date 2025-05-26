@@ -75,10 +75,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
-          backgroundColor: AppColors.background,
-          elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.close_rounded),
             onPressed: () {
@@ -91,10 +88,6 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
           ),
           title: Text(
             LocaleKeys.Description.tr(),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
           ),
           actions: [
             TextButton(

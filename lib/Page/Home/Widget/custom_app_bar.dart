@@ -26,12 +26,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Row(
         children: [
           Expanded(
-            child: Container(
+            child: SizedBox(
               height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.panelBackground,
-                borderRadius: AppColors.borderRadiusAll,
-              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
