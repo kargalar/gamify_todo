@@ -270,11 +270,20 @@ class TaskProvider with ChangeNotifier {
   }
 
   checkNotification(TaskModel taskModel) {
+    debugPrint('=== checkNotification Debug ===');
+    debugPrint('Task: ${taskModel.title} (ID: ${taskModel.id})');
+    debugPrint('Time: ${taskModel.time}');
+    debugPrint('Date: ${taskModel.taskDate}');
+    debugPrint('Notification on: ${taskModel.isNotificationOn}');
+    debugPrint('Alarm on: ${taskModel.isAlarmOn}');
+    debugPrint('Status: ${taskModel.status}');
+
     // Önce mevcut bildirimi iptal et
     NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
     // Eğer task tamamlandıysa, iptal edildiyse, başarısız olduysa veya tarihi geçmişse bildirim oluşturma
     if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
+      debugPrint('Task has completed/cancelled/failed/overdue status, not scheduling notification');
       return;
     }
 
@@ -283,7 +292,12 @@ class TaskProvider with ChangeNotifier {
       // Görev zamanı gelecekteyse bildirim planla
       DateTime taskDateTime = taskModel.taskDate!.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute, second: 0);
 
+      debugPrint('Task DateTime: $taskDateTime');
+      debugPrint('Current DateTime: ${DateTime.now()}');
+      debugPrint('Is future: ${taskDateTime.isAfter(DateTime.now())}');
+
       if (taskDateTime.isAfter(DateTime.now())) {
+        debugPrint('✓ Scheduling notification for: $taskDateTime');
         NotificationService().scheduleNotification(
           id: taskModel.id,
           title: taskModel.title,
@@ -292,7 +306,11 @@ class TaskProvider with ChangeNotifier {
           isAlarm: taskModel.isAlarmOn,
           earlyReminderMinutes: taskModel.earlyReminderMinutes,
         );
+      } else {
+        debugPrint('✗ Task time is in the past, not scheduling notification');
       }
+    } else {
+      debugPrint('✗ Notification conditions not met (time: ${taskModel.time}, date: ${taskModel.taskDate}, notif: ${taskModel.isNotificationOn}, alarm: ${taskModel.isAlarmOn})');
     }
   }
 

@@ -190,10 +190,20 @@ class NotificationService {
     required bool isAlarm,
     int? earlyReminderMinutes,
   }) async {
+    debugPrint('=== scheduleNotification Debug ===');
+    debugPrint('ID: $id');
+    debugPrint('Title: $title');
+    debugPrint('Scheduled Date: $scheduledDate');
+    debugPrint('Is Alarm: $isAlarm');
+    debugPrint('Early Reminder Minutes: $earlyReminderMinutes');
+
     final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
       scheduledDate,
       tz.local,
     );
+
+    debugPrint('Scheduled TZ Date: $scheduledTZDate');
+    debugPrint('Current TZ Date: ${tz.TZDateTime.now(tz.local)}');
 
     // Task ID'sini payload olarak ekle
     final String payload = jsonEncode({'taskId': id});
@@ -218,20 +228,26 @@ class NotificationService {
     }
 
     // Asıl bildirimi planla
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      desc,
-      scheduledTZDate,
-      notificationDetails(isAlarm),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      // Use dateAndTime to ensure notifications are scheduled for the exact date and time
-      matchDateTimeComponents: DateTimeComponents.dateAndTime,
-      payload: payload,
-    );
+    try {
+      debugPrint('✓ Scheduling main notification...');
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        desc,
+        scheduledTZDate,
+        notificationDetails(isAlarm),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        // Use dateAndTime to ensure notifications are scheduled for the exact date and time
+        matchDateTimeComponents: DateTimeComponents.dateAndTime,
+        payload: payload,
+      );
+      debugPrint('✓ Main notification scheduled successfully');
+    } catch (e) {
+      debugPrint('✗ Error scheduling main notification: $e');
+    }
   }
 
-  Future<void> notificaitonTest() async {
+  Future<void> notificationTest() async {
     // Bildirim izinlerini kontrol et
     bool hasPermission = await checkNotificationPermissions();
     if (!hasPermission) {

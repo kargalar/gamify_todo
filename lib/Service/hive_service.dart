@@ -256,6 +256,11 @@ class HiveService {
     final String? lastLoginDateString = prefs.getString('lastLoginDate');
     final DateTime lastLoginDate = lastLoginDateString != null ? DateTime.parse(lastLoginDateString) : today;
 
+    debugPrint('=== createTasksFromRoutines Debug ===');
+    debugPrint('Today: $today');
+    debugPrint('Last login date: $lastLoginDate');
+    debugPrint('Routine count: ${TaskProvider().routineList.length}');
+
     if (TaskProvider().routineList.isNotEmpty) {
       // Get all existing tasks to find the highest ID
       final existingTasks = await getTasks();
@@ -269,11 +274,23 @@ class HiveService {
       }
 
       int taskID = highestTaskId;
+      int tasksCreated = 0;
 
       for (DateTime date = lastLoginDate.add(const Duration(days: 1)); date.isBeforeOrSameDay(today); date = date.add(const Duration(days: 1))) {
+        debugPrint('Checking date: $date (weekday: ${date.weekday})');
+
         for (RoutineModel routine in TaskProvider().routineList) {
+          debugPrint('  Routine: ${routine.title}');
+          debugPrint('    Repeat days: ${routine.repeatDays}');
+          debugPrint('    Start date: ${routine.startDate}');
+          debugPrint('    Is archived: ${routine.isArchived}');
+          debugPrint('    Date weekday-1: ${date.weekday - 1}');
+          debugPrint('    Contains weekday: ${routine.repeatDays.contains(date.weekday - 1)}');
+
           if (routine.isActiveForThisDate(date)) {
+            debugPrint('    ✓ Creating task for routine ${routine.title} on $date');
             taskID++;
+            tasksCreated++;
 
             final TaskModel task = TaskModel(
               id: taskID,
@@ -301,16 +318,23 @@ class HiveService {
 
             // Bildirim veya alarm ayarla
             if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
+              debugPrint('    Setting notification for task: ${task.title}');
               TaskProvider().checkNotification(task);
             }
+          } else {
+            debugPrint('    ✗ Routine ${routine.title} not active for $date');
           }
         }
       }
+
+      debugPrint('Total tasks created: $tasksCreated');
 
       // Update the last task ID in SharedPreferences if tasks were created
       if (TaskProvider().taskList.isNotEmpty) {
         await prefs.setInt("last_task_id", taskID);
       }
+    } else {
+      debugPrint('No routines found to create tasks from');
     }
 
     if (TaskProvider().taskList.isNotEmpty) {
