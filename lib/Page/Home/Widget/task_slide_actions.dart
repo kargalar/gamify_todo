@@ -72,10 +72,12 @@ class _TaskSlideActinosState extends State<TaskSlideActinos> {
         dismissThreshold: 0.3,
         closeOnCancel: true,
         confirmDismiss: () async {
-          taskProvider.changeTaskDate(
-            context: context,
-            taskModel: widget.taskModel,
-          );
+          if (widget.taskModel.routineID == null) {
+            taskProvider.changeTaskDate(
+              context: context,
+              taskModel: widget.taskModel,
+            );
+          }
 
           return false;
         },

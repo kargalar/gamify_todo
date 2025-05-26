@@ -121,7 +121,6 @@ class TaskProvider with ChangeNotifier {
           task.earlyReminderMinutes = taskModel.earlyReminderMinutes;
           task.location = taskModel.location;
           task.subtasks = taskModel.subtasks;
-          task.showSubtasks = taskModel.showSubtasks;
 
           // Handle timer if active
           if (task.isTimerActive != null && task.isTimerActive!) {

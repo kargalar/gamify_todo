@@ -51,8 +51,6 @@ class TaskModel extends HiveObject {
   String? location; // konum bilgisi
   @HiveField(20)
   int? categoryId; // kategori id'si
-  @HiveField(21)
-  bool? showSubtasks; // alt görevlerin gösterilip gösterilmeyeceği
   @HiveField(22)
   int? earlyReminderMinutes; // erken hatırlatma süresi (dakika cinsinden)
 
@@ -78,7 +76,6 @@ class TaskModel extends HiveObject {
     this.subtasks,
     this.location,
     this.categoryId,
-    this.showSubtasks = true,
     this.earlyReminderMinutes,
   });
 
@@ -112,7 +109,6 @@ class TaskModel extends HiveObject {
       subtasks: json['subtasks'] != null ? SubTaskModel.fromJsonList(json['subtasks']) : null,
       location: json['location'],
       categoryId: json['category_id'],
-      showSubtasks: json['show_subtasks'] ?? true,
       earlyReminderMinutes: json['early_reminder_minutes'],
     );
 
@@ -154,7 +150,6 @@ class TaskModel extends HiveObject {
       'subtasks': subtasks?.map((subtask) => subtask.toJson()).toList(),
       'location': location,
       'category_id': categoryId,
-      'show_subtasks': showSubtasks,
       'early_reminder_minutes': earlyReminderMinutes,
     };
   }

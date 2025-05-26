@@ -353,6 +353,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           priority: addTaskProvider.priority,
           categoryId: addTaskProvider.categoryId,
           earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+          subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
         ),
       );
 

@@ -25,13 +25,6 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
   bool _showCompleted = true;
 
   @override
-  void initState() {
-    super.initState();
-    // Initialize _showCompleted based on the task's showSubtasks property
-    _showCompleted = widget.taskModel.showSubtasks ?? true;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
     final subtasks = widget.taskModel.subtasks ?? [];
@@ -102,7 +95,6 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                             setState(() {
                               _showCompleted = !_showCompleted;
                               // Save the state to the task model
-                              widget.taskModel.showSubtasks = _showCompleted;
                               taskProvider.editTask(taskModel: widget.taskModel, selectedDays: []);
                             });
                           },

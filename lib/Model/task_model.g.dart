@@ -38,7 +38,6 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       subtasks: (fields[18] as List?)?.cast<SubTaskModel>(),
       location: fields[19] as String?,
       categoryId: fields[20] as int?,
-      showSubtasks: fields[21] as bool?,
       earlyReminderMinutes: fields[22] as int?,
     );
   }
@@ -46,7 +45,7 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(23)
+      ..writeByte(22)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -89,8 +88,6 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..write(obj.location)
       ..writeByte(20)
       ..write(obj.categoryId)
-      ..writeByte(21)
-      ..write(obj.showSubtasks)
       ..writeByte(22)
       ..write(obj.earlyReminderMinutes);
   }

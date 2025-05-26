@@ -171,7 +171,14 @@ class _TaskItemState extends State<TaskItem> {
       padding: const EdgeInsets.only(left: 32, top: 4, bottom: 4),
       child: GestureDetector(
         onTap: () {
-          _showSubtasksBottomSheet();
+          if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isBeforeOrSameDay(DateTime.now()))) {
+            return Helper().getMessage(
+              status: StatusEnum.WARNING,
+              message: LocaleKeys.RoutineForFuture.tr(),
+            );
+          } else {
+            _showSubtasksBottomSheet();
+          }
         },
         child: Row(
           children: [
