@@ -22,13 +22,11 @@ class SubtasksBottomSheet extends StatefulWidget {
 }
 
 class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
-  bool _showCompleted = true;
-
   @override
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
     final subtasks = widget.taskModel.subtasks ?? [];
-    final displayedSubtasks = _showCompleted ? subtasks : subtasks.where((subtask) => !subtask.isCompleted).toList();
+    final displayedSubtasks = widget.taskModel.showSubtasks ? subtasks : subtasks.where((subtask) => !subtask.isCompleted).toList();
     final completedCount = subtasks.where((subtask) => subtask.isCompleted).length;
 
     return Container(
@@ -92,22 +90,18 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         child: GestureDetector(
                           onTap: () {
-                            setState(() {
-                              _showCompleted = !_showCompleted;
-                              // Save the state to the task model
-                              taskProvider.editTask(taskModel: widget.taskModel, selectedDays: []);
-                            });
+                            taskProvider.toggleTaskSubtaskVisibility(widget.taskModel);
                           },
                           child: Row(
                             children: [
                               Icon(
-                                _showCompleted ? Icons.visibility_off : Icons.visibility,
+                                widget.taskModel.showSubtasks ? Icons.visibility_off : Icons.visibility,
                                 size: 14,
                                 color: AppColors.text.withValues(alpha: 0.6),
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                _showCompleted ? LocaleKeys.HideCompleted.tr() : LocaleKeys.ShowCompleted.tr(),
+                                widget.taskModel.showSubtasks ? LocaleKeys.HideCompleted.tr() : LocaleKeys.ShowCompleted.tr(),
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: AppColors.text.withValues(alpha: 0.6),

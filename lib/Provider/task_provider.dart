@@ -679,6 +679,22 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Toggle subtask visibility for a specific task
+  void toggleTaskSubtaskVisibility(TaskModel taskModel) {
+    taskModel.showSubtasks = !taskModel.showSubtasks;
+
+    // Save the task to ensure changes are persisted
+    try {
+      taskModel.save();
+      debugPrint('Task saved after toggling subtask visibility: ID=${taskModel.id}');
+    } catch (e) {
+      debugPrint('ERROR saving task after toggling subtask visibility: $e');
+    }
+
+    ServerManager().updateTask(taskModel: taskModel);
+    notifyListeners();
+  }
+
   // Subtask methods
   void addSubtask(TaskModel taskModel, String subtaskTitle, [String? description]) {
     debugPrint('Adding subtask to task: ID=${taskModel.id}, Title=${taskModel.title}');
