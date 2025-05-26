@@ -111,12 +111,19 @@ class InboxTaskList extends StatelessWidget {
       );
     }
 
-    // Group tasks by date
+    // Group tasks by date and status
     final Map<DateTime, List<TaskModel>> groupedTasks = {};
+    final List<TaskModel> overdueTasks = [];
     final List<TaskModel> tasksWithoutDate = [];
+    final DateTime today = DateTime.now();
+    final DateTime todayDate = DateTime(today.year, today.month, today.day);
 
     for (var task in tasks) {
-      if (task.taskDate == null) {
+      if (task.status == TaskStatusEnum.OVERDUE) {
+        // Overdue tasks go to a special group
+        overdueTasks.add(task);
+      } else if (task.taskDate == null) {
+        // Tasks without date
         tasksWithoutDate.add(task);
       } else {
         final date = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
@@ -127,14 +134,35 @@ class InboxTaskList extends StatelessWidget {
       }
     }
 
-    // Add tasks without dates at the top with a special key
+    // Create ordered list of dates with special keys
+    final List<DateTime> sortedDates = [];
+
+    // 1. Add overdue tasks first (if any)
+    if (overdueTasks.isNotEmpty) {
+      final overdueDate = DateTime(1969, 1, 1); // Special date for overdue tasks
+      groupedTasks[overdueDate] = overdueTasks;
+      sortedDates.add(overdueDate);
+    }
+
+    // 2. Add today's tasks
+    if (groupedTasks.containsKey(todayDate)) {
+      sortedDates.add(todayDate);
+    }
+
+    // 3. Add tasks without dates
     if (tasksWithoutDate.isNotEmpty) {
       final inboxDate = DateTime(1970, 1, 1); // Special date for inbox/no date
       groupedTasks[inboxDate] = tasksWithoutDate;
+      sortedDates.add(inboxDate);
     }
 
-    // Sort dates
-    final sortedDates = groupedTasks.keys.toList()..sort();
+    // 4. Add future tasks (sorted ascending)
+    final futureDates = groupedTasks.keys.where((date) => date.isAfter(todayDate) && date.year > 1970).toList()..sort();
+    sortedDates.addAll(futureDates);
+
+    // 5. Add past tasks (sorted descending - most recent first)
+    final pastDates = groupedTasks.keys.where((date) => date.isBefore(todayDate) && date.year > 1970).toList()..sort((a, b) => b.compareTo(a)); // Descending order
+    sortedDates.addAll(pastDates);
 
     return ListView.builder(
       itemCount: sortedDates.length,

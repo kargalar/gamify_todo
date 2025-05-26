@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/Handlers/task_action_handler.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
@@ -116,12 +117,19 @@ class _TaskListState extends State<_TaskList> {
       );
     }
 
-    // Group tasks by date
+    // Group tasks by date and status
     final Map<DateTime, List<TaskModel>> groupedTasks = {};
+    final List<TaskModel> overdueTasks = [];
     final List<TaskModel> tasksWithoutDate = [];
+    final DateTime today = DateTime.now();
+    final DateTime todayDate = DateTime(today.year, today.month, today.day);
 
     for (var task in tasks) {
-      if (task.taskDate == null) {
+      if (task.status == TaskStatusEnum.OVERDUE) {
+        // Overdue tasks go to a special group
+        overdueTasks.add(task);
+      } else if (task.taskDate == null) {
+        // Tasks without date
         tasksWithoutDate.add(task);
       } else {
         final date = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
@@ -132,14 +140,35 @@ class _TaskListState extends State<_TaskList> {
       }
     }
 
-    // Add tasks without dates at the top with a special key
+    // Create ordered list of dates with special keys
+    final List<DateTime> sortedDates = [];
+
+    // 1. Add overdue tasks first (if any)
+    if (overdueTasks.isNotEmpty) {
+      final overdueDate = DateTime(1969, 1, 1); // Special date for overdue tasks
+      groupedTasks[overdueDate] = overdueTasks;
+      sortedDates.add(overdueDate);
+    }
+
+    // 2. Add today's tasks
+    if (groupedTasks.containsKey(todayDate)) {
+      sortedDates.add(todayDate);
+    }
+
+    // 3. Add tasks without dates
     if (tasksWithoutDate.isNotEmpty) {
       final inboxDate = DateTime(1970, 1, 1); // Special date for inbox/no date
       groupedTasks[inboxDate] = tasksWithoutDate;
+      sortedDates.add(inboxDate);
     }
 
-    // Sort dates
-    final sortedDates = groupedTasks.keys.toList()..sort();
+    // 4. Add future tasks (sorted ascending)
+    final futureDates = groupedTasks.keys.where((date) => date.isAfter(todayDate) && date.year > 1970).toList()..sort();
+    sortedDates.addAll(futureDates);
+
+    // 5. Add past tasks (sorted descending - most recent first)
+    final pastDates = groupedTasks.keys.where((date) => date.isBefore(todayDate) && date.year > 1970).toList()..sort((a, b) => b.compareTo(a)); // Descending order
+    sortedDates.addAll(pastDates);
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -281,7 +310,16 @@ class _TaskListState extends State<_TaskList> {
     final yesterday = today.subtract(const Duration(days: 1));
 
     String dateText;
-    if (date.isAtSameMomentAs(today)) {
+    Color? backgroundColor;
+    Color? textColor;
+
+    if (date.year == 1969 && date.month == 1 && date.day == 1) {
+      dateText = "Overdue"; // Special case for overdue tasks
+      backgroundColor = AppColors.red.withValues(alpha: 0.1);
+      textColor = AppColors.red;
+    } else if (date.year == 1970 && date.month == 1 && date.day == 1) {
+      dateText = "Inbox"; // Special case for tasks without dates
+    } else if (date.isAtSameMomentAs(today)) {
       dateText = LocaleKeys.Today.tr();
     } else if (date.isAtSameMomentAs(tomorrow)) {
       dateText = LocaleKeys.Tomorrow.tr();
@@ -297,7 +335,7 @@ class _TaskListState extends State<_TaskList> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.panelBackground,
+              color: backgroundColor ?? AppColors.panelBackground,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -305,7 +343,7 @@ class _TaskListState extends State<_TaskList> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.text.withValues(alpha: 0.8),
+                color: textColor ?? AppColors.text.withValues(alpha: 0.8),
               ),
             ),
           ),

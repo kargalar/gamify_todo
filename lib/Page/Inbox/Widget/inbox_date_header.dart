@@ -19,7 +19,14 @@ class InboxDateHeader extends StatelessWidget {
     final yesterday = today.subtract(const Duration(days: 1));
 
     String dateText;
-    if (date.year == 1970 && date.month == 1 && date.day == 1) {
+    Color? backgroundColor;
+    Color? textColor;
+
+    if (date.year == 1969 && date.month == 1 && date.day == 1) {
+      dateText = "Overdue"; // Special case for overdue tasks
+      backgroundColor = AppColors.red.withValues(alpha: 0.1);
+      textColor = AppColors.red;
+    } else if (date.year == 1970 && date.month == 1 && date.day == 1) {
       dateText = "Inbox"; // Special case for tasks without dates
     } else if (date.isAtSameMomentAs(today)) {
       dateText = LocaleKeys.Today.tr();
@@ -34,7 +41,7 @@ class InboxDateHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.panelBackground,
+        color: backgroundColor ?? AppColors.panelBackground,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -42,7 +49,7 @@ class InboxDateHeader extends StatelessWidget {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: AppColors.text.withValues(alpha: 0.8),
+          color: textColor ?? AppColors.text.withValues(alpha: 0.8),
         ),
       ),
     );
