@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -31,6 +33,10 @@ class AddTaskProvider with ChangeNotifier {
   int? categoryId;
   int? earlyReminderMinutes; // Erken hatırlatma süresi (dakika cinsinden)
 
+  // Undo functionality for deleted subtasks
+  final Map<int, SubTaskModel> _deletedSubtasks = {};
+  final Map<int, Timer> _undoTimers = {};
+
   void updateTime(TimeOfDay? time) {
     selectedTime = time;
 
@@ -61,9 +67,57 @@ class AddTaskProvider with ChangeNotifier {
     }
   }
 
-  void removeSubtask(int index) {
+  void removeSubtask(int index, {bool showUndo = true}) {
     if (index >= 0 && index < subtasks.length) {
-      subtasks.removeAt(index);
+      final subtask = subtasks[index];
+
+      if (showUndo) {
+        // Store the subtask and its index for potential undo
+        _deletedSubtasks[index] = subtask;
+
+        // Remove from UI immediately
+        subtasks.removeAt(index);
+        notifyListeners();
+
+        // Show undo snackbar
+        Helper().getUndoMessage(
+          message: "Subtask deleted",
+          onUndo: () => _undoRemoveSubtask(index, subtask),
+        );
+
+        // Set timer for permanent deletion
+        _undoTimers[index] = Timer(const Duration(seconds: 3), () {
+          _permanentlyRemoveSubtask(index);
+        });
+      } else {
+        // Direct removal without undo
+        subtasks.removeAt(index);
+        notifyListeners();
+      }
+    }
+  }
+
+  // Permanently remove a subtask
+  void _permanentlyRemoveSubtask(int index) {
+    _deletedSubtasks.remove(index);
+    _undoTimers.remove(index);
+  }
+
+  // Undo subtask removal
+  void _undoRemoveSubtask(int originalIndex, SubTaskModel subtask) {
+    final timer = _undoTimers.remove(originalIndex);
+    _deletedSubtasks.remove(originalIndex);
+
+    if (timer != null) {
+      timer.cancel();
+
+      // Insert the subtask back at its original position or at the end if position is no longer valid
+      if (originalIndex <= subtasks.length) {
+        subtasks.insert(originalIndex, subtask);
+      } else {
+        subtasks.add(subtask);
+      }
+
       notifyListeners();
     }
   }
@@ -180,6 +234,13 @@ class AddTaskProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    // Cancel any pending undo timers
+    for (final timer in _undoTimers.values) {
+      timer.cancel();
+    }
+    _undoTimers.clear();
+    _deletedSubtasks.clear();
+
     // Dispose controllers and focus nodes safely
     try {
       taskNameController.dispose();

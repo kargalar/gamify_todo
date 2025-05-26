@@ -15,6 +15,19 @@ import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Helper class to store task date change data for undo functionality
+class _TaskDateChangeData {
+  final DateTime? originalDate;
+  final TaskStatusEnum? originalStatus;
+  final bool? originalTimerActive;
+
+  _TaskDateChangeData({
+    required this.originalDate,
+    required this.originalStatus,
+    required this.originalTimerActive,
+  });
+}
+
 class TaskProvider with ChangeNotifier {
   // burayı singelton yaptım gayet de iyi oldu neden normalde de context den kullanıyoruz anlamadım. galiba "watch" için olabilir. sibelton kısmını global timer için yaptım.
   static final TaskProvider _instance = TaskProvider._internal();
@@ -37,6 +50,9 @@ class TaskProvider with ChangeNotifier {
   final Map<int, RoutineModel> _deletedRoutines = {};
   final Map<String, SubTaskModel> _deletedSubtasks = {}; // key: "taskId_subtaskId"
   final Map<String, Timer> _undoTimers = {};
+
+  // Undo functionality for date changes
+  final Map<int, _TaskDateChangeData> _dateChanges = {};
 
   // Load categories when tasks are loaded
   Future<void> loadCategories() async {
@@ -193,6 +209,7 @@ class TaskProvider with ChangeNotifier {
   Future<void> changeTaskDate({
     required BuildContext context,
     required TaskModel taskModel,
+    bool showUndo = true,
   }) async {
     DateTime? selectedDate = await Helper().selectDate(
       context: context,
@@ -202,6 +219,15 @@ class TaskProvider with ChangeNotifier {
     if (selectedDate != null) {
       if (taskModel.time != null) {
         selectedDate = selectedDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute);
+      }
+
+      // Store original data for undo
+      if (showUndo) {
+        _dateChanges[taskModel.id] = _TaskDateChangeData(
+          originalDate: taskModel.taskDate,
+          originalStatus: taskModel.status,
+          originalTimerActive: taskModel.isTimerActive,
+        );
       }
 
       if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
@@ -223,8 +249,20 @@ class TaskProvider with ChangeNotifier {
       taskModel.taskDate = selectedDate;
 
       ServerManager().updateTask(taskModel: taskModel);
-
       checkNotification(taskModel);
+
+      if (showUndo) {
+        // Show undo snackbar
+        Helper().getUndoMessage(
+          message: "Task date changed",
+          onUndo: () => _undoDateChange(taskModel.id),
+        );
+
+        // Set timer for permanent change
+        _undoTimers['date_${taskModel.id}'] = Timer(const Duration(seconds: 3), () {
+          _permanentlyChangeDateData(taskModel.id);
+        });
+      }
     }
 
     notifyListeners();
@@ -234,12 +272,22 @@ class TaskProvider with ChangeNotifier {
   void changeTaskDateWithoutDialog({
     required TaskModel taskModel,
     required DateTime newDate,
+    bool showUndo = true,
   }) {
     debugPrint('Changing task date without dialog: ID=${taskModel.id}, Title=${taskModel.title}');
 
     // Preserve the time if it exists
     if (taskModel.time != null) {
       newDate = newDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute);
+    }
+
+    // Store original data for undo
+    if (showUndo) {
+      _dateChanges[taskModel.id] = _TaskDateChangeData(
+        originalDate: taskModel.taskDate,
+        originalStatus: taskModel.status,
+        originalTimerActive: taskModel.isTimerActive,
+      );
     }
 
     // Stop timer if active
@@ -275,6 +323,19 @@ class TaskProvider with ChangeNotifier {
 
     // Update notifications
     checkNotification(taskModel);
+
+    if (showUndo) {
+      // Show undo snackbar
+      Helper().getUndoMessage(
+        message: "Task date changed",
+        onUndo: () => _undoDateChange(taskModel.id),
+      );
+
+      // Set timer for permanent change
+      _undoTimers['date_${taskModel.id}'] = Timer(const Duration(seconds: 3), () {
+        _permanentlyChangeDateData(taskModel.id);
+      });
+    }
 
     notifyListeners();
   }
@@ -954,5 +1015,55 @@ class TaskProvider with ChangeNotifier {
     });
 
     return tasks;
+  }
+
+  // Date change undo methods
+  void _permanentlyChangeDateData(int taskId) {
+    _dateChanges.remove(taskId);
+    _undoTimers.remove('date_$taskId');
+  }
+
+  void _undoDateChange(int taskId) {
+    final changeData = _dateChanges.remove(taskId);
+    final timer = _undoTimers.remove('date_$taskId');
+
+    if (changeData != null && timer != null) {
+      timer.cancel();
+
+      // Find the task and restore its original data
+      final taskIndex = taskList.indexWhere((task) => task.id == taskId);
+      if (taskIndex != -1) {
+        final task = taskList[taskIndex];
+
+        // Restore original values
+        task.taskDate = changeData.originalDate;
+        task.status = changeData.originalStatus;
+        task.isTimerActive = changeData.originalTimerActive;
+
+        // Save the task to ensure changes are persisted
+        try {
+          task.save();
+          debugPrint('Task saved after undoing date change: ID=${task.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after undoing date change: $e');
+        }
+
+        // Update in storage
+        ServerManager().updateTask(taskModel: task);
+
+        // Update notifications
+        checkNotification(task);
+
+        // If status was restored, create a log entry
+        if (changeData.originalStatus != null) {
+          TaskLogProvider().addTaskLog(
+            task,
+            customStatus: changeData.originalStatus,
+          );
+        }
+
+        notifyListeners();
+      }
+    }
   }
 }
