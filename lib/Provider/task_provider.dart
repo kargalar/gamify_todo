@@ -200,6 +200,19 @@ class TaskProvider with ChangeNotifier {
       if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
         taskModel.isTimerActive = false;
       }
+
+      // Reset status to null when date is changed
+      if (taskModel.status != null) {
+        debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
+        taskModel.status = null;
+
+        // Create log for the status change to null (in progress)
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
+      }
+
       taskModel.taskDate = selectedDate;
 
       ServerManager().updateTask(taskModel: taskModel);
@@ -225,6 +238,18 @@ class TaskProvider with ChangeNotifier {
     // Stop timer if active
     if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
       taskModel.isTimerActive = false;
+    }
+
+    // Reset status to null when date is changed
+    if (taskModel.status != null) {
+      debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
+      taskModel.status = null;
+
+      // Create log for the status change to null (in progress)
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: null, // null status means "in progress"
+      );
     }
 
     // Update the task date
