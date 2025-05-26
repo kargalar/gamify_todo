@@ -11,7 +11,7 @@ import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget
 import 'package:next_level/Page/Store/Widget/set_credit.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
-import 'package:next_level/Provider/add_store_item_providerr.dart';
+import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/store_item_model.dart';

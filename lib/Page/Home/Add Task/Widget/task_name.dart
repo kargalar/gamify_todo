@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Provider/add_store_item_providerr.dart';
+import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:next_level/Page/Home/Add Task/Widget/description_editor.dart';
@@ -20,7 +20,7 @@ class TaskName extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late final dynamic provider = isStore ? context.read<AddStoreItemProvider>() : context.read<AddTaskProvider>();
+    dynamic provider = isStore ? context.watch<AddStoreItemProvider>() : context.watch<AddTaskProvider>();
 
     return Container(
       decoration: BoxDecoration(
@@ -150,17 +150,20 @@ class TaskName extends StatelessWidget {
                       provider.unfocusAll();
 
                       // Show the full-screen description editor
-                      Navigator.of(context).push(
+                      Navigator.of(context)
+                          .push(
                         MaterialPageRoute(
-                          builder: (context) => const DescriptionEditor(),
+                          builder: (context) => DescriptionEditor(isStore: isStore),
                           fullscreenDialog: true,
                         ),
-                      );
+                      )
+                          .then((_) {
+                        provider.notifyListeners();
+                      });
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       width: double.infinity,
-                      constraints: const BoxConstraints(minHeight: 48),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Row(
                         children: [
@@ -184,25 +187,6 @@ class TaskName extends StatelessWidget {
                                   ),
                           ),
                           const SizedBox(width: 8),
-
-                          // Clear button if description is set
-                          if (provider.descriptionController.text.isNotEmpty)
-                            IconButton(
-                              icon: Icon(
-                                Icons.clear_rounded,
-                                color: AppColors.text.withValues(alpha: 0.6),
-                                size: 16,
-                              ),
-                              onPressed: () {
-                                provider.descriptionController.clear();
-                                provider.notifyListeners();
-                              },
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 24,
-                                minHeight: 24,
-                              ),
-                            ),
 
                           // Arrow icon to indicate it opens a full-screen editor
                           Icon(

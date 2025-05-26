@@ -7,7 +7,7 @@ import 'package:next_level/General/init_app.dart';
 import 'package:next_level/Page/Login/login_page.dart';
 import 'package:next_level/Page/navbar_page_manager.dart';
 import 'package:next_level/Service/product_localization.dart';
-import 'package:next_level/Provider/add_store_item_providerr.dart';
+import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';

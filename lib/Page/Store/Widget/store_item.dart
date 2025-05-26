@@ -90,7 +90,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.panelBackground,
+                  color: AppColors.transparent,
                   borderRadius: AppColors.borderRadiusAll,
                   boxShadow: [
                     BoxShadow(

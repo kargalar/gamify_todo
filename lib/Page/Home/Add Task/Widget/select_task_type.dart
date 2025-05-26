@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
-import 'package:next_level/Provider/add_store_item_providerr.dart';
+import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';

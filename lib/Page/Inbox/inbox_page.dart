@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
@@ -183,17 +184,18 @@ class _InboxPageState extends State<InboxPage> {
         ),
         actions: [
           // Debug button (temporary)
-          IconButton(
-            icon: const Icon(
-              Icons.bug_report,
-              size: 20,
-              color: AppColors.red,
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(
+                Icons.bug_report,
+                size: 20,
+                color: AppColors.red,
+              ),
+              tooltip: 'Debug',
+              onPressed: () async {
+                await DebugHelper.runFullDebug();
+              },
             ),
-            tooltip: 'Debug',
-            onPressed: () async {
-              await DebugHelper.runFullDebug();
-            },
-          ),
           IconButton(
             icon: Icon(
               Icons.add_rounded,

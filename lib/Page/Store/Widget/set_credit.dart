@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Provider/add_store_item_providerr.dart';
+import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:provider/provider.dart';
 
 class SetCredit extends StatefulWidget {
