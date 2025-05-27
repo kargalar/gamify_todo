@@ -3,16 +3,42 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:padding="7dp"
+	android:padding="8dp"
 	android:background="#1F1F1F">
 
+	<!-- Simple header -->
+	<TextView
+		android:id="@+id/header_text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="Today's Tasks"
+		android:textSize="14sp"
+		android:textColor="#FFFFFF"
+		android:textStyle="bold"
+		android:gravity="center"
+		android:padding="4dp" />
+
+	<!-- Task count -->
 	<TextView
 		android:id="@+id/task_count_text"
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textSize="17sp"
-		android:textColor="#FFFFFF"
+		android:textSize="24sp"
+		android:textColor="#1773DB"
+		android:text="0"
+		android:textStyle="bold"
 		android:gravity="center"
-		android:text="Waiting" />
+		android:padding="8dp" />
+
+	<!-- Task list -->
+	<TextView
+		android:id="@+id/empty_state"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="Loading..."
+		android:textSize="12sp"
+		android:textColor="#FFFFFF"
+		android:gravity="start"
+		android:padding="8dp" />
 
 </LinearLayout>

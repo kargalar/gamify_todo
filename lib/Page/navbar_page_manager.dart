@@ -111,6 +111,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                 ),
               ),
         floatingActionButton: floatingActionButton(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Bottom-right corner following Material Design
         bottomNavigationBar: Theme(
           data: Theme.of(context).copyWith(
             splashColor: AppColors.transparent,
@@ -147,7 +148,13 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     await GlobalTimer().checkSavedTimers();
 
     // Initialize home widget
-    HomeWidgetService.updateTaskCount();
+    try {
+      await HomeWidgetService.setupHomeWidget();
+      await HomeWidgetService.updateAllWidgets();
+      debugPrint('Home widget initialized successfully');
+    } catch (e) {
+      debugPrint('Failed to initialize home widget: $e');
+    }
 
     isLoading = true;
     setState(() {});
@@ -157,14 +164,23 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     context.read<NavbarProvider>().updateIndex(index);
   }
 
+  /// Floating Action Button for quick task/item creation
+  /// Positioned in bottom-right corner following Material Design guidelines
+  /// - Store tab (index 0): Navigate to AddStoreItemPage
+  /// - Home tab (index 1): Navigate to AddTaskPage
+  /// - Inbox tab (index 2): Navigate to AddTaskPage
+  /// - Profile tab (index 3): Hidden
   Widget floatingActionButton() {
     final currentIndex = context.read<NavbarProvider>().currentIndex;
 
-    // Show FAB for Store, Home, and Categories tabs
+    // Show FAB for Store, Home, and Inbox tabs
     if (currentIndex == 0 || currentIndex == 1 || currentIndex == 2) {
       return FloatingActionButton(
+        backgroundColor: AppColors.main, // Use app's primary blue color (#1773DB)
+        foregroundColor: Colors.white, // White icon color
+        elevation: 6.0, // Appropriate elevation for Material Design
         shape: RoundedRectangleBorder(
-          borderRadius: AppColors.borderRadiusAll,
+          borderRadius: BorderRadius.circular(16.0), // Rounded corners following Material Design
         ),
         onPressed: () async {
           if (currentIndex == 0) {
@@ -174,14 +190,17 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
               transition: Transition.downToUp,
             );
           } else if (currentIndex == 1 || currentIndex == 2) {
-            // Home tab - add task
+            // Home tab or Inbox tab - add task
             await NavigatorService().goTo(
               const AddTaskPage(),
               transition: Transition.downToUp,
             );
           }
         },
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          size: 28.0, // Slightly larger icon for better visibility
+        ),
       );
     } else {
       return const SizedBox();

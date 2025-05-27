@@ -82,6 +82,9 @@ class TaskProvider with ChangeNotifier {
       checkNotification(taskModel);
     }
 
+    // Update home widget when task is added
+    HomeWidgetService.updateAllWidgets();
+
     notifyListeners();
   }
 
@@ -192,6 +195,9 @@ class TaskProvider with ChangeNotifier {
       }
     }
 
+    // Update home widget when task is edited
+    HomeWidgetService.updateAllWidgets();
+
     // Notify listeners to update UI
     notifyListeners();
   }
@@ -265,6 +271,9 @@ class TaskProvider with ChangeNotifier {
       }
     }
 
+    // Update home widget when task date is changed
+    HomeWidgetService.updateAllWidgets();
+
     notifyListeners();
   }
 
@@ -336,6 +345,9 @@ class TaskProvider with ChangeNotifier {
         _permanentlyChangeDateData(taskModel.id);
       });
     }
+
+    // Update home widget when task date is changed
+    HomeWidgetService.updateAllWidgets();
 
     notifyListeners();
   }
@@ -442,7 +454,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     ServerManager().updateTask(taskModel: taskModel);
-    HomeWidgetService.updateTaskCount();
+    HomeWidgetService.updateAllWidgets();
 
     // Bildirim durumunu kontrol et
     checkTaskStatusForNotifications(taskModel);
@@ -485,7 +497,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     ServerManager().updateTask(taskModel: taskModel);
-    HomeWidgetService.updateTaskCount();
+    HomeWidgetService.updateAllWidgets();
 
     // Bildirim durumunu kontrol et
     checkTaskStatusForNotifications(taskModel);
@@ -653,7 +665,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     ServerManager().updateTask(taskModel: taskModel);
-    HomeWidgetService.updateTaskCount();
+    HomeWidgetService.updateAllWidgets();
 
     // Bildirim durumunu kontrol et
     checkTaskStatusForNotifications(taskModel);

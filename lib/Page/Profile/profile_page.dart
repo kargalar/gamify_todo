@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Debug/widget_debug_page.dart';
 import 'package:next_level/Page/Profile/Widget/profile_page_top_section.dart';
 import 'package:next_level/Page/Profile/Widget/trait_list.dart';
 import 'package:next_level/Page/Profile/Widget/weekly_total_progress_chart.dart';
@@ -41,6 +43,24 @@ class _ProfilePageState extends State<ProfilePage> {
             title: Text(LocaleKeys.Profile.tr()),
             leading: const SizedBox(),
             actions: [
+              // Debug button (only in debug mode)
+              if (kDebugMode)
+                InkWell(
+                  borderRadius: AppColors.borderRadiusAll,
+                  onTap: () async {
+                    await NavigatorService().goTo(
+                      const WidgetDebugPage(),
+                      transition: Transition.rightToLeft,
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Icon(
+                      Icons.bug_report,
+                      color: AppColors.red,
+                    ),
+                  ),
+                ),
               InkWell(
                 borderRadius: AppColors.borderRadiusAll,
                 onTap: () async {

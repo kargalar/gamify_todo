@@ -40,7 +40,7 @@ class TaskActionHandler {
         );
       }
 
-      HomeWidgetService.updateTaskCount();
+      HomeWidgetService.updateAllWidgets();
     } else if (taskModel.type == TaskTypeEnum.COUNTER) {
       // Increment counter for counter tasks
       int previousCount = taskModel.currentCount!;
@@ -64,7 +64,7 @@ class TaskActionHandler {
           customStatus: TaskStatusEnum.COMPLETED,
         );
 
-        HomeWidgetService.updateTaskCount();
+        HomeWidgetService.updateAllWidgets();
       }
     } else if (taskModel.type == TaskTypeEnum.TIMER) {
       // Toggle timer for timer tasks
@@ -138,7 +138,7 @@ class TaskActionHandler {
     // Update task in provider
     ServerManager().updateTask(taskModel: taskModel);
     TaskProvider().updateItems();
-    HomeWidgetService.updateTaskCount();
+    HomeWidgetService.updateAllWidgets();
   }
 
   /// Handles task cancellation action
@@ -166,6 +166,6 @@ class TaskActionHandler {
     // Update task in provider
     ServerManager().updateTask(taskModel: taskModel);
     TaskProvider().updateItems();
-    HomeWidgetService.updateTaskCount();
+    HomeWidgetService.updateAllWidgets();
   }
 }
