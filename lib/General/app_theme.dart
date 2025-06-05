@@ -74,17 +74,18 @@ class AppTheme {
       color: AppColors.text,
     ),
     // Dialog
-    dialogTheme: DialogTheme(
-      backgroundColor: AppColors.background,
-      surfaceTintColor: AppColors.background,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(
-          color: AppColors.grey,
-          width: 1,
-        ),
-      ),
-    ),
+    // !!!!!!!!!!!!!!!!!!!!!!!!!! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    // dialogTheme: DialogTheme(
+    //   backgroundColor: AppColors.background,
+    //   surfaceTintColor: AppColors.background,
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.circular(20),
+    //     side: const BorderSide(
+    //       color: AppColors.grey,
+    //       width: 1,
+    //     ),
+    //   ),
+    // ),
     // IconButton
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
@@ -314,14 +315,15 @@ class AppTheme {
       ),
     ),
     // card
-    cardTheme: CardTheme(
-      color: AppColors.background,
-      shadowColor: AppColors.black,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppColors.borderRadiusAll,
-      ),
-    ),
+    // !!!!!!!!!!!!!!!!!!!!!!!!!! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    // cardTheme: CardTheme(
+    //   color: AppColors.background,
+    //   shadowColor: AppColors.black,
+    //   elevation: 0,
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: AppColors.borderRadiusAll,
+    //   ),
+    // ),
     // TODO:default container radius
 
     // ---------------------
