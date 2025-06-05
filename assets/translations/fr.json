@@ -152,5 +152,7 @@
     "HideCompleted": "Masquer les tâches terminées",
     "SearchTasks": "Rechercher des tâches...",
     "Search": "Rechercher",
-    "Filters": "Filtres"
+    "Filters": "Filtres",
+    "Copy": "Copier",
+    "CopiedDescription": "Description copiée dans le presse-papiers"
 }

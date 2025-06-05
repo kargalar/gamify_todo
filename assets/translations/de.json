@@ -152,5 +152,7 @@
     "HideCompleted": "Abgeschlossene ausblenden",
     "SearchTasks": "Aufgaben suchen...",
     "Search": "Suchen",
-    "Filters": "Filter"
+    "Filters": "Filter",
+    "Copy": "Kopieren",
+    "CopiedDescription": "Beschreibung in die Zwischenablage kopiert"
 }

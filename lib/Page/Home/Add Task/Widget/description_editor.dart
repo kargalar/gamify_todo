@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
@@ -70,6 +71,19 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
         ServerManager().updateItem(itemModel: updatedItem);
       }
       // For new store items, the description will be saved when the item is created
+    }
+  }
+
+  void _copyDescription() {
+    final description = _provider.descriptionController.text;
+    if (description.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: description));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(LocaleKeys.CopiedDescription.tr()),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -154,6 +168,39 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.text.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _copyDescription,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.panelBackground,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: AppColors.text.withValues(alpha: 0.1),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.copy_rounded,
+                                size: 16,
+                                color: AppColors.text.withValues(alpha: 0.7),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                LocaleKeys.Copy.tr(),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.text.withValues(alpha: 0.7),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

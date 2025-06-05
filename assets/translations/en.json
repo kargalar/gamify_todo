@@ -152,5 +152,7 @@
     "HideCompleted": "Hide completed",
     "SearchTasks": "Search tasks...",
     "Search": "Search",
-    "Filters": "Filters"
+    "Filters": "Filters",
+    "Copy": "Copy",
+    "CopiedDescription": "Description copied to clipboard"
 }

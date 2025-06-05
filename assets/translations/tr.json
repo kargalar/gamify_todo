@@ -152,5 +152,7 @@
     "HideCompleted": "Tamamlananları gizle",
     "SearchTasks": "Görevleri Ara",
     "Search": "Ara",
-    "Filters": "Filtreler"
+    "Filters": "Filtreler",
+    "Copy": "Kopyala",
+    "CopiedDescription": "Açıklama panoya kopyalandı"
 }
