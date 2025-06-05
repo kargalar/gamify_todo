@@ -393,7 +393,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     NavigatorService().goBackNavbar();
   }
 
-  void goBack() {
+  Future<void> goBack() async {
     if (addTaskProvider.editTask != null) {
       addTaskProvider.taskNameController.text = addTaskProvider.taskNameController.text.trim();
       addTaskProvider.descriptionController.text = addTaskProvider.descriptionController.text.trim();
@@ -505,6 +505,17 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
       NavigatorService().back();
     } else {
+      // Check for unsaved changes on new task
+      final hasUnsaved = addTaskProvider.taskNameController.text.isNotEmpty || addTaskProvider.descriptionController.text.isNotEmpty || addTaskProvider.locationController.text.isNotEmpty || addTaskProvider.selectedDays.isNotEmpty || addTaskProvider.subtasks.isNotEmpty;
+      if (hasUnsaved) {
+        await Helper().getDialog(
+          message: "You have unsaved changes. Exit without saving?",
+          onAccept: () {
+            NavigatorService().back();
+          },
+        );
+        return;
+      }
       NavigatorService().back();
     }
   }
