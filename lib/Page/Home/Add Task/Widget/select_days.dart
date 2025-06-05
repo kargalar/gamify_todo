@@ -43,7 +43,8 @@ class _SelectDaysState extends State<SelectDays> {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [          // Header with title and icon
+        children: [
+          // Header with title and icon
           Row(
             children: [
               Expanded(
@@ -80,7 +81,7 @@ class _SelectDaysState extends State<SelectDays> {
                   onTap: () {
                     // Unfocus any text fields
                     addTaskProvider.unfocusAll();
-                    
+
                     // Toggle select all functionality
                     if (addTaskProvider.selectedDays.length == 7) {
                       // If all days are selected, clear selection
@@ -95,14 +96,10 @@ class _SelectDaysState extends State<SelectDays> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: addTaskProvider.selectedDays.length == 7 
-                          ? AppColors.main.withValues(alpha: 0.1)
-                          : AppColors.text.withValues(alpha: 0.05),
+                      color: addTaskProvider.selectedDays.length == 7 ? AppColors.main.withValues(alpha: 0.1) : AppColors.text.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: addTaskProvider.selectedDays.length == 7 
-                            ? AppColors.main.withValues(alpha: 0.3)
-                            : AppColors.text.withValues(alpha: 0.1),
+                        color: addTaskProvider.selectedDays.length == 7 ? AppColors.main.withValues(alpha: 0.3) : AppColors.text.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -111,9 +108,7 @@ class _SelectDaysState extends State<SelectDays> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: addTaskProvider.selectedDays.length == 7 
-                            ? AppColors.main
-                            : AppColors.text.withValues(alpha: 0.7),
+                        color: addTaskProvider.selectedDays.length == 7 ? AppColors.main : AppColors.text.withValues(alpha: 0.7),
                       ),
                     ),
                   ),
@@ -196,7 +191,8 @@ class _DayButtonState extends State<DayButton> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),        onTap: () {
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
           // Unfocus any text fields when selecting days
           addTaskProvider.unfocusAll();
 
@@ -205,7 +201,7 @@ class _DayButtonState extends State<DayButton> {
           } else {
             addTaskProvider.selectedDays.add(widget.index);
           }
-          
+
           // Force rebuild to show the updated state
           setState(() {});
         },

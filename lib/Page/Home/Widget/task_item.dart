@@ -45,7 +45,12 @@ class _TaskItemState extends State<TaskItem> {
             // TaskProgressContainer(taskModel: widget.taskModel),
             InkWell(
               onTap: () {
-                taskAction();
+                // eğer subtask var ise subtask bottom sheet açılır
+                if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
+                  _showSubtasksBottomSheet();
+                } else {
+                  taskAction();
+                }
               },
               onLongPress: () async {
                 await taskLongPressAction();
@@ -124,16 +129,19 @@ class _TaskItemState extends State<TaskItem> {
                 color: priorityColor,
               ),
             )
-          : Icon(
-              widget.taskModel.type == TaskTypeEnum.CHECKBOX
-                  ? widget.taskModel.status == TaskStatusEnum.COMPLETED
-                      ? Icons.check_box
-                      : Icons.check_box_outline_blank
-                  : widget.taskModel.isTimerActive!
-                      ? Icons.pause
-                      : Icons.play_arrow,
-              size: 27,
-              color: priorityColor,
+          : GestureDetector(
+              onTap: () => taskAction(),
+              child: Icon(
+                widget.taskModel.type == TaskTypeEnum.CHECKBOX
+                    ? widget.taskModel.status == TaskStatusEnum.COMPLETED
+                        ? Icons.check_box
+                        : Icons.check_box_outline_blank
+                    : widget.taskModel.isTimerActive!
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                size: 27,
+                color: priorityColor,
+              ),
             ),
     );
   }
