@@ -43,31 +43,83 @@ class _SelectDaysState extends State<SelectDays> {
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with title and icon
-          ClickableTooltip(
-            title: "Repeat Days",
-            bulletPoints: const ["Select days for recurring tasks", "No selection means one-time task", "Routines require a start date", "Tasks will repeat on selected days"],
-            child: Container(
-              color: AppColors.transparent,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    color: AppColors.main,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    "Repeat Days",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+        children: [          // Header with title and icon
+          Row(
+            children: [
+              Expanded(
+                child: ClickableTooltip(
+                  title: "Repeat Days",
+                  bulletPoints: const ["Select days for recurring tasks", "No selection means one-time task", "Routines require a start date", "Tasks will repeat on selected days"],
+                  child: Container(
+                    color: AppColors.transparent,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_rounded,
+                          color: AppColors.main,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "Repeat Days",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+              // Select All button
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(6),
+                  onTap: () {
+                    // Unfocus any text fields
+                    addTaskProvider.unfocusAll();
+                    
+                    // Toggle select all functionality
+                    if (addTaskProvider.selectedDays.length == 7) {
+                      // If all days are selected, clear selection
+                      addTaskProvider.selectedDays.clear();
+                    } else {
+                      // Select all days
+                      addTaskProvider.selectedDays.clear();
+                      addTaskProvider.selectedDays.addAll([0, 1, 2, 3, 4, 5, 6]);
+                    }
+                    setState(() {});
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: addTaskProvider.selectedDays.length == 7 
+                          ? AppColors.main.withValues(alpha: 0.1)
+                          : AppColors.text.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: addTaskProvider.selectedDays.length == 7 
+                            ? AppColors.main.withValues(alpha: 0.3)
+                            : AppColors.text.withValues(alpha: 0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      addTaskProvider.selectedDays.length == 7 ? "Clear" : "All",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: addTaskProvider.selectedDays.length == 7 
+                            ? AppColors.main
+                            : AppColors.text.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
 
           // Divider
@@ -135,41 +187,27 @@ class DayButton extends StatefulWidget {
 class _DayButtonState extends State<DayButton> {
   late final addTaskProvider = context.read<AddTaskProvider>();
 
-  late bool isSelected;
-
-  @override
-  void initState() {
-    super.initState();
-
-    isSelected = addTaskProvider.selectedDays.contains(widget.index);
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Listen to provider changes to update the button state
+    context.watch<AddTaskProvider>();
+    final isSelected = addTaskProvider.selectedDays.contains(widget.index);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
+        borderRadius: BorderRadius.circular(12),        onTap: () {
           // Unfocus any text fields when selecting days
           addTaskProvider.unfocusAll();
-
-          setState(() {
-            isSelected = !isSelected;
-          });
 
           if (addTaskProvider.selectedDays.contains(widget.index)) {
             addTaskProvider.selectedDays.remove(widget.index);
           } else {
             addTaskProvider.selectedDays.add(widget.index);
-
-            // Eğer ilk tekrar günü seçiliyorsa ve tarih seçili değilse, uyarı göster
-            if (addTaskProvider.selectedDays.length == 1 && addTaskProvider.selectedDate == null) {
-              // Uyarı göstermek yerine, kullanıcıyı bilgilendirmek için state'i güncelliyoruz
-              // Bilgi mesajı zaten güncellenecek
-              setState(() {});
-            }
           }
+          
+          // Force rebuild to show the updated state
+          setState(() {});
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
