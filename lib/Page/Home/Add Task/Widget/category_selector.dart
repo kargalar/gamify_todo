@@ -156,6 +156,9 @@ class CategoryBottomSheet extends StatelessWidget {
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
+        border: const Border(
+          top: BorderSide(color: AppColors.dirtyWhite),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

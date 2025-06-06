@@ -119,6 +119,9 @@ class LocationBottomSheet extends StatelessWidget {
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
+        border: const Border(
+          top: BorderSide(color: AppColors.dirtyWhite),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -48,6 +48,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
+        border: const Border(
+          top: BorderSide(color: AppColors.dirtyWhite),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
