@@ -6,6 +6,7 @@ import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -546,6 +547,7 @@ class TaskProvider with ChangeNotifier {
 
       // Delete the task from storage
       await ServerManager().deleteTask(id: taskID);
+      await HiveService().deleteTask(taskID);
       await HomeWidgetService.updateTaskCount();
 
       // Cancel any notifications for this task
