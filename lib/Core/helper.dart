@@ -340,4 +340,106 @@ class Helper {
 
     return selectedDate;
   }
+
+  Future<DateTime?> selectDateWithQuickActions({
+    required BuildContext context,
+    DateTime? initialDate,
+  }) async {
+    return await showDialog<DateTime?>(
+      context: context,
+      builder: (BuildContext context) {
+        DateTime? selectedDate = initialDate; // Initialize with initialDate
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Tarih Seç'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Quick action buttons
+                    Row(
+                      children: [
+                        // Today button
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pop(DateTime.now());
+                            },
+                            icon: const Icon(Icons.today_rounded),
+                            label: const Text('Bugün'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.main.withValues(alpha: 0.1),
+                              foregroundColor: AppColors.main,
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Tomorrow button
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pop(DateTime.now().add(const Duration(days: 1)));
+                            },
+                            icon: const Icon(Icons.event_rounded),
+                            label: const Text('Yarın'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.green.withValues(alpha: 0.1),
+                              foregroundColor: AppColors.green,
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Direct calendar view
+                    SizedBox(
+                      height: 300,
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: Theme.of(context).colorScheme.copyWith(
+                                primary: AppColors.main,
+                              ),
+                        ),
+                        child: CalendarDatePicker(
+                          initialDate: initialDate ?? DateTime.now(),
+                          firstDate: DateTime(1950),
+                          lastDate: DateTime(2100),
+                          onDateChanged: (date) {
+                            setState(() {
+                              selectedDate = date;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('İptal'),
+                ),
+                TextButton(
+                  onPressed: selectedDate != null
+                      ? () {
+                          Navigator.of(context).pop(selectedDate);
+                        }
+                      : null,
+                  child: const Text('Seç'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }

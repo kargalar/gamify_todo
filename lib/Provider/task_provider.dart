@@ -229,7 +229,7 @@ class TaskProvider with ChangeNotifier {
     required TaskModel taskModel,
     bool showUndo = true,
   }) async {
-    DateTime? selectedDate = await Helper().selectDate(
+    DateTime? selectedDate = await Helper().selectDateWithQuickActions(
       context: context,
       initialDate: taskModel.taskDate,
     );
