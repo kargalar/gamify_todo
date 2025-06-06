@@ -29,7 +29,7 @@ class TitleAndDescription extends StatelessWidget {
         children: [
           AutoSizeText(
             taskModel.title,
-            maxLines: 1,
+            maxLines: 2,
             minFontSize: 14,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -41,7 +41,7 @@ class TitleAndDescription extends StatelessWidget {
           if (taskModel.description != null && taskModel.description!.isNotEmpty)
             Text(
               taskModel.description!,
-              maxLines: 1,
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,

@@ -129,15 +129,17 @@ class TaskName extends StatelessWidget {
                     //       )
                     //     : null,
                   ),
-                  textInputAction: TextInputAction.next,
+                  textInputAction: TextInputAction.done,
                   onChanged: (value) {
                     provider.notifyListeners();
                   },
                   onEditingComplete: () {
                     // Move focus to description when done
-                    if (provider.descriptionFocus.hashCode != 0) {
-                      provider.descriptionFocus.requestFocus();
-                    }
+                    // if (provider.descriptionFocus.hashCode != 0) {
+                    //   provider.descriptionFocus.requestFocus();
+                    // }
+
+                    // TODO: Add task when editing is complete
                   },
                 ),
 
@@ -164,6 +166,9 @@ class TaskName extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       width: double.infinity,
+                      constraints: const BoxConstraints(
+                        minHeight: 50, // Minimum height for the description field
+                      ),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       child: Row(
                         children: [

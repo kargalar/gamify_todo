@@ -279,6 +279,8 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                       // Title with animation
                       Text(
                         subtask.title,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: subtask.isCompleted ? FontWeight.normal : FontWeight.bold,
