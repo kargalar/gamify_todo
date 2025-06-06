@@ -91,11 +91,12 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
-          onPressed: () {
+        leading: InkWell(
+          borderRadius: AppColors.borderRadiusAll,
+          onTap: () {
             Navigator.of(context).pop();
           },
+          child: const Icon(Icons.arrow_back_ios),
         ),
         title: Text(
           LocaleKeys.Description.tr(),

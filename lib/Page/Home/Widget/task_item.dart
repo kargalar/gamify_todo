@@ -38,10 +38,10 @@ class _TaskItemState extends State<TaskItem> {
 
   @override
   Widget build(BuildContext context) {
-    return TaskSlideActinos(
+    return TaskSlideActions(
       taskModel: widget.taskModel,
       child: Opacity(
-        opacity: widget.taskModel.status != null && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.6 : 1.0,
+        opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
         child: Stack(
           alignment: Alignment.bottomLeft,
           children: [

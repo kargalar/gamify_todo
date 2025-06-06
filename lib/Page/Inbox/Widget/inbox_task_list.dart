@@ -7,6 +7,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Page/Inbox/Widget/inbox_date_header.dart';
 import 'package:next_level/Page/Inbox/Widget/date_filter_state.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
@@ -164,33 +165,39 @@ class InboxTaskList extends StatelessWidget {
     final pastDates = groupedTasks.keys.where((date) => date.isBefore(todayDate) && date.year > 1970).toList()..sort((a, b) => b.compareTo(a)); // Descending order
     sortedDates.addAll(pastDates);
 
-    return ListView.builder(
-      itemCount: sortedDates.length,
-      itemBuilder: (context, index) {
-        final date = sortedDates[index];
-        final tasksForDate = groupedTasks[date]!;
-
-        // Sort tasks by priority and time
-        taskProvider.sortTasksByPriorityAndTime(tasksForDate);
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Date header
-            InboxDateHeader(date: date),
-            const SizedBox(height: 8),
-
-            // Tasks for this date
-            ...tasksForDate.map((task) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: TaskItem(taskModel: task),
-                )),
-
-            // Add space between date groups
-            const SizedBox(height: 16),
-          ],
-        );
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (_, __) {
+        NavbarProvider().updateIndex(1);
       },
+      child: ListView.builder(
+        itemCount: sortedDates.length,
+        itemBuilder: (context, index) {
+          final date = sortedDates[index];
+          final tasksForDate = groupedTasks[date]!;
+
+          // Sort tasks by priority and time
+          taskProvider.sortTasksByPriorityAndTime(tasksForDate);
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Date header
+              InboxDateHeader(date: date),
+              const SizedBox(height: 8),
+
+              // Tasks for this date
+              ...tasksForDate.map((task) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: TaskItem(taskModel: task),
+                  )),
+
+              // Add space between date groups
+              const SizedBox(height: 16),
+            ],
+          );
+        },
+      ),
     );
   }
 }

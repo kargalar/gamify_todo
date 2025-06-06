@@ -9,8 +9,8 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:provider/provider.dart';
 
-class TaskSlideActinos extends StatefulWidget {
-  const TaskSlideActinos({
+class TaskSlideActions extends StatefulWidget {
+  const TaskSlideActions({
     super.key,
     required this.child,
     required this.taskModel,
@@ -20,10 +20,10 @@ class TaskSlideActinos extends StatefulWidget {
   final TaskModel taskModel;
 
   @override
-  State<TaskSlideActinos> createState() => _TaskSlideActinosState();
+  State<TaskSlideActions> createState() => _TaskSlideActionsState();
 }
 
-class _TaskSlideActinosState extends State<TaskSlideActinos> {
+class _TaskSlideActionsState extends State<TaskSlideActions> {
   late final taskProvider = context.read<TaskProvider>();
   final actionItemPadding = const EdgeInsets.symmetric(horizontal: 5);
 
