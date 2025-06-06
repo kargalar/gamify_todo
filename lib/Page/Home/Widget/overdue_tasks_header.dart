@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
@@ -21,6 +22,7 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
   bool _isExpanded = false;
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
+  static const String _prefsKey = 'overdue_tasks_expanded';
 
   @override
   void initState() {
@@ -33,6 +35,23 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
       parent: _animationController,
       curve: Curves.easeInOut,
     );
+    _loadExpandedState();
+  }
+
+  Future<void> _loadExpandedState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isExpanded = prefs.getBool(_prefsKey) ?? false;
+
+    if (mounted) {
+      setState(() {
+        _isExpanded = isExpanded;
+      });
+
+      if (_isExpanded) {
+        // Set animation to completed state immediately without animation
+        _animationController.value = 1.0;
+      }
+    }
   }
 
   @override
@@ -41,7 +60,9 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
     super.dispose();
   }
 
-  void _toggleExpanded() {
+  Future<void> _toggleExpanded() async {
+    final prefs = await SharedPreferences.getInstance();
+
     setState(() {
       _isExpanded = !_isExpanded;
       if (_isExpanded) {
@@ -50,6 +71,9 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
         _animationController.reverse();
       }
     });
+
+    // Save state to SharedPreferences
+    await prefs.setBool(_prefsKey, _isExpanded);
   }
 
   @override
