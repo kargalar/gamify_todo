@@ -118,12 +118,12 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: IgnorePointer(
-                // TODO :: FFİX FİX İFX
-                ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
-                child: Column(
-                  children: [
-                    Column(
+              child: Column(
+                children: [
+                  IgnorePointer(
+                    // TODO :: FFİX FİX İFX
+                    ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 10),
@@ -338,35 +338,35 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                         const SizedBox(height: 20),
                       ],
                     ),
-                    Column(
-                      children: [
-                        // Archive Button
-                        if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: ArchiveButton(
-                              routine: routine,
-                              taskModel: widget.taskModel,
-                            ),
+                  ),
+                  Column(
+                    children: [
+                      // Archive Button
+                      if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: ArchiveButton(
+                            routine: routine,
+                            taskModel: widget.taskModel,
                           ),
+                        ),
 
-                        // Unarchive Button
-                        if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: UnarchiveButton(
-                              routine: routine,
-                              taskModel: widget.taskModel,
-                            ),
+                      // Unarchive Button
+                      if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: UnarchiveButton(
+                            routine: routine,
+                            taskModel: widget.taskModel,
                           ),
+                        ),
 
-                        const SizedBox(height: 30),
-                      ],
-                    ),
-                  ],
-                ),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
