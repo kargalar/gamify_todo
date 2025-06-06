@@ -96,8 +96,8 @@ class _NotificationStatusState extends State<NotificationStatus> {
             ),
           ),
 
-          // Erken hatırlatma seçici (sadece alarm açıksa göster)
-          if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null)
+          // Erken hatırlatma seçici (bildirim veya alarm açıksa göster)
+          if ((addTaskProvider.isNotificationOn || addTaskProvider.isAlarmOn) && addTaskProvider.selectedTime != null)
             Column(
               children: [
                 // Ayırıcı çizgi
@@ -145,7 +145,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
   // Erken hatırlatma seçeneklerini oluştur
   Widget _buildEarlyReminderOptions() {
     return GridView.count(
-      crossAxisCount: 4, // Dört sütun
+      crossAxisCount: 5, // Beş sütun (10 seçenek için)
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 2.0, // Genişlik/yükseklik oranı
@@ -157,10 +157,12 @@ class _NotificationStatusState extends State<NotificationStatus> {
         _buildReminderOption(5, "5dk"),
         _buildReminderOption(10, "10dk"),
         _buildReminderOption(15, "15dk"),
-        _buildReminderOption(20, "20dk"),
         _buildReminderOption(30, "30dk"),
         _buildReminderOption(60, "1sa"),
         _buildReminderOption(120, "2sa"),
+        _buildReminderOption(300, "5sa"),
+        _buildReminderOption(600, "10sa"),
+        _buildReminderOption(1440, "1gün"),
       ],
     );
   }

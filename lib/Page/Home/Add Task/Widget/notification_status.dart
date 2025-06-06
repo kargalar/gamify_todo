@@ -199,10 +199,8 @@ class _NotificationStatusState extends State<NotificationStatus> {
                 ),
               ],
             ),
-          ),
-
-          // Early reminder section (only show if alarm is on)
-          if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null) ...[
+          ), // Early reminder section (show if notification or alarm is on)
+          if ((addTaskProvider.isNotificationOn || addTaskProvider.isAlarmOn) && addTaskProvider.selectedTime != null) ...[
             // Early reminder title
             Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 12),
@@ -253,7 +251,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      addTaskProvider.earlyReminderMinutes == null ? "No early reminder will be sent" : "A notification will be sent ${Duration(minutes: addTaskProvider.earlyReminderMinutes!).compactFormat()} before the alarm",
+                      addTaskProvider.earlyReminderMinutes == null ? "No early reminder will be sent" : "A notification will be sent ${Duration(minutes: addTaskProvider.earlyReminderMinutes!).compactFormat()} before the ${addTaskProvider.isAlarmOn ? 'alarm' : 'notification'}",
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.text.withValues(alpha: 0.5),
@@ -275,8 +273,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
     // Use a grid layout for better organization
     return GridView.count(
       crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,
       childAspectRatio: 1.5, // Increased for better text fitting
@@ -285,10 +282,12 @@ class _NotificationStatusState extends State<NotificationStatus> {
         _buildReminderOption(5),
         _buildReminderOption(10),
         _buildReminderOption(15),
-        _buildReminderOption(20),
         _buildReminderOption(30),
         _buildReminderOption(60),
         _buildReminderOption(120),
+        _buildReminderOption(300),
+        _buildReminderOption(600),
+        _buildReminderOption(1440),
       ],
     );
   }

@@ -232,14 +232,14 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
               ),
             ),
 
-            // Early reminder section (only show if alarm is on)
-            if (addTaskProvider.isAlarmOn && addTaskProvider.selectedTime != null) ...[
+            // Early reminder section (show for both notifications and alarms)
+            if ((addTaskProvider.isNotificationOn || addTaskProvider.isAlarmOn) && addTaskProvider.selectedTime != null) ...[
               // Early reminder title
               Padding(
                 padding: const EdgeInsets.only(top: 16, bottom: 12),
                 child: ClickableTooltip(
                   title: "Early Reminder",
-                  bulletPoints: const ["Optional notification before the main alarm", "Select how much advance notice you want", "Helps you prepare for upcoming tasks", "Select '0m' to disable early reminder"],
+                  bulletPoints: const ["Optional notification before the main notification/alarm", "Select how much advance notice you want", "Helps you prepare for upcoming tasks", "Select 'Off' to disable early reminder"],
                   child: Row(
                     children: [
                       Icon(
@@ -608,7 +608,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
   Widget _buildEarlyReminderOptions() {
     // Use a grid layout for better organization
     return GridView.count(
-      crossAxisCount: 4,
+      crossAxisCount: 5, // Changed from 4 to 5 to accommodate 10 options
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 8,
@@ -619,10 +619,12 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
         _buildReminderOption(5),
         _buildReminderOption(10),
         _buildReminderOption(15),
-        _buildReminderOption(20),
         _buildReminderOption(30),
         _buildReminderOption(60),
         _buildReminderOption(120),
+        _buildReminderOption(300),
+        _buildReminderOption(600),
+        _buildReminderOption(1440),
       ],
     );
   }
