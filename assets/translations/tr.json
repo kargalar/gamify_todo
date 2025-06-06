@@ -152,7 +152,10 @@
     "HideCompleted": "Tamamlananları gizle",
     "SearchTasks": "Görevleri Ara",
     "Search": "Ara",
-    "Filters": "Filtreler",
-    "Copy": "Kopyala",
-    "CopiedDescription": "Açıklama panoya kopyalandı"
+    "Filters": "Filtreler",    "Copy": "Kopyala",
+    "CopiedDescription": "Açıklama panoya kopyalandı",
+    "ContactUs": "Bize Ulaşın",
+    "ContactUsSubtitle": "Bizimle iletişime geçin",
+    "PrivacyPolicy": "Gizlilik Politikası",
+    "PrivacyPolicySubtitle": "Gizlilik politikamızı okuyun"
 }

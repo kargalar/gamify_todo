@@ -152,7 +152,10 @@
     "HideCompleted": "Hide completed",
     "SearchTasks": "Search tasks...",
     "Search": "Search",
-    "Filters": "Filters",
-    "Copy": "Copy",
-    "CopiedDescription": "Description copied to clipboard"
+    "Filters": "Filters",    "Copy": "Copy",
+    "CopiedDescription": "Description copied to clipboard",
+    "ContactUs": "Contact Us",
+    "ContactUsSubtitle": "Get in touch with us",
+    "PrivacyPolicy": "Privacy Policy",
+    "PrivacyPolicySubtitle": "Read our privacy policy"
 }

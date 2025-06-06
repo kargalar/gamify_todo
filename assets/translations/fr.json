@@ -152,7 +152,10 @@
     "HideCompleted": "Masquer les tâches terminées",
     "SearchTasks": "Rechercher des tâches...",
     "Search": "Rechercher",
-    "Filters": "Filtres",
-    "Copy": "Copier",
-    "CopiedDescription": "Description copiée dans le presse-papiers"
+    "Filters": "Filtres",    "Copy": "Copier",
+    "CopiedDescription": "Description copiée dans le presse-papiers",
+    "ContactUs": "Nous contacter",
+    "ContactUsSubtitle": "Entrez en contact avec nous",
+    "PrivacyPolicy": "Politique de confidentialité",
+    "PrivacyPolicySubtitle": "Lisez notre politique de confidentialité"
 }

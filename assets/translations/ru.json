@@ -152,7 +152,10 @@
     "HideCompleted": "Скрыть завершенные",
     "SearchTasks": "Поиск задач...",
     "Search": "Поиск",
-    "Filters": "Фильтры",
-    "Copy": "Копировать",
-    "CopiedDescription": "Описание скопировано в буфер обмена"
+    "Filters": "Фильтры",    "Copy": "Копировать",
+    "CopiedDescription": "Описание скопировано в буфер обмена",
+    "ContactUs": "Связаться с нами",
+    "ContactUsSubtitle": "Свяжитесь с нами",
+    "PrivacyPolicy": "Политика конфиденциальности",
+    "PrivacyPolicySubtitle": "Ознакомьтесь с нашей политикой конфиденциальности"
 }

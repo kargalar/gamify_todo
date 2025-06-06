@@ -88,7 +88,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                     if (completedCount > 0)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: GestureDetector(
+                        child: InkWell(
                           onTap: () {
                             taskProvider.toggleTaskSubtaskVisibility(widget.taskModel);
                           },
@@ -218,7 +218,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
       onDismissed: (direction) {
         _removeSubtask(subtask);
       },
-      child: GestureDetector(
+      child: InkWell(
         onTap: () {
           _showSubtaskDialog(subtask);
         },

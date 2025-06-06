@@ -2,7 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/Widgets/language_pop.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/data_management_dialog.dart';
+import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/theme_provider.dart';
@@ -69,8 +71,7 @@ class SettingsPage extends StatelessWidget {
                   context.read<ThemeProvider>().changeTheme();
                 },
               ),
-            ),
-            // _settingsOption(
+            ), // _settingsOption(
             //   title: LocaleKeys.Help.tr(),
             //   subtitle: LocaleKeys.HelpText.tr(),
             //   onTap: () {
@@ -84,6 +85,26 @@ class SettingsPage extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context) => const DataManagementDialog(),
+                );
+              },
+            ),
+            _settingsOption(
+              title: LocaleKeys.ContactUs.tr(),
+              subtitle: LocaleKeys.ContactUsSubtitle.tr(),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const ContactUsDialog(),
+                );
+              },
+            ),
+            _settingsOption(
+              title: LocaleKeys.PrivacyPolicy.tr(),
+              subtitle: LocaleKeys.PrivacyPolicySubtitle.tr(),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const PrivacyPolicyDialog(),
                 );
               },
             ),

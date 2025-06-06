@@ -152,7 +152,10 @@
     "HideCompleted": "Abgeschlossene ausblenden",
     "SearchTasks": "Aufgaben suchen...",
     "Search": "Suchen",
-    "Filters": "Filter",
-    "Copy": "Kopieren",
-    "CopiedDescription": "Beschreibung in die Zwischenablage kopiert"
+    "Filters": "Filter",    "Copy": "Kopieren",
+    "CopiedDescription": "Beschreibung in die Zwischenablage kopiert",
+    "ContactUs": "Kontaktiere uns",
+    "ContactUsSubtitle": "Nehmen Sie Kontakt mit uns auf",
+    "PrivacyPolicy": "Datenschutzrichtlinie",
+    "PrivacyPolicySubtitle": "Lesen Sie unsere Datenschutzrichtlinie"
 }

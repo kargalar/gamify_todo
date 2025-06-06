@@ -159,5 +159,9 @@ abstract class  LocaleKeys {
   static const Filters = 'Filters';
   static const Copy = 'Copy';
   static const CopiedDescription = 'CopiedDescription';
+  static const ContactUs = 'ContactUs';
+  static const ContactUsSubtitle = 'ContactUsSubtitle';
+  static const PrivacyPolicy = 'PrivacyPolicy';
+  static const PrivacyPolicySubtitle = 'PrivacyPolicySubtitle';
 
 }
