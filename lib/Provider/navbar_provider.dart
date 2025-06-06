@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:next_level/Provider/task_provider.dart';
 
 class NavbarProvider with ChangeNotifier {
   static final NavbarProvider _instance = NavbarProvider._internal();
@@ -13,6 +14,11 @@ class NavbarProvider with ChangeNotifier {
 
   void updateIndex(int index) {
     currentIndex = index;
+
+    // Eğer home page'e (index 1) geçiş yapılıyorsa, selected date'i bugüne resetle
+    if (index == 1) {
+      TaskProvider().changeSelectedDate(DateTime.now());
+    }
 
     pageController.animateToPage(
       currentIndex,

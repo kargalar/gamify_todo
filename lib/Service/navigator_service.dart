@@ -41,7 +41,9 @@ class NavigatorService {
       return false;
     });
 
-    if (isHome) NavbarProvider().updateIndex(1);
+    if (isHome) {
+      NavbarProvider().updateIndex(1);
+    }
   }
 
   // delete mail and password on shared preferences and go to login page
