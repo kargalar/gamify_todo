@@ -134,14 +134,12 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
           sizeFactor: _expandAnimation,
           child: Column(
             children: [
-              const SizedBox(height: 8),
               // Overdue tasks list with minimal spacing
-              ListView.separated(
+              ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: widget.overdueTasks.length,
                 padding: const EdgeInsets.all(0),
-                separatorBuilder: (context, index) => const SizedBox(height: 6),
                 itemBuilder: (context, index) {
                   return TaskItem(taskModel: widget.overdueTasks[index]);
                 },

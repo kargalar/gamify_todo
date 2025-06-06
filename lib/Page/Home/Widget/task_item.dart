@@ -33,67 +33,121 @@ class TaskItem extends StatefulWidget {
   State<TaskItem> createState() => _TaskItemState();
 }
 
-class _TaskItemState extends State<TaskItem> {
+class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   bool _isIncrementing = false;
+  late AnimationController _completionAnimationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<Color?> _backgroundColorAnimation;
+  animationDuration() => const Duration(milliseconds: 300);
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Animation controller for completion effect (quick)
+    _completionAnimationController = AnimationController(
+      duration: animationDuration(),
+      vsync: this,
+    );
+
+    // Scale animation for completion effect
+    _scaleAnimation = Tween<double>(
+      begin: 1,
+      end: 1.01,
+    ).animate(CurvedAnimation(
+      parent: _completionAnimationController,
+      curve: Curves.fastLinearToSlowEaseIn,
+    ));
+
+    // Background color animation for completion effect
+    _backgroundColorAnimation = ColorTween(
+      begin: Colors.transparent,
+      end: const Color.fromARGB(255, 90, 255, 49).withValues(alpha: 0.6),
+    ).animate(CurvedAnimation(
+      parent: _completionAnimationController,
+      curve: Curves.fastLinearToSlowEaseIn,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _completionAnimationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return TaskSlideActions(
-      taskModel: widget.taskModel,
-      child: Opacity(
-        opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
-        child: Stack(
-          alignment: Alignment.bottomLeft,
-          children: [
-            // TaskProgressContainer(taskModel: widget.taskModel),
-            InkWell(
-              onTap: () {
-                // eğer subtask var ise subtask bottom sheet açılır
-                if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
-                  _showSubtasksBottomSheet();
-                }
-                // eğer description varsa description editor aç
-                else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
-                  _showDescriptionEditor();
-                } else {
-                  taskAction();
-                }
-              },
-              onLongPress: () async {
-                await taskLongPressAction();
-              },
+    return AnimatedBuilder(
+      animation: Listenable.merge([_completionAnimationController]),
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: AnimatedContainer(
+            duration: animationDuration(),
+            decoration: BoxDecoration(
+              color: _backgroundColorAnimation.value,
               borderRadius: AppColors.borderRadiusAll,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : AppColors.borderRadiusAll,
+            ),
+            child: TaskSlideActions(
+              taskModel: widget.taskModel,
+              child: Opacity(
+                opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
+                child: Stack(
+                  alignment: Alignment.bottomLeft,
+                  children: [
+                    // TaskProgressContainer(taskModel: widget.taskModel),
+                    InkWell(
+                      onTap: () {
+                        // eğer subtask var ise subtask bottom sheet açılır
+                        if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
+                          _showSubtasksBottomSheet();
+                        }
+                        // eğer description varsa description editor aç
+                        else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
+                          _showDescriptionEditor();
+                        } else {
+                          taskAction();
+                        }
+                      },
+                      onLongPress: () async {
+                        await taskLongPressAction();
+                      },
+                      borderRadius: AppColors.borderRadiusAll,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : AppColors.borderRadiusAll,
+                            ),
+                            child: Row(
+                              children: [
+                                taskActionIcon(),
+                                const SizedBox(width: 5),
+                                TitleAndDescription(taskModel: widget.taskModel),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
+                                    TaskTime(taskModel: widget.taskModel),
+                                    if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
+                          PriorityLine(taskModel: widget.taskModel),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        taskActionIcon(),
-                        const SizedBox(width: 5),
-                        TitleAndDescription(taskModel: widget.taskModel),
-                        const SizedBox(width: 10),
-                        Column(
-                          children: [
-                            TaskTime(taskModel: widget.taskModel),
-                            if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
-                  PriorityLine(taskModel: widget.taskModel),
-                ],
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -167,15 +221,44 @@ class _TaskItemState extends State<TaskItem> {
       );
     }
 
-    // Use the TaskActionHandler to handle the task action
-    TaskActionHandler.handleTaskAction(
-      widget.taskModel,
-      onStateChanged: () {
-        if (!_isIncrementing) {
-          setState(() {});
+    // Check if this is a checkbox task being completed
+    final bool isCheckboxTaskBeingCompleted = widget.taskModel.type == TaskTypeEnum.CHECKBOX && widget.taskModel.status != TaskStatusEnum.COMPLETED; // If it's a checkbox task being completed, play animation first, then handle the action
+    if (isCheckboxTaskBeingCompleted) {
+      _playCompletionAnimation(() {
+        // After animation completes, handle the task action
+        TaskActionHandler.handleTaskAction(
+          widget.taskModel,
+          onStateChanged: () {
+            if (!_isIncrementing) {
+              setState(() {});
+            }
+          },
+        );
+      });
+    } else {
+      // For other task types, handle the action immediately
+      TaskActionHandler.handleTaskAction(
+        widget.taskModel,
+        onStateChanged: () {
+          if (!_isIncrementing) {
+            setState(() {});
+          }
+        },
+      );
+    }
+  }
+
+  void _playCompletionAnimation([VoidCallback? onAnimationComplete]) {
+    // First, play the completion effect (scale + background color)
+    _completionAnimationController.forward().then((_) {
+      // After completion effect, reverse it and then slide down
+      _completionAnimationController.reverse().then((_) {
+        // Play slide animation
+        if (onAnimationComplete != null) {
+          onAnimationComplete();
         }
-      },
-    );
+      });
+    });
   }
 
   Widget _buildSubtasksButton() {
