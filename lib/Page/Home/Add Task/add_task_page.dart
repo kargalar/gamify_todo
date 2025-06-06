@@ -182,9 +182,11 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       const SizedBox(height: 10),
                       EditProgressWidget.forTask(task: addTaskProvider.editTask!),
                     ],
-                    const SizedBox(height: 10),
-                    // Combined Task Name and Description in a simpler way
-                    TaskName(autoFocus: addTaskProvider.editTask == null),
+                    const SizedBox(height: 10), // Combined Task Name and Description in a simpler way
+                    TaskName(
+                      autoFocus: addTaskProvider.editTask == null,
+                      onTaskSubmit: addTaskProvider.editTask == null ? addTask : null,
+                    ),
 
                     const SizedBox(height: 10),
                     // Combined Date, Time & Notification widget

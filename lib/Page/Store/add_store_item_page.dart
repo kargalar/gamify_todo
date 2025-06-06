@@ -149,12 +149,11 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                  ],
-
-                  // Item name
+                  ], // Item name
                   TaskName(
                     isStore: true,
                     autoFocus: widget.editItemModel == null,
+                    onTaskSubmit: null, // Store items don't need this functionality
                   ),
                   const SizedBox(height: 10),
 

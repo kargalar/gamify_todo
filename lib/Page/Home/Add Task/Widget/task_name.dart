@@ -13,10 +13,12 @@ class TaskName extends StatelessWidget {
     super.key,
     this.isStore = false,
     required this.autoFocus,
+    this.onTaskSubmit,
   });
 
   final bool isStore;
   final bool autoFocus;
+  final VoidCallback? onTaskSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -134,12 +136,10 @@ class TaskName extends StatelessWidget {
                     provider.notifyListeners();
                   },
                   onEditingComplete: () {
-                    // Move focus to description when done
-                    // if (provider.descriptionFocus.hashCode != 0) {
-                    //   provider.descriptionFocus.requestFocus();
-                    // }
-
-                    // TODO: Add task when editing is complete
+                    // Add task when editing is complete
+                    if (!isStore && onTaskSubmit != null) {
+                      onTaskSubmit!();
+                    }
                   },
                 ),
 
