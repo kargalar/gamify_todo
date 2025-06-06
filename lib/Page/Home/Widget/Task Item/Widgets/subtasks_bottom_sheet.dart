@@ -220,7 +220,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
       },
       child: GestureDetector(
         onTap: () {
-          _toggleSubtaskCompletion(subtask);
+          _showSubtaskDialog(subtask);
         },
         onLongPress: () {
           // Edit subtask on long press

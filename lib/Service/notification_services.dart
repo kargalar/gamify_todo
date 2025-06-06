@@ -314,8 +314,8 @@ class NotificationService {
         enableLights: true,
         enableVibration: true,
         vibrationPattern: isAlarm ? Int64List.fromList([0, 1000, 500, 1000, 500, 1000]) : null,
-        ongoing: isAlarm,
-        autoCancel: false,
+        ongoing: true, // Ensures the notification stays visible
+        autoCancel: false, // Prevents the notification from being dismissed automatically
         fullScreenIntent: isAlarm,
         category: AndroidNotificationCategory.alarm,
         actions: isAlarm
@@ -329,7 +329,7 @@ class NotificationService {
               ]
             : null,
         onlyAlertOnce: false,
-        timeoutAfter: isAlarm ? null : const Duration(seconds: 10).inMilliseconds,
+        timeoutAfter: null, // Ensures no timeout for notifications
         audioAttributesUsage: isAlarm ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
         playSound: true,
         ticker: isAlarm ? 'Alarm is active' : null,

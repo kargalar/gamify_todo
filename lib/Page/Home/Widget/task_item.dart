@@ -5,6 +5,7 @@ import 'package:next_level/Core/Handlers/task_action_handler.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/description_editor.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/priority_line.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/subtasks_bottom_sheet.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_location.dart';
@@ -15,6 +16,8 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:provider/provider.dart';
 
 class TaskItem extends StatefulWidget {
   const TaskItem({
@@ -48,6 +51,10 @@ class _TaskItemState extends State<TaskItem> {
                 // eğer subtask var ise subtask bottom sheet açılır
                 if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
                   _showSubtasksBottomSheet();
+                }
+                // eğer description varsa description editor aç
+                else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
+                  _showDescriptionEditor();
                 } else {
                   taskAction();
                 }
@@ -233,5 +240,29 @@ class _TaskItemState extends State<TaskItem> {
       barrierColor: Colors.transparent,
       builder: (context) => SubtasksBottomSheet(taskModel: widget.taskModel),
     );
+  }
+
+  void _showDescriptionEditor() {
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (context) {
+          final provider = AddTaskProvider();
+          provider.editTask = widget.taskModel;
+          // Description controller'ı manuel olarak doldur
+          provider.descriptionController.text = widget.taskModel.description ?? '';
+
+          return ChangeNotifierProvider.value(
+            value: provider,
+            child: const DescriptionEditor(),
+          );
+        },
+        fullscreenDialog: true,
+      ),
+    )
+        .then((_) {
+      // Description editor'dan geri geldiğinde state'i güncelle
+      setState(() {});
+    });
   }
 }
