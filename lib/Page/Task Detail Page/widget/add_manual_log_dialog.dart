@@ -108,36 +108,39 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
 
             const SizedBox(height: 16),
 
-            // Durum seçimi
-            Text(LocaleKeys.Status.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<TaskStatusEnum>(
-              value: selectedStatus,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+            // Durum seçimi (sadece checkbox için)
+            if (widget.taskModel.type == TaskTypeEnum.CHECKBOX) Text(LocaleKeys.Status.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+            if (widget.taskModel.type == TaskTypeEnum.CHECKBOX) const SizedBox(height: 8),
+            if (widget.taskModel.type == TaskTypeEnum.CHECKBOX)
+              DropdownButtonFormField<TaskStatusEnum>(
+                value: selectedStatus,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: TaskStatusEnum.COMPLETED,
+                    child: Text(LocaleKeys.Completed.tr()),
+                  ),
+                  DropdownMenuItem(
+                    value: TaskStatusEnum.FAILED,
+                    child: Text(LocaleKeys.Failed.tr()),
+                  ),
+                  DropdownMenuItem(
+                    value: TaskStatusEnum.CANCEL,
+                    child: Text(LocaleKeys.Cancelled.tr()),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedStatus = value;
+                    });
+                  }
+                },
               ),
-              items: [
-                DropdownMenuItem(
-                  value: TaskStatusEnum.COMPLETED,
-                  child: Text(LocaleKeys.Completed.tr()),
-                ),
-                DropdownMenuItem(
-                  value: TaskStatusEnum.FAILED,
-                  child: Text(LocaleKeys.Failed.tr()),
-                ),
-                DropdownMenuItem(
-                  value: TaskStatusEnum.CANCEL,
-                  child: Text(LocaleKeys.Cancelled.tr()),
-                ),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    selectedStatus = value;
-                  });
-                }
-              },
-            ),
+
+            if (widget.taskModel.type == TaskTypeEnum.CHECKBOX) const SizedBox(height: 16),
 
             const SizedBox(height: 16),
 
@@ -252,12 +255,15 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
     }
 
     // Log oluştur - manuel girilen değer doğrudan log olarak kaydedilir
+    // Status sadece checkbox için kullanılır, timer ve counter için otomatik COMPLETED
+    TaskStatusEnum logStatus = widget.taskModel.type == TaskTypeEnum.CHECKBOX ? selectedStatus : TaskStatusEnum.COMPLETED;
+
     await TaskLogProvider().addTaskLog(
       widget.taskModel,
       customLogDate: logDateTime,
       customDuration: duration, // Manuel girilen süre doğrudan log olarak kaydedilir
       customCount: countValue, // Manuel girilen sayı doğrudan log olarak kaydedilir
-      customStatus: selectedStatus,
+      customStatus: logStatus,
     );
   }
 }
