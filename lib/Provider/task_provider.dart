@@ -1094,4 +1094,29 @@ class TaskProvider with ChangeNotifier {
       }
     }
   }
+
+  // Unarchive routine
+  Future<void> unarchiveRoutine(int routineID) async {
+    debugPrint('Unarchiving routine: ID=$routineID');
+
+    final routineModel = routineList.firstWhere((element) => element.id == routineID);
+
+    // Mark routine as not archived
+    routineModel.isArchived = false;
+
+    // Update the routine
+    await ServerManager().updateRoutine(routineModel: routineModel);
+
+    // Mark all related tasks as active (null status) if they were archived
+    final associatedTasks = taskList.where((task) => task.routineID == routineID).toList();
+
+    for (final task in associatedTasks) {
+      if (task.status == TaskStatusEnum.ARCHIVED) {
+        task.status = null; // Set to active state
+        await ServerManager().updateTask(taskModel: task);
+      }
+    }
+
+    notifyListeners();
+  }
 }

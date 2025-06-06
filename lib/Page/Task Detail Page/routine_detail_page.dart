@@ -9,6 +9,7 @@ import 'package:next_level/Page/Task%20Detail%20Page/widget/archive_button.dart'
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/trait_progress_widget.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/widget/unarchive_button.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -115,236 +116,255 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
           ),
           body: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: IgnorePointer(
-              ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: IgnorePointer(
+                // TODO :: FFİX FİX İFX
+                ignoring: widget.taskModel.status == TaskStatusEnum.ARCHIVED,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 10),
 
-                    // Current Progress
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.panelBackground,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header with title and icon
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.track_changes_rounded,
-                                color: AppColors.main,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                "Current Progress",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        // Current Progress
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.panelBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-
-                          // Divider
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Divider(
-                              color: AppColors.text.withValues(alpha: 0.1),
-                              height: 1,
-                            ),
-                          ),
-
-                          EditProgressWidget.forTask(task: widget.taskModel),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // All Time Stats and Success Metrics
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.panelBackground,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header with title and icon
-                          Row(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
-                                Icons.bar_chart_rounded,
-                                color: AppColors.main,
-                                size: 20,
+                              // Header with title and icon
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.track_changes_rounded,
+                                    color: AppColors.main,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    "Current Progress",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                "Statistics",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+
+                              // Divider
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                child: Divider(
+                                  color: AppColors.text.withValues(alpha: 0.1),
+                                  height: 1,
                                 ),
                               ),
+
+                              EditProgressWidget.forTask(task: widget.taskModel),
                             ],
                           ),
-
-                          // Divider
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Divider(
-                              color: AppColors.text.withValues(alpha: 0.1),
-                              height: 1,
-                            ),
-                          ),
-
-                          // All Time Stats
-                          AllTimeStatsWidget(
-                            viewModel: _viewModel,
-                            taskType: widget.taskModel.type,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Trait Progress
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.panelBackground,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header with title and icon
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.psychology_rounded,
-                                color: AppColors.main,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                "Trait Progress",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Divider
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Divider(
-                              color: AppColors.text.withValues(alpha: 0.1),
-                              height: 1,
-                            ),
-                          ),
-
-                          TraitProgressWidget(viewModel: _viewModel),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Recent Logs
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.panelBackground,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header with title and icon
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.history_rounded,
-                                color: AppColors.main,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                LocaleKeys.RecentLogs.tr(),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Divider
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Divider(
-                              color: AppColors.text.withValues(alpha: 0.1),
-                              height: 1,
-                            ),
-                          ),
-
-                          RecentLogsWidget(viewModel: _viewModel),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Archive Button
-                    if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ArchiveButton(
-                          routine: routine,
-                          taskModel: widget.taskModel,
                         ),
-                      ),
+                        const SizedBox(height: 10),
 
-                    const SizedBox(height: 30),
+                        // All Time Stats and Success Metrics
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.panelBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header with title and icon
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.bar_chart_rounded,
+                                    color: AppColors.main,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    "Statistics",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // Divider
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                child: Divider(
+                                  color: AppColors.text.withValues(alpha: 0.1),
+                                  height: 1,
+                                ),
+                              ),
+
+                              // All Time Stats
+                              AllTimeStatsWidget(
+                                viewModel: _viewModel,
+                                taskType: widget.taskModel.type,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Trait Progress
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.panelBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header with title and icon
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.psychology_rounded,
+                                    color: AppColors.main,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    "Trait Progress",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // Divider
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                child: Divider(
+                                  color: AppColors.text.withValues(alpha: 0.1),
+                                  height: 1,
+                                ),
+                              ),
+
+                              TraitProgressWidget(viewModel: _viewModel),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Recent Logs
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.panelBackground,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header with title and icon
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.history_rounded,
+                                    color: AppColors.main,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    LocaleKeys.RecentLogs.tr(),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              // Divider
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                child: Divider(
+                                  color: AppColors.text.withValues(alpha: 0.1),
+                                  height: 1,
+                                ),
+                              ),
+
+                              RecentLogsWidget(viewModel: _viewModel),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        // Archive Button
+                        if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: ArchiveButton(
+                              routine: routine,
+                              taskModel: widget.taskModel,
+                            ),
+                          ),
+
+                        // Unarchive Button
+                        if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: UnarchiveButton(
+                              routine: routine,
+                              taskModel: widget.taskModel,
+                            ),
+                          ),
+
+                        const SizedBox(height: 30),
+                      ],
+                    ),
                   ],
                 ),
               ),
