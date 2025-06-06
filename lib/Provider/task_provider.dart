@@ -508,31 +508,26 @@ class TaskProvider with ChangeNotifier {
   }
 
   // Delete a task with undo functionality
-  Future<void> deleteTask(int taskID, {bool showUndo = true}) async {
+  Future<void> deleteTask(int taskID) async {
     final task = taskList.firstWhere((task) => task.id == taskID);
 
-    if (showUndo) {
-      // Store the task for potential undo
-      _deletedTasks[taskID] = task;
+    // Store the task for potential undo
+    _deletedTasks[taskID] = task;
 
-      // Remove from UI immediately
-      taskList.removeWhere((task) => task.id == taskID);
-      notifyListeners();
+    // Remove from UI immediately
+    taskList.removeWhere((task) => task.id == taskID);
+    notifyListeners();
 
-      // Show undo snackbar
-      Helper().getUndoMessage(
-        message: "Task deleted",
-        onUndo: () => _undoDeleteTask(taskID),
-      );
+    // Show undo snackbar
+    Helper().getUndoMessage(
+      message: "Task deleted",
+      onUndo: () => _undoDeleteTask(taskID),
+    );
 
-      // Set timer for permanent deletion
-      _undoTimers['task_$taskID'] = Timer(const Duration(seconds: 3), () {
-        _permanentlyDeleteTask(taskID);
-      });
-    } else {
-      // Direct deletion without undo
+    // Set timer for permanent deletion
+    _undoTimers['task_$taskID'] = Timer(const Duration(seconds: 3), () async {
       await _permanentlyDeleteTask(taskID);
-    }
+    });
   }
 
   // Permanently delete a task
@@ -568,36 +563,31 @@ class TaskProvider with ChangeNotifier {
   }
 
   // Delete routine with undo functionality
-  Future<void> deleteRoutine(int routineID, {bool showUndo = true}) async {
+  Future<void> deleteRoutine(int routineID) async {
     final routineModel = routineList.firstWhere((element) => element.id == routineID);
     final associatedTasks = taskList.where((task) => task.routineID == routineID).toList();
 
-    if (showUndo) {
-      // Store the routine and associated tasks for potential undo
-      _deletedRoutines[routineID] = routineModel;
-      for (final task in associatedTasks) {
-        _deletedTasks[task.id] = task;
-      }
-
-      // Remove from UI immediately
-      routineList.remove(routineModel);
-      taskList.removeWhere((task) => task.routineID == routineID);
-      notifyListeners();
-
-      // Show undo snackbar
-      Helper().getUndoMessage(
-        message: "Routine deleted",
-        onUndo: () => _undoDeleteRoutine(routineID),
-      );
-
-      // Set timer for permanent deletion
-      _undoTimers['routine_$routineID'] = Timer(const Duration(seconds: 3), () {
-        _permanentlyDeleteRoutine(routineID);
-      });
-    } else {
-      // Direct deletion without undo
-      await _permanentlyDeleteRoutine(routineID);
+    // Store the routine and associated tasks for potential undo
+    _deletedRoutines[routineID] = routineModel;
+    for (final task in associatedTasks) {
+      _deletedTasks[task.id] = task;
     }
+
+    // Remove from UI immediately
+    routineList.remove(routineModel);
+    taskList.removeWhere((task) => task.routineID == routineID);
+    notifyListeners();
+
+    // Show undo snackbar
+    Helper().getUndoMessage(
+      message: "Routine deleted",
+      onUndo: () => _undoDeleteRoutine(routineID),
+    );
+
+    // Set timer for permanent deletion
+    _undoTimers['routine_$routineID'] = Timer(const Duration(seconds: 3), () async {
+      await _permanentlyDeleteRoutine(routineID);
+    });
   }
 
   // Permanently delete a routine
