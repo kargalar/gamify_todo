@@ -1111,4 +1111,12 @@ class TaskProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  // Get overdue tasks (only for display purposes, not filtered by date)
+  List<TaskModel> getOverdueTasks() {
+    List<TaskModel> overdueTasks = taskList.where((task) => task.status == TaskStatusEnum.OVERDUE && task.routineID == null).toList();
+
+    sortTasksByPriorityAndTime(overdueTasks);
+    return overdueTasks;
+  }
 }

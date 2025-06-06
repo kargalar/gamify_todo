@@ -53,6 +53,10 @@ abstract class  LocaleKeys {
   static const Routines = 'Routines';
   static const FutureRoutines = 'FutureRoutines';
   static const Completed = 'Completed';
+  static const Overdue = 'Overdue';
+  static const OverdueTasks = 'OverdueTasks';
+  static const OverdueTaskCount = 'OverdueTaskCount';
+  static const OverdueTaskCountPlural = 'OverdueTaskCountPlural';
   static const NameEmpty = 'NameEmpty';
   static const AddItem = 'AddItem';
   static const EditItem = 'EditItem';

@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
+import 'package:next_level/Page/Home/Widget/overdue_tasks_header.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -22,8 +24,7 @@ class _TaskListState extends State<TaskList> {
   // Store the last known selected date to detect changes
   DateTime? _lastSelectedDate;
   // Store the base date for calculations
-  late DateTime _baseDate;
-  // Flag to track if we're handling a programmatic page change
+  late DateTime _baseDate; // Flag to track if we're handling a programmatic page change
   bool _isHandlingPageChange = false;
 
   @override
@@ -122,10 +123,9 @@ class _TaskListState extends State<TaskList> {
         // Get tasks for this date
         final selectedDateTaskList = taskProvider.getTasksForDate(pageDate);
         final selectedDateRutinTaskList = taskProvider.getRoutineTasksForDate(pageDate);
-        final selectedDateGhostRutinTaskList = taskProvider.getGhostRoutineTasksForDate(pageDate);
-
-        // Build the content for this page
+        final selectedDateGhostRutinTaskList = taskProvider.getGhostRoutineTasksForDate(pageDate); // Build the content for this page
         return _buildPageContent(
+          pageDate,
           selectedDateTaskList,
           selectedDateRutinTaskList,
           selectedDateGhostRutinTaskList,
@@ -135,11 +135,20 @@ class _TaskListState extends State<TaskList> {
   }
 
   Widget _buildPageContent(
+    DateTime pageDate,
     List<dynamic> selectedDateTaskList,
     List<dynamic> selectedDateRutinTaskList,
     List<dynamic> selectedDateGhostRutinTaskList,
   ) {
-    return selectedDateTaskList.isEmpty && selectedDateGhostRutinTaskList.isEmpty && selectedDateRutinTaskList.isEmpty
+    final taskProvider = context.read<TaskProvider>();
+    final today = DateTime.now();
+    final isToday = pageDate.year == today.year && pageDate.month == today.month && pageDate.day == today.day;
+    // Get overdue tasks only for today's view
+    final List<TaskModel> overdueTasks = isToday ? taskProvider.getOverdueTasks() : <TaskModel>[];
+
+    // Check if there are any tasks to display
+    final hasAnyTasks = selectedDateTaskList.isNotEmpty || selectedDateGhostRutinTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty || overdueTasks.isNotEmpty;
+    return !hasAnyTasks
         ? Center(
             child: Text(
               LocaleKeys.NoTaskForToday.tr(),
@@ -153,13 +162,17 @@ class _TaskListState extends State<TaskList> {
             physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
+                // Overdue tasks section (only on today's view) - minimalist spacing
+                if (isToday && overdueTasks.isNotEmpty) ...[
+                  OverdueTasksHeader(overdueTasks: overdueTasks),
+                ],
                 // Normal tasks
                 if (selectedDateTaskList.isNotEmpty)
                   ListView.builder(
                     shrinkWrap: true,
-                    padding: const EdgeInsets.all(0),
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: selectedDateTaskList.length,
+                    padding: const EdgeInsets.all(0),
                     itemBuilder: (context, index) {
                       return TaskItem(taskModel: selectedDateTaskList[index]);
                     },
@@ -176,6 +189,7 @@ class _TaskListState extends State<TaskList> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: selectedDateRutinTaskList.length,
+                    padding: const EdgeInsets.all(0),
                     itemBuilder: (context, index) {
                       return TaskItem(
                         taskModel: selectedDateRutinTaskList[index],
@@ -196,6 +210,7 @@ class _TaskListState extends State<TaskList> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: selectedDateGhostRutinTaskList.length,
+                    padding: const EdgeInsets.all(0),
                     itemBuilder: (context, index) {
                       return TaskItem(
                         taskModel: selectedDateGhostRutinTaskList[index],
