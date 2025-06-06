@@ -9,9 +9,11 @@ class ProgressText extends StatelessWidget {
   const ProgressText({
     super.key,
     required this.taskModel,
+    this.displayCount,
   });
 
   final TaskModel taskModel;
+  final int? displayCount; // Override count for UI-only updates during long press
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class ProgressText extends StatelessWidget {
             ),
             child: taskModel.type == TaskTypeEnum.COUNTER
                 ? Text(
-                    "${taskModel.currentCount ?? 0}/${taskModel.targetCount ?? 0}",
+                    "${displayCount ?? taskModel.currentCount ?? 0}/${taskModel.targetCount ?? 0}",
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

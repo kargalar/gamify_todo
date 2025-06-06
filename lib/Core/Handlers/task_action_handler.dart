@@ -39,8 +39,45 @@ class TaskActionHandler {
   }
 
   /// Handles the primary action for a task based on its type
-  static void handleTaskAction(TaskModel taskModel, {Function? onStateChanged}) {
+  static void handleTaskAction(TaskModel taskModel, {Function? onStateChanged, bool skipLogging = false, int? batchChange}) {
     final bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
+
+    // Handle batch change for counter tasks
+    if (batchChange != null && taskModel.type == TaskTypeEnum.COUNTER) {
+      int previousCount = taskModel.currentCount!;
+      taskModel.currentCount = previousCount + batchChange;
+
+      // Create a single batch log for the total change
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customCount: batchChange, // Log the total batch change
+      );
+
+      // Calculate credit for the batch change
+      Duration creditPerIncrement = taskModel.remainingDuration! ~/ taskModel.targetCount!;
+      AppHelper().addCreditByProgress(creditPerIncrement * batchChange);
+
+      if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
+        // Clear any existing status before setting to COMPLETED
+        taskModel.status = TaskStatusEnum.COMPLETED;
+
+        // Create log for completed counter task
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: TaskStatusEnum.COMPLETED,
+        );
+
+        HomeWidgetService.updateAllWidgets();
+      }
+
+      // Update task in provider and save
+      ServerManager().updateTask(taskModel: taskModel);
+      TaskProvider().updateItems();
+
+      if (onStateChanged != null) onStateChanged();
+      return;
+    }
+
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
       if (taskModel.status == TaskStatusEnum.COMPLETED) {
@@ -48,20 +85,24 @@ class TaskActionHandler {
         if (_shouldBeOverdue(taskModel)) {
           taskModel.status = TaskStatusEnum.OVERDUE;
 
-          // Create log for overdue task
-          TaskLogProvider().addTaskLog(
-            taskModel,
-            customStatus: TaskStatusEnum.OVERDUE,
-          );
+          // Create log for overdue task (unless logging is skipped)
+          if (!skipLogging) {
+            TaskLogProvider().addTaskLog(
+              taskModel,
+              customStatus: TaskStatusEnum.OVERDUE,
+            );
+          }
         } else {
           // Change from completed to in progress (null)
           taskModel.status = null;
 
-          // Create log for uncompleted checkbox task
-          TaskLogProvider().addTaskLog(
-            taskModel,
-            customStatus: null, // null status means "in progress"
-          );
+          // Create log for uncompleted checkbox task (unless logging is skipped)
+          if (!skipLogging) {
+            TaskLogProvider().addTaskLog(
+              taskModel,
+              customStatus: null, // null status means "in progress"
+            );
+          }
         }
 
         // Update task in provider and save
@@ -77,11 +118,13 @@ class TaskActionHandler {
       int previousCount = taskModel.currentCount!;
       taskModel.currentCount = previousCount + 1;
 
-      // Create log for counter increment
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customCount: 1, // Log the increment amount
-      );
+      // Create log for counter increment (unless logging is skipped)
+      if (!skipLogging) {
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customCount: 1, // Log the increment amount
+        );
+      }
 
       AppHelper().addCreditByProgress(taskModel.remainingDuration);
 
@@ -89,11 +132,13 @@ class TaskActionHandler {
         // Clear any existing status before setting to COMPLETED
         taskModel.status = TaskStatusEnum.COMPLETED;
 
-        // Create log for completed counter task
-        TaskLogProvider().addTaskLog(
-          taskModel,
-          customStatus: TaskStatusEnum.COMPLETED,
-        );
+        // Create log for completed counter task (unless logging is skipped)
+        if (!skipLogging) {
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: TaskStatusEnum.COMPLETED,
+          );
+        }
 
         HomeWidgetService.updateAllWidgets();
       }

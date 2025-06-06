@@ -9,9 +9,11 @@ class TitleAndDescription extends StatelessWidget {
   const TitleAndDescription({
     super.key,
     required this.taskModel,
+    this.displayCount,
   });
 
   final TaskModel taskModel;
+  final int? displayCount; // Override count for UI-only updates during long press
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +54,7 @@ class TitleAndDescription extends StatelessWidget {
             spacing: 6,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              ProgressText(taskModel: taskModel),
+              ProgressText(taskModel: taskModel, displayCount: displayCount),
               if (taskModel.categoryId != null) TaskCategory(taskModel: taskModel),
             ],
           ),

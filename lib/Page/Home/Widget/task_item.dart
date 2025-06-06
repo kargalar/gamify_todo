@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
@@ -34,7 +35,10 @@ class TaskItem extends StatefulWidget {
 }
 
 class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
-  bool _isIncrementing = false;
+  Timer? _longPressTimer;
+  int _longPressStartValue = 0;
+  bool _isLongPressing = false;
+  int _displayCount = 0; // For UI-only updates during long press
   late AnimationController _completionAnimationController;
   late Animation<double> _scaleAnimation;
   late Animation<Color?> _backgroundColorAnimation;
@@ -72,7 +76,40 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   @override
   void dispose() {
     _completionAnimationController.dispose();
+    _longPressTimer?.cancel();
     super.dispose();
+  }
+
+  void _startLongPress() {
+    _isLongPressing = true;
+    _longPressStartValue = widget.taskModel.currentCount ?? 0;
+    _displayCount = _longPressStartValue; // Initialize display count
+  }
+
+  void _endLongPress() {
+    _longPressTimer?.cancel();
+    _longPressTimer = null;
+
+    if (_isLongPressing) {
+      _isLongPressing = false;
+      final change = _displayCount - _longPressStartValue;
+      if (change > 0) {
+        // Apply the actual changes to the model
+        _createBatchLog(change);
+      }
+      setState(() {});
+    }
+  }
+
+  void _createBatchLog(int change) {
+    // Create a single batch log entry
+    TaskActionHandler.handleTaskAction(
+      widget.taskModel,
+      batchChange: change,
+      onStateChanged: () {
+        setState(() {});
+      },
+    );
   }
 
   @override
@@ -125,7 +162,10 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                               children: [
                                 taskActionIcon(),
                                 const SizedBox(width: 5),
-                                TitleAndDescription(taskModel: widget.taskModel),
+                                TitleAndDescription(
+                                  taskModel: widget.taskModel,
+                                  displayCount: _isLongPressing ? _displayCount : null,
+                                ),
                                 const SizedBox(width: 10),
                                 Column(
                                   children: [
@@ -172,17 +212,25 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       child: widget.taskModel.type == TaskTypeEnum.COUNTER
           ? GestureDetector(
               onTap: () => taskAction(),
-              onLongPressStart: (_) async {
-                _isIncrementing = true;
-                while (_isIncrementing && mounted) {
-                  setState(() {
-                    taskAction();
-                  });
-                  await Future.delayed(const Duration(milliseconds: 80));
-                }
+              onLongPressStart: (_) {
+                _startLongPress();
+
+                // Timer ile sadece UI güncellemesi
+                _longPressTimer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+                  if (!mounted || !_isLongPressing) {
+                    timer.cancel();
+                    return;
+                  }
+                  // Sadece display count'u artır, gerçek veriyi değiştirme
+                  _displayCount++;
+                  setState(() {});
+                });
               },
               onLongPressEnd: (_) {
-                _isIncrementing = false;
+                _endLongPress();
+              },
+              onLongPressCancel: () {
+                _endLongPress();
               },
               child: Icon(
                 Icons.add,
@@ -207,7 +255,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     );
   }
 
-  void taskAction() {
+  void taskAction({bool skipLogging = false}) {
     if (widget.taskModel.status == TaskStatusEnum.ARCHIVED) {
       return Helper().getMessage(
         status: StatusEnum.WARNING,
@@ -228,8 +276,9 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         // After animation completes, handle the task action
         TaskActionHandler.handleTaskAction(
           widget.taskModel,
+          skipLogging: skipLogging,
           onStateChanged: () {
-            if (!_isIncrementing) {
+            if (!_isLongPressing) {
               setState(() {});
             }
           },
@@ -239,8 +288,9 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       // For other task types, handle the action immediately
       TaskActionHandler.handleTaskAction(
         widget.taskModel,
+        skipLogging: skipLogging,
         onStateChanged: () {
-          if (!_isIncrementing) {
+          if (!_isLongPressing) {
             setState(() {});
           }
         },

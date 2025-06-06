@@ -169,7 +169,7 @@ class TaskProgressViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDuration(Duration value) {
+  void setDuration(Duration value, {bool skipLogging = false}) {
     // Önceki değeri kaydet
     Duration previousDuration = isTask ? (taskModel!.currentDuration ?? Duration.zero) : Duration.zero;
 
@@ -179,7 +179,7 @@ class TaskProgressViewModel extends ChangeNotifier {
     // Timer aktifse, güncel değeri almak için SharedPreferences'dan timer başlangıç zamanını ve süresini al
     if (isTimerActive && isTask) {
       // Asenkron işlemi senkron hale getir
-      _updateTimerDuration(value, previousDuration);
+      _updateTimerDuration(value, previousDuration, skipLogging: skipLogging);
     } else {
       // Timer aktif değilse normal işlemi yap
       if (isTask) {
@@ -193,8 +193,8 @@ class TaskProgressViewModel extends ChangeNotifier {
           taskModel!.status = null;
         }
 
-        // Kullanıcı gerçekten bir değişiklik yaptıysa log oluştur
-        if (userChange.inSeconds != 0) {
+        // Kullanıcı gerçekten bir değişiklik yaptıysa ve logging atlanmayacaksa log oluştur
+        if (userChange.inSeconds != 0 && !skipLogging) {
           // TaskProvider'dan seçili tarihi al
           final selectedDate = TaskProvider().selectedDate;
 
@@ -224,7 +224,7 @@ class TaskProgressViewModel extends ChangeNotifier {
   }
 
   // Timer aktifken süre güncellemesi için yardımcı metot
-  Future<void> _updateTimerDuration(Duration value, Duration previousDuration) async {
+  Future<void> _updateTimerDuration(Duration value, Duration previousDuration, {bool skipLogging = false}) async {
     // SharedPreferences'ı al
     final prefs = await SharedPreferences.getInstance();
 
@@ -253,7 +253,7 @@ class TaskProgressViewModel extends ChangeNotifier {
         userChange += const Duration(seconds: 1);
       }
 
-      if (userChange.inSeconds != 0) {
+      if (userChange.inSeconds != 0 && !skipLogging) {
         // Timer başlangıç değerini güncelle (yeni değer = eski başlangıç değeri + kullanıcının yaptığı değişiklik)
         await prefs.setString('timer_start_duration_${taskModel!.id}', (timerStartDuration + userChange).inSeconds.toString());
 
@@ -271,11 +271,17 @@ class TaskProgressViewModel extends ChangeNotifier {
 
         // UI'ı güncelle
         notifyListeners();
+      } else if (userChange.inSeconds != 0 && skipLogging) {
+        // Logging atlanıyorsa sadece timer değerini güncelle
+        await prefs.setString('timer_start_duration_${taskModel!.id}', (timerStartDuration + userChange).inSeconds.toString());
+
+        // UI'ı güncelle
+        notifyListeners();
       }
     }
   }
 
-  void setCount(int value) {
+  void setCount(int value, {bool skipLogging = false}) {
     // Önceki değeri kaydet
     int previousCount = isTask ? (taskModel!.currentCount ?? 0) : 0;
 
@@ -290,8 +296,8 @@ class TaskProgressViewModel extends ChangeNotifier {
         taskModel!.status = null;
       }
 
-      // Kullanıcı gerçekten bir değişiklik yaptıysa log oluştur
-      if (userChange != 0) {
+      // Kullanıcı gerçekten bir değişiklik yaptıysa ve logging atlanmayacaksa log oluştur
+      if (userChange != 0 && !skipLogging) {
         // TaskProvider'dan seçili tarihi al
         final selectedDate = TaskProvider().selectedDate;
         final now = DateTime.now();
@@ -305,8 +311,93 @@ class TaskProgressViewModel extends ChangeNotifier {
       }
     } else {
       itemModel!.currentCount = value;
+      ServerManager().updateItem(itemModel: itemModel!);
     }
 
     updateProgress(value);
+  }
+
+  void setBatchCount(int totalChange) {
+    if (totalChange == 0) return;
+
+    if (isTask) {
+      // Task için mevcut batch logging mantığı
+      // Önceki değeri hesapla
+      int previousCount = taskModel!.currentCount ?? 0;
+      int newValue = previousCount + totalChange;
+
+      // Yeni değeri ayarla
+      taskModel!.currentCount = newValue;
+
+      // Status kontrolü
+      if (newValue >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.COMPLETED) {
+        taskModel!.status = TaskStatusEnum.COMPLETED;
+      } else if (newValue < taskModel!.targetCount! && taskModel!.status == TaskStatusEnum.COMPLETED) {
+        taskModel!.status = null;
+      }
+
+      // Tek bir batch log oluştur
+      final selectedDate = TaskProvider().selectedDate;
+      final now = DateTime.now();
+
+      taskLogProvider.addTaskLog(
+        taskModel!,
+        customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
+        customCount: totalChange, // Toplam değişikliği logla
+        customStatus: newValue >= taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
+      );
+
+      updateProgress(newValue);
+    } else {
+      // Store item için basit güncelleme (logging yok)
+      int previousCount = itemModel!.currentCount ?? 0;
+      int newValue = previousCount + totalChange;
+
+      itemModel!.currentCount = newValue;
+      ServerManager().updateItem(itemModel: itemModel!);
+      updateProgress(newValue);
+    }
+  }
+
+  void setBatchDuration(Duration totalChange) {
+    if (totalChange == Duration.zero) return;
+
+    if (isTask) {
+      // Task için mevcut batch logging mantığı
+      // Önceki değeri hesapla
+      Duration previousDuration = taskModel!.currentDuration ?? Duration.zero;
+      Duration newValue = previousDuration + totalChange;
+
+      // Yeni değeri ayarla
+      taskModel!.currentDuration = newValue;
+
+      // Status kontrolü
+      if (newValue >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.COMPLETED) {
+        taskModel!.status = TaskStatusEnum.COMPLETED;
+      } else if (newValue < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.COMPLETED) {
+        taskModel!.status = null;
+      }
+
+      // Tek bir batch log oluştur
+      final selectedDate = TaskProvider().selectedDate;
+      final now = DateTime.now();
+
+      taskLogProvider.addTaskLog(
+        taskModel!,
+        customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
+        customDuration: totalChange, // Toplam değişikliği logla
+        customStatus: newValue >= taskModel!.remainingDuration! ? TaskStatusEnum.COMPLETED : null,
+      );
+
+      updateProgress(newValue);
+    } else {
+      // Store item için basit güncelleme (logging yok)
+      Duration previousDuration = itemModel!.currentDuration ?? Duration.zero;
+      Duration newValue = previousDuration + totalChange;
+
+      itemModel!.currentDuration = newValue;
+      ServerManager().updateItem(itemModel: itemModel!);
+      updateProgress(newValue);
+    }
   }
 }

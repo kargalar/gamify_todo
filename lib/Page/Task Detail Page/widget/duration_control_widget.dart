@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -5,7 +6,8 @@ import 'package:next_level/Service/locale_keys.g.dart';
 class DurationControlWidget extends StatefulWidget {
   final Duration? currentDuration;
   final Duration? targetDuration;
-  final Function(Duration) onDurationChanged;
+  final Function(Duration, {bool skipLogging}) onDurationChanged;
+  final Function(Duration)? onBatchDurationChanged; // Yeni callback for batch logging
   final bool isTask;
 
   const DurationControlWidget({
@@ -13,6 +15,7 @@ class DurationControlWidget extends StatefulWidget {
     required this.currentDuration,
     this.targetDuration,
     required this.onDurationChanged,
+    this.onBatchDurationChanged,
     required this.isTask,
   });
 
@@ -21,8 +24,60 @@ class DurationControlWidget extends StatefulWidget {
 }
 
 class _DurationControlWidgetState extends State<DurationControlWidget> {
-  bool _isIncrementing = false;
-  bool _isDecrementing = false;
+  Timer? _longPressTimer;
+  Duration? _longPressStartValue;
+  bool _isLongPressing = false;
+  Duration _currentValue = Duration.zero;
+
+  @override
+  void dispose() {
+    _longPressTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startLongPress() {
+    _longPressStartValue = widget.currentDuration ?? Duration.zero;
+    _currentValue = widget.currentDuration ?? Duration.zero; // Track current value during long press
+    _isLongPressing = true;
+  }
+
+  void _endLongPress() {
+    _longPressTimer?.cancel();
+    _longPressTimer = null;
+
+    if (_isLongPressing && _longPressStartValue != null) {
+      _isLongPressing = false;
+      // Long press bittiğinde sadece batch log oluştur
+      Duration totalChange = _currentValue - _longPressStartValue!;
+      if (totalChange != Duration.zero) {
+        // Batch log oluştur - bu zaten değeri güncelleyecek
+        _createBatchLog(totalChange);
+      }
+    }
+  }
+
+  void _createBatchLog(Duration totalChange) {
+    // Batch değişikliği parent'a bildir
+    if (widget.onBatchDurationChanged != null && mounted) {
+      widget.onBatchDurationChanged!(totalChange);
+    }
+  }
+
+  void _startLongPressAction(VoidCallback action) {
+    _startLongPress();
+
+    // İlk değişiklik sadece UI'da yapılır
+    action();
+
+    // Timer ile sadece UI güncellemesi yapılır
+    _longPressTimer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+      if (!mounted || !_isLongPressing) {
+        timer.cancel();
+        return;
+      }
+      action();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +86,7 @@ class _DurationControlWidgetState extends State<DurationControlWidget> {
       children: [
         _buildDurationControl(
           label: LocaleKeys.Hour.tr(),
-          value: (widget.currentDuration?.isNegative ?? false) ? -((-widget.currentDuration!.inHours) % 24) : widget.currentDuration?.inHours ?? 0,
+          value: _isLongPressing ? (_currentValue.isNegative ? -((-_currentValue.inHours) % 24) : _currentValue.inHours) : ((widget.currentDuration?.isNegative ?? false) ? -((-widget.currentDuration!.inHours) % 24) : widget.currentDuration?.inHours ?? 0),
           onIncrease: () {
             widget.onDurationChanged((widget.currentDuration ?? Duration.zero) + const Duration(hours: 1));
           },
@@ -40,11 +95,21 @@ class _DurationControlWidgetState extends State<DurationControlWidget> {
               widget.onDurationChanged((widget.currentDuration ?? Duration.zero) - const Duration(hours: 1));
             }
           },
+          onLongPressIncrease: () {
+            _currentValue += const Duration(hours: 1);
+            setState(() {}); // Sadece UI'ı güncelle
+          },
+          onLongPressDecrease: () {
+            if ((_currentValue.inHours) > 0 || !widget.isTask) {
+              _currentValue -= const Duration(hours: 1);
+              setState(() {}); // Sadece UI'ı güncelle
+            }
+          },
         ),
         const SizedBox(width: 16),
         _buildDurationControl(
           label: LocaleKeys.Minute.tr(),
-          value: (widget.currentDuration?.isNegative ?? false) ? -((-widget.currentDuration!.inMinutes) % 60) : (widget.currentDuration?.inMinutes ?? 0) % 60,
+          value: _isLongPressing ? (_currentValue.isNegative ? -((-_currentValue.inMinutes) % 60) : (_currentValue.inMinutes) % 60) : ((widget.currentDuration?.isNegative ?? false) ? -((-widget.currentDuration!.inMinutes) % 60) : (widget.currentDuration?.inMinutes ?? 0) % 60),
           onIncrease: () {
             widget.onDurationChanged((widget.currentDuration ?? Duration.zero) + const Duration(minutes: 1));
           },
@@ -53,17 +118,37 @@ class _DurationControlWidgetState extends State<DurationControlWidget> {
               widget.onDurationChanged((widget.currentDuration ?? Duration.zero) - const Duration(minutes: 1));
             }
           },
+          onLongPressIncrease: () {
+            _currentValue += const Duration(minutes: 1);
+            setState(() {}); // Sadece UI'ı güncelle
+          },
+          onLongPressDecrease: () {
+            if ((_currentValue.inMinutes) > 0 || !widget.isTask) {
+              _currentValue -= const Duration(minutes: 1);
+              setState(() {}); // Sadece UI'ı güncelle
+            }
+          },
         ),
         const SizedBox(width: 16),
         _buildDurationControl(
           label: LocaleKeys.Second.tr(),
-          value: (widget.currentDuration?.isNegative ?? false) ? -((-widget.currentDuration!.inSeconds) % 60) : (widget.currentDuration?.inSeconds ?? 0) % 60,
+          value: _isLongPressing ? (_currentValue.isNegative ? -((-_currentValue.inSeconds) % 60) : (_currentValue.inSeconds) % 60) : ((widget.currentDuration?.isNegative ?? false) ? -((-widget.currentDuration!.inSeconds) % 60) : (widget.currentDuration?.inSeconds ?? 0) % 60),
           onIncrease: () {
             widget.onDurationChanged((widget.currentDuration ?? Duration.zero) + const Duration(seconds: 1));
           },
           onDecrease: () {
             if ((widget.currentDuration?.inSeconds ?? 0) > 0 || !widget.isTask) {
               widget.onDurationChanged((widget.currentDuration ?? Duration.zero) - const Duration(seconds: 1));
+            }
+          },
+          onLongPressIncrease: () {
+            _currentValue += const Duration(seconds: 1);
+            setState(() {}); // Sadece UI'ı güncelle
+          },
+          onLongPressDecrease: () {
+            if ((_currentValue.inSeconds) > 0 || !widget.isTask) {
+              _currentValue -= const Duration(seconds: 1);
+              setState(() {}); // Sadece UI'ı güncelle
             }
           },
         ),
@@ -87,6 +172,8 @@ class _DurationControlWidgetState extends State<DurationControlWidget> {
     required int value,
     required VoidCallback onIncrease,
     required VoidCallback onDecrease,
+    required VoidCallback onLongPressIncrease,
+    required VoidCallback onLongPressDecrease,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -95,15 +182,14 @@ class _DurationControlWidgetState extends State<DurationControlWidget> {
         const SizedBox(height: 4),
         GestureDetector(
           onTap: onIncrease,
-          onLongPressStart: (_) async {
-            _isIncrementing = true;
-            while (_isIncrementing && mounted) {
-              onIncrease();
-              await Future.delayed(const Duration(milliseconds: 60));
-            }
+          onLongPressStart: (_) {
+            _startLongPressAction(onLongPressIncrease);
           },
           onLongPressEnd: (_) {
-            _isIncrementing = false;
+            _endLongPress();
+          },
+          onLongPressCancel: () {
+            _endLongPress();
           },
           child: Container(
             padding: const EdgeInsets.all(8),
@@ -116,15 +202,14 @@ class _DurationControlWidgetState extends State<DurationControlWidget> {
         ),
         GestureDetector(
           onTap: onDecrease,
-          onLongPressStart: (_) async {
-            _isDecrementing = true;
-            while (_isDecrementing && mounted) {
-              onDecrease();
-              await Future.delayed(const Duration(milliseconds: 60));
-            }
+          onLongPressStart: (_) {
+            _startLongPressAction(onLongPressDecrease);
           },
           onLongPressEnd: (_) {
-            _isDecrementing = false;
+            _endLongPress();
+          },
+          onLongPressCancel: () {
+            _endLongPress();
           },
           child: Container(
             padding: const EdgeInsets.all(8),

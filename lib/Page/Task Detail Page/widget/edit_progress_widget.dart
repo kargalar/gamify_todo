@@ -88,8 +88,11 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
         taskModel: _viewModel.isTask ? widget.taskModel : null,
         currentCount: _viewModel.currentCount,
         targetCount: _viewModel.isTask ? widget.taskModel!.targetCount : null,
-        onCountChanged: (value) {
-          _viewModel.setCount(value);
+        onCountChanged: (value, {bool skipLogging = false}) {
+          _viewModel.setCount(value, skipLogging: skipLogging);
+        },
+        onBatchCountChanged: (totalChange) {
+          _viewModel.setBatchCount(totalChange);
         },
         isTask: _viewModel.isTask,
       );
@@ -97,7 +100,12 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
       return DurationControlWidget(
         currentDuration: _viewModel.currentDuration,
         targetDuration: _viewModel.targetDuration,
-        onDurationChanged: _viewModel.setDuration,
+        onDurationChanged: (value, {bool skipLogging = false}) {
+          _viewModel.setDuration(value, skipLogging: skipLogging);
+        },
+        onBatchDurationChanged: (totalChange) {
+          _viewModel.setBatchDuration(totalChange);
+        },
         isTask: _viewModel.isTask,
       );
     }

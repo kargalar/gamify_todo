@@ -20,6 +20,8 @@ class SelectTargetCount extends StatefulWidget {
 class _SelectTargetCountState extends State<SelectTargetCount> {
   late final dynamic provider = widget.isStore ? context.read<AddStoreItemProvider>() : context.read<AddTaskProvider>();
   late int targetCount;
+  bool _isIncrementing = false;
+  bool _isDecrementing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -73,14 +75,24 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
                 }
                 setState(() {});
               },
-              onLongPress: () {
+              onLongPressStart: (_) async {
                 _unfocusFields();
-                if (targetCount > 20) {
-                  provider.updateTargetCount(targetCount - 20);
-                } else {
-                  provider.updateTargetCount(1);
+                _isDecrementing = true;
+                while (_isDecrementing && mounted) {
+                  if (targetCount > 1) {
+                    provider.updateTargetCount(targetCount - 1);
+                    setState(() {});
+                    if (widget.isStore) {
+                      targetCount = context.read<AddStoreItemProvider>().addCount;
+                    } else {
+                      targetCount = context.read<AddTaskProvider>().targetCount;
+                    }
+                  }
+                  await Future.delayed(const Duration(milliseconds: 100));
                 }
-                setState(() {});
+              },
+              onLongPressEnd: (_) {
+                _isDecrementing = false;
               },
             ),
 
@@ -107,9 +119,7 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
                   ),
                 ),
               ),
-            ),
-
-            // Increase button
+            ), // Increase button
             _buildCountButton(
               icon: Icons.add_rounded,
               onTap: () {
@@ -117,10 +127,22 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
                 provider.updateTargetCount(targetCount + 1);
                 setState(() {});
               },
-              onLongPress: () {
+              onLongPressStart: (_) async {
                 _unfocusFields();
-                provider.updateTargetCount(targetCount + 20);
-                setState(() {});
+                _isIncrementing = true;
+                while (_isIncrementing && mounted) {
+                  provider.updateTargetCount(targetCount + 1);
+                  setState(() {});
+                  if (widget.isStore) {
+                    targetCount = context.read<AddStoreItemProvider>().addCount;
+                  } else {
+                    targetCount = context.read<AddTaskProvider>().targetCount;
+                  }
+                  await Future.delayed(const Duration(milliseconds: 100));
+                }
+              },
+              onLongPressEnd: (_) {
+                _isIncrementing = false;
               },
             ),
           ],
@@ -143,15 +165,16 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
   Widget _buildCountButton({
     required IconData icon,
     required VoidCallback onTap,
-    required VoidCallback onLongPress,
+    required Function(LongPressStartDetails) onLongPressStart,
+    required Function(LongPressEndDetails) onLongPressEnd,
   }) {
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+      child: GestureDetector(
         onTap: onTap,
-        onLongPress: onLongPress,
+        onLongPressStart: onLongPressStart,
+        onLongPressEnd: onLongPressEnd,
         child: Container(
           width: 50,
           height: 50,
