@@ -29,6 +29,15 @@ class _TaskDateChangeData {
   });
 }
 
+// Helper class to store task completion data for undo functionality
+class _TaskCompletionData {
+  final TaskStatusEnum? previousStatus;
+
+  _TaskCompletionData({
+    required this.previousStatus,
+  });
+}
+
 class TaskProvider with ChangeNotifier {
   // burayı singelton yaptım gayet de iyi oldu neden normalde de context den kullanıyoruz anlamadım. galiba "watch" için olabilir. sibelton kısmını global timer için yaptım.
   static final TaskProvider _instance = TaskProvider._internal();
@@ -45,7 +54,6 @@ class TaskProvider with ChangeNotifier {
   List<RoutineModel> routineList = [];
 
   List<TaskModel> taskList = [];
-
   // Undo functionality for deleted tasks and subtasks
   final Map<int, TaskModel> _deletedTasks = {};
   final Map<int, RoutineModel> _deletedRoutines = {};
@@ -54,6 +62,9 @@ class TaskProvider with ChangeNotifier {
 
   // Undo functionality for date changes
   final Map<int, _TaskDateChangeData> _dateChanges = {};
+
+  // Undo functionality for task completion
+  final Map<int, _TaskCompletionData> _completedTasks = {};
 
   // Load categories when tasks are loaded
   Future<void> loadCategories() async {
@@ -1081,6 +1092,103 @@ class TaskProvider with ChangeNotifier {
             customStatus: changeData.originalStatus,
           );
         }
+
+        notifyListeners();
+      }
+    }
+  }
+
+  // Complete a task with undo functionality
+  void completeTaskWithUndo(TaskModel taskModel, {bool showUndo = true}) {
+    debugPrint('Completing checkbox task with undo: ID=${taskModel.id}, Title=${taskModel.title}');
+
+    if (showUndo) {
+      // Store the previous status for potential undo
+      _completedTasks[taskModel.id] = _TaskCompletionData(
+        previousStatus: taskModel.status,
+      );
+    }
+
+    // Mark task as completed
+    taskModel.status = TaskStatusEnum.COMPLETED;
+
+    // Create log for completed checkbox task
+    TaskLogProvider().addTaskLog(
+      taskModel,
+      customStatus: TaskStatusEnum.COMPLETED,
+    );
+
+    // Save the task to ensure changes are persisted
+    try {
+      taskModel.save();
+      debugPrint('Task saved after completion: ID=${taskModel.id}');
+    } catch (e) {
+      debugPrint('ERROR saving task after completion: $e');
+    }
+
+    ServerManager().updateTask(taskModel: taskModel);
+    HomeWidgetService.updateAllWidgets();
+
+    // Check task status for notifications
+    checkTaskStatusForNotifications(taskModel);
+
+    notifyListeners();
+
+    if (showUndo) {
+      // Show undo snackbar
+      Helper().getUndoMessage(
+        message: "Task completed",
+        onUndo: () => _undoTaskCompletion(taskModel.id),
+      );
+
+      // Set timer for permanent completion
+      _undoTimers['completion_${taskModel.id}'] = Timer(const Duration(seconds: 3), () {
+        _permanentlyCompleteTask(taskModel.id);
+      });
+    }
+  }
+
+  // Permanently complete a task (remove undo data)
+  void _permanentlyCompleteTask(int taskId) {
+    _completedTasks.remove(taskId);
+    _undoTimers.remove('completion_$taskId');
+  }
+
+  // Undo task completion
+  void _undoTaskCompletion(int taskId) {
+    final completionData = _completedTasks.remove(taskId);
+    final timer = _undoTimers.remove('completion_$taskId');
+
+    if (completionData != null && timer != null) {
+      timer.cancel();
+
+      // Find the task and restore its previous status
+      final taskIndex = taskList.indexWhere((task) => task.id == taskId);
+      if (taskIndex != -1) {
+        final task = taskList[taskIndex];
+
+        // Restore previous status
+        task.status = completionData.previousStatus;
+
+        // Save the task to ensure changes are persisted
+        try {
+          task.save();
+          debugPrint('Task saved after undoing completion: ID=${task.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after undoing completion: $e');
+        }
+
+        // Update in storage
+        ServerManager().updateTask(taskModel: task);
+
+        // Update notifications
+        checkNotification(task);
+
+        // Create log entry for the status change
+        TaskLogProvider().addTaskLog(
+          task,
+          customStatus: completionData.previousStatus,
+        );
 
         notifyListeners();
       }

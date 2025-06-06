@@ -41,7 +41,6 @@ class TaskActionHandler {
   /// Handles the primary action for a task based on its type
   static void handleTaskAction(TaskModel taskModel, {Function? onStateChanged}) {
     final bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
-
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
       if (taskModel.status == TaskStatusEnum.COMPLETED) {
@@ -64,18 +63,15 @@ class TaskActionHandler {
             customStatus: null, // null status means "in progress"
           );
         }
+
+        // Update task in provider and save
+        ServerManager().updateTask(taskModel: taskModel);
+        HomeWidgetService.updateAllWidgets();
       } else {
-        // Clear any existing status before setting to COMPLETED
-        taskModel.status = TaskStatusEnum.COMPLETED;
-
-        // Create log for completed checkbox task
-        TaskLogProvider().addTaskLog(
-          taskModel,
-          customStatus: TaskStatusEnum.COMPLETED,
-        );
+        // Use the new undo functionality for completion
+        TaskProvider().completeTaskWithUndo(taskModel);
+        return; // Return early since completeTaskWithUndo handles all updates
       }
-
-      HomeWidgetService.updateAllWidgets();
     } else if (taskModel.type == TaskTypeEnum.COUNTER) {
       // Increment counter for counter tasks
       int previousCount = taskModel.currentCount!;
