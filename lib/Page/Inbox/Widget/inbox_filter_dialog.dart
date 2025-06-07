@@ -118,6 +118,9 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
+        border: const Border(
+          top: BorderSide(color: AppColors.white, width: 1),
+        ),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
