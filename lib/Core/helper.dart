@@ -353,6 +353,7 @@ class Helper {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              insetPadding: const EdgeInsets.all(15),
               title: const Text('Tarih Seç'),
               content: SizedBox(
                 width: double.maxFinite,
@@ -411,6 +412,22 @@ class Helper {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.green.withValues(alpha: 0.1),
                               foregroundColor: AppColors.green,
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                        // Undated button
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pop(null);
+                            },
+                            icon: const Icon(Icons.clear_rounded),
+                            label: const Text('Tarihsiz'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.red.withValues(alpha: 0.1),
+                              foregroundColor: AppColors.red,
                               elevation: 0,
                             ),
                           ),
