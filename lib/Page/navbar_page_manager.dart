@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Home/Widget/quick_add_task_bottom_sheet.dart';
 import 'package:next_level/Page/Inbox/inbox_page.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Page/Home/home_page.dart';
@@ -110,7 +111,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   ],
                 ),
               ),
-        floatingActionButton: floatingActionButton(),
+        floatingActionButton: floatingActionButtons(),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Bottom-right corner following Material Design
         bottomNavigationBar: Theme(
           data: Theme.of(context).copyWith(
@@ -170,37 +171,65 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
   /// - Home tab (index 1): Navigate to AddTaskPage
   /// - Inbox tab (index 2): Navigate to AddTaskPage
   /// - Profile tab (index 3): Hidden
-  Widget floatingActionButton() {
+  Widget floatingActionButtons() {
     final currentIndex = context.read<NavbarProvider>().currentIndex;
 
     // Show FAB for Store, Home, and Inbox tabs
     if (currentIndex == 0 || currentIndex == 1 || currentIndex == 2) {
-      return FloatingActionButton(
-        backgroundColor: AppColors.main, // Use app's primary blue color (#1773DB)
-        foregroundColor: Colors.white, // White icon color
-        elevation: 6.0, // Appropriate elevation for Material Design
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0), // Rounded corners following Material Design
-        ),
-        onPressed: () async {
-          if (currentIndex == 0) {
-            // Store tab - add store item
-            await NavigatorService().goTo(
-              const AddStoreItemPage(),
-              transition: Transition.downToUp,
-            );
-          } else if (currentIndex == 1 || currentIndex == 2) {
-            // Home tab or Inbox tab - add task
-            await NavigatorService().goTo(
-              const AddTaskPage(),
-              transition: Transition.downToUp,
-            );
-          }
-        },
-        child: const Icon(
-          Icons.add,
-          size: 28.0, // Slightly larger icon for better visibility
-        ),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          SizedBox(
+            width: 48,
+            height: 48,
+            child: FloatingActionButton(
+              backgroundColor: AppColors.text, // Use app's primary blue color (#1773DB)
+              foregroundColor: AppColors.background, // White icon color
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  barrierColor: Colors.transparent,
+                  builder: (context) => const QuickAddTaskBottomSheet(),
+                );
+              },
+              elevation: 4,
+              child: const Icon(
+                Icons.flash_on_rounded,
+                size: 22,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10), // Spacing between FABs
+          FloatingActionButton(
+            backgroundColor: AppColors.text, // Use app's primary blue color (#1773DB)
+            foregroundColor: AppColors.background, // White icon color
+            elevation: 6.0, // Appropriate elevation for Material Design
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0), // Rounded corners following Material Design
+            ),
+            onPressed: () async {
+              if (currentIndex == 0) {
+                // Store tab - add store item
+                await NavigatorService().goTo(
+                  const AddStoreItemPage(),
+                  transition: Transition.downToUp,
+                );
+              } else if (currentIndex == 1 || currentIndex == 2) {
+                // Home tab or Inbox tab - add task
+                await NavigatorService().goTo(
+                  const AddTaskPage(),
+                  transition: Transition.downToUp,
+                );
+              }
+            },
+            child: const Icon(
+              Icons.add,
+              size: 28.0, // Slightly larger icon for better visibility
+            ),
+          ),
+        ],
       );
     } else {
       return const SizedBox();

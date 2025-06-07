@@ -161,6 +161,7 @@ abstract class  LocaleKeys {
   static const SearchTasks = 'SearchTasks';
   static const Search = 'Search';
   static const Filters = 'Filters';
+  static const TaskCompleted = 'TaskCompleted';
   static const Copy = 'Copy';
   static const CopiedDescription = 'CopiedDescription';
   static const ContactUs = 'ContactUs';

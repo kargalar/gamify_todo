@@ -4,7 +4,6 @@ import 'package:next_level/Page/Home/Widget/task_list.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
