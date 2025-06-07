@@ -1,10 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/Model/trait_model.dart';
 
@@ -251,6 +253,10 @@ class _CreateTraitBottomSheetState extends State<CreateTraitBottomSheet> {
                       );
 
                       TraitProvider().addTrait(newTrait);
+
+                      // Auto-select the newly created trait
+                      final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
+                      addTaskProvider.selectedTraits.add(newTrait);
 
                       Navigator.pop(context);
                     },

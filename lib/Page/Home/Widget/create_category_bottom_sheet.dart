@@ -5,6 +5,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 
@@ -299,6 +300,10 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         color: selectedColor,
       );
       categoryProvider.addCategory(newCategory);
+
+      // Auto-select the newly created category
+      final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
+      addTaskProvider.updateCategory(newCategory.id);
     } else {
       // Update existing category
       widget.categoryModel!.title = categoryTitleController.text.trim();
