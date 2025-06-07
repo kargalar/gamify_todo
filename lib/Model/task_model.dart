@@ -61,6 +61,8 @@ class TaskModel extends HiveObject {
   set showSubtasks(bool value) => _showSubtasks = value;
   @HiveField(22)
   int? earlyReminderMinutes; // erken hatırlatma süresi (dakika cinsinden)
+  @HiveField(23)
+  List<String>? attachmentPaths; // dosya ekleri yolları
 
   TaskModel({
     this.id = 0,
@@ -86,6 +88,7 @@ class TaskModel extends HiveObject {
     this.categoryId,
     bool? showSubtasks,
     this.earlyReminderMinutes,
+    this.attachmentPaths,
   }) : _showSubtasks = showSubtasks;
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
@@ -120,6 +123,7 @@ class TaskModel extends HiveObject {
       categoryId: json['category_id'],
       showSubtasks: json['show_subtasks'],
       earlyReminderMinutes: json['early_reminder_minutes'],
+      attachmentPaths: json['attachment_paths'] != null ? (json['attachment_paths'] as List).map((i) => i as String).toList() : null,
     );
 
     return taskModel;
@@ -162,6 +166,7 @@ class TaskModel extends HiveObject {
       'category_id': categoryId,
       'show_subtasks': _showSubtasks,
       'early_reminder_minutes': earlyReminderMinutes,
+      'attachment_paths': attachmentPaths,
     };
   }
 }

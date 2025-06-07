@@ -5,6 +5,7 @@ import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
+import 'package:file_picker/file_picker.dart';
 
 class AddTaskProvider with ChangeNotifier {
   // Widget variables
@@ -32,6 +33,9 @@ class AddTaskProvider with ChangeNotifier {
   List<SubTaskModel> subtasks = [];
   int? categoryId;
   int? earlyReminderMinutes; // Erken hatırlatma süresi (dakika cinsinden)
+
+  // File attachments
+  List<String> attachmentPaths = [];
 
   // Undo functionality for deleted subtasks
   final Map<int, SubTaskModel> _deletedSubtasks = {};
@@ -230,6 +234,63 @@ class AddTaskProvider with ChangeNotifier {
     } catch (e) {
       // Focus node may already be disposed
     }
+  }
+
+  // File attachment methods
+  Future<void> pickFiles() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.any,
+        allowedExtensions: null,
+      );
+
+      if (result != null) {
+        List<String> filePaths = result.paths.where((path) => path != null).cast<String>().toList();
+        attachmentPaths.addAll(filePaths);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error picking files: $e');
+    }
+  }
+
+  Future<void> pickImages() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.image,
+      );
+
+      if (result != null) {
+        List<String> filePaths = result.paths.where((path) => path != null).cast<String>().toList();
+        attachmentPaths.addAll(filePaths);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error picking images: $e');
+    }
+  }
+
+  void removeAttachment(int index) {
+    if (index >= 0 && index < attachmentPaths.length) {
+      attachmentPaths.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  void clearAttachments() {
+    attachmentPaths.clear();
+    notifyListeners();
+  }
+
+  void loadAttachmentsFromTask(TaskModel task) {
+    if (task.attachmentPaths != null) {
+      attachmentPaths = List.from(task.attachmentPaths!);
+    } else {
+      attachmentPaths = [];
+    }
+    notifyListeners();
   }
 
   @override

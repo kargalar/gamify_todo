@@ -29,16 +29,31 @@ class TitleAndDescription extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          AutoSizeText(
-            taskModel.title,
-            maxLines: 2,
-            minFontSize: 14,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: priorityColor,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: AutoSizeText(
+                  taskModel.title,
+                  maxLines: 2,
+                  minFontSize: 14,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: priorityColor,
+                  ),
+                ),
+              ),
+              // Attachment indicator
+              if (taskModel.attachmentPaths != null && taskModel.attachmentPaths!.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.attach_file_rounded,
+                  size: 16,
+                  color: priorityColor.withValues(alpha: 0.7),
+                ),
+              ],
+            ],
           ),
           if (taskModel.description != null && taskModel.description!.isNotEmpty)
             Text(

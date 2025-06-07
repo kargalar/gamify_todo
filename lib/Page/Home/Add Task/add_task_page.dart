@@ -27,6 +27,7 @@ import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/file_attachment_widget.dart';
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({
@@ -84,6 +85,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       addTaskProvider.categoryId = addTaskProvider.editTask!.categoryId;
       addTaskProvider.earlyReminderMinutes = addTaskProvider.editTask!.earlyReminderMinutes;
       addTaskProvider.loadSubtasksFromTask(addTaskProvider.editTask!);
+      addTaskProvider.loadAttachmentsFromTask(addTaskProvider.editTask!);
     } else {
       addTaskProvider.editTask = null;
 
@@ -102,6 +104,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       addTaskProvider.priority = 3;
       addTaskProvider.categoryId = null;
       addTaskProvider.clearSubtasks();
+      addTaskProvider.clearAttachments();
     }
   }
 
@@ -230,6 +233,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     const SizedBox(height: 10),
                     const CompactTraitOptions(),
                     const SizedBox(height: 10),
+                    // File attachment widget
+                    const FileAttachmentWidget(),
+                    const SizedBox(height: 10),
                     if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
                     const SizedBox(height: 10),
 
@@ -346,6 +352,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
           categoryId: addTaskProvider.categoryId,
           earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+          attachmentPaths: addTaskProvider.attachmentPaths.isNotEmpty ? List.from(addTaskProvider.attachmentPaths) : null,
         ),
       );
     } else {
@@ -395,6 +402,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
             categoryId: addTaskProvider.categoryId,
             earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+            attachmentPaths: addTaskProvider.attachmentPaths.isNotEmpty ? List.from(addTaskProvider.attachmentPaths) : null,
           ),
         );
       } else {
@@ -466,6 +474,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
           existingTask.location = addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text;
           existingTask.categoryId = addTaskProvider.categoryId;
           existingTask.earlyReminderMinutes = addTaskProvider.earlyReminderMinutes;
+          existingTask.attachmentPaths = addTaskProvider.attachmentPaths.isNotEmpty ? List.from(addTaskProvider.attachmentPaths) : null;
 
           // For type-specific properties
           if (addTaskProvider.selectedTaskType == TaskTypeEnum.TIMER) {
@@ -511,6 +520,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
             categoryId: addTaskProvider.categoryId,
             earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+            attachmentPaths: addTaskProvider.attachmentPaths.isNotEmpty ? List.from(addTaskProvider.attachmentPaths) : null,
           ),
         );
       }
