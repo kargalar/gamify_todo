@@ -353,7 +353,8 @@ class Helper {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              insetPadding: const EdgeInsets.all(15),
+              insetPadding: const EdgeInsets.all(18),
+              contentPadding: const EdgeInsets.all(12),
               title: const Text('Tarih Seç'),
               content: SizedBox(
                 width: double.maxFinite,
