@@ -654,14 +654,13 @@ class HiveService {
               final taskLog = TaskLogModel.fromJson(entry.value);
               await taskLogBox.put(int.parse(entry.key), taskLog);
             }
-          }
-
-          // Import SharedPrefs
+          } // Import SharedPrefs
           final prefs = await SharedPreferences.getInstance();
           final sharedPrefsMap = allData["SharedPreferances"] as Map<String, dynamic>;
 
-          // ? last login data == bugün ise normal ver bugün değilse dün yap ( bu kayıtlı rutinleri taska döüştürmek için)
-          await prefs.setString('lastLoginDate', sharedPrefsMap["lastLoginDate"] != null && DateTime.parse(sharedPrefsMap["lastLoginDate"]).isSameDay(DateTime.now()) ? sharedPrefsMap["lastLoginDate"] : (DateTime.now().subtract(const Duration(days: 1))).toIso8601String());
+          // Set lastLoginDate to yesterday so that createTasksFromRoutines creates tasks for today
+          // Because createTasksFromRoutines starts from lastLoginDate + 1 day
+          await prefs.setString('lastLoginDate', DateTime.now().subtract(const Duration(days: 1)).toIso8601String());
           await prefs.setInt('last_task_id', sharedPrefsMap["last_task_id"] ?? 0);
           await prefs.setInt('last_routine_id', sharedPrefsMap["last_routine_id"] ?? 0);
           await prefs.setInt('last_trait_id', sharedPrefsMap["last_trait_id"] ?? 0);
