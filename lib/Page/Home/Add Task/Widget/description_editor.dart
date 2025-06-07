@@ -122,6 +122,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                 ),
                 child: TextField(
                   controller: _provider.descriptionController,
+                  autofocus: true,
                   textCapitalization: TextCapitalization.sentences,
                   style: const TextStyle(
                     fontSize: 16,

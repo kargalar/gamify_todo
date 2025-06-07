@@ -359,6 +359,28 @@ class Helper {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Direct calendar view
+                    SizedBox(
+                      height: 300,
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: Theme.of(context).colorScheme.copyWith(
+                                primary: AppColors.main,
+                              ),
+                        ),
+                        child: CalendarDatePicker(
+                          initialDate: initialDate ?? DateTime.now(),
+                          firstDate: DateTime(1950),
+                          lastDate: DateTime(2100),
+                          onDateChanged: (date) {
+                            setState(() {
+                              selectedDate = date;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     // Quick action buttons
                     Row(
                       children: [
@@ -394,28 +416,6 @@ class Helper {
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Direct calendar view
-                    SizedBox(
-                      height: 300,
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: Theme.of(context).colorScheme.copyWith(
-                                primary: AppColors.main,
-                              ),
-                        ),
-                        child: CalendarDatePicker(
-                          initialDate: initialDate ?? DateTime.now(),
-                          firstDate: DateTime(1950),
-                          lastDate: DateTime(2100),
-                          onDateChanged: (date) {
-                            setState(() {
-                              selectedDate = date;
-                            });
-                          },
-                        ),
-                      ),
                     ),
                   ],
                 ),
