@@ -5,7 +5,7 @@ import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/compact_task_options.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/compact_task_options_vertical.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/compact_trait_options.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/enhanced_subtask_section.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
@@ -195,31 +195,40 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     // Combined Date, Time & Notification widget
                     const DateTimeNotificationWidget(),
                     const SizedBox(height: 10),
-                    Column(
+                    const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(child: DurationPickerWidget()),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        if (addTaskProvider.editTask == null) const SelectTaskType(),
-                        if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
-                          const Column(
+                        // Duration picker on the left (takes less space)
+                        Expanded(
+                          flex: 5,
+                          child: Column(
                             children: [
-                              // TODO: localization
-                              Text("Target Count"),
-                              SelectTargetCount(),
+                              DurationPickerWidget(),
                             ],
                           ),
+                        ),
+
+                        SizedBox(width: 10),
+
+                        // Compact task options on the right (Location, Priority, Category)
+                        Expanded(
+                          flex: 3,
+                          child: CompactTaskOptionsVertical(),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const CompactTraitOptions(),
+                    if (addTaskProvider.editTask == null) const SelectTaskType(),
+                    if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
+                      const Column(
+                        children: [
+                          // TODO: localization
+                          Text("Target Count"),
+                          SelectTargetCount(),
+                        ],
+                      ),
                     const SizedBox(height: 10),
-                    // Compact task options (Location, Priority, Category)
-                    const CompactTaskOptions(),
+                    const CompactTraitOptions(),
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
                     const SizedBox(height: 10),

@@ -180,6 +180,7 @@ class LocationBottomSheet extends StatelessWidget {
                 controller: addTaskProvider.locationController,
                 focusNode: addTaskProvider.locationFocus,
                 textCapitalization: TextCapitalization.sentences,
+                autofocus: true,
                 style: const TextStyle(
                   fontSize: 15,
                 ),

@@ -10,8 +10,9 @@ import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 
-class CompactTaskOptions extends StatelessWidget {
-  const CompactTaskOptions({super.key});
+class CompactTaskOptionsVertical extends StatelessWidget {
+  const CompactTaskOptionsVertical({super.key});
+
   @override
   Widget build(BuildContext context) {
     final addTaskProvider = context.watch<AddTaskProvider>();
@@ -51,82 +52,76 @@ class CompactTaskOptions extends StatelessWidget {
     // Get location info
     final hasLocation = addTaskProvider.locationController.text.isNotEmpty;
 
-    return Row(
+    return Column(
       children: [
         // Location
-        Expanded(
-          child: _buildCompactOption(
-            context: context,
-            icon: Icons.location_on_rounded,
-            iconColor: hasLocation ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
-            label: LocaleKeys.Location.tr(),
-            value: hasLocation ? addTaskProvider.locationController.text : "Not set",
-            hasValue: hasLocation,
-            onTap: () {
-              addTaskProvider.unfocusAll();
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                barrierColor: Colors.transparent,
-                builder: (context) => const LocationBottomSheet(),
-              );
-            },
-          ),
+        _buildVerticalOption(
+          context: context,
+          icon: Icons.location_on_rounded,
+          iconColor: hasLocation ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
+          label: LocaleKeys.Location.tr(),
+          value: hasLocation ? addTaskProvider.locationController.text : "Not set",
+          hasValue: hasLocation,
+          onTap: () {
+            addTaskProvider.unfocusAll();
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              barrierColor: Colors.transparent,
+              builder: (context) => const LocationBottomSheet(),
+            );
+          },
         ),
 
-        const SizedBox(width: 8),
+        const SizedBox(height: 6),
 
         // Priority
-        Expanded(
-          child: _buildCompactOption(
-            context: context,
-            icon: priorityIcon,
-            iconColor: priorityColor,
-            label: LocaleKeys.Priority.tr(),
-            value: priorityText,
-            hasValue: true,
-            onTap: () {
-              addTaskProvider.unfocusAll();
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                barrierColor: Colors.transparent,
-                builder: (context) => const PriorityBottomSheet(),
-              );
-            },
-          ),
+        _buildVerticalOption(
+          context: context,
+          icon: priorityIcon,
+          iconColor: priorityColor,
+          label: LocaleKeys.Priority.tr(),
+          value: priorityText,
+          hasValue: true,
+          onTap: () {
+            addTaskProvider.unfocusAll();
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              barrierColor: Colors.transparent,
+              builder: (context) => const PriorityBottomSheet(),
+            );
+          },
         ),
 
-        const SizedBox(width: 8),
+        const SizedBox(height: 6),
 
         // Category
-        Expanded(
-          child: _buildCompactOption(
-            context: context,
-            icon: Icons.label_rounded,
-            iconColor: selectedCategory != null ? selectedCategory.color : AppColors.text.withValues(alpha: 0.5),
-            label: LocaleKeys.Category.tr(),
-            value: selectedCategory?.title ?? "Not set",
-            hasValue: selectedCategory != null,
-            onTap: () {
-              addTaskProvider.unfocusAll();
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                barrierColor: Colors.transparent,
-                builder: (context) => const CategoryBottomSheet(),
-              );
-            },
-          ),
+        _buildVerticalOption(
+          context: context,
+          icon: Icons.label_rounded,
+          iconColor: selectedCategory != null ? selectedCategory.color : AppColors.text.withValues(alpha: 0.5),
+          label: LocaleKeys.Category.tr(),
+          value: selectedCategory?.title ?? "Not set",
+          hasValue: selectedCategory != null,
+          onTap: () {
+            addTaskProvider.unfocusAll();
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              barrierColor: Colors.transparent,
+              builder: (context) => const CategoryBottomSheet(),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildCompactOption({
+  Widget _buildVerticalOption({
     required BuildContext context,
     required IconData icon,
     required Color iconColor,
@@ -136,6 +131,7 @@ class CompactTaskOptions extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(8),
@@ -153,7 +149,7 @@ class CompactTaskOptions extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(8),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(
               children: [
                 Icon(
@@ -161,7 +157,7 @@ class CompactTaskOptions extends StatelessWidget {
                   color: iconColor,
                   size: 16,
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
