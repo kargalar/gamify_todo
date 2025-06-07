@@ -7,6 +7,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/compact_task_options.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/compact_trait_options.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/enhanced_subtask_section.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/date_time_notification_widget.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_days.dart';
@@ -187,7 +188,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       autoFocus: addTaskProvider.editTask == null,
                       onTaskSubmit: addTaskProvider.editTask == null ? addTask : null,
                     ),
-
+                    const SizedBox(height: 10),
+                    // Enhanced Subtask Section
+                    const EnhancedSubtaskSection(),
                     const SizedBox(height: 10),
                     // Combined Date, Time & Notification widget
                     const DateTimeNotificationWidget(),
@@ -212,12 +215,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
                           ),
                       ],
                     ),
-
                     const SizedBox(height: 10),
                     const CompactTraitOptions(),
                     const SizedBox(height: 10),
-
-                    // Compact task options (Location, Priority, Category, Subtasks)
+                    // Compact task options (Location, Priority, Category)
                     const CompactTaskOptions(),
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),

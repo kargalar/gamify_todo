@@ -2,12 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
-import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/category_selector.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/location_input.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_priority.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_manager.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -28,9 +25,7 @@ class CompactTaskOptions extends StatelessWidget {
         (category) => category.id == addTaskProvider.categoryId,
         orElse: () => CategoryModel(title: LocaleKeys.NoCategory.tr(), color: AppColors.main),
       );
-    }
-
-    // Get priority color, icon and text
+    } // Get priority color, icon and text
     Color priorityColor;
     IconData priorityIcon;
     String priorityText;
@@ -51,10 +46,6 @@ class CompactTaskOptions extends StatelessWidget {
         priorityIcon = Icons.arrow_downward_rounded;
         priorityText = LocaleKeys.LowPriority.tr();
     }
-
-    // Get subtask info
-    final subtaskCount = addTaskProvider.subtasks.length;
-    final completedCount = addTaskProvider.subtasks.where((subtask) => subtask.isCompleted).length;
 
     // Get location info
     final hasLocation = addTaskProvider.locationController.text.isNotEmpty;
@@ -166,31 +157,6 @@ class CompactTaskOptions extends StatelessWidget {
                   );
                 },
               ),
-
-              // Subtasks option
-              _buildOptionItem(
-                context: context,
-                icon: Icons.checklist_rounded,
-                iconColor: subtaskCount > 0 ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
-                label: LocaleKeys.Subtasks.tr(),
-                value: subtaskCount > 0 ? "$completedCount/$subtaskCount" : null,
-                valueColor: AppColors.main,
-                onTap: () {
-                  addTaskProvider.unfocusAll();
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    barrierColor: Colors.transparent,
-                    builder: (context) => SubtasksBottomSheet(
-                      onAddSubtask: () => _showSubtaskDialog(context),
-                      onEditSubtask: (subtask) => _showSubtaskDialog(context, subtask: subtask),
-                      onToggleSubtask: (index) => _toggleSubtaskCompletion(context, index),
-                      onRemoveSubtask: (index) => _removeSubtask(context, index),
-                    ),
-                  );
-                },
-              ),
             ],
           ),
         ],
@@ -267,70 +233,5 @@ class CompactTaskOptions extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // Helper methods for subtasks
-  void _showSubtaskDialog(BuildContext context, {SubTaskModel? subtask}) {
-    final provider = context.read<AddTaskProvider>();
-    provider.unfocusAll();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.transparent,
-      builder: (context) => SubtaskDialog(
-        subtask: subtask,
-        onSave: (title, description) {
-          if (subtask == null) {
-            _addNewSubtask(context, title, description);
-          } else {
-            _editSubtask(context, subtask, title, description);
-          }
-        },
-      ),
-    );
-  }
-
-  void _addNewSubtask(BuildContext context, String title, String? description) {
-    final addTaskProvider = context.read<AddTaskProvider>();
-
-    int subtaskId = 1;
-    if (addTaskProvider.subtasks.isNotEmpty) {
-      subtaskId = addTaskProvider.subtasks.map((s) => s.id).reduce((a, b) => a > b ? a : b) + 1;
-    }
-
-    addTaskProvider.addSubtask(SubTaskModel(
-      id: subtaskId,
-      title: title,
-      description: description,
-    ));
-  }
-
-  void _editSubtask(BuildContext context, SubTaskModel subtask, String title, String? description) {
-    final addTaskProvider = context.read<AddTaskProvider>();
-    final index = addTaskProvider.subtasks.indexWhere((s) => s.id == subtask.id);
-
-    if (index != -1) {
-      addTaskProvider.updateSubtask(
-        index,
-        SubTaskModel(
-          id: subtask.id,
-          title: title,
-          description: description,
-          isCompleted: subtask.isCompleted,
-        ),
-      );
-    }
-  }
-
-  void _toggleSubtaskCompletion(BuildContext context, int index) {
-    final addTaskProvider = context.read<AddTaskProvider>();
-    addTaskProvider.toggleSubtaskCompletion(index);
-  }
-
-  void _removeSubtask(BuildContext context, int index) {
-    final addTaskProvider = context.read<AddTaskProvider>();
-    addTaskProvider.removeSubtask(index);
   }
 }
