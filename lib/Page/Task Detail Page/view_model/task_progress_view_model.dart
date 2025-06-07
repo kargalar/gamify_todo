@@ -336,6 +336,10 @@ class TaskProgressViewModel extends ChangeNotifier {
         taskModel!.status = null;
       }
 
+      // Kredi hesapla ve ekle - batch değişiklik için
+      Duration creditPerIncrement = taskModel!.remainingDuration! ~/ taskModel!.targetCount!;
+      AppHelper().addCreditByProgress(creditPerIncrement * totalChange);
+
       // Tek bir batch log oluştur
       final selectedDate = TaskProvider().selectedDate;
       final now = DateTime.now();
@@ -377,6 +381,9 @@ class TaskProgressViewModel extends ChangeNotifier {
       } else if (newValue < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.COMPLETED) {
         taskModel!.status = null;
       }
+
+      // Kredi ekle - batch değişiklik için
+      AppHelper().addCreditByProgress(totalChange);
 
       // Tek bir batch log oluştur
       final selectedDate = TaskProvider().selectedDate;

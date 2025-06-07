@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
@@ -1111,6 +1112,11 @@ class TaskProvider with ChangeNotifier {
 
     // Mark task as completed
     taskModel.status = TaskStatusEnum.COMPLETED;
+
+    // Award credits for completing the task
+    if (taskModel.remainingDuration != null) {
+      AppHelper().addCreditByProgress(taskModel.remainingDuration);
+    }
 
     // Create log for completed checkbox task
     TaskLogProvider().addTaskLog(

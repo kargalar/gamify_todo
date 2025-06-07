@@ -3,7 +3,7 @@ import 'package:next_level/Service/server_manager.dart';
 
 class AppHelper {
   void addCreditByProgress(Duration? progress) async {
-    if (progress == null) return;
+    if (progress == null || loginUser == null) return;
 
     loginUser!.creditProgress += progress;
 
