@@ -42,7 +42,9 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   late AnimationController _completionAnimationController;
   late Animation<double> _scaleAnimation;
   late Animation<Color?> _backgroundColorAnimation;
-  animationDuration() => const Duration(milliseconds: 300);
+  bool _isAnimationRunning = false; // Track if completion animation is running
+  bool _isVisuallyCompleted = false; // Track visual state for checkbox UI
+  animationDuration() => const Duration(milliseconds: 350);
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     // Scale animation for completion effect
     _scaleAnimation = Tween<double>(
       begin: 1,
-      end: 1.01,
+      end: 1.02,
     ).animate(CurvedAnimation(
       parent: _completionAnimationController,
       curve: Curves.fastLinearToSlowEaseIn,
@@ -66,7 +68,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     // Background color animation for completion effect
     _backgroundColorAnimation = ColorTween(
       begin: Colors.transparent,
-      end: const Color.fromARGB(255, 90, 255, 49).withValues(alpha: 0.6),
+      end: const Color.fromARGB(255, 90, 255, 49).withValues(alpha: 0.4),
     ).animate(CurvedAnimation(
       parent: _completionAnimationController,
       curve: Curves.fastLinearToSlowEaseIn,
@@ -242,7 +244,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
               onTap: () => taskAction(),
               child: Icon(
                 widget.taskModel.type == TaskTypeEnum.CHECKBOX
-                    ? widget.taskModel.status == TaskStatusEnum.COMPLETED
+                    ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.COMPLETED)
                         ? Icons.check_box
                         : Icons.check_box_outline_blank
                     : widget.taskModel.isTimerActive!
@@ -269,18 +271,34 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       );
     }
 
+    // Check if animation is running and this is a checkbox task
+    if (_isAnimationRunning && widget.taskModel.type == TaskTypeEnum.CHECKBOX) {
+      // Cancel the animation and revert the visual state
+      _completionAnimationController.stop();
+      _completionAnimationController.reset();
+      _isAnimationRunning = false;
+      _isVisuallyCompleted = false;
+
+      setState(() {});
+      return;
+    }
+
     // Check if this is a checkbox task being completed
-    final bool isCheckboxTaskBeingCompleted = widget.taskModel.type == TaskTypeEnum.CHECKBOX && widget.taskModel.status != TaskStatusEnum.COMPLETED; // If it's a checkbox task being completed, play animation first, then handle the action
+    final bool isCheckboxTaskBeingCompleted = widget.taskModel.type == TaskTypeEnum.CHECKBOX && widget.taskModel.status != TaskStatusEnum.COMPLETED;
+
     if (isCheckboxTaskBeingCompleted) {
+      // First, immediately update the visual state (checkbox appears checked)
+      _isVisuallyCompleted = true;
+      setState(() {});
+
+      // Then play the animation, and complete the task when animation finishes
       _playCompletionAnimation(() {
-        // After animation completes, handle the task action
+        // Actually complete the task after animation
         TaskActionHandler.handleTaskAction(
           widget.taskModel,
           skipLogging: skipLogging,
           onStateChanged: () {
-            if (!_isLongPressing) {
-              setState(() {});
-            }
+            setState(() {});
           },
         );
       });
@@ -299,11 +317,16 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   }
 
   void _playCompletionAnimation([VoidCallback? onAnimationComplete]) {
+    _isAnimationRunning = true;
+
     // First, play the completion effect (scale + background color)
     _completionAnimationController.forward().then((_) {
       // After completion effect, reverse it and then slide down
       _completionAnimationController.reverse().then((_) {
-        // Play slide animation
+        _isAnimationRunning = false;
+        _isVisuallyCompleted = false; // Reset visual state after animation
+
+        // Execute completion callback (actually complete the task)
         if (onAnimationComplete != null) {
           onAnimationComplete();
         }
