@@ -840,11 +840,13 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
-  void toggleSubtaskCompletion(TaskModel taskModel, SubTaskModel subtask) {
+  void toggleSubtaskCompletion(TaskModel taskModel, SubTaskModel subtask, {bool showUndo = true}) {
     if (taskModel.subtasks != null) {
       final index = taskModel.subtasks!.indexWhere((s) => s.id == subtask.id);
       if (index != -1) {
         bool wasCompleted = taskModel.subtasks![index].isCompleted;
+        bool isBeingCompleted = !wasCompleted;
+
         taskModel.subtasks![index].isCompleted = !wasCompleted;
 
         debugPrint('Toggling subtask completion: TaskID=${taskModel.id}, SubtaskID=${subtask.id}, Completed=${!wasCompleted}');
@@ -860,12 +862,20 @@ class TaskProvider with ChangeNotifier {
         ServerManager().updateTask(taskModel: taskModel);
 
         // Alt görev tamamlandığında log oluştur
-        if (!wasCompleted) {
+        if (isBeingCompleted) {
           // Alt görev tamamlandı
           TaskLogProvider().addTaskLog(
             taskModel,
             customStatus: TaskStatusEnum.COMPLETED,
           );
+
+          // Show undo message for subtask completion
+          if (showUndo) {
+            Helper().getUndoMessage(
+              message: "Subtask completed",
+              onUndo: () => toggleSubtaskCompletion(taskModel, subtask, showUndo: false),
+            );
+          }
         }
 
         notifyListeners();
