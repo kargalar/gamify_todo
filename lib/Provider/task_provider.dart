@@ -934,9 +934,16 @@ class TaskProvider with ChangeNotifier {
 
   List<TaskModel> getTasksForDate(DateTime date) {
     List<TaskModel> tasks;
-    if (!showCompleted) {
+
+    // Only apply showCompleted filter for today's date, not for historical dates
+    final today = DateTime.now();
+    final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
+
+    if (isToday && !showCompleted) {
+      // For today: filter out completed tasks if showCompleted is false
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: true)).toList();
     } else {
+      // For historical dates or when showCompleted is true: show all tasks
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: false)).toList();
     }
 
@@ -946,9 +953,16 @@ class TaskProvider with ChangeNotifier {
 
   List<TaskModel> getRoutineTasksForDate(DateTime date) {
     List<TaskModel> tasks;
-    if (!showCompleted) {
+
+    // Only apply showCompleted filter for today's date, not for historical dates
+    final today = DateTime.now();
+    final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
+
+    if (isToday && !showCompleted) {
+      // For today: filter out completed tasks if showCompleted is false
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: true, isCompleted: true)).toList();
     } else {
+      // For historical dates or when showCompleted is true: show all tasks
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: true, isCompleted: false)).toList();
     }
 
