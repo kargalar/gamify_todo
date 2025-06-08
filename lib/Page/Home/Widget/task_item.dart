@@ -131,59 +131,53 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
               taskModel: widget.taskModel,
               child: Opacity(
                 opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
-                child: Stack(
-                  alignment: Alignment.bottomLeft,
-                  children: [
-                    // TaskProgressContainer(taskModel: widget.taskModel),
-                    InkWell(
-                      onTap: () {
-                        // eğer subtask var ise subtask bottom sheet açılır
-                        if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
-                          _showSubtasksBottomSheet();
-                        }
-                        // eğer description varsa description editor aç
-                        else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
-                          _showDescriptionEditor();
-                        } else {
-                          taskAction();
-                        }
-                      },
-                      onLongPress: () async {
-                        await taskLongPressAction();
-                      },
-                      borderRadius: AppColors.borderRadiusAll,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : AppColors.borderRadiusAll,
+                child: InkWell(
+                  onTap: () {
+                    // eğer subtask var ise subtask bottom sheet açılır
+                    if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
+                      _showSubtasksBottomSheet();
+                    }
+                    // eğer description varsa description editor aç
+                    else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
+                      _showDescriptionEditor();
+                    } else {
+                      taskAction();
+                    }
+                  },
+                  onLongPress: () async {
+                    await taskLongPressAction();
+                  },
+                  borderRadius: AppColors.borderRadiusAll,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : AppColors.borderRadiusAll,
+                        ),
+                        child: Row(
+                          children: [
+                            taskActionIcon(),
+                            const SizedBox(width: 5),
+                            TitleAndDescription(
+                              taskModel: widget.taskModel,
+                              displayCount: _isLongPressing ? _displayCount : null,
                             ),
-                            child: Row(
+                            const SizedBox(width: 10),
+                            Column(
                               children: [
-                                taskActionIcon(),
-                                const SizedBox(width: 5),
-                                TitleAndDescription(
-                                  taskModel: widget.taskModel,
-                                  displayCount: _isLongPressing ? _displayCount : null,
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  children: [
-                                    TaskTime(taskModel: widget.taskModel),
-                                    if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
-                                  ],
-                                ),
+                                TaskTime(taskModel: widget.taskModel),
+                                if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
                               ],
                             ),
-                          ),
-                          if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
-                          PriorityLine(taskModel: widget.taskModel),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
+                      PriorityLine(taskModel: widget.taskModel),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -205,43 +199,50 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                 : AppColors.text)
         .withValues(alpha: 0.9);
 
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
-        borderRadius: AppColors.borderRadiusAll,
-      ),
-      child: widget.taskModel.type == TaskTypeEnum.COUNTER
-          ? GestureDetector(
-              onTap: () => taskAction(),
-              onLongPressStart: (_) {
-                _startLongPress();
+    return widget.taskModel.type == TaskTypeEnum.COUNTER
+        ? GestureDetector(
+            onTap: () => taskAction(),
+            onLongPressStart: (_) {
+              _startLongPress();
 
-                // Timer ile sadece UI güncellemesi
-                _longPressTimer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
-                  if (!mounted || !_isLongPressing) {
-                    timer.cancel();
-                    return;
-                  }
-                  // Sadece display count'u artır, gerçek veriyi değiştirme
-                  _displayCount++;
-                  setState(() {});
-                });
-              },
-              onLongPressEnd: (_) {
-                _endLongPress();
-              },
-              onLongPressCancel: () {
-                _endLongPress();
-              },
+              // Timer ile sadece UI güncellemesi
+              _longPressTimer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+                if (!mounted || !_isLongPressing) {
+                  timer.cancel();
+                  return;
+                }
+                // Sadece display count'u artır, gerçek veriyi değiştirme
+                _displayCount++;
+                setState(() {});
+              });
+            },
+            onLongPressEnd: (_) {
+              _endLongPress();
+            },
+            onLongPressCancel: () {
+              _endLongPress();
+            },
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: AppColors.panelBackground,
+                borderRadius: AppColors.borderRadiusAll,
+              ),
               child: Icon(
                 Icons.add,
                 size: 27,
                 color: priorityColor,
               ),
-            )
-          : GestureDetector(
-              onTap: () => taskAction(),
+            ),
+          )
+        : GestureDetector(
+            onTap: () => taskAction(),
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: AppColors.panelBackground,
+                borderRadius: AppColors.borderRadiusAll,
+              ),
               child: Icon(
                 widget.taskModel.type == TaskTypeEnum.CHECKBOX
                     ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.COMPLETED)
@@ -254,7 +255,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                 color: priorityColor,
               ),
             ),
-    );
+          );
   }
 
   void taskAction({bool skipLogging = false}) {
