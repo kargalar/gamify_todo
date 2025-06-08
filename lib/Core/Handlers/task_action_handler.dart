@@ -14,30 +14,6 @@ import 'package:get/get_navigation/src/routes/transitions_type.dart';
 
 /// A centralized handler for task-related actions
 class TaskActionHandler {
-  /// Determines if a task should be considered overdue based on its date and time
-  static bool _shouldBeOverdue(TaskModel taskModel) {
-    if (taskModel.taskDate == null) return false;
-
-    final now = DateTime.now();
-    final taskDate = taskModel.taskDate!;
-
-    // If task has a specific time
-    if (taskModel.time != null) {
-      final taskDateTime = taskDate.copyWith(
-        hour: taskModel.time!.hour,
-        minute: taskModel.time!.minute,
-        second: 0,
-        millisecond: 0,
-      );
-      return taskDateTime.isBefore(now);
-    } else {
-      // If task has no specific time, consider it overdue if the date has passed
-      final taskDateOnly = DateTime(taskDate.year, taskDate.month, taskDate.day);
-      final nowDateOnly = DateTime(now.year, now.month, now.day);
-      return taskDateOnly.isBefore(nowDateOnly);
-    }
-  }
-
   /// Handles the primary action for a task based on its type
   static void handleTaskAction(TaskModel taskModel, {Function? onStateChanged, bool skipLogging = false, int? batchChange}) {
     final bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
@@ -81,28 +57,16 @@ class TaskActionHandler {
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
       if (taskModel.status == TaskStatusEnum.COMPLETED) {
-        // When uncompleting a task, check if it should return to overdue status
-        if (_shouldBeOverdue(taskModel)) {
-          taskModel.status = TaskStatusEnum.OVERDUE;
+        // When uncompleting a task, always set to null (in progress)
+        // regardless of whether it should be overdue
+        taskModel.status = null;
 
-          // Create log for overdue task (unless logging is skipped)
-          if (!skipLogging) {
-            TaskLogProvider().addTaskLog(
-              taskModel,
-              customStatus: TaskStatusEnum.OVERDUE,
-            );
-          }
-        } else {
-          // Change from completed to in progress (null)
-          taskModel.status = null;
-
-          // Create log for uncompleted checkbox task (unless logging is skipped)
-          if (!skipLogging) {
-            TaskLogProvider().addTaskLog(
-              taskModel,
-              customStatus: null, // null status means "in progress"
-            );
-          }
+        // Create log for uncompleted checkbox task (unless logging is skipped)
+        if (!skipLogging) {
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: null, // null status means "in progress"
+          );
         }
 
         // Update task in provider and save

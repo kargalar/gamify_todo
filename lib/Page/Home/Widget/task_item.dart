@@ -44,7 +44,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   late Animation<Color?> _backgroundColorAnimation;
   bool _isAnimationRunning = false; // Track if completion animation is running
   bool _isVisuallyCompleted = false; // Track visual state for checkbox UI
-  animationDuration() => const Duration(milliseconds: 350);
+  animationDuration() => const Duration(milliseconds: 400);
 
   @override
   void initState() {
@@ -68,7 +68,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     // Background color animation for completion effect
     _backgroundColorAnimation = ColorTween(
       begin: Colors.transparent,
-      end: const Color.fromARGB(255, 90, 255, 49).withValues(alpha: 0.4),
+      end: const Color.fromARGB(255, 90, 255, 49).withValues(alpha: 0.2),
     ).animate(CurvedAnimation(
       parent: _completionAnimationController,
       curve: Curves.fastLinearToSlowEaseIn,
