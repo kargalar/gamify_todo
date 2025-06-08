@@ -422,7 +422,8 @@ class Helper {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.of(context).pop(null);
+                              // Use epoch time as marker for dateless selection
+                              Navigator.of(context).pop(DateTime.fromMillisecondsSinceEpoch(0));
                             },
                             icon: const Icon(Icons.clear_rounded),
                             label: const Text('Tarihsiz'),

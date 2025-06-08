@@ -235,54 +235,70 @@ class TaskProvider with ChangeNotifier {
       initialDate: taskModel.taskDate,
     );
 
-    if (selectedDate != null) {
+    // Check if user cancelled the dialog
+    if (selectedDate == null) return;
+
+    // Check if user selected "dateless" (epoch time marker)
+    final bool isDateless = selectedDate.millisecondsSinceEpoch == 0;
+
+    // Store original data for undo
+    if (showUndo) {
+      _dateChanges[taskModel.id] = _TaskDateChangeData(
+        originalDate: taskModel.taskDate,
+        originalStatus: taskModel.status,
+        originalTimerActive: taskModel.isTimerActive,
+      );
+    }
+
+    // Handle the selection
+    if (!isDateless) {
+      // User selected a specific date
       if (taskModel.time != null) {
         selectedDate = selectedDate.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute);
       }
-
-      // Store original data for undo
-      if (showUndo) {
-        _dateChanges[taskModel.id] = _TaskDateChangeData(
-          originalDate: taskModel.taskDate,
-          originalStatus: taskModel.status,
-          originalTimerActive: taskModel.isTimerActive,
-        );
-      }
-
-      if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
-        taskModel.isTimerActive = false;
-      }
-
-      // Reset status to null when date is changed
-      if (taskModel.status != null) {
-        debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
-        taskModel.status = null;
-
-        // Create log for the status change to null (in progress)
-        TaskLogProvider().addTaskLog(
-          taskModel,
-          customStatus: null, // null status means "in progress"
-        );
-      }
-
-      taskModel.taskDate = selectedDate;
-
-      ServerManager().updateTask(taskModel: taskModel);
-      checkNotification(taskModel);
-
-      if (showUndo) {
-        // Show undo snackbar
-        Helper().getUndoMessage(
-          message: "Task date changed",
-          onUndo: () => _undoDateChange(taskModel.id),
-        );
-
-        // Set timer for permanent change
-        _undoTimers['date_${taskModel.id}'] = Timer(const Duration(seconds: 3), () {
-          _permanentlyChangeDateData(taskModel.id);
-        });
-      }
+    } else {
+      // User selected dateless option
+      selectedDate = null;
     }
+
+    if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
+      taskModel.isTimerActive = false;
+    }
+
+    // Reset status to null when date is changed
+    if (taskModel.status != null) {
+      debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
+      taskModel.status = null;
+
+      // Create log for the status change to null (in progress)
+      TaskLogProvider().addTaskLog(
+        taskModel,
+        customStatus: null, // null status means "in progress"
+      );
+    }
+
+    taskModel.taskDate = selectedDate;
+
+    ServerManager().updateTask(taskModel: taskModel);
+    checkNotification(taskModel);
+
+    if (showUndo) {
+      // Show undo snackbar
+      Helper().getUndoMessage(
+        message: selectedDate != null ? "Task date changed" : "Task made dateless",
+        onUndo: () => _undoDateChange(taskModel.id),
+      );
+
+      // Set timer for permanent change
+      _undoTimers['date_${taskModel.id}'] = Timer(const Duration(seconds: 3), () {
+        _permanentlyChangeDateData(taskModel.id);
+      });
+    }
+
+    // Update home widget when task date is changed
+    HomeWidgetService.updateAllWidgets();
+
+    notifyListeners();
 
     // Update home widget when task date is changed
     HomeWidgetService.updateAllWidgets();
