@@ -152,7 +152,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : AppColors.borderRadiusAll,
                         ),
@@ -223,36 +222,44 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
               _endLongPress();
             },
             child: Container(
+              color: Colors.transparent,
               padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: AppColors.panelBackground,
-                borderRadius: AppColors.borderRadiusAll,
-              ),
-              child: Icon(
-                Icons.add,
-                size: 27,
-                color: priorityColor,
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground,
+                  borderRadius: AppColors.borderRadiusAll,
+                ),
+                child: Icon(
+                  Icons.add,
+                  size: 27,
+                  color: priorityColor,
+                ),
               ),
             ),
           )
         : GestureDetector(
             onTap: () => taskAction(),
             child: Container(
+              color: Colors.transparent,
               padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: AppColors.panelBackground,
-                borderRadius: AppColors.borderRadiusAll,
-              ),
-              child: Icon(
-                widget.taskModel.type == TaskTypeEnum.CHECKBOX
-                    ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.COMPLETED)
-                        ? Icons.check_box
-                        : Icons.check_box_outline_blank
-                    : widget.taskModel.isTimerActive!
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                size: 27,
-                color: priorityColor,
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground,
+                  borderRadius: AppColors.borderRadiusAll,
+                ),
+                child: Icon(
+                  widget.taskModel.type == TaskTypeEnum.CHECKBOX
+                      ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.COMPLETED)
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank
+                      : widget.taskModel.isTimerActive!
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                  size: 27,
+                  color: priorityColor,
+                ),
               ),
             ),
           );

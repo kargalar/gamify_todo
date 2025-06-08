@@ -126,16 +126,16 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                       width: 1,
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    child: Row(
-                      children: [
-                        // Checkbox with animation
-                        InkWell(
-                          onTap: () {
-                            _toggleSubtaskCompletion();
-                          },
-                          borderRadius: BorderRadius.circular(12),
+                  child: Row(
+                    children: [
+                      // Checkbox with animation
+                      InkWell(
+                        onTap: () {
+                          _toggleSubtaskCompletion();
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             width: 20,
@@ -159,46 +159,45 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                                 : null,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                      ),
 
-                        // Title and description
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Title with animation
-                              Text(
-                                widget.subtask.title,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: isVisuallyCompleted ? FontWeight.normal : FontWeight.bold,
-                                  decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
-                                  color: isVisuallyCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text,
+                      // Title and description
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Title with animation
+                            Text(
+                              widget.subtask.title,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isVisuallyCompleted ? FontWeight.normal : FontWeight.bold,
+                                decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
+                                color: isVisuallyCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text,
+                              ),
+                            ),
+
+                            // Description if available
+                            if (widget.subtask.description != null && widget.subtask.description!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  widget.subtask.description!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.text.withValues(alpha: 0.6),
+                                    decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-
-                              // Description if available
-                              if (widget.subtask.description != null && widget.subtask.description!.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text(
-                                    widget.subtask.description!,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.text.withValues(alpha: 0.6),
-                                      decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                            ],
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
