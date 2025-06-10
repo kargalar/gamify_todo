@@ -103,7 +103,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10),
         child: Column(
           children: [
             // Description input area
@@ -136,7 +136,11 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                       fontStyle: FontStyle.italic,
                     ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(16),
+                    contentPadding: const EdgeInsets.only(
+                      left: 16,
+                      top: 10,
+                      bottom: 12,
+                    ),
                   ),
                   maxLines: null,
                   expands: true,

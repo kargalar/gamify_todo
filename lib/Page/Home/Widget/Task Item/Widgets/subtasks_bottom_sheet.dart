@@ -95,22 +95,10 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                           onTap: () {
                             taskProvider.toggleTaskSubtaskVisibility(widget.taskModel);
                           },
-                          child: Row(
-                            children: [
-                              Icon(
-                                widget.taskModel.showSubtasks ? Icons.visibility_off : Icons.visibility,
-                                size: 14,
-                                color: AppColors.text.withValues(alpha: 0.6),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                widget.taskModel.showSubtasks ? LocaleKeys.HideCompleted.tr() : LocaleKeys.ShowCompleted.tr(),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.text.withValues(alpha: 0.6),
-                                ),
-                              ),
-                            ],
+                          child: Icon(
+                            widget.taskModel.showSubtasks ? Icons.visibility_off : Icons.visibility,
+                            size: 18,
+                            color: AppColors.text.withValues(alpha: 0.6),
                           ),
                         ),
                       ),

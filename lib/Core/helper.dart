@@ -355,7 +355,6 @@ class Helper {
             return AlertDialog(
               insetPadding: const EdgeInsets.all(18),
               contentPadding: const EdgeInsets.all(12),
-              title: const Text('Tarih Seç'),
               content: SizedBox(
                 width: double.maxFinite,
                 child: Column(
