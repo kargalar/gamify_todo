@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/Widgets/language_pop.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Settings/archived_routines_page.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/data_management_dialog.dart';
 import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
@@ -71,6 +72,13 @@ class SettingsPage extends StatelessWidget {
                   context.read<ThemeProvider>().changeTheme();
                 },
               ),
+            ),
+            _settingsOption(
+              title: 'Archived Routines',
+              subtitle: 'View your archived routines',
+              onTap: () {
+                NavigatorService().goTo(const ArchivedRoutinesPage());
+              },
             ), // _settingsOption(
             //   title: LocaleKeys.Help.tr(),
             //   subtitle: LocaleKeys.HelpText.tr(),

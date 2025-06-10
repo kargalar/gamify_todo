@@ -1,20 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/task_provider.dart';
-import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
-import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
-import 'package:next_level/Model/task_log_model.dart';
 import 'package:get/route_manager.dart';
 
 class TraitDetailPage extends StatefulWidget {
@@ -35,14 +31,27 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   Color selectedColor = AppColors.main;
 
   late Duration totalDuration;
-
   List<TaskModel> relatedTasks = [];
   List<TaskModel> relatedRoutines = [];
 
-  void calculateTotalDurationFromLogs() {
-    // Tüm logları al
-    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
+  void _saveTraitChanges() {
+    if (traitTitleController.text.trim().isEmpty) {
+      traitTitleController.text = widget.traitModel.title; // Reset to original if empty
+      return;
+    }
 
+    final TraitModel updatedTrait = TraitModel(
+      id: widget.traitModel.id,
+      title: traitTitleController.text.trim(),
+      icon: traitIcon,
+      color: selectedColor,
+      type: widget.traitModel.type,
+    );
+
+    TraitProvider().editTrait(updatedTrait);
+  }
+
+  void calculateTotalDurationFromLogs() {
     // Tüm taskları al
     List<TaskModel> allTasks = TaskProvider().taskList;
 
@@ -51,60 +60,37 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       return (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
     }).toList();
 
-    // Toplam süreyi hesapla
-    totalDuration = Duration.zero;
-
-    // Her task için logları bul ve süreleri topla
-    for (var task in tasksWithTrait) {
-      // Bu task için logları bul
-      List<TaskLogModel> taskLogs = allLogs.where((log) => log.taskId == task.id).toList();
-
-      // Tamamlanmış loglar için süreyi hesapla
-      for (var log in taskLogs) {
-        if (log.status == TaskStatusEnum.COMPLETED) {
-          if (task.type == TaskTypeEnum.TIMER && log.duration != null) {
-            totalDuration += log.duration!;
-          } else if (task.type == TaskTypeEnum.COUNTER && log.count != null) {
-            totalDuration += (task.remainingDuration ?? Duration.zero) * log.count!;
-          } else if (task.type == TaskTypeEnum.CHECKBOX) {
-            totalDuration += task.remainingDuration ?? Duration.zero;
+    // Toplam süreyi hesapla - ProfileViewModel'deki yöntemle uyumlu
+    totalDuration = tasksWithTrait.fold(
+      Duration.zero,
+      (previousValue, task) {
+        if (task.remainingDuration != null) {
+          if (task.type == TaskTypeEnum.CHECKBOX && task.status != TaskStatusEnum.COMPLETED) {
+            return previousValue; // Tamamlanmamış checkbox'lar sayılmaz
           }
+          return previousValue +
+              (task.type == TaskTypeEnum.CHECKBOX
+                  ? task.remainingDuration!
+                  : task.type == TaskTypeEnum.COUNTER
+                      ? task.remainingDuration! * (task.currentCount ?? 0)
+                      : task.currentDuration ?? Duration.zero);
         }
-      }
-    }
+        return previousValue;
+      },
+    );
   }
 
   void findRelatedTasks() {
     // Tüm taskları al
     List<TaskModel> allTasks = TaskProvider().taskList;
 
-    // Tüm logları al
-    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
-
-    // Trait ile ilgili taskları bul
+    // Trait ile ilgili taskları bul (sadece progress'i olanları)
     for (var task in allTasks) {
       bool hasThisTrait = (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
 
       if (hasThisTrait) {
-        // Bu task için logları bul
-        List<TaskLogModel> taskLogs = allLogs.where((log) => log.taskId == task.id).toList();
-
-        // Toplam süreyi hesapla
-        Duration taskDuration = Duration.zero;
-
-        for (var log in taskLogs) {
-          if (log.status == TaskStatusEnum.COMPLETED) {
-            if (task.type == TaskTypeEnum.TIMER && log.duration != null) {
-              taskDuration += log.duration!;
-            } else if (task.type == TaskTypeEnum.COUNTER && log.count != null) {
-              taskDuration += (task.remainingDuration ?? Duration.zero) * log.count!;
-            } else if (task.type == TaskTypeEnum.CHECKBOX) {
-              taskDuration += task.remainingDuration ?? Duration.zero;
-            }
-          }
-        }
-
-        // Süresi 0'dan büyük olanları listelere ekle
+        // Sadece progress'i olan task'ları ekle
+        Duration taskDuration = calculateTaskDuration(task);
         if (taskDuration > Duration.zero) {
           if (task.routineID != null) {
             relatedRoutines.add(task);
@@ -115,43 +101,90 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       }
     }
 
-    // Süreye göre sırala (büyükten küçüğe)
+    // Süreye göre sırala (büyükten küçüğe) - süre aynı olanlar için en son tarihe göre sırala
     relatedTasks.sort((a, b) {
       Duration aDuration = calculateTaskDuration(a);
       Duration bDuration = calculateTaskDuration(b);
-      return bDuration.compareTo(aDuration);
+
+      // Önce süreye göre sırala
+      if (aDuration != bDuration) {
+        return bDuration.compareTo(aDuration);
+      }
+
+      // Süreler eşitse tarihe göre sırala (en yeni önce)
+      if (a.taskDate != null && b.taskDate != null) {
+        return b.taskDate!.compareTo(a.taskDate!);
+      } else if (a.taskDate != null) {
+        return -1;
+      } else if (b.taskDate != null) {
+        return 1;
+      }
+
+      return 0;
     });
 
     relatedRoutines.sort((a, b) {
       Duration aDuration = calculateTaskDuration(a);
       Duration bDuration = calculateTaskDuration(b);
-      return bDuration.compareTo(aDuration);
+
+      // Önce süreye göre sırala
+      if (aDuration != bDuration) {
+        return bDuration.compareTo(aDuration);
+      }
+
+      // Süreler eşitse tarihe göre sırala (en yeni önce)
+      if (a.taskDate != null && b.taskDate != null) {
+        return b.taskDate!.compareTo(a.taskDate!);
+      } else if (a.taskDate != null) {
+        return -1;
+      } else if (b.taskDate != null) {
+        return 1;
+      }
+
+      return 0;
     });
   }
 
   Duration calculateTaskDuration(TaskModel task) {
-    // Tüm logları al
-    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
+    // Use the same calculation method as ProfileViewModel for consistency
+    if (task.remainingDuration == null) return Duration.zero;
 
-    // Bu task için logları bul
-    List<TaskLogModel> taskLogs = allLogs.where((log) => log.taskId == task.id).toList();
+    return task.type == TaskTypeEnum.CHECKBOX
+        ? (task.status == TaskStatusEnum.COMPLETED ? task.remainingDuration! : Duration.zero)
+        : task.type == TaskTypeEnum.COUNTER
+            ? task.remainingDuration! * (task.currentCount ?? 0)
+            : task.currentDuration ?? Duration.zero;
+  }
 
-    // Toplam süreyi hesapla
-    Duration taskDuration = Duration.zero;
-
-    for (var log in taskLogs) {
-      if (log.status == TaskStatusEnum.COMPLETED) {
-        if (task.type == TaskTypeEnum.TIMER && log.duration != null) {
-          taskDuration += log.duration!;
-        } else if (task.type == TaskTypeEnum.COUNTER && log.count != null) {
-          taskDuration += (task.remainingDuration ?? Duration.zero) * log.count!;
-        } else if (task.type == TaskTypeEnum.CHECKBOX) {
-          taskDuration += task.remainingDuration ?? Duration.zero;
-        }
-      }
+  // Helper methods for status display
+  Color _getStatusColor(TaskStatusEnum status) {
+    switch (status) {
+      case TaskStatusEnum.COMPLETED:
+        return AppColors.green;
+      case TaskStatusEnum.FAILED:
+        return AppColors.red;
+      case TaskStatusEnum.CANCEL:
+        return AppColors.purple;
+      case TaskStatusEnum.ARCHIVED:
+        return AppColors.blue;
+      case TaskStatusEnum.OVERDUE:
+        return AppColors.orange;
     }
+  }
 
-    return taskDuration;
+  String _getStatusText(TaskStatusEnum status) {
+    switch (status) {
+      case TaskStatusEnum.COMPLETED:
+        return "Done";
+      case TaskStatusEnum.FAILED:
+        return "Failed";
+      case TaskStatusEnum.CANCEL:
+        return "Cancel";
+      case TaskStatusEnum.ARCHIVED:
+        return "Archived";
+      case TaskStatusEnum.OVERDUE:
+        return "Overdue";
+    }
   }
 
   @override
@@ -182,40 +215,6 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
           onTap: () => NavigatorService().back(),
           child: const Icon(Icons.arrow_back_ios),
         ),
-        actions: [
-          InkWell(
-            borderRadius: AppColors.borderRadiusAll,
-            onTap: () async {
-              if (traitTitleController.text.trim().isEmpty) {
-                traitTitleController.clear();
-                Helper().getMessage(
-                  message: LocaleKeys.NameEmpty.tr(),
-                  status: StatusEnum.WARNING,
-                );
-                return;
-              }
-
-              final TraitModel updatedTrait = TraitModel(
-                id: widget.traitModel.id,
-                title: traitTitleController.text,
-                icon: traitIcon,
-                color: selectedColor,
-                type: widget.traitModel.type == TraitTypeEnum.SKILL ? TraitTypeEnum.SKILL : TraitTypeEnum.ATTRIBUTE,
-              );
-
-              TraitProvider().editTrait(updatedTrait);
-              Get.back();
-            },
-            child: Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.check),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -245,6 +244,9 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           child: TextField(
                             controller: traitTitleController,
                             textCapitalization: TextCapitalization.sentences,
+                            onChanged: (value) {
+                              _saveTraitChanges();
+                            },
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -266,6 +268,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           onTap: () async {
                             traitIcon = await Helper().showEmojiPicker(context);
                             setState(() {});
+                            _saveTraitChanges();
                           },
                           child: Container(
                             height: 56,
@@ -288,6 +291,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           onTap: () async {
                             selectedColor = await Helper().selectColor();
                             setState(() {});
+                            _saveTraitChanges();
                           },
                           child: Container(
                             height: 56,
@@ -353,56 +357,100 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: relatedTasks.length,
-                          itemBuilder: (context, index) {
-                            final TaskModel task = relatedTasks[index];
-                            // Log verilerine göre task süresini hesapla
-                            Duration taskDuration = calculateTaskDuration(task);
+                        relatedTasks.isEmpty
+                            ? Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.panelBackground2.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  "No tasks with progress found",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: relatedTasks.length,
+                                itemBuilder: (context, index) {
+                                  final TaskModel task = relatedTasks[index];
+                                  // Log verilerine göre task süresini hesapla
+                                  Duration taskDuration = calculateTaskDuration(task);
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: AppColors.panelBackground2,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    task.title,
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: task.status == TaskStatusEnum.ARCHIVED ? AppColors.panelBackground2.withValues(alpha: 0.5) : AppColors.panelBackground2,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: task.status == TaskStatusEnum.ARCHIVED ? Border.all(color: Colors.grey.withValues(alpha: 0.3), width: 1) : null,
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[400],
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                task.title,
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: task.status == TaskStatusEnum.ARCHIVED ? Colors.grey : AppColors.text,
+                                                  decoration: task.status == TaskStatusEnum.ARCHIVED ? TextDecoration.lineThrough : TextDecoration.none,
+                                                ),
+                                              ),
+                                            ),
+                                            if (task.status != null) ...[
+                                              const SizedBox(width: 8),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: _getStatusColor(task.status!),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  _getStatusText(task.status!),
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ],
                                         ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        taskDuration.textShort2hour(),
-                                        style: const TextStyle(
-                                          fontSize: 14,
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[400],
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            Text(
+                                              taskDuration.textShort2hour(),
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: AppColors.text,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ],
                     ),
                   ),
@@ -419,58 +467,75 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: relatedRoutines.length,
-                          itemBuilder: (context, index) {
-                            final TaskModel task = relatedRoutines[index];
-                            // Log verilerine göre task süresini hesapla
-                            Duration taskDuration = calculateTaskDuration(task);
+                        relatedRoutines.isEmpty
+                            ? Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.panelBackground2.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  "No routines with progress found",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: relatedRoutines.length,
+                                itemBuilder: (context, index) {
+                                  final TaskModel task = relatedRoutines[index];
+                                  // Log verilerine göre task süresini hesapla
+                                  Duration taskDuration = calculateTaskDuration(task);
 
-                            // Artık task duration hesaplaması calculateTaskDuration metodunda yapılıyor
+                                  // Artık task duration hesaplaması calculateTaskDuration metodunda yapılıyor
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: AppColors.panelBackground2,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    task.title,
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.panelBackground2,
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[400],
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          task.title,
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        taskDuration.textShort2hour(),
-                                        style: const TextStyle(
-                                          fontSize: 14,
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[400],
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            Text(
+                                              taskDuration.textShort2hour(),
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: AppColors.text,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ],
                     ),
                   ),

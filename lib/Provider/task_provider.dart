@@ -1288,4 +1288,9 @@ class TaskProvider with ChangeNotifier {
     sortTasksByPriorityAndTime(overdueTasks);
     return overdueTasks;
   }
+
+  // Get archived routines
+  List<RoutineModel> getArchivedRoutines() {
+    return routineList.where((routine) => routine.isArchived).toList();
+  }
 }
