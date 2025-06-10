@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
@@ -81,6 +83,15 @@ class _SelectDaysState extends State<SelectDays> {
                   onTap: () {
                     // Unfocus any text fields
                     addTaskProvider.unfocusAll();
+
+                    // Tarihsiz seçiliyken rutin günü seçilmeye çalışıldığında uyarı
+                    if (addTaskProvider.selectedDate == null && addTaskProvider.selectedDays.length != 7) {
+                      Helper().getMessage(
+                        message: "Rutin oluşturmak için önce bir tarih seçmelisiniz. Tarihsiz görevler rutin olamaz.",
+                        status: StatusEnum.WARNING,
+                      );
+                      return;
+                    }
 
                     // Toggle select all functionality
                     if (addTaskProvider.selectedDays.length == 7) {
@@ -195,6 +206,15 @@ class _DayButtonState extends State<DayButton> {
         onTap: () {
           // Unfocus any text fields when selecting days
           addTaskProvider.unfocusAll();
+
+          // Tarihsiz seçiliyken rutin günü seçilmeye çalışıldığında uyarı
+          if (addTaskProvider.selectedDate == null && !addTaskProvider.selectedDays.contains(widget.index)) {
+            Helper().getMessage(
+              message: "Rutin oluşturmak için önce bir tarih seçmelisiniz. Tarihsiz görevler rutin olamaz.",
+              status: StatusEnum.WARNING,
+            );
+            return;
+          }
 
           if (addTaskProvider.selectedDays.contains(widget.index)) {
             addTaskProvider.selectedDays.remove(widget.index);

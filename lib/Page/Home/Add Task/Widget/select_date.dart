@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
@@ -273,6 +275,15 @@ class _SelectDateState extends State<SelectDate> {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
                           onTap: () {
+                            // Rutin günü seçiliyken tarihsiz seçilmeye çalışıldığında uyarı
+                            if (addTaskProvider.selectedDays.isNotEmpty) {
+                              Helper().getMessage(
+                                message: "Rutin görevler tarihsiz olamaz. Önce rutin günlerini temizleyin.",
+                                status: StatusEnum.WARNING,
+                              );
+                              return;
+                            }
+
                             setState(() {
                               addTaskProvider.selectedDate = null;
                             });
