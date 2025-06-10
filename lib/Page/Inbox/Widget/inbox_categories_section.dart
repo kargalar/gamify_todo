@@ -1,20 +1,38 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
+import 'package:next_level/Page/Inbox/Widget/date_filter_state.dart';
 import 'package:next_level/Provider/category_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 
 class InboxCategoriesSection extends StatelessWidget {
   final CategoryModel? selectedCategory;
   final Function(CategoryModel?) onCategorySelected;
+  final String searchQuery;
+  final bool showRoutines;
+  final bool showTasks;
+  final DateFilterState dateFilterState;
+  final Set<TaskTypeEnum> selectedTaskTypes;
+  final Set<TaskStatusEnum> selectedStatuses;
+  final bool showEmptyStatus;
 
   const InboxCategoriesSection({
     super.key,
     required this.selectedCategory,
     required this.onCategorySelected,
+    required this.searchQuery,
+    required this.showRoutines,
+    required this.showTasks,
+    required this.dateFilterState,
+    required this.selectedTaskTypes,
+    required this.selectedStatuses,
+    required this.showEmptyStatus,
   });
 
   @override
@@ -32,6 +50,7 @@ class InboxCategoriesSection extends StatelessWidget {
 
   Widget _buildCategoryContent(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
+    final taskProvider = context.watch<TaskProvider>();
     final categories = categoryProvider.getActiveCategories();
 
     return SingleChildScrollView(
@@ -43,6 +62,7 @@ class InboxCategoriesSection extends StatelessWidget {
             context,
             null,
             isSelected: selectedCategory == null,
+            taskProvider: taskProvider,
           ),
           const SizedBox(width: 8),
 
@@ -53,6 +73,7 @@ class InboxCategoriesSection extends StatelessWidget {
                   context,
                   category,
                   isSelected: selectedCategory?.id == category.id,
+                  taskProvider: taskProvider,
                 ),
               )),
         ],
@@ -60,8 +81,21 @@ class InboxCategoriesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryTag(BuildContext context, CategoryModel? category, {required bool isSelected}) {
+  Widget _buildCategoryTag(BuildContext context, CategoryModel? category, {required bool isSelected, required TaskProvider taskProvider}) {
     final color = category?.color ?? AppColors.main;
+
+    // Get tasks for this specific category as if it were selected
+    List<dynamic> tasks;
+    if (category != null) {
+      tasks = taskProvider.getTasksByCategoryId(category.id);
+    } else {
+      tasks = taskProvider.getAllTasks();
+    }
+
+    // Apply the same filtering logic as InboxTaskList would for this category
+    tasks = _applyFilters(tasks, forCategory: category);
+
+    final int taskCount = tasks.length;
 
     return Material(
       color: Colors.transparent,
@@ -111,10 +145,83 @@ class InboxCategoriesSection extends StatelessWidget {
                   color: isSelected ? color : AppColors.text.withValues(alpha: 0.7),
                 ),
               ),
+
+              // Task count
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isSelected ? color.withValues(alpha: 0.2) : AppColors.text.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  taskCount.toString(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? color : AppColors.text.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  // Apply the same filtering logic as InboxTaskList
+  List<dynamic> _applyFilters(List<dynamic> tasks, {CategoryModel? forCategory}) {
+    // Apply routine/task filter
+    tasks = tasks.where((task) {
+      bool isRoutine = task.routineID != null;
+      return (isRoutine && showRoutines) || (!isRoutine && showTasks);
+    }).toList();
+
+    // Apply task type filter
+    tasks = tasks.where((task) => selectedTaskTypes.contains(task.type)).toList();
+
+    // Apply date filter
+    tasks = tasks.where((task) {
+      switch (dateFilterState) {
+        case DateFilterState.all:
+          return true; // Show all tasks
+        case DateFilterState.withDate:
+          return task.taskDate != null; // Show only tasks with dates
+        case DateFilterState.withoutDate:
+          return task.taskDate == null; // Show only tasks without dates
+      }
+    }).toList();
+
+    // Apply status filtering
+    tasks = tasks.where((task) {
+      bool matchesStatus = false;
+
+      // Check if task matches selected statuses
+      if (selectedStatuses.isNotEmpty && selectedStatuses.contains(task.status)) {
+        matchesStatus = true;
+      }
+
+      // Check if task matches empty status filter
+      if (showEmptyStatus && task.status == null) {
+        matchesStatus = true;
+      }
+
+      // If no filters are selected, show nothing
+      if (selectedStatuses.isEmpty && !showEmptyStatus) {
+        return false;
+      }
+
+      return matchesStatus;
+    }).toList();
+
+    // Apply search filter if search query is not empty
+    if (searchQuery.isNotEmpty) {
+      tasks = tasks.where((task) {
+        return task.title.toLowerCase().contains(searchQuery.toLowerCase()) || (task.description?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false);
+      }).toList();
+    }
+
+    return tasks;
   }
 }

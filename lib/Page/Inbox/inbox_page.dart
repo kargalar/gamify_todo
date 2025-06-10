@@ -162,6 +162,7 @@ class _InboxPageState extends State<InboxPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           LocaleKeys.Tasks.tr(),
@@ -238,6 +239,13 @@ class _InboxPageState extends State<InboxPage> {
                 setState(() => _selectedCategory = category);
                 _saveFilterPreferences();
               },
+              searchQuery: _searchController.text,
+              showRoutines: _showRoutines,
+              showTasks: _showTasks,
+              dateFilterState: _dateFilterState,
+              selectedTaskTypes: _selectedTaskTypes,
+              selectedStatuses: _selectedStatuses,
+              showEmptyStatus: _showEmptyStatus,
             ),
           Divider(
             color: AppColors.text.withValues(alpha: 0.1),
@@ -256,7 +264,6 @@ class _InboxPageState extends State<InboxPage> {
               showEmptyStatus: _showEmptyStatus,
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 30),
         ],
       ),
     );

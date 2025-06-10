@@ -240,8 +240,8 @@ class CategoryBottomSheet extends StatelessWidget {
                     constraints: const BoxConstraints(maxHeight: 300),
                     child: SingleChildScrollView(
                       child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: 12,
+                        runSpacing: 12,
                         children: [
                           // Category Tags
                           ...activeCategories.map((category) => _buildCategoryTag(
@@ -290,12 +290,12 @@ class CategoryBottomSheet extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? color.withValues(alpha: 0.7) : AppColors.text.withValues(alpha: 0.1),
               width: isSelected ? 1.5 : 1.0,
@@ -311,15 +311,15 @@ class CategoryBottomSheet extends StatelessWidget {
                 : null,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Color indicator with animation
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 8,
-                  height: 8,
+                  width: 10,
+                  height: 10,
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
@@ -334,14 +334,14 @@ class CategoryBottomSheet extends StatelessWidget {
                         : null,
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 6),
 
                 // Category name with animation
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                     color: isSelected ? color : AppColors.text.withValues(alpha: 0.7),
                     letterSpacing: 0.1,
                   ),

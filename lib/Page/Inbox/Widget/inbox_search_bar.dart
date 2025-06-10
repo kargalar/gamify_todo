@@ -53,7 +53,7 @@ class InboxSearchBar extends StatelessWidget {
               : null,
           filled: false,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
           isDense: true,
         ),
       ),
