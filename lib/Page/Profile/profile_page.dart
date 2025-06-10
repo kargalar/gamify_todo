@@ -7,7 +7,6 @@ import 'package:next_level/Page/Profile/Widget/profile_page_top_section.dart';
 import 'package:next_level/Page/Profile/Widget/trait_list.dart';
 import 'package:next_level/Page/Profile/Widget/weekly_total_progress_chart.dart';
 import 'package:next_level/Page/Settings/settings_page.dart';
-import 'package:next_level/Page/Schedule/schedule_page.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
@@ -61,19 +60,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-              InkWell(
-                borderRadius: AppColors.borderRadiusAll,
-                onTap: () async {
-                  await NavigatorService().goTo(
-                    const SchedulePage(),
-                    transition: Transition.rightToLeft,
-                  );
-                },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: Icon(Icons.calendar_month),
-                ),
-              ),
+              // InkWell(
+              //   borderRadius: AppColors.borderRadiusAll,
+              //   onTap: () async {
+              //     await NavigatorService().goTo(
+              //       const SchedulePage(),
+              //       transition: Transition.rightToLeft,
+              //     );
+              //   },
+              //   child: const Padding(
+              //     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              //     child: Icon(Icons.calendar_month),
+              //   ),
+              // ),
               InkWell(
                 borderRadius: AppColors.borderRadiusAll,
                 onTap: () async {
