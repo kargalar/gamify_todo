@@ -8,6 +8,7 @@ import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
@@ -371,6 +372,9 @@ class HiveService {
 
   // delete all data
   Future<void> deleteAllData({bool isLogout = false}) async {
+    // Cancel all notifications first
+    await NotificationService().cancelAllNotifications();
+
     // Clear Hive boxes
     final box = await _userBox;
     await box.clear();
@@ -664,8 +668,17 @@ class HiveService {
           await prefs.setInt('last_task_id', sharedPrefsMap["last_task_id"] ?? 0);
           await prefs.setInt('last_routine_id', sharedPrefsMap["last_routine_id"] ?? 0);
           await prefs.setInt('last_trait_id', sharedPrefsMap["last_trait_id"] ?? 0);
-
           await createTasksFromRoutines();
+
+          // Cancel all notifications after import and task creation to clean up any old notifications
+          await NotificationService().cancelAllNotifications();
+
+          // Re-schedule notifications for imported tasks that have notification/alarm settings
+          for (TaskModel task in TaskProvider().taskList) {
+            if ((task.isNotificationOn || task.isAlarmOn) && task.time != null && task.taskDate != null) {
+              TaskProvider().checkNotification(task);
+            }
+          }
 
           // Refresh providers
           TaskProvider().updateItems();
