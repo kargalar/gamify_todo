@@ -53,13 +53,17 @@ class TaskActionHandler {
       if (onStateChanged != null) onStateChanged();
       return;
     }
-
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
       if (taskModel.status == TaskStatusEnum.COMPLETED) {
         // When uncompleting a task, always set to null (in progress)
         // regardless of whether it should be overdue
         taskModel.status = null;
+
+        // Subtract credit for uncompleting the task
+        if (taskModel.remainingDuration != null) {
+          AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
+        }
 
         // Create log for uncompleted checkbox task (unless logging is skipped)
         if (!skipLogging) {
@@ -165,6 +169,11 @@ class TaskActionHandler {
         customStatus: null, // null status means "in progress"
       );
     } else {
+      // Check if task was previously completed and subtract credit
+      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+        AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
+      }
+
       // Set to failed, clearing any other status
       taskModel.status = TaskStatusEnum.FAILED;
 
@@ -193,6 +202,11 @@ class TaskActionHandler {
         customStatus: null, // null status means "in progress"
       );
     } else {
+      // Check if task was previously completed and subtract credit
+      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+        AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
+      }
+
       // Set to cancelled, clearing any other status
       taskModel.status = TaskStatusEnum.CANCEL;
 

@@ -107,11 +107,16 @@ class TaskDetailViewModel with ChangeNotifier {
       } else if (log.status == TaskStatusEnum.FAILED) {
         failedTaskCount++;
       }
-    }
-
-    // Rutin oluşturulma tarihini al
+    } // Rutin oluşturulma tarihini al
     if (taskModel.routineID != null) {
-      taskRutinCreatedDate = TaskProvider().routineList.firstWhere((element) => element.id == taskModel.routineID).createdDate;
+      try {
+        final routine = TaskProvider().routineList.firstWhere((element) => element.id == taskModel.routineID);
+        taskRutinCreatedDate = routine.createdDate;
+      } catch (e) {
+        // If routine not found, use current date as fallback
+        debugPrint('Routine with ID ${taskModel.routineID} not found in TaskProvider list');
+        taskRutinCreatedDate = DateTime.now();
+      }
     } else {
       // Tek task için oluşturulma tarihi - taskDate'i kullan
       taskRutinCreatedDate = taskModel.taskDate ?? DateTime.now();
@@ -120,39 +125,45 @@ class TaskDetailViewModel with ChangeNotifier {
 
   void loadTraits() {
     if (taskModel.attributeIDList?.isNotEmpty ?? false) {
-      attributeBars.addAll(
-        taskModel.attributeIDList!.map((e) {
+      for (int e in taskModel.attributeIDList!) {
+        try {
           final trait = TraitProvider().traitList.firstWhere((element) => element.id == e);
 
           // Calculate progress for attribute
           double progress = calculateTraitProgress(e);
 
-          return ProgressBar(
+          attributeBars.add(ProgressBar(
             title: trait.title,
             progress: progress,
             color: trait.color,
             icon: trait.icon,
-          );
-        }),
-      );
+          ));
+        } catch (e) {
+          // Skip trait if not found in the list
+          debugPrint('Trait with ID $e not found in TraitProvider list');
+        }
+      }
     }
 
     if (taskModel.skillIDList?.isNotEmpty ?? false) {
-      skillBars.addAll(
-        taskModel.skillIDList!.map((e) {
+      for (int e in taskModel.skillIDList!) {
+        try {
           final trait = TraitProvider().traitList.firstWhere((element) => element.id == e);
 
           // Calculate progress for skill
           double progress = calculateTraitProgress(e);
 
-          return ProgressBar(
+          skillBars.add(ProgressBar(
             title: trait.title,
             progress: progress,
             color: trait.color,
             icon: trait.icon,
-          );
-        }),
-      );
+          ));
+        } catch (e) {
+          // Skip trait if not found in the list
+          debugPrint('Trait with ID $e not found in TraitProvider list');
+        }
+      }
     }
   }
 

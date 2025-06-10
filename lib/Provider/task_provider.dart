@@ -463,6 +463,11 @@ class TaskProvider with ChangeNotifier {
         customStatus: null, // null status means "in progress"
       );
     } else {
+      // Check if task was previously completed and subtract credit
+      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+        AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
+      }
+
       // Set to cancelled, clearing any other status
       taskModel.status = TaskStatusEnum.CANCEL;
       debugPrint('Setting task to canceled');
@@ -506,6 +511,11 @@ class TaskProvider with ChangeNotifier {
         customStatus: null, // null status means "in progress"
       );
     } else {
+      // Check if task was previously completed and subtract credit
+      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+        AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
+      }
+
       // Set to failed, clearing any other status
       taskModel.status = TaskStatusEnum.FAILED;
       debugPrint('Setting task to failed');
@@ -1215,6 +1225,11 @@ class TaskProvider with ChangeNotifier {
 
         // Restore previous status
         task.status = completionData.previousStatus;
+
+        // Subtract credit for undoing completion
+        if (task.remainingDuration != null) {
+          AppHelper().addCreditByProgress(-task.remainingDuration!);
+        }
 
         // Save the task to ensure changes are persisted
         try {

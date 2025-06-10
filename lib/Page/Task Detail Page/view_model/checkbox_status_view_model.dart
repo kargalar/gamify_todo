@@ -3,6 +3,7 @@ import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/server_manager.dart';
 
 class CheckboxStatusViewModel extends ChangeNotifier {
@@ -17,6 +18,9 @@ class CheckboxStatusViewModel extends ChangeNotifier {
   TaskStatusEnum? get currentStatus => taskModel.status;
 
   void updateStatus(TaskStatusEnum? newStatus) {
+    // Store the previous status for credit calculation
+    final TaskStatusEnum? previousStatus = taskModel.status;
+
     // TaskProvider'dan seçili tarihi al
     final selectedDate = TaskProvider().selectedDate;
     final now = DateTime.now();
@@ -25,6 +29,11 @@ class CheckboxStatusViewModel extends ChangeNotifier {
     // Eğer zaten seçili durum tıklanırsa, durumu sıfırla (null yap)
     if (taskModel.status == newStatus) {
       taskModel.status = null;
+
+      // Credit adjustment: if task was completed before, subtract credit
+      if (previousStatus == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+        AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
+      }
 
       // Log oluştur (durumu null olarak)
       taskLogProvider.addTaskLog(
@@ -36,6 +45,19 @@ class CheckboxStatusViewModel extends ChangeNotifier {
     } else {
       // Set new status, clearing any previous status
       taskModel.status = newStatus;
+
+      // Credit adjustment based on status change
+      if (taskModel.remainingDuration != null) {
+        // If previously completed, subtract the credit first
+        if (previousStatus == TaskStatusEnum.COMPLETED) {
+          AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
+        }
+
+        // If new status is completed, add credit
+        if (newStatus == TaskStatusEnum.COMPLETED) {
+          AppHelper().addCreditByProgress(taskModel.remainingDuration!);
+        }
+      }
 
       // Log oluştur (yeni durumu kaydeder veya mevcut logu günceller)
       taskLogProvider.addTaskLog(
