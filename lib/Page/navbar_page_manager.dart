@@ -179,28 +179,29 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          SizedBox(
-            width: 48,
-            height: 48,
-            child: FloatingActionButton(
-              backgroundColor: AppColors.text, // Use app's primary blue color (#1773DB)
-              foregroundColor: AppColors.background, // White icon color
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  barrierColor: Colors.transparent,
-                  builder: (context) => const QuickAddTaskBottomSheet(),
-                );
-              },
-              elevation: 4,
-              child: const Icon(
-                Icons.flash_on_rounded,
-                size: 22,
+          if (currentIndex == 1) // Show quick add FAB only for Home and Inbox tabs
+            SizedBox(
+              width: 48,
+              height: 48,
+              child: FloatingActionButton(
+                backgroundColor: AppColors.text, // Use app's primary blue color (#1773DB)
+                foregroundColor: AppColors.background, // White icon color
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    barrierColor: Colors.transparent,
+                    builder: (context) => const QuickAddTaskBottomSheet(),
+                  );
+                },
+                elevation: 4,
+                child: const Icon(
+                  Icons.flash_on_rounded,
+                  size: 22,
+                ),
               ),
             ),
-          ),
           const SizedBox(width: 10), // Spacing between FABs
           FloatingActionButton(
             backgroundColor: AppColors.text, // Use app's primary blue color (#1773DB)

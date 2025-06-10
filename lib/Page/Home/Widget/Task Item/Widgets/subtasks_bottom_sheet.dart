@@ -29,65 +29,64 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
     final subtasks = widget.taskModel.subtasks ?? [];
     final displayedSubtasks = widget.taskModel.showSubtasks ? subtasks : subtasks.where((subtask) => !subtask.isCompleted).toList();
     final completedCount = subtasks.where((subtask) => subtask.isCompleted).length;
-
-    return Container(
-      padding: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        border: const Border(
-          top: BorderSide(color: AppColors.dirtyWhite),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle bar
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 16),
-              decoration: BoxDecoration(
-                color: AppColors.text.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.only(bottom: 16), // Remove excessive bottom padding
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            border: const Border(
+              top: BorderSide(color: AppColors.dirtyWhite),
             ),
           ),
-
-          // Header with title and add button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.checklist_rounded,
-                      color: AppColors.main,
-                      size: 22,
-                    ),
-                    const SizedBox(width: 10),
-                    ClickableTooltip(
-                      title: LocaleKeys.Subtasks.tr(),
-                      bulletPoints: const ["Tap checkbox to mark subtask as completed", "Long press to edit a subtask", "Swipe left to delete a subtask"],
-                      child: Text(
-                        LocaleKeys.Subtasks.tr(),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 12, bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.text.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                Row(
+              ),
+
+              // Header with title and toggle button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.checklist_rounded,
+                          color: AppColors.main,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 10),
+                        ClickableTooltip(
+                          title: LocaleKeys.Subtasks.tr(),
+                          bulletPoints: const ["Tap checkbox to mark subtask as completed", "Long press to edit a subtask", "Swipe left to delete a subtask"],
+                          child: Text(
+                            LocaleKeys.Subtasks.tr(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     // Show/Hide completed subtasks toggle
                     if (completedCount > 0)
                       Padding(
@@ -115,94 +114,77 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                           ),
                         ),
                       ),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          _showSubtaskDialog(null);
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.main.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Subtasks list or empty state
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: subtasks.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Column(
                             children: [
                               Icon(
-                                Icons.add_rounded,
-                                color: AppColors.main,
-                                size: 16,
+                                Icons.check_box_outline_blank_rounded,
+                                color: AppColors.text.withValues(alpha: 0.3),
+                                size: 48,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(height: 8),
                               Text(
-                                LocaleKeys.Add.tr(),
+                                "No subtasks",
                                 style: TextStyle(
-                                  color: AppColors.main,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
+                                  color: AppColors.text.withValues(alpha: 0.5),
+                                  fontSize: 16,
                                 ),
                               ),
                             ],
                           ),
                         ),
+                      )
+                    : Container(
+                        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: displayedSubtasks.length,
+                          itemBuilder: (context, index) {
+                            final subtask = displayedSubtasks[index];
+                            return SubtaskItem(
+                              subtask: subtask,
+                              taskModel: widget.taskModel,
+                              onEdit: () => _showSubtaskDialog(subtask),
+                              onDelete: () => _removeSubtask(subtask),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
+            ],
+          ),
+        ), // Floating Add Button - positioned to stay on top
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: FloatingActionButton(
+            onPressed: () {
+              _showSubtaskDialog(null);
+            },
+            backgroundColor: AppColors.main,
+            foregroundColor: Colors.white,
+            elevation: 8,
+            heroTag: "add_subtask_fab", // Unique hero tag to avoid conflicts
+            child: const Icon(
+              Icons.add_rounded,
+              size: 28,
             ),
           ),
-
-          const SizedBox(height: 16),
-
-          // Subtasks list or empty state
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: subtasks.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.check_box_outline_blank_rounded,
-                            color: AppColors.text.withValues(alpha: 0.3),
-                            size: 48,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "No subtasks",
-                            style: TextStyle(
-                              color: AppColors.text.withValues(alpha: 0.5),
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : Container(
-                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: displayedSubtasks.length,
-                      itemBuilder: (context, index) {
-                        final subtask = displayedSubtasks[index];
-                        return SubtaskItem(
-                          subtask: subtask,
-                          taskModel: widget.taskModel,
-                          onEdit: () => _showSubtaskDialog(subtask),
-                          onDelete: () => _removeSubtask(subtask),
-                        );
-                      },
-                    ),
-                  ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
