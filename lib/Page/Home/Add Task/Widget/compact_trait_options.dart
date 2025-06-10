@@ -40,6 +40,9 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(12),
+        border: const Border(
+          top: BorderSide(color: AppColors.dirtyWhite, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -104,6 +107,7 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
 
           // Trait sections in a row for more compact layout
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Attributes section
               Expanded(
@@ -241,43 +245,13 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
                     ),
                   ),
                 )
-              else if (selectedTraits.length <= 3)
+              else
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: selectedTraits.map((trait) => _buildCompactTraitItem(context, trait)).toList(),
-                  ),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    children: [
-                      // Show first 2 traits
-                      ...selectedTraits.take(2).map((trait) => Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: _buildCompactTraitItem(context, trait),
-                          )),
-
-                      // Show count of remaining traits
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.text.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          "+${selectedTraits.length - 2}",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.text.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
             ],
@@ -396,7 +370,12 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      builder: (context) => TraitsBottomSheet(isSkill: isSkill),
+      builder: (context) => TraitsBottomSheet(
+        isSkill: isSkill,
+        onChanged: () {
+          setState(() {});
+        },
+      ),
     ).then(
       (value) {
         setState(() {});
@@ -407,10 +386,12 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
 
 class TraitsBottomSheet extends StatefulWidget {
   final bool isSkill;
+  final VoidCallback? onChanged;
 
   const TraitsBottomSheet({
     super.key,
     required this.isSkill,
+    this.onChanged,
   });
 
   @override
@@ -524,6 +505,11 @@ class _TraitsBottomSheetState extends State<TraitsBottomSheet> {
                       itemBuilder: (context, index) {
                         return TraitItem(
                           trait: traits[index],
+                          onChanged: () {
+                            setState(() {});
+                            // Notify parent to update the main trait options display
+                            widget.onChanged?.call();
+                          },
                         );
                       },
                     ),

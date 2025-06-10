@@ -12,10 +12,12 @@ class TraitItem extends StatefulWidget {
     super.key,
     required this.trait,
     this.isStatisticsPage = false,
+    this.onChanged,
   });
 
   final TraitModel trait;
   final bool isStatisticsPage;
+  final VoidCallback? onChanged;
 
   @override
   State<TraitItem> createState() => _TraitItemState();
@@ -63,6 +65,9 @@ class _TraitItemState extends State<TraitItem> {
             setState(() {
               isSelected = !isSelected;
             });
+
+            // Notify parent widget of the change
+            widget.onChanged?.call();
           }
         },
         onLongPress: () async {

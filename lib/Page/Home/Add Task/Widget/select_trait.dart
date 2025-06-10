@@ -127,6 +127,9 @@ class _SelectTraitListState extends State<SelectTraitList> {
                       itemBuilder: (context, index) {
                         return TraitItem(
                           trait: traits[index],
+                          onChanged: () {
+                            setState(() {});
+                          },
                         );
                       },
                     ),
