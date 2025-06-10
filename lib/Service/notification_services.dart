@@ -325,10 +325,10 @@ class NotificationService {
         enableLights: true,
         enableVibration: true,
         vibrationPattern: isAlarm ? Int64List.fromList([0, 1000, 500, 1000, 500, 1000]) : null,
-        ongoing: true, // Ensures the notification stays visible
-        autoCancel: false, // Prevents the notification from being dismissed automatically
+        ongoing: isAlarm, // Only alarms stay visible, notifications can be swiped away
+        autoCancel: !isAlarm, // Regular notifications can be auto-dismissed, alarms cannot
         fullScreenIntent: isAlarm,
-        category: AndroidNotificationCategory.alarm,
+        category: isAlarm ? AndroidNotificationCategory.alarm : AndroidNotificationCategory.reminder,
         actions: isAlarm
             ? [
                 const AndroidNotificationAction(
