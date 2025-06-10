@@ -91,6 +91,9 @@ class _SubtaskDialogState extends State<SubtaskDialog> {
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
+        border: const Border(
+          top: BorderSide(color: AppColors.dirtyWhite, width: 1),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),

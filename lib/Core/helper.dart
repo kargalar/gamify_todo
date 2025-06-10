@@ -447,6 +447,10 @@ class Helper {
                   child: const Text('İptal'),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: AppColors.main,
+                    foregroundColor: AppColors.white,
+                  ),
                   onPressed: selectedDate != null
                       ? () {
                           Navigator.of(context).pop(selectedDate);
