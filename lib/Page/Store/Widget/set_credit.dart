@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
@@ -13,6 +14,58 @@ class SetCredit extends StatefulWidget {
 }
 
 class _SetCreditState extends State<SetCredit> {
+  Timer? _longPressTimer;
+  bool _isLongPressing = false;
+
+  @override
+  void dispose() {
+    _longPressTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startLongPress(bool isIncrement, AddStoreItemProvider provider) {
+    _isLongPressing = true;
+
+    // İlk değişiklik
+    if (isIncrement) {
+      setState(() {
+        provider.credit++;
+      });
+    } else {
+      if (provider.credit > 0) {
+        setState(() {
+          provider.credit--;
+        });
+      }
+    }
+
+    // Timer ile sürekli artış/azalış
+    _longPressTimer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+      if (!mounted || !_isLongPressing) {
+        timer.cancel();
+        return;
+      }
+
+      if (isIncrement) {
+        setState(() {
+          provider.credit++;
+        });
+      } else {
+        if (provider.credit > 0) {
+          setState(() {
+            provider.credit--;
+          });
+        }
+      }
+    });
+  }
+
+  void _endLongPress() {
+    _longPressTimer?.cancel();
+    _longPressTimer = null;
+    _isLongPressing = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     late final AddStoreItemProvider provider = context.read<AddStoreItemProvider>();
@@ -26,8 +79,7 @@ class _SetCreditState extends State<SetCredit> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          InkWell(
-            borderRadius: AppColors.borderRadiusAll,
+          GestureDetector(
             onTap: () {
               // Unfocus when tapping
               provider.unfocusAll();
@@ -39,18 +91,18 @@ class _SetCreditState extends State<SetCredit> {
                 });
               }
             },
-            onLongPress: () {
+            onLongPressStart: (_) {
               // Unfocus when long pressing
               provider.unfocusAll();
               FocusScope.of(context).unfocus();
 
-              setState(() {
-                if (provider.credit >= 20) {
-                  provider.credit -= 20;
-                } else {
-                  provider.credit = 0;
-                }
-              });
+              _startLongPress(false, provider);
+            },
+            onLongPressEnd: (_) {
+              _endLongPress();
+            },
+            onLongPressCancel: () {
+              _endLongPress();
             },
             child: Container(
               decoration: BoxDecoration(
@@ -78,8 +130,7 @@ class _SetCreditState extends State<SetCredit> {
               ],
             ),
           ),
-          InkWell(
-            borderRadius: AppColors.borderRadiusAll,
+          GestureDetector(
             onTap: () {
               // Unfocus when tapping
               provider.unfocusAll();
@@ -89,14 +140,18 @@ class _SetCreditState extends State<SetCredit> {
                 provider.credit++;
               });
             },
-            onLongPress: () {
+            onLongPressStart: (_) {
               // Unfocus when long pressing
               provider.unfocusAll();
               FocusScope.of(context).unfocus();
 
-              setState(() {
-                provider.credit += 20;
-              });
+              _startLongPress(true, provider);
+            },
+            onLongPressEnd: (_) {
+              _endLongPress();
+            },
+            onLongPressCancel: () {
+              _endLongPress();
             },
             child: Container(
               decoration: BoxDecoration(
