@@ -43,7 +43,7 @@ class TaskProgressViewModel extends ChangeNotifier {
   // Yardımcı getter'lar
   bool get isTask => taskModel != null;
   TaskTypeEnum get type => isTask ? taskModel!.type : itemModel!.type;
-  int get currentCount => isTask ? taskModel!.currentCount! : itemModel!.currentCount!;
+  int get currentCount => isTask ? (taskModel!.currentCount ?? 0) : (itemModel!.currentCount ?? 0);
   Duration? get currentDuration => isTask ? taskModel!.currentDuration : itemModel!.currentDuration;
   Duration? get targetDuration => isTask ? taskModel!.remainingDuration : itemModel!.addDuration;
 
@@ -137,17 +137,19 @@ class TaskProgressViewModel extends ChangeNotifier {
       late Duration progressDifference;
       if (taskModel!.type == TaskTypeEnum.COUNTER) {
         int previousCount = taskModel!.currentCount ?? 0;
-        taskModel!.currentCount = value;
+        int newCount = value as int;
+        taskModel!.currentCount = newCount;
 
         // Calculate progress difference for credit adjustment
-        int difference = value - previousCount;
+        int difference = newCount - previousCount;
         progressDifference = taskModel!.remainingDuration! * difference ~/ taskModel!.targetCount!;
       } else {
         Duration previousDuration = taskModel!.currentDuration ?? Duration.zero;
-        taskModel!.currentDuration = value;
+        Duration newDuration = value as Duration;
+        taskModel!.currentDuration = newDuration;
 
         // Calculate progress difference for credit adjustment
-        progressDifference = value - previousDuration;
+        progressDifference = newDuration - previousDuration;
       }
 
       // Sunucuya güncelleme gönder
@@ -162,7 +164,12 @@ class TaskProgressViewModel extends ChangeNotifier {
       // TaskProvider'ı güncelle (ana sayfadaki görev ilerlemesini güncellemek için)
       TaskProvider().updateItems();
     } else {
-      itemModel!.currentCount = value;
+      // Store item için tip kontrolü yap
+      if (itemModel!.type == TaskTypeEnum.COUNTER) {
+        itemModel!.currentCount = value as int;
+      } else {
+        itemModel!.currentDuration = value as Duration;
+      }
       ServerManager().updateItem(itemModel: itemModel!);
     }
 
