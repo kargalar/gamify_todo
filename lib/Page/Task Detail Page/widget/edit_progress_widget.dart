@@ -11,16 +11,19 @@ import 'package:next_level/Provider/task_log_provider.dart';
 class EditProgressWidget extends StatefulWidget {
   final TaskModel? taskModel;
   final ItemModel? itemModel;
+  final VoidCallback? onProgressChanged;
 
   const EditProgressWidget.forTask({
     super.key,
     required TaskModel task,
+    this.onProgressChanged,
   })  : taskModel = task,
         itemModel = null;
 
   const EditProgressWidget.forStoreItem({
     super.key,
     required ItemModel item,
+    this.onProgressChanged,
   })  : itemModel = item,
         taskModel = null;
 
@@ -90,9 +93,15 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
         targetCount: _viewModel.isTask ? widget.taskModel!.targetCount : null,
         onCountChanged: (value, {bool skipLogging = false}) {
           _viewModel.setCount(value, skipLogging: skipLogging);
+          if (widget.onProgressChanged != null) {
+            widget.onProgressChanged!();
+          }
         },
         onBatchCountChanged: (totalChange) {
           _viewModel.setBatchCount(totalChange);
+          if (widget.onProgressChanged != null) {
+            widget.onProgressChanged!();
+          }
         },
         isTask: _viewModel.isTask,
       );
@@ -102,9 +111,15 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
         targetDuration: _viewModel.targetDuration,
         onDurationChanged: (value, {bool skipLogging = false}) {
           _viewModel.setDuration(value, skipLogging: skipLogging);
+          if (widget.onProgressChanged != null) {
+            widget.onProgressChanged!();
+          }
         },
         onBatchDurationChanged: (totalChange) {
           _viewModel.setBatchDuration(totalChange);
+          if (widget.onProgressChanged != null) {
+            widget.onProgressChanged!();
+          }
         },
         isTask: _viewModel.isTask,
       );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/store_item_log_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_log_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -16,6 +17,74 @@ class TaskProgressViewModel extends ChangeNotifier {
   final TaskModel? taskModel;
   final ItemModel? itemModel;
   final TaskLogProvider taskLogProvider;
+  // Store item logları için basit in-memory storage (gerçek uygulamada database kullanılmalı)
+  static final List<StoreItemLog> _storeItemLogs = [];
+  // Store item log ekleme metodu (public static)
+  static void addStoreItemLog({
+    required int itemId,
+    required String action,
+    required dynamic value,
+    required TaskTypeEnum type,
+  }) {
+    _addStoreItemLog(
+      itemId: itemId,
+      action: action,
+      value: value,
+      type: type,
+    );
+  }
+
+  // Store item log ekleme metodu (private)
+  static void _addStoreItemLog({
+    required int itemId,
+    required String action,
+    required dynamic value,
+    required TaskTypeEnum type,
+  }) {
+    final log = StoreItemLog(
+      itemId: itemId,
+      logDate: DateTime.now(),
+      action: action,
+      value: value,
+      type: type,
+    );
+    _storeItemLogs.add(log);
+
+    // En fazla 50 log tut (memory management için)
+    if (_storeItemLogs.length > 50) {
+      _storeItemLogs.removeRange(0, _storeItemLogs.length - 50);
+    }
+  }
+
+  // Store item loglarını getirme metodu
+  static List<StoreItemLog> getStoreItemLogs(int itemId) {
+    // Sadece o item'a ait logları filtrele
+    return _storeItemLogs.where((log) => log.itemId == itemId).toList().reversed.toList(); // En yeni log en üstte
+  }
+
+  // Store item log düzenleme metodu
+  static void editStoreItemLog(int index, dynamic newValue) {
+    if (index >= 0 && index < _storeItemLogs.length) {
+      // Ters çevrilmiş listede index'i düzelt
+      int actualIndex = _storeItemLogs.length - 1 - index;
+      _storeItemLogs[actualIndex] = StoreItemLog(
+        itemId: _storeItemLogs[actualIndex].itemId,
+        logDate: _storeItemLogs[actualIndex].logDate,
+        action: _storeItemLogs[actualIndex].action,
+        value: newValue,
+        type: _storeItemLogs[actualIndex].type,
+      );
+    }
+  }
+
+  // Store item log silme metodu
+  static void deleteStoreItemLog(int index) {
+    if (index >= 0 && index < _storeItemLogs.length) {
+      // Ters çevrilmiş listede index'i düzelt
+      int actualIndex = _storeItemLogs.length - 1 - index;
+      _storeItemLogs.removeAt(actualIndex);
+    }
+  }
 
   TaskProgressViewModel({
     this.taskModel,
@@ -159,14 +228,12 @@ class TaskProgressViewModel extends ChangeNotifier {
       AppHelper().addCreditByProgress(progressDifference);
 
       // Ana sayfadaki görev sayısını güncelle
-      HomeWidgetService.updateTaskCount();
-
-      // TaskProvider'ı güncelle (ana sayfadaki görev ilerlemesini güncellemek için)
+      HomeWidgetService.updateTaskCount(); // TaskProvider'ı güncelle (ana sayfadaki görev ilerlemesini güncellemek için)
       TaskProvider().updateItems();
     } else {
-      // Store item için tip kontrolü yap
+      // Store item için tip kontrolü yap (log artık setCount/setDuration'da kaydediliyor)
       if (itemModel!.type == TaskTypeEnum.COUNTER) {
-        itemModel!.currentCount = value as int;
+        itemModel!.currentCount = (value as num).toInt();
       } else {
         itemModel!.currentDuration = value as Duration;
       }
@@ -178,7 +245,7 @@ class TaskProgressViewModel extends ChangeNotifier {
 
   void setDuration(Duration value, {bool skipLogging = false}) {
     // Önceki değeri kaydet
-    Duration previousDuration = isTask ? (taskModel!.currentDuration ?? Duration.zero) : Duration.zero;
+    Duration previousDuration = isTask ? (taskModel!.currentDuration ?? Duration.zero) : (itemModel!.currentDuration ?? Duration.zero);
 
     // Timer durumunu kontrol et
     bool isTimerActive = isTask && taskModel!.isTimerActive == true;
@@ -221,6 +288,19 @@ class TaskProgressViewModel extends ChangeNotifier {
 
         NotificationHelper.checkAndUpdateNotificationStatusForTask(taskModel!);
       } else {
+        // Store item için
+        Duration userChange = value - previousDuration;
+
+        // Store item için log oluştur (sadece değişiklik varsa ve logging atlanmıyorsa)
+        if (userChange.inSeconds != 0 && !skipLogging) {
+          _addStoreItemLog(
+            itemId: itemModel!.id,
+            action: "Manual Entry",
+            value: userChange, // Değişiklik miktarını kaydet
+            type: itemModel!.type,
+          );
+        }
+
         itemModel!.currentDuration = value;
         NotificationHelper.checkAndUpdateNotificationStatusForStoreItem(itemModel!);
       }
@@ -290,7 +370,7 @@ class TaskProgressViewModel extends ChangeNotifier {
 
   void setCount(int value, {bool skipLogging = false}) {
     // Önceki değeri kaydet
-    int previousCount = isTask ? (taskModel!.currentCount ?? 0) : 0;
+    int previousCount = isTask ? (taskModel!.currentCount ?? 0) : (itemModel!.currentCount ?? 0);
 
     if (isTask) {
       // Kullanıcının yaptığı değişikliği hesapla
@@ -317,6 +397,19 @@ class TaskProgressViewModel extends ChangeNotifier {
         );
       }
     } else {
+      // Store item için
+      int userChange = value - previousCount;
+
+      // Store item için log oluştur (sadece değişiklik varsa ve logging atlanmıyorsa)
+      if (userChange != 0 && !skipLogging) {
+        _addStoreItemLog(
+          itemId: itemModel!.id,
+          action: "Manual Entry",
+          value: userChange, // Değişiklik miktarını kaydet
+          type: itemModel!.type,
+        );
+      }
+
       itemModel!.currentCount = value;
       ServerManager().updateItem(itemModel: itemModel!);
     }

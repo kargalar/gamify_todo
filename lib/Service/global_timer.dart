@@ -132,9 +132,11 @@ class GlobalTimer {
           remainingDuration: null,
           title: storeItemModel.title,
           isCountDown: true,
-        );
+        ); // Timer başlangıç zamanını kaydet (task'larla aynı format)
+        prefs.setString('item_timer_start_time_${storeItemModel.id}', DateTime.now().millisecondsSinceEpoch.toString());
+        prefs.setString('item_timer_start_duration_${storeItemModel.id}', storeItemModel.currentDuration!.inSeconds.toString());
 
-        // Timer başlangıç zamanını kaydet
+        // Ayrıca güncel update sistemini de koru
         final now = DateTime.now();
         prefs.setString('item_last_update_${storeItemModel.id}', now.toIso8601String());
         prefs.setString('item_last_progress_${storeItemModel.id}', storeItemModel.currentDuration!.inSeconds.toString());
@@ -152,7 +154,9 @@ class GlobalTimer {
         }
       } else {
         // Timer durduruluyor
-        // Timer bilgilerini temizle
+        // Timer bilgilerini temizle (hem yeni hem eski key'leri)
+        prefs.remove('item_timer_start_time_${storeItemModel.id}');
+        prefs.remove('item_timer_start_duration_${storeItemModel.id}');
         prefs.remove('item_last_update_${storeItemModel.id}');
         prefs.remove('item_last_progress_${storeItemModel.id}');
 

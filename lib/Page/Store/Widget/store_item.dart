@@ -4,6 +4,7 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Store/add_store_item_page.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -12,6 +13,7 @@ import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StoreItem extends StatefulWidget {
   const StoreItem({
@@ -260,17 +262,28 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         buttonText = "${LocaleKeys.Buy.tr()} ${widget.storeItemModel.addDuration?.textLongDynamicWithoutZero()}";
       }
     }
-
     return InkWell(
       borderRadius: AppColors.borderRadiusAll,
       onTap: () async {
         loginUser!.userCredit -= widget.storeItemModel.credit;
 
+        dynamic value; // Değişiklik miktarı
+
         if (widget.storeItemModel.type == TaskTypeEnum.TIMER) {
           widget.storeItemModel.currentDuration = widget.storeItemModel.currentDuration! + widget.storeItemModel.addDuration!;
+          value = widget.storeItemModel.addDuration; // Eklenen süre miktarı
         } else {
           widget.storeItemModel.currentCount = widget.storeItemModel.currentCount! + widget.storeItemModel.addCount!;
+          value = widget.storeItemModel.addCount; // Eklenen sayı miktarı
         }
+
+        // Log kaydini oluştur
+        TaskProgressViewModel.addStoreItemLog(
+          itemId: widget.storeItemModel.id,
+          action: "Purchase",
+          value: value, // Sadece değişiklik miktarını kaydet
+          type: widget.storeItemModel.type,
+        );
 
         await ServerManager().updateUser(userModel: loginUser!);
         await ServerManager().updateItem(itemModel: widget.storeItemModel);
@@ -305,16 +318,75 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
   }
 
   void storeItemAction() async {
+    dynamic value; // Değişiklik miktarı
+    String action; // Action türü
+
     if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
       widget.storeItemModel.currentCount = widget.storeItemModel.currentCount! - 1;
+      value = -1; // Kullanılan miktar (negatif)
+      action = "Usage";
       ServerManager().updateItem(itemModel: widget.storeItemModel);
       // TODO: - olursa disiplin düşecek
     } else {
+      // Timer için timer aktif durumunu kaydet
+      bool wasTimerActive = widget.storeItemModel.isTimerActive ?? false;
+
+      // Timer'ı başlat/durdur
       GlobalTimer().startStopTimer(
         storeItemModel: widget.storeItemModel,
       );
 
+      // Timer durumuna göre log oluştur
+      if (!wasTimerActive && (widget.storeItemModel.isTimerActive ?? false)) {
+        // Timer başlatıldı
+        action = "Timer Started";
+        value = Duration.zero; // Başlangıçta değişiklik yok      } else if (wasTimerActive && !(widget.storeItemModel.isTimerActive ?? false)) {
+        // Timer durduruldu - geçen süreyi hesapla
+
+        // SharedPreferences'dan timer bilgilerini al
+        final prefs = await SharedPreferences.getInstance();
+        String? timerStartTimeStr = prefs.getString('item_timer_start_time_${widget.storeItemModel.id}');
+        String? timerStartDurationStr = prefs.getString('item_timer_start_duration_${widget.storeItemModel.id}');
+
+        print('DEBUG: Timer stopped for item ${widget.storeItemModel.id}');
+        print('DEBUG: timerStartTimeStr = $timerStartTimeStr');
+        print('DEBUG: timerStartDurationStr = $timerStartDurationStr');
+
+        if (timerStartTimeStr != null && timerStartDurationStr != null) {
+          DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+
+          // Geçen süreyi hesapla (timer ne kadar çalıştı)
+          Duration elapsedTime = DateTime.now().difference(timerStartTime);
+
+          print('DEBUG: elapsedTime = ${elapsedTime.inSeconds} seconds');
+
+          // Store item timer'ları geri sayım yapar, kullanılan süre negatif olarak log'lanır
+          value = -elapsedTime;
+
+          print('DEBUG: value to log = ${value.inSeconds} seconds');
+        } else {
+          print('DEBUG: Timer data not found in SharedPreferences');
+          value = Duration.zero;
+        }
+
+        action = "Timer Stopped";
+      } else {
+        // Durum değişmedi
+        value = Duration.zero;
+        action = "Timer Action";
+      }
+
       ServerManager().updateItem(itemModel: widget.storeItemModel);
+    }
+
+    // Log kaydını oluştur - sadece anlamlı değişiklikler için
+    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER || (widget.storeItemModel.type == TaskTypeEnum.TIMER && (action == "Timer Started" || (action == "Timer Stopped" && value != Duration.zero)))) {
+      TaskProgressViewModel.addStoreItemLog(
+        itemId: widget.storeItemModel.id,
+        action: action,
+        value: value,
+        type: widget.storeItemModel.type,
+      );
     }
 
     StoreProvider().setStateItems();
