@@ -22,11 +22,12 @@ class TaskWidgetProvider : AppWidgetProvider() {
                 android.util.Log.d("TaskWidget", "Task count received: $taskCount")
                 android.util.Log.d("TaskWidget", "Task titles JSON: $taskTitlesJson")
 
-                // Set header
-                views.setTextViewText(R.id.header_text, "Today's Tasks")
-
+                // Set header                views.setTextViewText(R.id.header_text, "Today's Tasks")
+                
                 // Set task count
-                views.setTextViewText(R.id.task_count_text, taskCount.toString())                // Parse and display task titles
+                views.setTextViewText(R.id.task_count_text, taskCount.toString())
+
+                // Parse and display task titles
                 val taskTitles = JSONArray(taskTitlesJson)
                 
                 if (taskTitles.length() == 0) {
@@ -34,17 +35,19 @@ class TaskWidgetProvider : AppWidgetProvider() {
                     views.setViewVisibility(R.id.task_1, View.GONE)
                     views.setViewVisibility(R.id.task_2, View.GONE)
                     views.setViewVisibility(R.id.task_3, View.GONE)
+                    views.setViewVisibility(R.id.task_4, View.GONE)
+                    views.setViewVisibility(R.id.task_5, View.GONE)
                     views.setViewVisibility(R.id.empty_state, View.VISIBLE)
                     views.setTextViewText(R.id.empty_state, "🎉 No tasks for today!")
                 } else {
                     // Hide empty state
                     views.setViewVisibility(R.id.empty_state, View.GONE)
                     
-                    // Show up to 3 tasks in separate containers
-                    val maxTasks = 3
+                    // Show up to 5 tasks in separate containers
+                    val maxTasks = 5
                     val tasksToShow = minOf(taskTitles.length(), maxTasks)
                     
-                    val taskViews = arrayOf(R.id.task_1, R.id.task_2, R.id.task_3)
+                    val taskViews = arrayOf(R.id.task_1, R.id.task_2, R.id.task_3, R.id.task_4, R.id.task_5)
                     
                     // Show tasks in individual containers
                     for (i in 0 until tasksToShow) {
@@ -63,15 +66,15 @@ class TaskWidgetProvider : AppWidgetProvider() {
                     if (taskTitles.length() > maxTasks) {
                         val remainingTasks = taskTitles.length() - maxTasks
                         views.setViewVisibility(R.id.empty_state, View.VISIBLE)
-                        views.setTextViewText(R.id.empty_state, "... and $remainingTasks more tasks")
+                        views.setTextViewText(R.id.empty_state, "📋 ... and $remainingTasks more tasks")
                     }
-                }
-
-            } catch (e: Exception) {
+                }} catch (e: Exception) {
                 // Fallback to default values if there's an error
+                android.util.Log.e("TaskWidget", "Error in widget update: ${e.message}", e)
                 views.setTextViewText(R.id.header_text, "Today's Tasks")
                 views.setTextViewText(R.id.task_count_text, "0")
-                views.setTextViewText(R.id.empty_state, "Error loading tasks")
+                views.setViewVisibility(R.id.empty_state, View.VISIBLE)
+                views.setTextViewText(R.id.empty_state, "Error: ${e.message}")
             }
 
             appWidgetManager.updateAppWidget(appWidgetId, views)

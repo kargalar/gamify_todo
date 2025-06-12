@@ -348,9 +348,9 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         String? timerStartTimeStr = prefs.getString('item_timer_start_time_${widget.storeItemModel.id}');
         String? timerStartDurationStr = prefs.getString('item_timer_start_duration_${widget.storeItemModel.id}');
 
-        print('DEBUG: Timer stopped for item ${widget.storeItemModel.id}');
-        print('DEBUG: timerStartTimeStr = $timerStartTimeStr');
-        print('DEBUG: timerStartDurationStr = $timerStartDurationStr');
+        debugPrint('DEBUG: Timer stopped for item ${widget.storeItemModel.id}');
+        debugPrint('DEBUG: timerStartTimeStr = $timerStartTimeStr');
+        debugPrint('DEBUG: timerStartDurationStr = $timerStartDurationStr');
 
         if (timerStartTimeStr != null && timerStartDurationStr != null) {
           DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
@@ -358,14 +358,14 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
           // Geçen süreyi hesapla (timer ne kadar çalıştı)
           Duration elapsedTime = DateTime.now().difference(timerStartTime);
 
-          print('DEBUG: elapsedTime = ${elapsedTime.inSeconds} seconds');
+          debugPrint('DEBUG: elapsedTime = ${elapsedTime.inSeconds} seconds');
 
           // Store item timer'ları geri sayım yapar, kullanılan süre negatif olarak log'lanır
           value = -elapsedTime;
 
-          print('DEBUG: value to log = ${value.inSeconds} seconds');
+          debugPrint('DEBUG: value to log = ${value.inSeconds} seconds');
         } else {
-          print('DEBUG: Timer data not found in SharedPreferences');
+          debugPrint('DEBUG: Timer data not found in SharedPreferences');
           value = Duration.zero;
         }
 

@@ -16,9 +16,7 @@
 		android:textColor="#FFFFFF"
 		android:textStyle="bold"
 		android:gravity="center"
-		android:padding="4dp" />
-
-	<!-- Task count -->
+		android:padding="4dp" />	<!-- Task count -->
 	<TextView
 		android:id="@+id/task_count_text"
 		android:layout_width="match_parent"
@@ -29,7 +27,8 @@
 		android:textStyle="bold"
 		android:gravity="center"
 		android:padding="8dp" />
-	<!-- Task list -->
+
+	<!-- Task containers without ScrollView for now -->
 	<TextView
 		android:id="@+id/task_1"
 		android:layout_width="match_parent"
@@ -39,7 +38,7 @@
 		android:textColor="#FFFFFF"
 		android:background="@drawable/task_item_background"
 		android:padding="12dp"
-		android:layout_marginBottom="4dp"
+		android:layout_marginBottom="6dp"
 		android:layout_marginStart="2dp"
 		android:layout_marginEnd="2dp"
 		android:drawableStart="@android:drawable/radiobutton_off_background"
@@ -55,13 +54,12 @@
 		android:textColor="#FFFFFF"
 		android:background="@drawable/task_item_background"
 		android:padding="12dp"
-		android:layout_marginBottom="4dp"
+		android:layout_marginBottom="6dp"
 		android:layout_marginStart="2dp"
 		android:layout_marginEnd="2dp"
 		android:drawableStart="@android:drawable/radiobutton_off_background"
 		android:drawablePadding="8dp"
 		android:visibility="gone" />
-
 	<TextView
 		android:id="@+id/task_3"
 		android:layout_width="match_parent"
@@ -71,7 +69,39 @@
 		android:textColor="#FFFFFF"
 		android:background="@drawable/task_item_background"
 		android:padding="12dp"
-		android:layout_marginBottom="4dp"
+		android:layout_marginBottom="6dp"
+		android:layout_marginStart="2dp"
+		android:layout_marginEnd="2dp"
+		android:drawableStart="@android:drawable/radiobutton_off_background"
+		android:drawablePadding="8dp"
+		android:visibility="gone" />
+
+	<TextView
+		android:id="@+id/task_4"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="Task 4"
+		android:textSize="13sp"
+		android:textColor="#FFFFFF"
+		android:background="@drawable/task_item_background"
+		android:padding="12dp"
+		android:layout_marginBottom="6dp"
+		android:layout_marginStart="2dp"
+		android:layout_marginEnd="2dp"
+		android:drawableStart="@android:drawable/radiobutton_off_background"
+		android:drawablePadding="8dp"
+		android:visibility="gone" />
+
+	<TextView
+		android:id="@+id/task_5"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="Task 5"
+		android:textSize="13sp"
+		android:textColor="#FFFFFF"
+		android:background="@drawable/task_item_background"
+		android:padding="12dp"
+		android:layout_marginBottom="6dp"
 		android:layout_marginStart="2dp"
 		android:layout_marginEnd="2dp"
 		android:drawableStart="@android:drawable/radiobutton_off_background"
@@ -86,7 +116,7 @@
 		android:text="Loading..."
 		android:textSize="12sp"
 		android:textColor="#FFFFFF"
-		android:gravity="start"
-		android:padding="8dp" />
+		android:gravity="center"
+		android:padding="16dp" />
 
 </LinearLayout>
