@@ -40,6 +40,23 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        addStoreItemProvider.setEditItem(widget.editItemModel);
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant AddStoreItemPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.editItemModel != oldWidget.editItemModel) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          addStoreItemProvider.setEditItem(widget.editItemModel);
+        }
+      });
+    }
   }
 
   @override
