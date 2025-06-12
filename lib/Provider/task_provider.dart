@@ -39,6 +39,24 @@ class _TaskCompletionData {
   });
 }
 
+// Helper class to store task cancellation data for undo functionality
+class _TaskCancellationData {
+  final TaskStatusEnum? previousStatus;
+
+  _TaskCancellationData({
+    required this.previousStatus,
+  });
+}
+
+// Helper class to store task failure data for undo functionality
+class _TaskFailureData {
+  final TaskStatusEnum? previousStatus;
+
+  _TaskFailureData({
+    required this.previousStatus,
+  });
+}
+
 class TaskProvider with ChangeNotifier {
   // burayı singelton yaptım gayet de iyi oldu neden normalde de context den kullanıyoruz anlamadım. galiba "watch" için olabilir. sibelton kısmını global timer için yaptım.
   static final TaskProvider _instance = TaskProvider._internal();
@@ -63,9 +81,14 @@ class TaskProvider with ChangeNotifier {
 
   // Undo functionality for date changes
   final Map<int, _TaskDateChangeData> _dateChanges = {};
-
   // Undo functionality for task completion
   final Map<int, _TaskCompletionData> _completedTasks = {};
+
+  // Undo functionality for task cancellation
+  final Map<int, _TaskCancellationData> _cancelledTasks = {};
+
+  // Undo functionality for task failure
+  final Map<int, _TaskFailureData> _failedTasks = {};
 
   // Load categories when tasks are loaded
   Future<void> loadCategories() async {
@@ -1292,10 +1315,19 @@ class TaskProvider with ChangeNotifier {
   // Get archived routines
   List<RoutineModel> getArchivedRoutines() {
     return routineList.where((routine) => routine.isArchived).toList();
+  } // Show undo message for task failure
+
+  void showTaskFailureUndo(TaskModel taskModel) {
+    showTaskFailureUndoWithPreviousStatus(taskModel, taskModel.status);
   }
 
-  // Show undo message for task failure
-  void showTaskFailureUndo(TaskModel taskModel) {
+  // Show undo message for task failure with previous status
+  void showTaskFailureUndoWithPreviousStatus(TaskModel taskModel, TaskStatusEnum? previousStatus) {
+    // Store the previous status for potential undo
+    _failedTasks[taskModel.id] = _TaskFailureData(
+      previousStatus: previousStatus,
+    );
+
     // Show undo snackbar
     Helper().getUndoMessage(
       message: "Task marked as failed",
@@ -1310,6 +1342,16 @@ class TaskProvider with ChangeNotifier {
 
   // Show undo message for task cancellation
   void showTaskCancellationUndo(TaskModel taskModel) {
+    showTaskCancellationUndoWithPreviousStatus(taskModel, taskModel.status);
+  }
+
+  // Show undo message for task cancellation with previous status
+  void showTaskCancellationUndoWithPreviousStatus(TaskModel taskModel, TaskStatusEnum? previousStatus) {
+    // Store the previous status for potential undo
+    _cancelledTasks[taskModel.id] = _TaskCancellationData(
+      previousStatus: previousStatus,
+    );
+
     // Show undo snackbar
     Helper().getUndoMessage(
       message: "Task cancelled",
@@ -1324,9 +1366,10 @@ class TaskProvider with ChangeNotifier {
 
   // Undo task failure
   void _undoTaskFailure(int taskId) {
+    final failureData = _failedTasks.remove(taskId);
     final timer = _undoTimers.remove('failure_$taskId');
 
-    if (timer != null) {
+    if (failureData != null && timer != null) {
       timer.cancel();
 
       // Find the task and restore its previous status
@@ -1334,8 +1377,8 @@ class TaskProvider with ChangeNotifier {
       if (taskIndex != -1) {
         final task = taskList[taskIndex];
 
-        // Set back to in progress
-        task.status = null;
+        // Restore previous status
+        task.status = failureData.previousStatus;
 
         // Save the task
         try {
@@ -1354,7 +1397,7 @@ class TaskProvider with ChangeNotifier {
         // Create log entry for the status change
         TaskLogProvider().addTaskLog(
           task,
-          customStatus: null, // Back to in progress
+          customStatus: failureData.previousStatus,
         );
 
         // Update UI
@@ -1365,18 +1408,17 @@ class TaskProvider with ChangeNotifier {
 
   // Undo task cancellation
   void _undoTaskCancellation(int taskId) {
+    final cancellationData = _cancelledTasks.remove(taskId);
     final timer = _undoTimers.remove('cancellation_$taskId');
 
-    if (timer != null) {
+    if (cancellationData != null && timer != null) {
       timer.cancel();
 
       // Find the task and restore its previous status
       final taskIndex = taskList.indexWhere((task) => task.id == taskId);
       if (taskIndex != -1) {
-        final task = taskList[taskIndex];
-
-        // Set back to in progress
-        task.status = null;
+        final task = taskList[taskIndex]; // Restore previous status
+        task.status = cancellationData.previousStatus;
 
         // Save the task
         try {
@@ -1395,10 +1437,8 @@ class TaskProvider with ChangeNotifier {
         // Create log entry for the status change
         TaskLogProvider().addTaskLog(
           task,
-          customStatus: null, // Back to in progress
-        );
-
-        // Update UI
+          customStatus: cancellationData.previousStatus,
+        ); // Update UI
         notifyListeners();
       }
     }

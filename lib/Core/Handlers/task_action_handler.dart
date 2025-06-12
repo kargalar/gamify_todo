@@ -174,6 +174,9 @@ class TaskActionHandler {
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
+      // Store the previous status before changing it
+      TaskStatusEnum? previousStatus = taskModel.status;
+
       // Check if task was previously completed and subtract credit
       if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
@@ -193,8 +196,8 @@ class TaskActionHandler {
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 
-      // Show undo message
-      TaskProvider().showTaskFailureUndo(taskModel);
+      // Show undo message with previous status
+      TaskProvider().showTaskFailureUndoWithPreviousStatus(taskModel, previousStatus);
     }
   }
 
@@ -215,6 +218,9 @@ class TaskActionHandler {
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
+      // Store the previous status before changing it
+      TaskStatusEnum? previousStatus = taskModel.status;
+
       // Check if task was previously completed and subtract credit
       if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
@@ -234,8 +240,8 @@ class TaskActionHandler {
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 
-      // Show undo message
-      TaskProvider().showTaskCancellationUndo(taskModel);
+      // Show undo message with previous status
+      TaskProvider().showTaskCancellationUndoWithPreviousStatus(taskModel, previousStatus);
     }
   }
 }
