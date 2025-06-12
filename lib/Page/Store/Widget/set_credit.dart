@@ -24,7 +24,7 @@ class _SetCreditState extends State<SetCredit> {
   }
 
   void _startLongPress(bool isIncrement, AddStoreItemProvider provider) {
-    _isLongPressing = true;    // İlk değişiklik
+    _isLongPressing = true; // İlk değişiklik
     if (isIncrement) {
       provider.credit++;
     } else {
@@ -69,7 +69,8 @@ class _SetCreditState extends State<SetCredit> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          GestureDetector(            onTap: () {
+          GestureDetector(
+            onTap: () {
               // Unfocus when tapping
               provider.unfocusAll();
               FocusScope.of(context).unfocus();

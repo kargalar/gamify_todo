@@ -22,9 +22,7 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
   @override
   Widget build(BuildContext context) {
     // Use watch instead of read to rebuild when provider changes
-    final dynamic provider = widget.isStore 
-        ? context.watch<AddStoreItemProvider>() 
-        : context.watch<AddTaskProvider>();
+    final dynamic provider = widget.isStore ? context.watch<AddStoreItemProvider>() : context.watch<AddTaskProvider>();
 
     return Container(
       decoration: BoxDecoration(
