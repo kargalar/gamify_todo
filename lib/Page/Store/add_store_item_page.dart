@@ -40,9 +40,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
   @override
   void initState() {
     super.initState();
-
-    // Use the new setEditItem method
-    addStoreItemProvider.setEditItem(widget.editItemModel);
   }
 
   @override
@@ -233,60 +230,61 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
 
                   const SizedBox(height: 10),
                   // Recent Logs Container
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.panelBackground,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header with title and icon
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.history_rounded,
-                              color: AppColors.main,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              "Recent Logs",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // Divider
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Divider(
-                            color: AppColors.text.withValues(alpha: 0.1),
-                            height: 1,
+                  if (widget.editItemModel != null) ...[
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
-                        ), // Recent Logs Widget
-                        StoreItemRecentLogsWidget(
-                          logs: TaskProgressViewModel.getStoreItemLogs(widget.editItemModel!.id),
-                          itemId: widget.editItemModel!.id,
-                          itemType: widget.editItemModel!.type,
-                          onLogUpdated: () => setState(() {}),
-                        ),
-                      ],
-                    ),
-                  ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header with title and icon
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.history_rounded,
+                                color: AppColors.main,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "Recent Logs",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
 
-                  const SizedBox(height: 5),
+                          // Divider
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              color: AppColors.text.withValues(alpha: 0.1),
+                              height: 1,
+                            ),
+                          ), // Recent Logs Widget
+                          StoreItemRecentLogsWidget(
+                            logs: TaskProgressViewModel.getStoreItemLogs(widget.editItemModel!.id),
+                            itemId: widget.editItemModel!.id,
+                            itemType: widget.editItemModel!.type,
+                            onLogUpdated: () => setState(() {}),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                  ],
 
                   // Delete button for edit mode
                   if (widget.editItemModel != null) ...[
