@@ -18,10 +18,6 @@ class AddStoreItemProvider with ChangeNotifier {
   TaskTypeEnum selectedTaskType = TaskTypeEnum.COUNTER;
   int credit = 0;
 
-  // Getter/setter for targetCount to maintain compatibility
-  int get targetCount => addCount;
-  set targetCount(int value) => addCount = value;
-
   void addItem() {
     StoreProvider().addItem(
       ItemModel(

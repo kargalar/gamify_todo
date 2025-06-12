@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
@@ -10,28 +9,21 @@ import 'package:provider/provider.dart';
 class SelectTargetCount extends StatefulWidget {
   const SelectTargetCount({
     super.key,
-    this.isStore = false,
   });
-
-  final bool isStore;
 
   @override
   State<SelectTargetCount> createState() => _SelectTargetCountState();
 }
 
 class _SelectTargetCountState extends State<SelectTargetCount> {
-  late final dynamic provider = widget.isStore ? context.read<AddStoreItemProvider>() : context.read<AddTaskProvider>();
+  late final dynamic provider = context.read<AddTaskProvider>();
   late int targetCount;
   bool _isIncrementing = false;
   bool _isDecrementing = false;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isStore) {
-      targetCount = context.read<AddStoreItemProvider>().addCount;
-    } else {
-      targetCount = context.read<AddTaskProvider>().targetCount;
-    }
+    targetCount = context.read<AddTaskProvider>().targetCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,11 +76,8 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
                   if (targetCount > 1) {
                     provider.updateTargetCount(targetCount - 1);
                     setState(() {});
-                    if (widget.isStore) {
-                      targetCount = context.read<AddStoreItemProvider>().addCount;
-                    } else {
-                      targetCount = context.read<AddTaskProvider>().targetCount;
-                    }
+
+                    targetCount = context.read<AddTaskProvider>().targetCount;
                   }
                   await Future.delayed(const Duration(milliseconds: 100));
                 }
@@ -135,11 +124,8 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
                 while (_isIncrementing && mounted) {
                   provider.updateTargetCount(targetCount + 1);
                   setState(() {});
-                  if (widget.isStore) {
-                    targetCount = context.read<AddStoreItemProvider>().addCount;
-                  } else {
-                    targetCount = context.read<AddTaskProvider>().targetCount;
-                  }
+
+                  targetCount = context.read<AddTaskProvider>().targetCount;
                   await Future.delayed(const Duration(milliseconds: 100));
                 }
               },
@@ -155,11 +141,7 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
 
   void _unfocusFields() {
     // Unfocus any text fields when changing target count
-    if (!widget.isStore) {
-      (provider as AddTaskProvider).unfocusAll();
-    } else {
-      (provider as AddStoreItemProvider).unfocusAll();
-    }
+    (provider as AddTaskProvider).unfocusAll();
     // Also unfocus using FocusScope for any other fields
     FocusScope.of(context).unfocus();
   }

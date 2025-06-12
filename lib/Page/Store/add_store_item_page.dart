@@ -4,7 +4,6 @@ import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
@@ -15,7 +14,6 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
-import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:provider/provider.dart';
 
@@ -235,14 +233,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                         ),
                       ],
                     ),
-                    child: widget.editItemModel == null
-                        ? const SelectTaskType(isStore: true)
-                        : widget.editItemModel!.type == TaskTypeEnum.COUNTER
-                            ? const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: SelectTargetCount(isStore: true),
-                              )
-                            : const SizedBox(),
+                    child: widget.editItemModel == null ? const SelectTaskType(isStore: true) : const SizedBox(),
                   ),
 
                   const SizedBox(height: 10),
