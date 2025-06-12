@@ -289,38 +289,45 @@ class HiveService {
           debugPrint('    Contains weekday: ${routine.repeatDays.contains(date.weekday - 1)}');
 
           if (routine.isActiveForThisDate(date)) {
-            debugPrint('    ✓ Creating task for routine ${routine.title} on $date');
-            taskID++;
-            tasksCreated++;
+            // Check if a task for this routine on this date already exists (e.g., from import)
+            final bool taskAlreadyExists = TaskProvider().taskList.any((existingTask) => existingTask.routineID == routine.id && existingTask.taskDate != null && existingTask.taskDate!.year == date.year && existingTask.taskDate!.month == date.month && existingTask.taskDate!.day == date.day);
 
-            final TaskModel task = TaskModel(
-              id: taskID,
-              title: routine.title,
-              description: routine.description,
-              taskDate: date,
-              status: null,
-              type: routine.type,
-              isNotificationOn: routine.isNotificationOn,
-              isAlarmOn: routine.isAlarmOn,
-              priority: routine.priority,
-              routineID: routine.id,
-              time: routine.time,
-              attributeIDList: routine.attirbuteIDList,
-              skillIDList: routine.skillIDList,
-              currentCount: routine.type == TaskTypeEnum.COUNTER ? 0 : null,
-              targetCount: routine.targetCount,
-              currentDuration: routine.type == TaskTypeEnum.TIMER ? Duration.zero : null,
-              remainingDuration: routine.remainingDuration,
-              isTimerActive: routine.type == TaskTypeEnum.TIMER ? false : null,
-            );
+            if (taskAlreadyExists) {
+              debugPrint('    SKIPPING task creation for routine ${routine.title} on $date as it already exists.');
+            } else {
+              debugPrint('    ✓ Creating task for routine ${routine.title} on $date');
+              taskID++;
+              tasksCreated++;
 
-            await addTask(task);
-            TaskProvider().taskList.add(task);
+              final TaskModel task = TaskModel(
+                id: taskID,
+                title: routine.title,
+                description: routine.description,
+                taskDate: date,
+                status: null,
+                type: routine.type,
+                isNotificationOn: routine.isNotificationOn,
+                isAlarmOn: routine.isAlarmOn,
+                priority: routine.priority,
+                routineID: routine.id,
+                time: routine.time,
+                attributeIDList: routine.attirbuteIDList,
+                skillIDList: routine.skillIDList,
+                currentCount: routine.type == TaskTypeEnum.COUNTER ? 0 : null,
+                targetCount: routine.targetCount,
+                currentDuration: routine.type == TaskTypeEnum.TIMER ? Duration.zero : null,
+                remainingDuration: routine.remainingDuration,
+                isTimerActive: routine.type == TaskTypeEnum.TIMER ? false : null,
+              );
 
-            // Bildirim veya alarm ayarla
-            if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
-              debugPrint('    Setting notification for task: ${task.title}');
-              TaskProvider().checkNotification(task);
+              await addTask(task);
+              TaskProvider().taskList.add(task);
+
+              // Bildirim veya alarm ayarla
+              if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
+                debugPrint('    Setting notification for task: ${task.title}');
+                TaskProvider().checkNotification(task);
+              }
             }
           } else {
             debugPrint('    ✗ Routine ${routine.title} not active for $date');
