@@ -248,10 +248,15 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
               else
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: selectedTraits.map((trait) => _buildCompactTraitItem(context, trait)).toList(),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 90), // Increased to allow more space for wrapping
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: selectedTraits.map((trait) => _buildCompactTraitItem(context, trait)).toList(),
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -402,6 +407,7 @@ class _TraitsBottomSheetState extends State<TraitsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     context.watch<TraitProvider>();
+    context.watch<AddTaskProvider>(); // Watch for trait selection changes
     final traitProvider = TraitProvider();
     final traits = widget.isSkill ? traitProvider.traitList.where((trait) => trait.type == TraitTypeEnum.SKILL).toList() : traitProvider.traitList.where((trait) => trait.type == TraitTypeEnum.ATTRIBUTE).toList();
 

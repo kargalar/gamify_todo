@@ -482,11 +482,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
             existingTask.isTimerActive = addTaskProvider.editTask!.isTimerActive;
           } else if (addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER) {
             existingTask.currentCount = addTaskProvider.editTask!.currentCount ?? 0;
-          }
-
-          // Now call editTask with the updated existing task
+          } // Now call editTask with the updated existing task
           debugPrint('Updating existing task with preserved Hive identity: ID=${existingTask.id}');
-          TaskProvider().editTask(
+          await TaskProvider().editTask(
             selectedDays: addTaskProvider.selectedDays,
             taskModel: existingTask,
           );
@@ -495,7 +493,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         }
       } else {
         // For routine tasks, use the original method as it already preserves Hive object identity
-        TaskProvider().editTask(
+        await TaskProvider().editTask(
           selectedDays: addTaskProvider.selectedDays,
           taskModel: TaskModel(
             id: addTaskProvider.editTask!.id,

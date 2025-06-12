@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -65,6 +68,21 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
   void dispose() {
     _completionAnimationController.dispose();
     super.dispose();
+  }
+
+  bool _isFutureTask() {
+    if (widget.taskModel.routineID == null || widget.taskModel.taskDate == null) {
+      return false;
+    }
+
+    final today = DateTime.now();
+    final taskDate = widget.taskModel.taskDate!;
+
+    // Compare only dates, not time
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final taskDateOnly = DateTime(taskDate.year, taskDate.month, taskDate.day);
+
+    return taskDateOnly.isAfter(todayDate);
   }
 
   @override
@@ -144,7 +162,9 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                               color: isVisuallyCompleted ? AppColors.main : Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: isVisuallyCompleted ? AppColors.main : AppColors.text.withValues(alpha: 0.3),
+                                color: _isFutureTask()
+                                    ? AppColors.text.withValues(alpha: 0.1) // Very faded for future routines
+                                    : (isVisuallyCompleted ? AppColors.main : AppColors.text.withValues(alpha: 0.3)),
                                 width: 1.5,
                               ),
                             ),
@@ -159,9 +179,7 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                                 : null,
                           ),
                         ),
-                      ),
-
-                      // Title and description
+                      ), // Title and description
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +193,9 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                                 fontSize: 14,
                                 fontWeight: isVisuallyCompleted ? FontWeight.normal : FontWeight.bold,
                                 decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
-                                color: isVisuallyCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text,
+                                color: (widget.taskModel.routineID != null && widget.taskModel.taskDate != null && _isFutureTask())
+                                    ? AppColors.text.withValues(alpha: 0.4) // Faded for future routines
+                                    : (isVisuallyCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text),
                               ),
                             ),
 
@@ -187,7 +207,9 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                                   widget.subtask.description!,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: AppColors.text.withValues(alpha: 0.6),
+                                    color: _isFutureTask()
+                                        ? AppColors.text.withValues(alpha: 0.3) // Faded for future routines
+                                        : AppColors.text.withValues(alpha: 0.6),
                                     decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
                                   ),
                                   maxLines: 2,
@@ -209,6 +231,15 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
   }
 
   void _toggleSubtaskCompletion() {
+    // Check if this is a future routine task - prevent completion for future tasks
+    if (_isFutureTask()) {
+      // Show warning for future routine tasks using Helper message (same as main task)
+      return Helper().getMessage(
+        status: StatusEnum.WARNING,
+        message: 'You cannot complete subtasks for future routine tasks. Please wait until ${DateFormat('MMM dd').format(widget.taskModel.taskDate!)} to complete this subtask.',
+      );
+    }
+
     // Check if animation is running
     if (_isAnimationRunning) {
       // Cancel the animation and revert the visual state

@@ -7,7 +7,6 @@ import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/home_widget_service.dart';
-import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -132,10 +131,10 @@ class TaskProvider with ChangeNotifier {
     routineList.add(routineModel);
   }
 
-  void editTask({
+  Future<void> editTask({
     required TaskModel taskModel,
     required List<int> selectedDays,
-  }) {
+  }) async {
     debugPrint('Editing task: ID=${taskModel.id}, Title=${taskModel.title}');
 
     if (taskModel.routineID != null) {
@@ -143,9 +142,7 @@ class TaskProvider with ChangeNotifier {
       debugPrint('Task belongs to routine ID=${taskModel.routineID}');
 
       // Find the routine in the list
-      RoutineModel routine = routineList.firstWhere((element) => element.id == taskModel.routineID);
-
-      // Update routine properties
+      RoutineModel routine = routineList.firstWhere((element) => element.id == taskModel.routineID); // Update routine properties
       routine.title = taskModel.title;
       routine.description = taskModel.description;
       routine.type = taskModel.type;
@@ -161,6 +158,16 @@ class TaskProvider with ChangeNotifier {
       routine.categoryId = taskModel.categoryId;
       routine.earlyReminderMinutes = taskModel.earlyReminderMinutes;
 
+      // Update routine subtasks - these will be the template for future tasks
+      routine.subtasks = taskModel.subtasks
+          ?.map((subtask) => SubTaskModel(
+                id: subtask.id,
+                title: subtask.title,
+                description: subtask.description,
+                isCompleted: false, // Routine templates should have uncompleted subtasks
+              ))
+          .toList();
+
       // Save the routine to Hive
       debugPrint('Updating routine in Hive');
       ServerManager().updateRoutine(routineModel: routine);
@@ -173,8 +180,20 @@ class TaskProvider with ChangeNotifier {
           task.description = taskModel.description;
           task.attributeIDList = taskModel.attributeIDList;
           task.skillIDList = taskModel.skillIDList;
-          task.remainingDuration = task.taskDate != null && task.taskDate!.isSameDay(DateTime.now()) ? taskModel.remainingDuration : task.remainingDuration;
-          task.targetCount = task.taskDate != null && task.taskDate!.isSameDay(DateTime.now()) ? taskModel.targetCount : task.targetCount;
+
+          // Update remainingDuration and targetCount for all tasks, but preserve current progress for today's task
+          if (task.taskDate != null && task.taskDate!.isSameDay(DateTime.now())) {
+            // For today's task, use the new values from taskModel
+            task.remainingDuration = taskModel.remainingDuration;
+            task.targetCount = taskModel.targetCount;
+          } else {
+            // For past and future tasks, also update to new values but preserve any progress
+            // For future tasks, this ensures they get the updated targets
+            // For past tasks, this keeps them consistent with the routine template
+            task.remainingDuration = taskModel.remainingDuration;
+            task.targetCount = taskModel.targetCount;
+          }
+
           task.isNotificationOn = taskModel.isNotificationOn;
           task.isAlarmOn = taskModel.isAlarmOn;
           task.time = taskModel.time;
@@ -182,7 +201,49 @@ class TaskProvider with ChangeNotifier {
           task.categoryId = taskModel.categoryId;
           task.earlyReminderMinutes = taskModel.earlyReminderMinutes;
           task.location = taskModel.location;
-          task.subtasks = taskModel.subtasks;
+
+          // Update subtasks for all routine instances, but preserve completion status for past/present tasks
+          if (taskModel.subtasks != null) {
+            if (task.taskDate != null && task.taskDate!.isSameDay(DateTime.now())) {
+              // For today's task, copy all subtasks including completion status
+              task.subtasks = taskModel.subtasks
+                  ?.map((subtask) => SubTaskModel(
+                        id: subtask.id,
+                        title: subtask.title,
+                        description: subtask.description,
+                        isCompleted: subtask.isCompleted,
+                      ))
+                  .toList();
+            } else if (task.taskDate != null && task.taskDate!.isAfter(DateTime.now())) {
+              // For future tasks, copy subtasks but reset completion status
+              task.subtasks = taskModel.subtasks
+                  ?.map((subtask) => SubTaskModel(
+                        id: subtask.id,
+                        title: subtask.title,
+                        description: subtask.description,
+                        isCompleted: false, // Reset completion for future tasks
+                      ))
+                  .toList();
+            } else {
+              // For past tasks, preserve existing completion status but update structure
+              final existingSubtasks = task.subtasks ?? [];
+              task.subtasks = taskModel.subtasks?.map((newSubtask) {
+                // Find existing subtask with same ID to preserve completion status
+                final existing = existingSubtasks.firstWhere(
+                  (s) => s.id == newSubtask.id,
+                  orElse: () => SubTaskModel(id: newSubtask.id, title: newSubtask.title, description: newSubtask.description),
+                );
+                return SubTaskModel(
+                  id: newSubtask.id,
+                  title: newSubtask.title,
+                  description: newSubtask.description,
+                  isCompleted: existing.isCompleted, // Preserve completion status
+                );
+              }).toList();
+            }
+          } else {
+            task.subtasks = null;
+          }
 
           // Handle timer if active
           if (task.isTimerActive != null && task.isTimerActive!) {
@@ -201,31 +262,47 @@ class TaskProvider with ChangeNotifier {
       // Editing a standalone task
       debugPrint('Editing standalone task');
 
-      // Find the task in the list and replace it
+      // Find the task in the list and update it to preserve Hive object identity
       final index = taskList.indexWhere((element) => element.id == taskModel.id);
       if (index != -1) {
         debugPrint('Found task in taskList at index $index: ID=${taskModel.id}');
 
-        // Check if we're replacing with a new instance or using the existing one
-        final bool isExistingInstance = identical(taskList[index], taskModel);
-        debugPrint('Using existing task instance: $isExistingInstance');
-
-        if (!isExistingInstance) {
-          debugPrint('WARNING: Replacing task with new instance may lose Hive object identity');
-          taskList[index] = taskModel;
-        }
+        // Update the existing task properties to preserve Hive object identity
+        final existingTask = taskList[index];
+        existingTask.title = taskModel.title;
+        existingTask.description = taskModel.description;
+        existingTask.taskDate = taskModel.taskDate;
+        existingTask.time = taskModel.time;
+        existingTask.isNotificationOn = taskModel.isNotificationOn;
+        existingTask.isAlarmOn = taskModel.isAlarmOn;
+        existingTask.remainingDuration = taskModel.remainingDuration;
+        existingTask.targetCount = taskModel.targetCount;
+        existingTask.attributeIDList = taskModel.attributeIDList;
+        existingTask.skillIDList = taskModel.skillIDList;
+        existingTask.priority = taskModel.priority;
+        existingTask.categoryId = taskModel.categoryId;
+        existingTask.earlyReminderMinutes = taskModel.earlyReminderMinutes;
+        existingTask.location = taskModel.location;
+        existingTask.subtasks = taskModel.subtasks;
+        existingTask.attachmentPaths = taskModel.attachmentPaths;
 
         // Handle timer if active
-        if (taskModel.isTimerActive != null && taskModel.isTimerActive!) {
-          GlobalTimer().startStopTimer(taskModel: taskModel);
+        if (existingTask.isTimerActive != null && existingTask.isTimerActive!) {
+          GlobalTimer().startStopTimer(taskModel: existingTask);
         }
 
         // Update notifications
-        checkNotification(taskModel);
+        checkNotification(existingTask);
 
-        // Save the task to Hive
-        debugPrint('Updating task in Hive: ID=${taskModel.id}');
-        ServerManager().updateTask(taskModel: taskModel);
+        // Save the task to Hive with better error handling
+        try {
+          debugPrint('Saving existing task to preserve Hive identity: ID=${existingTask.id}');
+          await ServerManager().updateTask(taskModel: existingTask);
+          debugPrint('Task successfully saved: ID=${existingTask.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task: ID=${existingTask.id}, Error: $e');
+          // Even if save fails, keep the changes in memory for now
+        }
       } else {
         debugPrint('ERROR: Task not found in taskList: ID=${taskModel.id}');
       }
@@ -596,14 +673,12 @@ class TaskProvider with ChangeNotifier {
     // Clean up undo data
     final task = _deletedTasks.remove(taskID);
     _undoTimers.remove('task_$taskID');
-
     if (task != null) {
       // First delete all logs associated with this task
       await TaskLogProvider().deleteLogsByTaskId(taskID);
 
-      // Delete the task from storage
+      // Delete the task from storage (this also calls HiveService().deleteTask())
       await ServerManager().deleteTask(id: taskID);
-      await HiveService().deleteTask(taskID);
       await HomeWidgetService.updateTaskCount();
 
       // Cancel any notifications for this task
@@ -787,10 +862,68 @@ class TaskProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('ERROR saving task after adding subtask: $e');
     }
-
     ServerManager().updateTask(taskModel: taskModel);
 
+    // If this is a routine task, propagate subtask changes to other instances
+    if (taskModel.routineID != null) {
+      _propagateSubtaskChangesToRoutineInstances(taskModel);
+    }
+
     notifyListeners();
+  }
+
+  // Propagate subtask changes to all instances of a routine
+  void _propagateSubtaskChangesToRoutineInstances(TaskModel sourceTask) {
+    if (sourceTask.routineID == null) return;
+
+    debugPrint('Propagating subtask changes for routine ID=${sourceTask.routineID}');
+    final now = DateTime.now();
+
+    // First, update the routine template so future ghost routines get the changes
+    final routineIndex = routineList.indexWhere((routine) => routine.id == sourceTask.routineID);
+    if (routineIndex != -1) {
+      debugPrint('Updating routine template with subtask changes');
+      routineList[routineIndex].subtasks = sourceTask.subtasks
+          ?.map((subtask) => SubTaskModel(
+                id: subtask.id,
+                title: subtask.title,
+                description: subtask.description,
+                isCompleted: false, // Routine templates should have uncompleted subtasks
+              ))
+          .toList();
+
+      // Save the updated routine
+      ServerManager().updateRoutine(routineModel: routineList[routineIndex]);
+    }
+
+    // Update all tasks with the same routineID
+    for (var task in taskList) {
+      if (task.routineID == sourceTask.routineID && task.id != sourceTask.id) {
+        // Check if this is a future task or current/past task
+        final isFutureTask = task.taskDate != null && task.taskDate!.isAfter(now);
+
+        // Create a deep copy of subtasks with appropriate completion status
+        task.subtasks = sourceTask.subtasks
+            ?.map((subtask) => SubTaskModel(
+                  id: subtask.id,
+                  title: subtask.title,
+                  description: subtask.description,
+                  // For future tasks, reset completion status; for current/past tasks, preserve it
+                  isCompleted: isFutureTask ? false : subtask.isCompleted,
+                ))
+            .toList();
+
+        // Save the updated task
+        try {
+          task.save();
+          debugPrint('Task saved after subtask propagation: ID=${task.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after subtask propagation: $e');
+        }
+
+        ServerManager().updateTask(taskModel: task);
+      }
+    }
   }
 
   void removeSubtask(TaskModel taskModel, SubTaskModel subtask, {bool showUndo = true}) {
@@ -812,8 +945,13 @@ class TaskProvider with ChangeNotifier {
         } catch (e) {
           debugPrint('ERROR saving task after removing subtask: $e');
         }
-
         ServerManager().updateTask(taskModel: taskModel);
+
+        // If this is a routine task, propagate subtask changes to other instances
+        if (taskModel.routineID != null) {
+          _propagateSubtaskChangesToRoutineInstances(taskModel);
+        }
+
         notifyListeners();
 
         // Show undo snackbar
@@ -837,8 +975,13 @@ class TaskProvider with ChangeNotifier {
         } catch (e) {
           debugPrint('ERROR saving task after removing subtask: $e');
         }
-
         ServerManager().updateTask(taskModel: taskModel);
+
+        // If this is a routine task, propagate subtask changes to other instances
+        if (taskModel.routineID != null) {
+          _propagateSubtaskChangesToRoutineInstances(taskModel);
+        }
+
         notifyListeners();
       }
     }
@@ -867,8 +1010,13 @@ class TaskProvider with ChangeNotifier {
       } catch (e) {
         debugPrint('ERROR saving task after restoring subtask: $e');
       }
-
       ServerManager().updateTask(taskModel: taskModel);
+
+      // If this is a routine task, propagate subtask changes to other instances
+      if (taskModel.routineID != null) {
+        _propagateSubtaskChangesToRoutineInstances(taskModel);
+      }
+
       notifyListeners();
     }
   }
@@ -891,8 +1039,12 @@ class TaskProvider with ChangeNotifier {
         } catch (e) {
           debugPrint('ERROR saving task after toggling subtask: $e');
         }
-
         ServerManager().updateTask(taskModel: taskModel);
+
+        // If this is a routine task, propagate subtask changes to other instances
+        if (taskModel.routineID != null) {
+          _propagateSubtaskChangesToRoutineInstances(taskModel);
+        }
 
         // Alt görev tamamlandığında log oluştur
         if (isBeingCompleted) {
@@ -936,6 +1088,11 @@ class TaskProvider with ChangeNotifier {
 
         // Save changes to server
         ServerManager().updateTask(taskModel: taskModel);
+
+        // If this is a routine task, propagate subtask changes to other instances
+        if (taskModel.routineID != null) {
+          _propagateSubtaskChangesToRoutineInstances(taskModel);
+        }
 
         notifyListeners();
       }

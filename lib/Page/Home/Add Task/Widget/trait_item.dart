@@ -61,13 +61,13 @@ class _TraitItemState extends State<TraitItem> {
             } else {
               addTaskProvider.selectedTraits.add(widget.trait);
             }
-
             setState(() {
               isSelected = !isSelected;
-            });
-
-            // Notify parent widget of the change
+            }); // Notify parent widget of the change
             widget.onChanged?.call();
+
+            // Also trigger real-time updates for any listening widgets
+            addTaskProvider.updateTraitSelection();
           }
         },
         onLongPress: () async {

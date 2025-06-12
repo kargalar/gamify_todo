@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
@@ -19,6 +21,22 @@ class _SubtaskManagerState extends State<SubtaskManager> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  bool _isFutureTask() {
+    final addTaskProvider = context.read<AddTaskProvider>();
+    if (addTaskProvider.editTask == null || addTaskProvider.editTask!.routineID == null || addTaskProvider.editTask!.taskDate == null) {
+      return false;
+    }
+
+    final today = DateTime.now();
+    final taskDate = addTaskProvider.editTask!.taskDate!;
+
+    // Compare only dates, not time
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final taskDateOnly = DateTime(taskDate.year, taskDate.month, taskDate.day);
+
+    return taskDateOnly.isAfter(todayDate);
   }
 
   void _showSubtaskDialog({SubTaskModel? subtask}) {
@@ -82,6 +100,16 @@ class _SubtaskManagerState extends State<SubtaskManager> {
 
   void _toggleSubtaskCompletion(int index) {
     final addTaskProvider = context.read<AddTaskProvider>();
+
+    // Check if this is a future routine task - prevent completion for future tasks
+    if (_isFutureTask()) {
+      // Show warning for future routine tasks using Helper message (same as main task)
+      return Helper().getMessage(
+        status: StatusEnum.WARNING,
+        message: 'You cannot complete subtasks for future routine tasks. Please wait until ${DateFormat('MMM dd').format(addTaskProvider.editTask!.taskDate!)} to complete this subtask.',
+      );
+    }
+
     addTaskProvider.toggleSubtaskCompletion(index);
   }
 
@@ -374,7 +402,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                       },
                       itemBuilder: (context, index) {
                         final subtask = addTaskProvider.subtasks[index];
-                        return _buildSubtaskItem(subtask, index);
+                        // Check if this is a future routine task
+                        final isFutureRoutine = addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null && addTaskProvider.editTask!.taskDate != null && addTaskProvider.editTask!.taskDate!.isAfter(DateTime.now());
+                        return _buildSubtaskItem(subtask, index, isFutureRoutine);
                       },
                     ),
                   ),
@@ -384,7 +414,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
     );
   }
 
-  Widget _buildSubtaskItem(SubTaskModel subtask, int index) {
+  Widget _buildSubtaskItem(SubTaskModel subtask, int index, bool isFutureRoutine) {
     return Dismissible(
       key: Key('subtask_${subtask.id}'),
       background: Container(
@@ -432,6 +462,10 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                 // Checkbox with animation
                 InkWell(
                   onTap: () {
+                    // Don't allow interaction for future routine tasks
+                    if (isFutureRoutine) {
+                      return;
+                    }
                     widget.onToggleSubtask(index);
                   },
                   borderRadius: BorderRadius.circular(12),
@@ -443,7 +477,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                       color: subtask.isCompleted ? AppColors.main : Colors.transparent,
                       borderRadius: BorderRadius.circular(4),
                       border: Border.all(
-                        color: subtask.isCompleted ? AppColors.main : AppColors.text.withValues(alpha: 0.3),
+                        color: isFutureRoutine
+                            ? AppColors.text.withValues(alpha: 0.1) // Very faded for future routines
+                            : (subtask.isCompleted ? AppColors.main : AppColors.text.withValues(alpha: 0.3)),
                         width: 1.5,
                       ),
                     ),

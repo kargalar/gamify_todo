@@ -312,8 +312,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         message: "Bu task arşivlendiği için etkileşimde bulunulamaz.",
       );
     } else if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isBeforeOrSameDay(DateTime.now()))) {
-      // Play cancel animation for future routine tasks
-      _playCancelAnimation();
       return Helper().getMessage(
         status: StatusEnum.WARNING,
         message: LocaleKeys.RoutineForFuture.tr(),
@@ -415,14 +413,8 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       padding: const EdgeInsets.only(left: 32, top: 4, bottom: 4),
       child: GestureDetector(
         onTap: () {
-          if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isBeforeOrSameDay(DateTime.now()))) {
-            return Helper().getMessage(
-              status: StatusEnum.WARNING,
-              message: LocaleKeys.RoutineForFuture.tr(),
-            );
-          } else {
-            _showSubtasksBottomSheet();
-          }
+          // Allow subtask editing for future routines - they should be editable
+          _showSubtasksBottomSheet();
         },
         child: Row(
           children: [

@@ -59,6 +59,10 @@ class AddTaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateTraitSelection() {
+    notifyListeners();
+  }
+
   void addSubtask(SubTaskModel subtask) {
     subtasks.add(subtask);
     notifyListeners();
