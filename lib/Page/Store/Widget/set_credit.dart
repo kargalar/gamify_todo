@@ -24,18 +24,12 @@ class _SetCreditState extends State<SetCredit> {
   }
 
   void _startLongPress(bool isIncrement, AddStoreItemProvider provider) {
-    _isLongPressing = true;
-
-    // İlk değişiklik
+    _isLongPressing = true;    // İlk değişiklik
     if (isIncrement) {
-      setState(() {
-        provider.credit++;
-      });
+      provider.credit++;
     } else {
       if (provider.credit > 0) {
-        setState(() {
-          provider.credit--;
-        });
+        provider.credit--;
       }
     }
 
@@ -47,14 +41,10 @@ class _SetCreditState extends State<SetCredit> {
       }
 
       if (isIncrement) {
-        setState(() {
-          provider.credit++;
-        });
+        provider.credit++;
       } else {
         if (provider.credit > 0) {
-          setState(() {
-            provider.credit--;
-          });
+          provider.credit--;
         }
       }
     });
@@ -68,7 +58,7 @@ class _SetCreditState extends State<SetCredit> {
 
   @override
   Widget build(BuildContext context) {
-    late final AddStoreItemProvider provider = context.read<AddStoreItemProvider>();
+    final AddStoreItemProvider provider = context.watch<AddStoreItemProvider>();
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -79,16 +69,13 @@ class _SetCreditState extends State<SetCredit> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          GestureDetector(
-            onTap: () {
+          GestureDetector(            onTap: () {
               // Unfocus when tapping
               provider.unfocusAll();
               FocusScope.of(context).unfocus();
 
               if (provider.credit > 0) {
-                setState(() {
-                  provider.credit--;
-                });
+                provider.credit--;
               }
             },
             onLongPressStart: (_) {
