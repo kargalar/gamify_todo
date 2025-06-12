@@ -1293,4 +1293,124 @@ class TaskProvider with ChangeNotifier {
   List<RoutineModel> getArchivedRoutines() {
     return routineList.where((routine) => routine.isArchived).toList();
   }
+
+  // Show undo message for task failure
+  void showTaskFailureUndo(TaskModel taskModel) {
+    // Show undo snackbar
+    Helper().getUndoMessage(
+      message: "Task marked as failed",
+      onUndo: () => _undoTaskFailure(taskModel.id),
+    );
+
+    // Set timer for permanent failure
+    _undoTimers['failure_${taskModel.id}'] = Timer(const Duration(seconds: 3), () {
+      _permanentlyFailTask(taskModel.id);
+    });
+  }
+
+  // Show undo message for task cancellation
+  void showTaskCancellationUndo(TaskModel taskModel) {
+    // Show undo snackbar
+    Helper().getUndoMessage(
+      message: "Task cancelled",
+      onUndo: () => _undoTaskCancellation(taskModel.id),
+    );
+
+    // Set timer for permanent cancellation
+    _undoTimers['cancellation_${taskModel.id}'] = Timer(const Duration(seconds: 3), () {
+      _permanentlyCancelTask(taskModel.id);
+    });
+  }
+
+  // Undo task failure
+  void _undoTaskFailure(int taskId) {
+    final timer = _undoTimers.remove('failure_$taskId');
+
+    if (timer != null) {
+      timer.cancel();
+
+      // Find the task and restore its previous status
+      final taskIndex = taskList.indexWhere((task) => task.id == taskId);
+      if (taskIndex != -1) {
+        final task = taskList[taskIndex];
+
+        // Set back to in progress
+        task.status = null;
+
+        // Save the task
+        try {
+          task.save();
+          debugPrint('Task saved after undoing failure: ID=${task.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after undoing failure: $e');
+        }
+
+        // Update in storage
+        ServerManager().updateTask(taskModel: task);
+
+        // Update notifications
+        checkNotification(task);
+
+        // Create log entry for the status change
+        TaskLogProvider().addTaskLog(
+          task,
+          customStatus: null, // Back to in progress
+        );
+
+        // Update UI
+        notifyListeners();
+      }
+    }
+  }
+
+  // Undo task cancellation
+  void _undoTaskCancellation(int taskId) {
+    final timer = _undoTimers.remove('cancellation_$taskId');
+
+    if (timer != null) {
+      timer.cancel();
+
+      // Find the task and restore its previous status
+      final taskIndex = taskList.indexWhere((task) => task.id == taskId);
+      if (taskIndex != -1) {
+        final task = taskList[taskIndex];
+
+        // Set back to in progress
+        task.status = null;
+
+        // Save the task
+        try {
+          task.save();
+          debugPrint('Task saved after undoing cancellation: ID=${task.id}');
+        } catch (e) {
+          debugPrint('ERROR saving task after undoing cancellation: $e');
+        }
+
+        // Update in storage
+        ServerManager().updateTask(taskModel: task);
+
+        // Update notifications
+        checkNotification(task);
+
+        // Create log entry for the status change
+        TaskLogProvider().addTaskLog(
+          task,
+          customStatus: null, // Back to in progress
+        );
+
+        // Update UI
+        notifyListeners();
+      }
+    }
+  }
+
+  // Permanently fail a task (remove undo data)
+  void _permanentlyFailTask(int taskId) {
+    _undoTimers.remove('failure_$taskId');
+  }
+
+  // Permanently cancel a task (remove undo data)
+  void _permanentlyCancelTask(int taskId) {
+    _undoTimers.remove('cancellation_$taskId');
+  }
 }

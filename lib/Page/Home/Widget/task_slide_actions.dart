@@ -7,6 +7,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:provider/provider.dart';
 
 class TaskSlideActions extends StatefulWidget {
@@ -14,10 +15,14 @@ class TaskSlideActions extends StatefulWidget {
     super.key,
     required this.child,
     required this.taskModel,
+    this.onFailAnimation,
+    this.onCancelAnimation,
   });
 
   final Widget child;
   final TaskModel taskModel;
+  final VoidCallback? onFailAnimation;
+  final VoidCallback? onCancelAnimation;
 
   @override
   State<TaskSlideActions> createState() => _TaskSlideActionsState();
@@ -93,8 +98,21 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
   SlidableAction cancelAction() {
     return SlidableAction(
       onPressed: (context) {
-        TaskActionHandler.handleTaskCancellation(widget.taskModel);
-        taskProvider.updateItems();
+        // Eğer task zaten cancel durumundaysa animasyon oynatma
+        if (widget.taskModel.status == TaskStatusEnum.CANCEL) {
+          // Direkt cancel işlemi yap (animasyon yok)
+          TaskActionHandler.handleTaskCancellation(widget.taskModel);
+          taskProvider.updateItems();
+          return;
+        }
+
+        // Önce animasyonu çal, sonra task'ı cancel yap
+        if (widget.onCancelAnimation != null) {
+          widget.onCancelAnimation!();
+        }
+
+        // Animasyon bittikten sonra cancel işlemi yapılacak
+        // Bu işlem artık task_item.dart'ta _playCancelAnimation içinde yapılacak
       },
       backgroundColor: AppColors.purple,
       icon: Icons.block,
@@ -106,8 +124,21 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
   SlidableAction failedAction() {
     return SlidableAction(
       onPressed: (context) {
-        TaskActionHandler.handleTaskFailure(widget.taskModel);
-        taskProvider.updateItems();
+        // Eğer task zaten fail durumundaysa animasyon oynatma
+        if (widget.taskModel.status == TaskStatusEnum.FAILED) {
+          // Direkt fail işlemi yap (animasyon yok)
+          TaskActionHandler.handleTaskFailure(widget.taskModel);
+          taskProvider.updateItems();
+          return;
+        }
+
+        // Önce animasyonu çal, sonra task'ı fail yap
+        if (widget.onFailAnimation != null) {
+          widget.onFailAnimation!();
+        }
+
+        // Animasyon bittikten sonra fail işlemi yapılacak
+        // Bu işlem artık task_item.dart'ta _playFailAnimation içinde yapılacak
       },
       backgroundColor: AppColors.red,
       icon: Icons.close,

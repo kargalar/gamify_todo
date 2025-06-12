@@ -168,6 +168,11 @@ class TaskActionHandler {
         taskModel,
         customStatus: null, // null status means "in progress"
       );
+
+      // Update task in provider
+      ServerManager().updateTask(taskModel: taskModel);
+      TaskProvider().updateItems();
+      HomeWidgetService.updateAllWidgets();
     } else {
       // Check if task was previously completed and subtract credit
       if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
@@ -182,12 +187,15 @@ class TaskActionHandler {
         taskModel,
         customStatus: TaskStatusEnum.FAILED,
       );
-    }
 
-    // Update task in provider
-    ServerManager().updateTask(taskModel: taskModel);
-    TaskProvider().updateItems();
-    HomeWidgetService.updateAllWidgets();
+      // Update task in provider
+      ServerManager().updateTask(taskModel: taskModel);
+      TaskProvider().updateItems();
+      HomeWidgetService.updateAllWidgets();
+
+      // Show undo message
+      TaskProvider().showTaskFailureUndo(taskModel);
+    }
   }
 
   /// Handles task cancellation action
@@ -201,6 +209,11 @@ class TaskActionHandler {
         taskModel,
         customStatus: null, // null status means "in progress"
       );
+
+      // Update task in provider
+      ServerManager().updateTask(taskModel: taskModel);
+      TaskProvider().updateItems();
+      HomeWidgetService.updateAllWidgets();
     } else {
       // Check if task was previously completed and subtract credit
       if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
@@ -215,11 +228,14 @@ class TaskActionHandler {
         taskModel,
         customStatus: TaskStatusEnum.CANCEL,
       );
-    }
 
-    // Update task in provider
-    ServerManager().updateTask(taskModel: taskModel);
-    TaskProvider().updateItems();
-    HomeWidgetService.updateAllWidgets();
+      // Update task in provider
+      ServerManager().updateTask(taskModel: taskModel);
+      TaskProvider().updateItems();
+      HomeWidgetService.updateAllWidgets();
+
+      // Show undo message
+      TaskProvider().showTaskCancellationUndo(taskModel);
+    }
   }
 }

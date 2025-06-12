@@ -20,6 +20,8 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:provider/provider.dart';
 
+enum AnimationType { completion, fail, cancel }
+
 class TaskItem extends StatefulWidget {
   const TaskItem({
     super.key,
@@ -42,10 +44,12 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   late AnimationController _completionAnimationController;
   late Animation<double> _scaleAnimation;
   late Animation<Color?> _backgroundColorAnimation;
+  late Animation<Color?> _failBackgroundColorAnimation;
+  late Animation<Color?> _cancelBackgroundColorAnimation;
   bool _isAnimationRunning = false; // Track if completion animation is running
   bool _isVisuallyCompleted = false; // Track visual state for checkbox UI
+  AnimationType _currentAnimationType = AnimationType.completion; // Track current animation type
   animationDuration() => const Duration(milliseconds: 400);
-
   @override
   void initState() {
     super.initState();
@@ -65,10 +69,28 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       curve: Curves.fastLinearToSlowEaseIn,
     ));
 
-    // Background color animation for completion effect
+    // Background color animation for completion effect (green)
     _backgroundColorAnimation = ColorTween(
       begin: Colors.transparent,
       end: const Color.fromARGB(255, 90, 255, 49).withValues(alpha: 0.2),
+    ).animate(CurvedAnimation(
+      parent: _completionAnimationController,
+      curve: Curves.fastLinearToSlowEaseIn,
+    ));
+
+    // Background color animation for fail effect (red)
+    _failBackgroundColorAnimation = ColorTween(
+      begin: Colors.transparent,
+      end: Colors.red.withValues(alpha: 0.2),
+    ).animate(CurvedAnimation(
+      parent: _completionAnimationController,
+      curve: Curves.fastLinearToSlowEaseIn,
+    ));
+
+    // Background color animation for cancel effect (orange)
+    _cancelBackgroundColorAnimation = ColorTween(
+      begin: Colors.transparent,
+      end: Colors.orange.withValues(alpha: 0.2),
     ).animate(CurvedAnimation(
       parent: _completionAnimationController,
       curve: Curves.fastLinearToSlowEaseIn,
@@ -119,16 +141,32 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     return AnimatedBuilder(
       animation: Listenable.merge([_completionAnimationController]),
       builder: (context, child) {
+        // Get the appropriate background color based on animation type
+        Color? backgroundColor;
+        switch (_currentAnimationType) {
+          case AnimationType.completion:
+            backgroundColor = _backgroundColorAnimation.value;
+            break;
+          case AnimationType.fail:
+            backgroundColor = _failBackgroundColorAnimation.value;
+            break;
+          case AnimationType.cancel:
+            backgroundColor = _cancelBackgroundColorAnimation.value;
+            break;
+        }
+
         return Transform.scale(
           scale: _scaleAnimation.value,
           child: AnimatedContainer(
             duration: animationDuration(),
             decoration: BoxDecoration(
-              color: _backgroundColorAnimation.value,
+              color: backgroundColor,
               borderRadius: AppColors.borderRadiusAll,
             ),
             child: TaskSlideActions(
               taskModel: widget.taskModel,
+              onFailAnimation: _playFailAnimation,
+              onCancelAnimation: _playCancelAnimation,
               child: Opacity(
                 opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
                 child: InkWell(
@@ -266,12 +304,16 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
 
   void taskAction({bool skipLogging = false}) {
     if (widget.taskModel.status == TaskStatusEnum.ARCHIVED) {
+      // Play fail animation for archived tasks
+      _playFailAnimation();
       return Helper().getMessage(
         status: StatusEnum.WARNING,
         // TODO: localization
         message: "Bu task arşivlendiği için etkileşimde bulunulamaz.",
       );
     } else if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isBeforeOrSameDay(DateTime.now()))) {
+      // Play cancel animation for future routine tasks
+      _playCancelAnimation();
       return Helper().getMessage(
         status: StatusEnum.WARNING,
         message: LocaleKeys.RoutineForFuture.tr(),
@@ -298,7 +340,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       _isVisuallyCompleted = true;
       setState(() {});
 
-      // Then play the animation, and complete the task when animation finishes
+      // Then play the completion animation, and complete the task when animation finishes
       _playCompletionAnimation(() {
         // Actually complete the task after animation
         TaskActionHandler.handleTaskAction(
@@ -323,21 +365,45 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     }
   }
 
-  void _playCompletionAnimation([VoidCallback? onAnimationComplete]) {
-    _isAnimationRunning = true;
+  void _playAnimation(AnimationType animationType, [VoidCallback? onAnimationComplete]) {
+    if (_isAnimationRunning) return; // Prevent multiple animations
 
-    // First, play the completion effect (scale + background color)
+    _isAnimationRunning = true;
+    _currentAnimationType = animationType;
+    _completionAnimationController.reset();
+
+    // First, play the animation effect (scale + background color)
     _completionAnimationController.forward().then((_) {
-      // After completion effect, reverse it and then slide down
+      // After animation effect, reverse it
       _completionAnimationController.reverse().then((_) {
         _isAnimationRunning = false;
         _isVisuallyCompleted = false; // Reset visual state after animation
 
-        // Execute completion callback (actually complete the task)
+        // Execute completion callback
         if (onAnimationComplete != null) {
           onAnimationComplete();
         }
       });
+    });
+  }
+
+  void _playCompletionAnimation([VoidCallback? onAnimationComplete]) {
+    _playAnimation(AnimationType.completion, onAnimationComplete);
+  }
+
+  void _playFailAnimation() {
+    _playAnimation(AnimationType.fail, () {
+      // Animasyon bittikten sonra task'ı fail olarak işaretle
+      TaskActionHandler.handleTaskFailure(widget.taskModel);
+      setState(() {});
+    });
+  }
+
+  void _playCancelAnimation() {
+    _playAnimation(AnimationType.cancel, () {
+      // Animasyon bittikten sonra task'ı cancel olarak işaretle
+      TaskActionHandler.handleTaskCancellation(widget.taskModel);
+      setState(() {});
     });
   }
 
