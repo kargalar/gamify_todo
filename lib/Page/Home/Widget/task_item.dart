@@ -158,7 +158,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                         child: Row(
                           children: [
                             taskActionIcon(),
-                            const SizedBox(width: 5),
                             TitleAndDescription(
                               taskModel: widget.taskModel,
                               displayCount: _isLongPressing ? _displayCount : null,

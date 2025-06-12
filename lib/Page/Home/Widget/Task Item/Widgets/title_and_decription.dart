@@ -35,11 +35,11 @@ class TitleAndDescription extends StatelessWidget {
                 child: AutoSizeText(
                   taskModel.title,
                   maxLines: 2,
-                  minFontSize: 14,
+                  minFontSize: 13,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
                     color: priorityColor,
                   ),
                 ),

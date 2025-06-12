@@ -20,32 +20,35 @@ class TaskLocation extends StatelessWidget {
     return InkWell(
       onTap: () => _launchMaps(taskModel.location!),
       borderRadius: AppColors.borderRadiusAll,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColors.panelBackground,
-          borderRadius: AppColors.borderRadiusAll,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.location_on,
-              size: 16,
-              color: AppColors.red,
-            ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                taskModel.location!.length > 15 ? "${taskModel.location!.substring(0, 15)}..." : taskModel.location!,
-                style: const TextStyle(
-                  fontSize: 12,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 4),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.panelBackground,
+            borderRadius: AppColors.borderRadiusAll,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.location_on,
+                size: 16,
+                color: AppColors.red,
               ),
-            ),
-          ],
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  taskModel.location!.length > 15 ? "${taskModel.location!.substring(0, 15)}..." : taskModel.location!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

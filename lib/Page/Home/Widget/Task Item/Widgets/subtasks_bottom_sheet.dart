@@ -85,6 +85,23 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        // Subtask count badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.main.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "$completedCount/${subtasks.length}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.main,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     // Show/Hide completed subtasks toggle
