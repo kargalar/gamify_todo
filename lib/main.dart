@@ -14,6 +14,7 @@ import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/task_style_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:get/route_manager.dart';
@@ -27,6 +28,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ChangeNotifierProvider(create: (context) => NavbarProvider()),
       ChangeNotifierProvider(create: (context) => TaskProvider()),
+      ChangeNotifierProvider(create: (context) => TaskStyleProvider()),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),
       ChangeNotifierProvider(create: (context) => AddStoreItemProvider()),

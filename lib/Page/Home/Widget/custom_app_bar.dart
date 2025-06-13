@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/day_item.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/task_style_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
@@ -89,6 +90,47 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        // Style switcher button
+        Consumer<TaskStyleProvider>(
+          builder: (context, styleProvider, child) {
+            return Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  styleProvider.nextStyle();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.main.withAlpha(30),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.main.withAlpha(100), width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.palette,
+                        size: 16,
+                        color: AppColors.main,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        styleProvider.styleDisplayName.split(' ')[0], // Only first word
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.main,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
         // Filter menu
         PopupMenuButton(
           icon: Icon(

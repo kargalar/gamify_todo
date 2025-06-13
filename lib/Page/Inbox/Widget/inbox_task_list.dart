@@ -187,10 +187,7 @@ class InboxTaskList extends StatelessWidget {
               const SizedBox(height: 8),
 
               // Tasks for this date
-              ...tasksForDate.map((task) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: TaskItem(taskModel: task),
-                  )),
+              ...tasksForDate.map((task) => TaskItem(taskModel: task)),
 
               // Add space between date groups
               const SizedBox(height: 16),

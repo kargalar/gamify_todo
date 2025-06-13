@@ -16,8 +16,10 @@ import 'package:next_level/Page/Home/Widget/task_slide_actions.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Enum/task_item_style_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Provider/task_style_provider.dart';
 import 'package:provider/provider.dart';
 
 enum AnimationType { completion, fail, cancel }
@@ -50,6 +52,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   bool _isVisuallyCompleted = false; // Track visual state for checkbox UI
   AnimationType _currentAnimationType = AnimationType.completion; // Track current animation type
   animationDuration() => const Duration(milliseconds: 400);
+
   @override
   void initState() {
     super.initState();
@@ -138,86 +141,88 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_completionAnimationController]),
-      builder: (context, child) {
-        // Get the appropriate background color based on animation type
-        Color? backgroundColor;
-        switch (_currentAnimationType) {
-          case AnimationType.completion:
-            backgroundColor = _backgroundColorAnimation.value;
-            break;
-          case AnimationType.fail:
-            backgroundColor = _failBackgroundColorAnimation.value;
-            break;
-          case AnimationType.cancel:
-            backgroundColor = _cancelBackgroundColorAnimation.value;
-            break;
-        }
+    return Consumer<TaskStyleProvider>(
+      builder: (context, styleProvider, child) {
+        return AnimatedBuilder(
+          animation: Listenable.merge([_completionAnimationController]),
+          builder: (context, child) {
+            // Get the appropriate background color based on animation type
+            Color? backgroundColor;
+            switch (_currentAnimationType) {
+              case AnimationType.completion:
+                backgroundColor = _backgroundColorAnimation.value;
+                break;
+              case AnimationType.fail:
+                backgroundColor = _failBackgroundColorAnimation.value;
+                break;
+              case AnimationType.cancel:
+                backgroundColor = _cancelBackgroundColorAnimation.value;
+                break;
+            }
 
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: AnimatedContainer(
-            duration: animationDuration(),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: AppColors.borderRadiusAll,
-            ),
-            child: TaskSlideActions(
-              taskModel: widget.taskModel,
-              onFailAnimation: _playFailAnimation,
-              onCancelAnimation: _playCancelAnimation,
-              child: Opacity(
-                opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
-                child: InkWell(
-                  onTap: () {
-                    // eğer subtask var ise subtask bottom sheet açılır
-                    if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
-                      _showSubtasksBottomSheet();
-                    }
-                    // eğer description varsa description editor aç
-                    else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
-                      _showDescriptionEditor();
-                    } else {
-                      taskAction();
-                    }
-                  },
-                  onLongPress: () async {
-                    await taskLongPressAction();
-                  },
-                  borderRadius: AppColors.borderRadiusAll,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : AppColors.borderRadiusAll,
-                        ),
-                        child: Row(
-                          children: [
-                            taskActionIcon(),
-                            TitleAndDescription(
-                              taskModel: widget.taskModel,
-                              displayCount: _isLongPressing ? _displayCount : null,
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: AnimatedContainer(
+                duration: animationDuration(),
+                margin: _getMarginForStyle(styleProvider.currentStyle),
+                decoration: _getDecorationForStyle(styleProvider.currentStyle, backgroundColor),
+                child: TaskSlideActions(
+                  taskModel: widget.taskModel,
+                  onFailAnimation: _playFailAnimation,
+                  onCancelAnimation: _playCancelAnimation,
+                  child: Opacity(
+                    opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
+                    child: InkWell(
+                      onTap: () {
+                        // eğer subtask var ise subtask bottom sheet açılır
+                        if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
+                          _showSubtasksBottomSheet();
+                        }
+                        // eğer description varsa description editor aç
+                        else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
+                          _showDescriptionEditor();
+                        } else {
+                          taskAction();
+                        }
+                      },
+                      onLongPress: () async {
+                        await taskLongPressAction();
+                      },
+                      borderRadius: _getBorderRadiusForStyle(styleProvider.currentStyle),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : _getBorderRadiusForStyle(styleProvider.currentStyle),
                             ),
-                            const SizedBox(width: 10),
-                            Column(
+                            child: Row(
                               children: [
-                                TaskTime(taskModel: widget.taskModel),
-                                if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
+                                taskActionIcon(),
+                                TitleAndDescription(
+                                  taskModel: widget.taskModel,
+                                  displayCount: _isLongPressing ? _displayCount : null,
+                                ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
+                                    TaskTime(taskModel: widget.taskModel),
+                                    if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
+                          PriorityLine(taskModel: widget.taskModel),
+                        ],
                       ),
-                      if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
-                      PriorityLine(taskModel: widget.taskModel),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -403,6 +408,105 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       TaskActionHandler.handleTaskCancellation(widget.taskModel);
       setState(() {});
     });
+  }
+
+  // Style helper methods
+  EdgeInsets _getMarginForStyle(TaskItemStyle style) {
+    switch (style) {
+      case TaskItemStyle.card:
+        return const EdgeInsets.symmetric(vertical: 3, horizontal: 4);
+      case TaskItemStyle.minimal:
+        return const EdgeInsets.symmetric(vertical: 1, horizontal: 2);
+      case TaskItemStyle.flat:
+        return const EdgeInsets.symmetric(vertical: 1, horizontal: 0);
+      case TaskItemStyle.glass:
+        return const EdgeInsets.symmetric(vertical: 3, horizontal: 3);
+      case TaskItemStyle.modern:
+        return const EdgeInsets.symmetric(vertical: 2, horizontal: 4);
+    }
+  }
+
+  BorderRadius _getBorderRadiusForStyle(TaskItemStyle style) {
+    switch (style) {
+      case TaskItemStyle.card:
+        return AppColors.borderRadiusAll;
+      case TaskItemStyle.minimal:
+        return BorderRadius.circular(8);
+      case TaskItemStyle.flat:
+        return BorderRadius.zero;
+      case TaskItemStyle.glass:
+        return BorderRadius.circular(10);
+      case TaskItemStyle.modern:
+        return BorderRadius.circular(10);
+    }
+  }
+
+  BoxDecoration _getDecorationForStyle(TaskItemStyle style, Color? backgroundColor) {
+    switch (style) {
+      case TaskItemStyle.card:
+        return BoxDecoration(
+          color: backgroundColor,
+          borderRadius: _getBorderRadiusForStyle(style),
+          border: Border.all(color: AppColors.grey.withAlpha(70), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.grey.withAlpha(40),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        );
+      case TaskItemStyle.minimal:
+        return BoxDecoration(
+          color: backgroundColor ?? AppColors.panelBackground.withAlpha(100),
+          borderRadius: _getBorderRadiusForStyle(style),
+        );
+
+      case TaskItemStyle.flat:
+        return BoxDecoration(
+          color: backgroundColor ?? Colors.transparent,
+          border: Border(
+            bottom: BorderSide(color: AppColors.grey.withAlpha(50), width: 1),
+          ),
+        );
+
+      case TaskItemStyle.glass:
+        return BoxDecoration(
+          color: backgroundColor ?? AppColors.panelBackground.withAlpha(100),
+          borderRadius: _getBorderRadiusForStyle(style),
+          border: Border.all(
+            color: Colors.white.withAlpha(50),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(10),
+              spreadRadius: 0,
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        );
+
+      case TaskItemStyle.modern:
+        return BoxDecoration(
+          color: backgroundColor ?? AppColors.panelBackground.withAlpha(200),
+          borderRadius: _getBorderRadiusForStyle(style),
+          border: Border.all(
+            color: AppColors.grey.withAlpha(30),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(5),
+              spreadRadius: 0,
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        );
+    }
   }
 
   Widget _buildSubtasksButton() {
