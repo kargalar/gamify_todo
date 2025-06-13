@@ -17,6 +17,7 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_style_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Provider/color_provider.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -27,12 +28,17 @@ void main() async {
   final taskStyleProvider = TaskStyleProvider();
   await taskStyleProvider.loadSavedStyle();
 
+  // Initialize ColorProvider and load saved color
+  final colorProvider = ColorProvider();
+  await colorProvider.loadSavedColor();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ChangeNotifierProvider(create: (context) => NavbarProvider()),
       ChangeNotifierProvider(create: (context) => TaskProvider()),
       ChangeNotifierProvider.value(value: taskStyleProvider),
+      ChangeNotifierProvider.value(value: colorProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),
       ChangeNotifierProvider(create: (context) => AddStoreItemProvider()),

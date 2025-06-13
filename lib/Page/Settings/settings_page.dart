@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Core/Widgets/language_pop.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Settings/archived_routines_page.dart';
+import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/data_management_dialog.dart';
 import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
+import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/theme_provider.dart';
@@ -38,6 +40,7 @@ class SettingsPage extends StatelessWidget {
           children: [
             _settingsOption(
               title: LocaleKeys.SelectLanguage.tr(),
+              icon: Icons.language,
               onTap: () {
                 showDialog(
                   context: context,
@@ -48,6 +51,7 @@ class SettingsPage extends StatelessWidget {
             _settingsOption(
               title: LocaleKeys.ThemeSelection.tr(),
               subtitle: LocaleKeys.ThemeSelectionSubtitle.tr(),
+              icon: Icons.dark_mode,
               onTap: () {
                 context.read<ThemeProvider>().changeTheme();
               },
@@ -77,6 +81,7 @@ class SettingsPage extends StatelessWidget {
             _settingsOption(
               title: 'Archived Routines',
               subtitle: 'View your archived routines',
+              icon: Icons.archive,
               onTap: () {
                 NavigatorService().goTo(const ArchivedRoutinesPage());
               },
@@ -84,13 +89,42 @@ class SettingsPage extends StatelessWidget {
             _settingsOption(
               title: 'Task Style',
               subtitle: 'Change how task items are displayed',
+              icon: Icons.palette,
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (context) => const TaskStyleSelectionDialog(),
                 );
               },
-            ), // _settingsOption(
+            ),
+            Consumer<ColorProvider>(
+              builder: (context, colorProvider, child) {
+                return _settingsOption(
+                  title: 'App Color Theme',
+                  subtitle: 'Choose your preferred color: ${colorProvider.getColorName(colorProvider.currentColor)}',
+                  icon: Icons.color_lens,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const ColorSelectionDialog(),
+                    );
+                  },
+                  trailing: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: colorProvider.currentColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.text.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            // _settingsOption(
             //   title: LocaleKeys.Help.tr(),
             //   subtitle: LocaleKeys.HelpText.tr(),
             //   onTap: () {
@@ -100,6 +134,7 @@ class SettingsPage extends StatelessWidget {
             _settingsOption(
               title: LocaleKeys.DataManagement.tr(),
               subtitle: LocaleKeys.DataManagementSubtitle.tr(),
+              icon: Icons.storage,
               onTap: () {
                 showDialog(
                   context: context,
@@ -110,6 +145,7 @@ class SettingsPage extends StatelessWidget {
             _settingsOption(
               title: LocaleKeys.ContactUs.tr(),
               subtitle: LocaleKeys.ContactUsSubtitle.tr(),
+              icon: Icons.contact_support,
               onTap: () {
                 showDialog(
                   context: context,
@@ -120,6 +156,7 @@ class SettingsPage extends StatelessWidget {
             _settingsOption(
               title: LocaleKeys.PrivacyPolicy.tr(),
               subtitle: LocaleKeys.PrivacyPolicySubtitle.tr(),
+              icon: Icons.privacy_tip,
               onTap: () {
                 showDialog(
                   context: context,
@@ -163,6 +200,7 @@ class SettingsPage extends StatelessWidget {
     VoidCallback? onTap,
     Color? color,
     Widget? trailing,
+    IconData? icon,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -184,30 +222,40 @@ class SettingsPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: subtitle != null ? MainAxisAlignment.start : MainAxisAlignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: color != null ? AppColors.white : null,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: 20,
+                    color: color != null ? AppColors.white : AppColors.main,
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 12,
+                        title,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: color != null ? AppColors.white : null,
                         ),
                       ),
-                    ]
-                  ],
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: color != null ? AppColors.white.withAlpha(180) : null,
+                          ),
+                        ),
+                      ]
+                    ],
+                  ),
                 ),
-                const Spacer(),
                 if (trailing != null) trailing
               ],
             ),

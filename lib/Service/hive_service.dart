@@ -580,14 +580,15 @@ class HiveService {
       sharedPrefsMap["categories_show_archived"] = prefs.getBool('categories_show_archived');
       sharedPrefsMap["categories_show_overdue"] = prefs.getBool('categories_show_overdue');
       sharedPrefsMap["categories_show_empty_status"] = prefs.getBool('categories_show_empty_status');
-      sharedPrefsMap["categories_selected_category_id"] = prefs.getInt('categories_selected_category_id');
-
-      // Export home page setting
+      sharedPrefsMap["categories_selected_category_id"] = prefs.getInt('categories_selected_category_id'); // Export home page setting
       sharedPrefsMap["show_completed"] = prefs.getBool('show_completed'); // Export theme setting
       sharedPrefsMap["isDark"] = prefs.getBool('isDark');
 
       // Export task style setting
       sharedPrefsMap["task_style"] = prefs.getInt('task_style');
+
+      // Export main color setting
+      sharedPrefsMap["main_color"] = prefs.getInt('main_color');
 
       // Export language setting
       sharedPrefsMap["selected_language"] = prefs.getString('selected_language');
@@ -752,11 +753,14 @@ class HiveService {
           } // Import theme setting
           if (sharedPrefsMap["isDark"] != null) {
             await prefs.setBool('isDark', sharedPrefsMap["isDark"]);
-          }
-
-          // Import task style setting
+          } // Import task style setting
           if (sharedPrefsMap["task_style"] != null) {
             await prefs.setInt('task_style', sharedPrefsMap["task_style"]);
+          }
+
+          // Import main color setting
+          if (sharedPrefsMap["main_color"] != null) {
+            await prefs.setInt('main_color', sharedPrefsMap["main_color"]);
           }
 
           // Import language setting
