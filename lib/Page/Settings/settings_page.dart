@@ -6,6 +6,7 @@ import 'package:next_level/Page/Settings/archived_routines_page.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/data_management_dialog.dart';
 import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
+import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/theme_provider.dart';
@@ -78,6 +79,16 @@ class SettingsPage extends StatelessWidget {
               subtitle: 'View your archived routines',
               onTap: () {
                 NavigatorService().goTo(const ArchivedRoutinesPage());
+              },
+            ),
+            _settingsOption(
+              title: 'Task Style',
+              subtitle: 'Change how task items are displayed',
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const TaskStyleSelectionDialog(),
+                );
               },
             ), // _settingsOption(
             //   title: LocaleKeys.Help.tr(),

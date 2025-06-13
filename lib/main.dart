@@ -23,12 +23,16 @@ import 'package:provider/provider.dart';
 void main() async {
   await initApp();
 
+  // Initialize TaskStyleProvider and load saved style
+  final taskStyleProvider = TaskStyleProvider();
+  await taskStyleProvider.loadSavedStyle();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ChangeNotifierProvider(create: (context) => NavbarProvider()),
       ChangeNotifierProvider(create: (context) => TaskProvider()),
-      ChangeNotifierProvider(create: (context) => TaskStyleProvider()),
+      ChangeNotifierProvider.value(value: taskStyleProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),
       ChangeNotifierProvider(create: (context) => AddStoreItemProvider()),
