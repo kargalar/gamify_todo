@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/subtask_model.dart';
@@ -241,6 +244,36 @@ class AddTaskProvider with ChangeNotifier {
   }
 
   // File attachment methods
+  Future<String> _getApplicationDirectory() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final attachmentsDir = Directory('${directory.path}/task_attachments');
+    if (!await attachmentsDir.exists()) {
+      await attachmentsDir.create(recursive: true);
+    }
+    return attachmentsDir.path;
+  }
+
+  Future<String> _copyFileToAppDirectory(String originalPath) async {
+    try {
+      final file = File(originalPath);
+      if (!await file.exists()) {
+        throw Exception('Source file does not exist');
+      }
+
+      final appDir = await _getApplicationDirectory();
+      final fileName = path.basename(originalPath);
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final newFileName = '${timestamp}_$fileName';
+      final newPath = path.join(appDir, newFileName);
+
+      final copiedFile = await file.copy(newPath);
+      return copiedFile.path;
+    } catch (e) {
+      debugPrint('Error copying file: $e');
+      rethrow;
+    }
+  }
+
   Future<void> pickFiles() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -250,8 +283,19 @@ class AddTaskProvider with ChangeNotifier {
       );
 
       if (result != null) {
-        List<String> filePaths = result.paths.where((path) => path != null).cast<String>().toList();
-        attachmentPaths.addAll(filePaths);
+        List<String> selectedPaths = result.paths.where((path) => path != null).cast<String>().toList();
+
+        // Dosyaları uygulama dizinine kopyala
+        for (String originalPath in selectedPaths) {
+          try {
+            String copiedPath = await _copyFileToAppDirectory(originalPath);
+            attachmentPaths.add(copiedPath);
+          } catch (e) {
+            debugPrint('Failed to copy file $originalPath: $e');
+            // Kopyalama başarısız olursa orijinal path'i kullan
+            attachmentPaths.add(originalPath);
+          }
+        }
         notifyListeners();
       }
     } catch (e) {
@@ -267,8 +311,19 @@ class AddTaskProvider with ChangeNotifier {
       );
 
       if (result != null) {
-        List<String> filePaths = result.paths.where((path) => path != null).cast<String>().toList();
-        attachmentPaths.addAll(filePaths);
+        List<String> selectedPaths = result.paths.where((path) => path != null).cast<String>().toList();
+
+        // Resimleri uygulama dizinine kopyala
+        for (String originalPath in selectedPaths) {
+          try {
+            String copiedPath = await _copyFileToAppDirectory(originalPath);
+            attachmentPaths.add(copiedPath);
+          } catch (e) {
+            debugPrint('Failed to copy image $originalPath: $e');
+            // Kopyalama başarısız olursa orijinal path'i kullan
+            attachmentPaths.add(originalPath);
+          }
+        }
         notifyListeners();
       }
     } catch (e) {
@@ -276,14 +331,44 @@ class AddTaskProvider with ChangeNotifier {
     }
   }
 
-  void removeAttachment(int index) {
+  void removeAttachment(int index) async {
     if (index >= 0 && index < attachmentPaths.length) {
+      final filePath = attachmentPaths[index];
+
+      // Eğer dosya uygulama dizinindeyse sil
+      try {
+        final appDir = await _getApplicationDirectory();
+        if (filePath.startsWith(appDir)) {
+          final file = File(filePath);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
+      } catch (e) {
+        debugPrint('Error deleting file: $e');
+      }
+
       attachmentPaths.removeAt(index);
       notifyListeners();
     }
   }
 
-  void clearAttachments() {
+  void clearAttachments() async {
+    // Tüm dosyaları sil
+    try {
+      final appDir = await _getApplicationDirectory();
+      for (String filePath in attachmentPaths) {
+        if (filePath.startsWith(appDir)) {
+          final file = File(filePath);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error clearing attachments: $e');
+    }
+
     attachmentPaths.clear();
     notifyListeners();
   }
@@ -295,6 +380,23 @@ class AddTaskProvider with ChangeNotifier {
       attachmentPaths = [];
     }
     notifyListeners();
+  }
+
+  // Task'ı kalıcı olarak silerken dosyaları da sil
+  Future<void> deleteTaskAttachments() async {
+    try {
+      final appDir = await _getApplicationDirectory();
+      for (String filePath in attachmentPaths) {
+        if (filePath.startsWith(appDir)) {
+          final file = File(filePath);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error deleting task attachments: $e');
+    }
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Service/file_storage_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/notification_services.dart';
@@ -381,6 +382,13 @@ class HiveService {
   Future<void> deleteAllData({bool isLogout = false}) async {
     // Cancel all notifications first
     await NotificationService().cancelAllNotifications();
+
+    // Clear all attachment files
+    try {
+      await FileStorageService.instance.clearAllAttachments();
+    } catch (e) {
+      debugPrint('Error clearing attachment files: $e');
+    }
 
     // Clear Hive boxes
     final box = await _userBox;

@@ -121,8 +121,9 @@ class FileAttachmentWidget extends StatelessWidget {
                   final filePath = entry.value;
                   final fileName = path.basename(filePath);
                   final isImage = _isImageFile(filePath);
+                  final fileExists = File(filePath).existsSync();
 
-                  if (isImage && File(filePath).existsSync()) {
+                  if (isImage && fileExists) {
                     // Image preview with larger size
                     return GestureDetector(
                       onTap: () => _showFullScreenImage(context, filePath),
@@ -224,13 +225,15 @@ class FileAttachmentWidget extends StatelessWidget {
                       ),
                     );
                   } else {
-                    // Regular file display
+                    // Regular file display or missing file
+                    final fileExists = File(filePath).existsSync();
+
                     return Container(
                       decoration: BoxDecoration(
-                        color: AppColors.background,
+                        color: fileExists ? AppColors.background : AppColors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppColors.text.withValues(alpha: 0.1),
+                          color: fileExists ? AppColors.text.withValues(alpha: 0.1) : AppColors.red.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -247,28 +250,51 @@ class FileAttachmentWidget extends StatelessWidget {
                                   width: 32,
                                   height: 32,
                                   decoration: BoxDecoration(
-                                    color: AppColors.main.withValues(alpha: 0.1),
+                                    color: fileExists ? AppColors.main.withValues(alpha: 0.1) : AppColors.red.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Icon(
-                                    _getFileIcon(filePath),
-                                    color: AppColors.main,
+                                    fileExists ? _getFileIcon(filePath) : Icons.error_outline_rounded,
+                                    color: fileExists ? AppColors.main : AppColors.red,
                                     size: 16,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-
-                                // File name
+                                const SizedBox(width: 8), // File name and status
                                 Flexible(
-                                  child: Text(
-                                    fileName,
-                                    style: TextStyle(
-                                      color: AppColors.text,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        fileName,
+                                        style: TextStyle(
+                                          color: fileExists ? AppColors.text : AppColors.red,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (fileExists) ...[
+                                        Text(
+                                          _formatFileSize(File(filePath).lengthSync()),
+                                          style: TextStyle(
+                                            color: AppColors.text.withValues(alpha: 0.6),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ] else ...[
+                                        const Text(
+                                          'File not found',
+                                          style: TextStyle(
+                                            color: AppColors.red,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: 20), // Space for remove button
@@ -366,6 +392,18 @@ class FileAttachmentWidget extends StatelessWidget {
   bool _isImageFile(String filePath) {
     final extension = path.extension(filePath).toLowerCase();
     return ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].contains(extension);
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) {
+      return '$bytes B';
+    } else if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    } else if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    } else {
+      return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+    }
   }
 
   IconData _getFileIcon(String filePath) {
