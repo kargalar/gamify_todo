@@ -562,44 +562,46 @@ class HiveService {
         final category = categoryBox.get(key);
         if (category != null) categoryMap[key.toString()] = category.toJson();
       }
-      allData[_categoryBoxName] = categoryMap;
-
-      // Export SharedPrefs
+      allData[_categoryBoxName] = categoryMap; // Export SharedPrefs
       final prefs = await SharedPreferences.getInstance();
       final sharedPrefsMap = {};
 
       // Export existing settings
       sharedPrefsMap["lastLoginDate"] = prefs.getString('lastLoginDate');
-      sharedPrefsMap["last_task_id"] = prefs.getInt('last_task_id');
-      sharedPrefsMap["last_routine_id"] = prefs.getInt('last_routine_id');
-      sharedPrefsMap["last_trait_id"] = prefs.getInt('last_trait_id');
-      sharedPrefsMap["last_category_id"] = prefs.getInt('last_category_id');
+      sharedPrefsMap["last_task_id"] = prefs.getInt('last_task_id') ?? 0;
+      sharedPrefsMap["last_routine_id"] = prefs.getInt('last_routine_id') ?? 0;
+      sharedPrefsMap["last_trait_id"] = prefs.getInt('last_trait_id') ?? 0;
+      sharedPrefsMap["last_category_id"] = prefs.getInt('last_category_id') ?? 0;
 
-      // Export inbox page filter settings
-      sharedPrefsMap["categories_show_tasks"] = prefs.getBool('categories_show_tasks');
-      sharedPrefsMap["categories_show_routines"] = prefs.getBool('categories_show_routines');
-      sharedPrefsMap["categories_date_filter"] = prefs.getInt('categories_date_filter');
-      sharedPrefsMap["categories_show_checkbox"] = prefs.getBool('categories_show_checkbox');
-      sharedPrefsMap["categories_show_counter"] = prefs.getBool('categories_show_counter');
-      sharedPrefsMap["categories_show_timer"] = prefs.getBool('categories_show_timer');
-      sharedPrefsMap["categories_show_completed"] = prefs.getBool('categories_show_completed');
-      sharedPrefsMap["categories_show_failed"] = prefs.getBool('categories_show_failed');
-      sharedPrefsMap["categories_show_cancel"] = prefs.getBool('categories_show_cancel');
-      sharedPrefsMap["categories_show_archived"] = prefs.getBool('categories_show_archived');
-      sharedPrefsMap["categories_show_overdue"] = prefs.getBool('categories_show_overdue');
-      sharedPrefsMap["categories_show_empty_status"] = prefs.getBool('categories_show_empty_status');
-      sharedPrefsMap["categories_selected_category_id"] = prefs.getInt('categories_selected_category_id'); // Export home page setting
-      sharedPrefsMap["show_completed"] = prefs.getBool('show_completed'); // Export theme setting
-      sharedPrefsMap["isDark"] = prefs.getBool('isDark');
+      // Export inbox page filter settings with default values
+      sharedPrefsMap["categories_show_tasks"] = prefs.getBool('categories_show_tasks') ?? true;
+      sharedPrefsMap["categories_show_routines"] = prefs.getBool('categories_show_routines') ?? true;
+      sharedPrefsMap["categories_date_filter"] = prefs.getInt('categories_date_filter') ?? 0;
+      sharedPrefsMap["categories_show_checkbox"] = prefs.getBool('categories_show_checkbox') ?? true;
+      sharedPrefsMap["categories_show_counter"] = prefs.getBool('categories_show_counter') ?? true;
+      sharedPrefsMap["categories_show_timer"] = prefs.getBool('categories_show_timer') ?? true;
+      sharedPrefsMap["categories_show_completed"] = prefs.getBool('categories_show_completed') ?? true;
+      sharedPrefsMap["categories_show_failed"] = prefs.getBool('categories_show_failed') ?? true;
+      sharedPrefsMap["categories_show_cancel"] = prefs.getBool('categories_show_cancel') ?? true;
+      sharedPrefsMap["categories_show_archived"] = prefs.getBool('categories_show_archived') ?? false;
+      sharedPrefsMap["categories_show_overdue"] = prefs.getBool('categories_show_overdue') ?? true;
+      sharedPrefsMap["categories_show_empty_status"] = prefs.getBool('categories_show_empty_status') ?? true;
+      sharedPrefsMap["categories_selected_category_id"] = prefs.getInt('categories_selected_category_id') ?? -1;
+
+      // Export home page setting
+      sharedPrefsMap["show_completed"] = prefs.getBool('show_completed') ?? false;
+
+      // Export theme setting
+      sharedPrefsMap["isDark"] = prefs.getBool('isDark') ?? false;
 
       // Export task style setting
-      sharedPrefsMap["task_style"] = prefs.getInt('task_style');
+      sharedPrefsMap["task_style"] = prefs.getInt('task_style') ?? 0;
 
       // Export main color setting
-      sharedPrefsMap["main_color"] = prefs.getInt('main_color');
+      sharedPrefsMap["main_color"] = prefs.getInt('main_color') ?? 0;
 
       // Export language setting
-      sharedPrefsMap["selected_language"] = prefs.getString('selected_language');
+      sharedPrefsMap["selected_language"] = prefs.getString('selected_language') ?? 'en';
 
       allData["SharedPreferances"] = sharedPrefsMap;
 
@@ -700,9 +702,7 @@ class HiveService {
               final taskLog = TaskLogModel.fromJson(entry.value);
               await taskLogBox.put(int.parse(entry.key), taskLog);
             }
-          }
-
-          // Import SharedPrefs
+          } // Import SharedPrefs
           final prefs = await SharedPreferences.getInstance();
           final sharedPrefsMap = allData["SharedPreferances"] as Map<String, dynamic>;
 
@@ -714,67 +714,35 @@ class HiveService {
           await prefs.setInt('last_trait_id', sharedPrefsMap["last_trait_id"] ?? 0);
           await prefs.setInt('last_category_id', sharedPrefsMap["last_category_id"] ?? 0);
 
-          // Import inbox page filter settings
-          if (sharedPrefsMap["categories_show_tasks"] != null) {
-            await prefs.setBool('categories_show_tasks', sharedPrefsMap["categories_show_tasks"]);
-          }
-          if (sharedPrefsMap["categories_show_routines"] != null) {
-            await prefs.setBool('categories_show_routines', sharedPrefsMap["categories_show_routines"]);
-          }
-          if (sharedPrefsMap["categories_date_filter"] != null) {
-            await prefs.setInt('categories_date_filter', sharedPrefsMap["categories_date_filter"]);
-          }
-          if (sharedPrefsMap["categories_show_checkbox"] != null) {
-            await prefs.setBool('categories_show_checkbox', sharedPrefsMap["categories_show_checkbox"]);
-          }
-          if (sharedPrefsMap["categories_show_counter"] != null) {
-            await prefs.setBool('categories_show_counter', sharedPrefsMap["categories_show_counter"]);
-          }
-          if (sharedPrefsMap["categories_show_timer"] != null) {
-            await prefs.setBool('categories_show_timer', sharedPrefsMap["categories_show_timer"]);
-          }
-          if (sharedPrefsMap["categories_show_completed"] != null) {
-            await prefs.setBool('categories_show_completed', sharedPrefsMap["categories_show_completed"]);
-          }
-          if (sharedPrefsMap["categories_show_failed"] != null) {
-            await prefs.setBool('categories_show_failed', sharedPrefsMap["categories_show_failed"]);
-          }
-          if (sharedPrefsMap["categories_show_cancel"] != null) {
-            await prefs.setBool('categories_show_cancel', sharedPrefsMap["categories_show_cancel"]);
-          }
-          if (sharedPrefsMap["categories_show_archived"] != null) {
-            await prefs.setBool('categories_show_archived', sharedPrefsMap["categories_show_archived"]);
-          }
-          if (sharedPrefsMap["categories_show_overdue"] != null) {
-            await prefs.setBool('categories_show_overdue', sharedPrefsMap["categories_show_overdue"]);
-          }
-          if (sharedPrefsMap["categories_show_empty_status"] != null) {
-            await prefs.setBool('categories_show_empty_status', sharedPrefsMap["categories_show_empty_status"]);
-          }
-          if (sharedPrefsMap["categories_selected_category_id"] != null) {
-            await prefs.setInt('categories_selected_category_id', sharedPrefsMap["categories_selected_category_id"]);
-          }
+          // Import inbox page filter settings with proper defaults
+          await prefs.setBool('categories_show_tasks', sharedPrefsMap["categories_show_tasks"] ?? true);
+          await prefs.setBool('categories_show_routines', sharedPrefsMap["categories_show_routines"] ?? true);
+          await prefs.setInt('categories_date_filter', sharedPrefsMap["categories_date_filter"] ?? 0);
+          await prefs.setBool('categories_show_checkbox', sharedPrefsMap["categories_show_checkbox"] ?? true);
+          await prefs.setBool('categories_show_counter', sharedPrefsMap["categories_show_counter"] ?? true);
+          await prefs.setBool('categories_show_timer', sharedPrefsMap["categories_show_timer"] ?? true);
+          await prefs.setBool('categories_show_completed', sharedPrefsMap["categories_show_completed"] ?? true);
+          await prefs.setBool('categories_show_failed', sharedPrefsMap["categories_show_failed"] ?? true);
+          await prefs.setBool('categories_show_cancel', sharedPrefsMap["categories_show_cancel"] ?? true);
+          await prefs.setBool('categories_show_archived', sharedPrefsMap["categories_show_archived"] ?? false);
+          await prefs.setBool('categories_show_overdue', sharedPrefsMap["categories_show_overdue"] ?? true);
+          await prefs.setBool('categories_show_empty_status', sharedPrefsMap["categories_show_empty_status"] ?? true);
+          await prefs.setInt('categories_selected_category_id', sharedPrefsMap["categories_selected_category_id"] ?? -1);
 
           // Import home page setting
-          if (sharedPrefsMap["show_completed"] != null) {
-            await prefs.setBool('show_completed', sharedPrefsMap["show_completed"]);
-          } // Import theme setting
-          if (sharedPrefsMap["isDark"] != null) {
-            await prefs.setBool('isDark', sharedPrefsMap["isDark"]);
-          } // Import task style setting
-          if (sharedPrefsMap["task_style"] != null) {
-            await prefs.setInt('task_style', sharedPrefsMap["task_style"]);
-          }
+          await prefs.setBool('show_completed', sharedPrefsMap["show_completed"] ?? false);
+
+          // Import theme setting
+          await prefs.setBool('isDark', sharedPrefsMap["isDark"] ?? false);
+
+          // Import task style setting
+          await prefs.setInt('task_style', sharedPrefsMap["task_style"] ?? 0);
 
           // Import main color setting
-          if (sharedPrefsMap["main_color"] != null) {
-            await prefs.setInt('main_color', sharedPrefsMap["main_color"]);
-          }
+          await prefs.setInt('main_color', sharedPrefsMap["main_color"] ?? 0);
 
           // Import language setting
-          if (sharedPrefsMap["selected_language"] != null) {
-            await prefs.setString('selected_language', sharedPrefsMap["selected_language"]);
-          }
+          await prefs.setString('selected_language', sharedPrefsMap["selected_language"] ?? 'en');
           await createTasksFromRoutines();
 
           // Cancel all notifications after import and task creation to clean up any old notifications
