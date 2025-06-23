@@ -112,6 +112,31 @@ class TaskProvider with ChangeNotifier {
 
     taskModel.id = taskId;
 
+    // Check if task is created with a past date and mark as overdue
+    if (taskModel.taskDate != null) {
+      final now = DateTime.now();
+      final taskDateTime = taskModel.taskDate!.copyWith(
+        hour: taskModel.time?.hour ?? 23,
+        minute: taskModel.time?.minute ?? 59,
+        second: 59,
+      );
+
+      if (taskDateTime.isBefore(now)) {
+        // Task date is in the past, mark as overdue
+        debugPrint('Setting newly created task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
+        taskModel.status = TaskStatusEnum.OVERDUE;
+
+        // Create log for overdue status
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: TaskStatusEnum.OVERDUE,
+        );
+
+        // Update the task in storage with overdue status
+        ServerManager().updateTask(taskModel: taskModel);
+      }
+    }
+
     taskList.add(taskModel);
 
     if (taskModel.time != null) {
@@ -606,18 +631,54 @@ class TaskProvider with ChangeNotifier {
 
   // iptal de kullanıcıya ceza yansıtılmayacak
   cancelTask(TaskModel taskModel) {
-    debugPrint('Canceling task: ID=${taskModel.id}, Title=${taskModel.title}');
-
+    debugPrint('Canceling task: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
     if (taskModel.status == TaskStatusEnum.CANCEL) {
-      // If already cancelled, set to null (in progress)
-      taskModel.status = null;
-      debugPrint('Task was already canceled, setting to in-progress');
+      debugPrint('Task is already CANCELED, checking date for overdue logic');
+      // If already cancelled, check if task should be overdue based on date
+      if (taskModel.taskDate != null) {
+        final now = DateTime.now();
+        final taskDateTime = taskModel.taskDate!.copyWith(
+          hour: taskModel.time?.hour ?? 23,
+          minute: taskModel.time?.minute ?? 59,
+          second: 59,
+        );
 
-      // Create log for the status change to null (in progress)
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customStatus: null, // null status means "in progress"
-      );
+        debugPrint('Now: $now');
+        debugPrint('Task DateTime: $taskDateTime');
+        debugPrint('Is task date before now: ${taskDateTime.isBefore(now)}');
+
+        if (taskDateTime.isBefore(now)) {
+          // Task date is in the past, mark as overdue
+          debugPrint('Task was canceled but date is past, setting to overdue: ID=${taskModel.id}');
+          taskModel.status = TaskStatusEnum.OVERDUE;
+
+          // Create log for overdue status
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: TaskStatusEnum.OVERDUE,
+          );
+        } else {
+          // Task date is in the future or today, set to in progress
+          taskModel.status = null;
+          debugPrint('Task was canceled but date is future/today, setting to in-progress: ID=${taskModel.id}');
+
+          // Create log for the status change to null (in progress)
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: null, // null status means "in progress"
+          );
+        }
+      } else {
+        // Dateless task, set to in progress
+        taskModel.status = null;
+        debugPrint('Task was canceled but dateless, setting to in-progress: ID=${taskModel.id}');
+
+        // Create log for the status change to null (in progress)
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
+      }
     } else {
       // Check if task was previously completed and subtract credit
       if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
@@ -654,18 +715,54 @@ class TaskProvider with ChangeNotifier {
   }
 
   failedTask(TaskModel taskModel) {
-    debugPrint('Marking task as failed: ID=${taskModel.id}, Title=${taskModel.title}');
-
+    debugPrint('Marking task as failed: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
     if (taskModel.status == TaskStatusEnum.FAILED) {
-      // If already failed, set to null (in progress)
-      taskModel.status = null;
-      debugPrint('Task was already failed, setting to in-progress');
+      debugPrint('Task is already FAILED, checking date for overdue logic');
+      // If already failed, check if task should be overdue based on date
+      if (taskModel.taskDate != null) {
+        final now = DateTime.now();
+        final taskDateTime = taskModel.taskDate!.copyWith(
+          hour: taskModel.time?.hour ?? 23,
+          minute: taskModel.time?.minute ?? 59,
+          second: 59,
+        );
 
-      // Create log for the status change to null (in progress)
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customStatus: null, // null status means "in progress"
-      );
+        debugPrint('Now: $now');
+        debugPrint('Task DateTime: $taskDateTime');
+        debugPrint('Is task date before now: ${taskDateTime.isBefore(now)}');
+
+        if (taskDateTime.isBefore(now)) {
+          // Task date is in the past, mark as overdue
+          debugPrint('Task was failed but date is past, setting to overdue: ID=${taskModel.id}');
+          taskModel.status = TaskStatusEnum.OVERDUE;
+
+          // Create log for overdue status
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: TaskStatusEnum.OVERDUE,
+          );
+        } else {
+          // Task date is in the future or today, set to in progress
+          taskModel.status = null;
+          debugPrint('Task was failed but date is future/today, setting to in-progress: ID=${taskModel.id}');
+
+          // Create log for the status change to null (in progress)
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: null, // null status means "in progress"
+          );
+        }
+      } else {
+        // Dateless task, set to in progress
+        taskModel.status = null;
+        debugPrint('Task was failed but dateless, setting to in-progress: ID=${taskModel.id}');
+
+        // Create log for the status change to null (in progress)
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
+      }
     } else {
       // Check if task was previously completed and subtract credit
       if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
@@ -1459,10 +1556,57 @@ class TaskProvider with ChangeNotifier {
       // Find the task and restore its previous status
       final taskIndex = taskList.indexWhere((task) => task.id == taskId);
       if (taskIndex != -1) {
-        final task = taskList[taskIndex];
+        final task = taskList[taskIndex]; // Restore previous status, but check for overdue if previous was null
+        if (completionData.previousStatus == null) {
+          // Check if task should be overdue based on date
+          if (task.taskDate != null) {
+            final now = DateTime.now();
+            final taskDateTime = task.taskDate!.copyWith(
+              hour: task.time?.hour ?? 23,
+              minute: task.time?.minute ?? 59,
+              second: 59,
+            );
 
-        // Restore previous status
-        task.status = completionData.previousStatus;
+            if (taskDateTime.isBefore(now)) {
+              // Task date is in the past, mark as overdue
+              debugPrint('Undoing completion but date is past, setting to overdue: ID=${task.id}');
+              task.status = TaskStatusEnum.OVERDUE;
+
+              // Create log entry for overdue status
+              TaskLogProvider().addTaskLog(
+                task,
+                customStatus: TaskStatusEnum.OVERDUE,
+              );
+            } else {
+              // Task date is in the future or today, set to in progress
+              task.status = null;
+
+              // Create log entry for the status change
+              TaskLogProvider().addTaskLog(
+                task,
+                customStatus: null,
+              );
+            }
+          } else {
+            // Dateless task, set to in progress
+            task.status = null;
+
+            // Create log entry for the status change
+            TaskLogProvider().addTaskLog(
+              task,
+              customStatus: null,
+            );
+          }
+        } else {
+          // Restore previous status as is
+          task.status = completionData.previousStatus;
+
+          // Create log entry for the status change
+          TaskLogProvider().addTaskLog(
+            task,
+            customStatus: completionData.previousStatus,
+          );
+        }
 
         // Subtract credit for undoing completion
         if (task.remainingDuration != null) {
@@ -1482,12 +1626,6 @@ class TaskProvider with ChangeNotifier {
 
         // Update notifications
         checkNotification(task);
-
-        // Create log entry for the status change
-        TaskLogProvider().addTaskLog(
-          task,
-          customStatus: completionData.previousStatus,
-        );
 
         notifyListeners();
       }
@@ -1592,8 +1730,57 @@ class TaskProvider with ChangeNotifier {
       if (taskIndex != -1) {
         final task = taskList[taskIndex];
 
-        // Restore previous status
-        task.status = failureData.previousStatus;
+        // Restore previous status, but check for overdue if previous was null
+        if (failureData.previousStatus == null) {
+          // Check if task should be overdue based on date
+          if (task.taskDate != null) {
+            final now = DateTime.now();
+            final taskDateTime = task.taskDate!.copyWith(
+              hour: task.time?.hour ?? 23,
+              minute: task.time?.minute ?? 59,
+              second: 59,
+            );
+
+            if (taskDateTime.isBefore(now)) {
+              // Task date is in the past, mark as overdue
+              debugPrint('Undoing failure but date is past, setting to overdue: ID=${task.id}');
+              task.status = TaskStatusEnum.OVERDUE;
+
+              // Create log entry for overdue status
+              TaskLogProvider().addTaskLog(
+                task,
+                customStatus: TaskStatusEnum.OVERDUE,
+              );
+            } else {
+              // Task date is in the future or today, set to in progress
+              task.status = null;
+
+              // Create log entry for the status change
+              TaskLogProvider().addTaskLog(
+                task,
+                customStatus: null,
+              );
+            }
+          } else {
+            // No date set, restore to null
+            task.status = null;
+
+            // Create log entry for the status change
+            TaskLogProvider().addTaskLog(
+              task,
+              customStatus: null,
+            );
+          }
+        } else {
+          // Restore to previous non-null status
+          task.status = failureData.previousStatus;
+
+          // Create log entry for the status change
+          TaskLogProvider().addTaskLog(
+            task,
+            customStatus: failureData.previousStatus,
+          );
+        }
 
         // Save the task
         try {
@@ -1632,8 +1819,59 @@ class TaskProvider with ChangeNotifier {
       // Find the task and restore its previous status
       final taskIndex = taskList.indexWhere((task) => task.id == taskId);
       if (taskIndex != -1) {
-        final task = taskList[taskIndex]; // Restore previous status
-        task.status = cancellationData.previousStatus;
+        final task = taskList[taskIndex];
+
+        // Restore previous status, but check for overdue if previous was null
+        if (cancellationData.previousStatus == null) {
+          // Check if task should be overdue based on date
+          if (task.taskDate != null) {
+            final now = DateTime.now();
+            final taskDateTime = task.taskDate!.copyWith(
+              hour: task.time?.hour ?? 23,
+              minute: task.time?.minute ?? 59,
+              second: 59,
+            );
+
+            if (taskDateTime.isBefore(now)) {
+              // Task date is in the past, mark as overdue
+              debugPrint('Undoing cancellation but date is past, setting to overdue: ID=${task.id}');
+              task.status = TaskStatusEnum.OVERDUE;
+
+              // Create log entry for overdue status
+              TaskLogProvider().addTaskLog(
+                task,
+                customStatus: TaskStatusEnum.OVERDUE,
+              );
+            } else {
+              // Task date is in the future or today, set to in progress
+              task.status = null;
+
+              // Create log entry for the status change
+              TaskLogProvider().addTaskLog(
+                task,
+                customStatus: null,
+              );
+            }
+          } else {
+            // No date set, restore to null
+            task.status = null;
+
+            // Create log entry for the status change
+            TaskLogProvider().addTaskLog(
+              task,
+              customStatus: null,
+            );
+          }
+        } else {
+          // Restore to previous non-null status
+          task.status = cancellationData.previousStatus;
+
+          // Create log entry for the status change
+          TaskLogProvider().addTaskLog(
+            task,
+            customStatus: cancellationData.previousStatus,
+          );
+        }
 
         // Save the task
         try {

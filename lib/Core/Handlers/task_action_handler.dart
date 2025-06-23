@@ -56,21 +56,54 @@ class TaskActionHandler {
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
       if (taskModel.status == TaskStatusEnum.COMPLETED) {
-        // When uncompleting a task, always set to null (in progress)
-        // regardless of whether it should be overdue
-        taskModel.status = null;
+        // When uncompleting a task, check if it should be overdue based on date
+        if (taskModel.taskDate != null) {
+          final now = DateTime.now();
+          final taskDateTime = taskModel.taskDate!.copyWith(
+            hour: taskModel.time?.hour ?? 23,
+            minute: taskModel.time?.minute ?? 59,
+            second: 59,
+          );
+
+          if (taskDateTime.isBefore(now)) {
+            // Task date is in the past, mark as overdue
+            taskModel.status = TaskStatusEnum.OVERDUE;
+
+            // Create log for overdue status (unless logging is skipped)
+            if (!skipLogging) {
+              TaskLogProvider().addTaskLog(
+                taskModel,
+                customStatus: TaskStatusEnum.OVERDUE,
+              );
+            }
+          } else {
+            // Task date is in the future or today, set to in progress
+            taskModel.status = null;
+
+            // Create log for uncompleted checkbox task (unless logging is skipped)
+            if (!skipLogging) {
+              TaskLogProvider().addTaskLog(
+                taskModel,
+                customStatus: null, // null status means "in progress"
+              );
+            }
+          }
+        } else {
+          // Dateless task, set to in progress
+          taskModel.status = null;
+
+          // Create log for uncompleted checkbox task (unless logging is skipped)
+          if (!skipLogging) {
+            TaskLogProvider().addTaskLog(
+              taskModel,
+              customStatus: null, // null status means "in progress"
+            );
+          }
+        }
 
         // Subtract credit for uncompleting the task
         if (taskModel.remainingDuration != null) {
           AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
-        }
-
-        // Create log for uncompleted checkbox task (unless logging is skipped)
-        if (!skipLogging) {
-          TaskLogProvider().addTaskLog(
-            taskModel,
-            customStatus: null, // null status means "in progress"
-          );
         }
 
         // Update task in provider and save
@@ -160,14 +193,44 @@ class TaskActionHandler {
   /// Handles task failure action
   static void handleTaskFailure(TaskModel taskModel) {
     if (taskModel.status == TaskStatusEnum.FAILED) {
-      // If already failed, set to null (in progress)
-      taskModel.status = null;
+      // If already failed, check if task should be overdue based on date
+      if (taskModel.taskDate != null) {
+        final now = DateTime.now();
+        final taskDateTime = taskModel.taskDate!.copyWith(
+          hour: taskModel.time?.hour ?? 23,
+          minute: taskModel.time?.minute ?? 59,
+          second: 59,
+        );
 
-      // Create log for the status change to null (in progress)
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customStatus: null, // null status means "in progress"
-      );
+        if (taskDateTime.isBefore(now)) {
+          // Task date is in the past, mark as overdue
+          taskModel.status = TaskStatusEnum.OVERDUE;
+
+          // Create log for overdue status
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: TaskStatusEnum.OVERDUE,
+          );
+        } else {
+          // Task date is in the future or today, set to in progress
+          taskModel.status = null;
+
+          // Create log for the status change to null (in progress)
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: null, // null status means "in progress"
+          );
+        }
+      } else {
+        // Dateless task, set to in progress
+        taskModel.status = null;
+
+        // Create log for the status change to null (in progress)
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
+      }
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
@@ -204,14 +267,44 @@ class TaskActionHandler {
   /// Handles task cancellation action
   static void handleTaskCancellation(TaskModel taskModel) {
     if (taskModel.status == TaskStatusEnum.CANCEL) {
-      // If already cancelled, set to null (in progress)
-      taskModel.status = null;
+      // If already cancelled, check if task should be overdue based on date
+      if (taskModel.taskDate != null) {
+        final now = DateTime.now();
+        final taskDateTime = taskModel.taskDate!.copyWith(
+          hour: taskModel.time?.hour ?? 23,
+          minute: taskModel.time?.minute ?? 59,
+          second: 59,
+        );
 
-      // Create log for the status change to null (in progress)
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customStatus: null, // null status means "in progress"
-      );
+        if (taskDateTime.isBefore(now)) {
+          // Task date is in the past, mark as overdue
+          taskModel.status = TaskStatusEnum.OVERDUE;
+
+          // Create log for overdue status
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: TaskStatusEnum.OVERDUE,
+          );
+        } else {
+          // Task date is in the future or today, set to in progress
+          taskModel.status = null;
+
+          // Create log for the status change to null (in progress)
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: null, // null status means "in progress"
+          );
+        }
+      } else {
+        // Dateless task, set to in progress
+        taskModel.status = null;
+
+        // Create log for the status change to null (in progress)
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
+      }
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);

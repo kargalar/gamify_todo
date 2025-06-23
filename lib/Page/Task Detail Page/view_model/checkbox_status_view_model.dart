@@ -26,22 +26,54 @@ class CheckboxStatusViewModel extends ChangeNotifier {
     final now = DateTime.now();
     final customLogDate = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond);
 
-    // Eğer zaten seçili durum tıklanırsa, durumu sıfırla (null yap)
+    // Eğer zaten seçili durum tıklanırsa, durumu kontrol et
     if (taskModel.status == newStatus) {
-      taskModel.status = null;
+      // Check if task should be overdue based on date when toggling status
+      if (taskModel.taskDate != null) {
+        final now = DateTime.now();
+        final taskDateTime = taskModel.taskDate!.copyWith(
+          hour: taskModel.time?.hour ?? 23,
+          minute: taskModel.time?.minute ?? 59,
+          second: 59,
+        );
+
+        if (taskDateTime.isBefore(now)) {
+          // Task date is in the past, mark as overdue
+          taskModel.status = TaskStatusEnum.OVERDUE;
+
+          // Log oluştur (overdue durumu olarak)
+          taskLogProvider.addTaskLog(
+            taskModel,
+            customLogDate: customLogDate,
+            customStatus: TaskStatusEnum.OVERDUE,
+          );
+        } else {
+          // Task date is in the future or today, set to null (in progress)
+          taskModel.status = null;
+
+          // Log oluştur (durumu null olarak)
+          taskLogProvider.addTaskLog(
+            taskModel,
+            customLogDate: customLogDate,
+            customStatus: null,
+          );
+        }
+      } else {
+        // Dateless task, set to null (in progress)
+        taskModel.status = null;
+
+        // Log oluştur (durumu null olarak)
+        taskLogProvider.addTaskLog(
+          taskModel,
+          customLogDate: customLogDate,
+          customStatus: null,
+        );
+      }
 
       // Credit adjustment: if task was completed before, subtract credit
       if (previousStatus == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
       }
-
-      // Log oluştur (durumu null olarak)
-      taskLogProvider.addTaskLog(
-        taskModel,
-        customLogDate: customLogDate,
-        // Burada null olarak gönderiyoruz - bu, checkbox'ın hiçbir durumunun seçili olmadığını gösterir
-        customStatus: null,
-      );
     } else {
       // Set new status, clearing any previous status
       taskModel.status = newStatus;
