@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -29,16 +31,16 @@ class UnarchiveButton extends StatelessWidget {
           final bool? confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Unarchive Routine'),
-              content: const Text('Are you sure you want to unarchive this routine? This will enable new task creation again.'),
+              title: Text(LocaleKeys.UnarchiveRoutine.tr()),
+              content: Text(LocaleKeys.UnarchiveRoutineConfirmation.tr()),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+                  child: Text(LocaleKeys.Cancel.tr()),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Unarchive'),
+                  child: Text(LocaleKeys.UnarchiveRoutine.tr()),
                 ),
               ],
             ),
@@ -48,7 +50,7 @@ class UnarchiveButton extends StatelessWidget {
             await TaskProvider().unarchiveRoutine(taskModel.routineID!);
           }
         },
-        child: const Text('Unarchive Routine'),
+        child: Text(LocaleKeys.UnarchiveRoutine.tr()),
       ),
     );
   }

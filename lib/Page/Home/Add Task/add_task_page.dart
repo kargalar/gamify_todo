@@ -223,11 +223,10 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask == null) const SelectTaskType(),
                     if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
-                      const Column(
+                      Column(
                         children: [
-                          // TODO: localization
-                          Text("Target Count"),
-                          SelectTargetCount(),
+                          Text(LocaleKeys.TargetCount.tr()),
+                          const SelectTargetCount(),
                         ],
                       ),
                     const SizedBox(height: 10),
@@ -259,7 +258,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                           FocusScope.of(context).unfocus();
 
                           await Helper().getDialog(
-                            message: "Are you sure delete?",
+                            message: LocaleKeys.AreYouSureDelete.tr(),
                             onAccept: () async {
                               NavigatorService().goBackNavbar();
 
@@ -311,7 +310,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     // Rutin oluşturulurken tarih seçimi zorunlu
     if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
       Helper().getMessage(
-        message: "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
+        message: LocaleKeys.RoutineStartDateError.tr(),
         status: StatusEnum.WARNING,
       );
       return;
@@ -529,7 +528,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       final hasUnsaved = addTaskProvider.taskNameController.text.isNotEmpty || addTaskProvider.descriptionController.text.isNotEmpty || addTaskProvider.locationController.text.isNotEmpty || addTaskProvider.selectedDays.isNotEmpty || addTaskProvider.subtasks.isNotEmpty;
       if (hasUnsaved) {
         await Helper().getDialog(
-          message: "You have unsaved changes. Exit without saving?",
+          message: LocaleKeys.UnsavedChangesWarning.tr(),
           onAccept: () {
             NavigatorService().back();
           },

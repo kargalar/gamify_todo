@@ -92,9 +92,9 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
       case TaskStatusEnum.CANCEL:
         return LocaleKeys.Cancel.tr();
       case TaskStatusEnum.ARCHIVED:
-        return "Archived";
+        return LocaleKeys.Archived.tr();
       case TaskStatusEnum.OVERDUE:
-        return "Overdue"; // TODO: Add to localization
+        return LocaleKeys.Overdue.tr(); // TODO: Add to localization
     }
   }
 
@@ -153,7 +153,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
           Row(
             children: [
               FilterChipWidget(
-                label: "All Tasks",
+                label: LocaleKeys.AllTasks.tr(),
                 icon: Icons.calendar_view_month_rounded,
                 isSelected: _dateFilterState == DateFilterState.all,
                 selectedColor: AppColors.main,
@@ -164,7 +164,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
               ),
               const SizedBox(width: 8),
               FilterChipWidget(
-                label: "With Date",
+                label: LocaleKeys.WithDate.tr(),
                 icon: Icons.event_rounded,
                 isSelected: _dateFilterState == DateFilterState.withDate,
                 selectedColor: AppColors.green,
@@ -175,7 +175,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
               ),
               const SizedBox(width: 8),
               FilterChipWidget(
-                label: "No Date",
+                label: LocaleKeys.NoDate.tr(),
                 icon: Icons.event_busy_rounded,
                 isSelected: _dateFilterState == DateFilterState.withoutDate,
                 selectedColor: AppColors.red,
@@ -193,7 +193,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
           Row(
             children: [
               FilterChipWidget(
-                label: "Tasks",
+                label: LocaleKeys.Tasks.tr(),
                 icon: Icons.task_alt_rounded,
                 isSelected: _showTasks,
                 selectedColor: AppColors.main,
@@ -207,7 +207,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
               ),
               const SizedBox(width: 8),
               FilterChipWidget(
-                label: "Routines",
+                label: LocaleKeys.Routines.tr(),
                 icon: Icons.repeat_rounded,
                 isSelected: _showRoutines,
                 selectedColor: AppColors.purple,
@@ -230,21 +230,21 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
             runSpacing: 8,
             children: [
               FilterChipWidget(
-                label: "Checkbox",
+                label: LocaleKeys.Checkbox.tr(),
                 icon: Icons.check_box_rounded,
                 isSelected: _selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX),
                 selectedColor: AppColors.green,
                 onTap: () => _toggleTaskType(TaskTypeEnum.CHECKBOX),
               ),
               FilterChipWidget(
-                label: "Counter",
+                label: LocaleKeys.Counter.tr(),
                 icon: Icons.add_circle_outline_rounded,
                 isSelected: _selectedTaskTypes.contains(TaskTypeEnum.COUNTER),
                 selectedColor: AppColors.main,
                 onTap: () => _toggleTaskType(TaskTypeEnum.COUNTER),
               ),
               FilterChipWidget(
-                label: "Timer",
+                label: LocaleKeys.Timer.tr(),
                 icon: Icons.timer_rounded,
                 isSelected: _selectedTaskTypes.contains(TaskTypeEnum.TIMER),
                 selectedColor: AppColors.purple,
@@ -262,7 +262,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
             children: [
               // Empty chip for tasks with null status
               FilterChipWidget(
-                label: "Empty",
+                label: LocaleKeys.Empty.tr(),
                 icon: Icons.radio_button_unchecked,
                 isSelected: _showEmptyStatus,
                 selectedColor: AppColors.yellow,

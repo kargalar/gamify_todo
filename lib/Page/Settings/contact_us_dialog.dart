@@ -18,7 +18,7 @@ class ContactUsDialog extends StatelessWidget {
         children: [
           _contactOption(
             icon: Icons.email,
-            title: "Email",
+            title: LocaleKeys.Email.tr(),
             subtitle: "support@gamifytodo.com",
             onTap: () async {
               final Uri emailUri = Uri(
@@ -48,7 +48,7 @@ class ContactUsDialog extends StatelessWidget {
           const SizedBox(height: 8),
           _contactOption(
             icon: Icons.web,
-            title: "Website",
+            title: LocaleKeys.Website.tr(),
             subtitle: "www.gamifytodo.com",
             onTap: () async {
               final Uri url = Uri.parse('https://www.gamifytodo.com');
@@ -72,8 +72,8 @@ class ContactUsDialog extends StatelessWidget {
           const SizedBox(height: 8),
           _contactOption(
             icon: Icons.bug_report,
-            title: "Report Bug",
-            subtitle: "Send us bug reports",
+            title: LocaleKeys.ReportBug.tr(),
+            subtitle: LocaleKeys.SendUsBugReports.tr(),
             onTap: () async {
               final Uri emailUri = Uri(
                 scheme: 'mailto',

@@ -79,19 +79,19 @@ class _StorePageState extends State<StorePage> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.shopping_cart,
             size: 80,
             color: AppColors.grey,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            "No items found", // TODO: Add to locale keys
-            style: TextStyle(
+            LocaleKeys.NoItemsFound.tr(),
+            style: const TextStyle(
               fontSize: 18,
               color: AppColors.grey,
             ),

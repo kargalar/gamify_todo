@@ -175,15 +175,15 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   String _getStatusText(TaskStatusEnum status) {
     switch (status) {
       case TaskStatusEnum.COMPLETED:
-        return "Done";
+        return LocaleKeys.Done.tr();
       case TaskStatusEnum.FAILED:
-        return "Failed";
+        return LocaleKeys.Failed.tr();
       case TaskStatusEnum.CANCEL:
-        return "Cancel";
+        return LocaleKeys.Cancelled.tr();
       case TaskStatusEnum.ARCHIVED:
-        return "Archived";
+        return LocaleKeys.Archived.tr();
       case TaskStatusEnum.OVERDUE:
-        return "Overdue";
+        return LocaleKeys.Overdue.tr();
     }
   }
 
@@ -252,7 +252,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                               fontWeight: FontWeight.w600,
                             ),
                             decoration: InputDecoration(
-                              hintText: "Name",
+                              hintText: LocaleKeys.Name.tr(),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
@@ -349,9 +349,9 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Related Tasks",
-                          style: TextStyle(
+                        Text(
+                          LocaleKeys.RelatedTasks.tr(),
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -365,7 +365,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  "No tasks with progress found",
+                                  LocaleKeys.NoTasksWithProgressFound.tr(),
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey[600],

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -101,10 +103,10 @@ class AddTaskProvider with ChangeNotifier {
         subtasks.removeAt(index);
         notifyListeners(); // Show undo snackbar
         Helper().getUndoMessage(
-          message: "Subtask deleted",
+          message: LocaleKeys.SubtaskDeleted.tr(),
           onUndo: () => _undoRemoveSubtask(index, subtask),
           statusColor: AppColors.red,
-          statusWord: "deleted",
+          statusWord: LocaleKeys.Deleted.tr(),
         );
 
         // Set timer for permanent deletion

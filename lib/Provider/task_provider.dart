@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -444,10 +446,10 @@ class TaskProvider with ChangeNotifier {
     if (showUndo) {
       // Show undo snackbar
       Helper().getUndoMessage(
-        message: selectedDate != null ? "Task date changed" : "Task made dateless",
+        message: selectedDate != null ? LocaleKeys.TaskDateChanged.tr() : LocaleKeys.TaskMadeDateless.tr(),
         onUndo: () => _undoDateChange(taskModel.id),
         statusColor: selectedDate != null ? AppColors.main : AppColors.orange,
-        statusWord: selectedDate != null ? "changed" : "dateless",
+        statusWord: selectedDate != null ? LocaleKeys.Changed.tr() : LocaleKeys.Dateless.tr(),
       );
 
       // Set timer for permanent change
@@ -544,10 +546,10 @@ class TaskProvider with ChangeNotifier {
     if (showUndo) {
       // Show undo snackbar
       Helper().getUndoMessage(
-        message: "Task date changed",
+        message: LocaleKeys.TaskDateChanged.tr(),
         onUndo: () => _undoDateChange(taskModel.id),
         statusColor: AppColors.main,
-        statusWord: "changed",
+        statusWord: LocaleKeys.Changed.tr(),
       );
 
       // Set timer for permanent change
@@ -809,10 +811,10 @@ class TaskProvider with ChangeNotifier {
     taskList.removeWhere((task) => task.id == taskID);
     notifyListeners(); // Show undo snackbar
     Helper().getUndoMessage(
-      message: "Task deleted",
+      message: LocaleKeys.TaskDeleted.tr(),
       onUndo: () => _undoDeleteTask(taskID),
       statusColor: AppColors.red,
-      statusWord: "deleted",
+      statusWord: LocaleKeys.Deleted.tr(),
     );
 
     // Set timer for permanent deletion
@@ -860,17 +862,17 @@ class TaskProvider with ChangeNotifier {
     _deletedRoutines[routineID] = routineModel;
     for (final task in associatedTasks) {
       _deletedTasks[task.id] = task;
-    }
-
-    // Remove from UI immediately
+    } // Remove from UI immediately
     routineList.remove(routineModel);
     taskList.removeWhere((task) => task.routineID == routineID);
-    notifyListeners(); // Show undo snackbar
+    notifyListeners();
+
+    // Show undo snackbar
     Helper().getUndoMessage(
-      message: "Routine deleted",
+      message: LocaleKeys.RoutineDeleted.tr(),
       onUndo: () => _undoDeleteRoutine(routineID),
       statusColor: AppColors.red,
-      statusWord: "deleted",
+      statusWord: LocaleKeys.Deleted.tr(),
     );
 
     // Set timer for permanent deletion
@@ -1105,15 +1107,15 @@ class TaskProvider with ChangeNotifier {
           _propagateSubtaskChangesToRoutineInstances(taskModel);
         }
 
-        notifyListeners(); // Show undo snackbar
+        notifyListeners();
+
+        // Show undo snackbar
         Helper().getUndoMessage(
-          message: "Subtask deleted",
+          message: LocaleKeys.SubtaskDeleted.tr(),
           onUndo: () => _undoRemoveSubtask(taskModel, undoKey),
           statusColor: AppColors.red,
-          statusWord: "deleted",
-        );
-
-        // Set timer for permanent deletion
+          statusWord: LocaleKeys.Deleted.tr(),
+        ); // Set timer for permanent deletion
         _undoTimers['subtask_$undoKey'] = Timer(const Duration(seconds: 3), () {
           _permanentlyRemoveSubtask(undoKey);
         });
