@@ -122,12 +122,15 @@ class Helper {
   void getUndoMessage({
     required String message,
     required Function onUndo,
+    Color? statusColor,
+    String? statusWord,
   }) {
     Get.closeCurrentSnackbar();
 
     Get.snackbar(
       "",
-      message,
+      "",
+      messageText: _buildRichMessage(message, statusColor, statusWord),
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.panelBackground.withValues(alpha: 0.9),
       animationDuration: const Duration(milliseconds: 400),
@@ -151,6 +154,54 @@ class Helper {
         ),
       ),
       titleText: const SizedBox.shrink(), // Hide title
+    );
+  }
+
+  Widget _buildRichMessage(String message, Color? statusColor, String? statusWord) {
+    if (statusColor == null || statusWord == null) {
+      return Text(
+        message,
+        style: TextStyle(
+          color: AppColors.text,
+          fontSize: 14,
+        ),
+      );
+    }
+
+    // Find the status word in the message and make it colored
+    final lowerMessage = message.toLowerCase();
+    final lowerStatusWord = statusWord.toLowerCase();
+    final startIndex = lowerMessage.indexOf(lowerStatusWord);
+
+    if (startIndex == -1) {
+      return Text(
+        message,
+        style: TextStyle(
+          color: AppColors.text,
+          fontSize: 14,
+        ),
+      );
+    }
+
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(
+          color: AppColors.text,
+          fontSize: 14,
+        ),
+        children: [
+          if (startIndex > 0) TextSpan(text: message.substring(0, startIndex)),
+          TextSpan(
+            text: message.substring(startIndex, startIndex + statusWord.length),
+            style: TextStyle(
+              color: statusColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+          if (startIndex + statusWord.length < message.length) TextSpan(text: message.substring(startIndex + statusWord.length)),
+        ],
+      ),
     );
   }
 

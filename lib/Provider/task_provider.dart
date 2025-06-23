@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/notification_services.dart';
@@ -387,6 +388,8 @@ class TaskProvider with ChangeNotifier {
       Helper().getUndoMessage(
         message: selectedDate != null ? "Task date changed" : "Task made dateless",
         onUndo: () => _undoDateChange(taskModel.id),
+        statusColor: selectedDate != null ? AppColors.main : AppColors.orange,
+        statusWord: selectedDate != null ? "changed" : "dateless",
       );
 
       // Set timer for permanent change
@@ -467,6 +470,8 @@ class TaskProvider with ChangeNotifier {
       Helper().getUndoMessage(
         message: "Task date changed",
         onUndo: () => _undoDateChange(taskModel.id),
+        statusColor: AppColors.main,
+        statusWord: "changed",
       );
 
       // Set timer for permanent change
@@ -654,12 +659,12 @@ class TaskProvider with ChangeNotifier {
 
     // Remove from UI immediately
     taskList.removeWhere((task) => task.id == taskID);
-    notifyListeners();
-
-    // Show undo snackbar
+    notifyListeners(); // Show undo snackbar
     Helper().getUndoMessage(
       message: "Task deleted",
       onUndo: () => _undoDeleteTask(taskID),
+      statusColor: AppColors.red,
+      statusWord: "deleted",
     );
 
     // Set timer for permanent deletion
@@ -712,12 +717,12 @@ class TaskProvider with ChangeNotifier {
     // Remove from UI immediately
     routineList.remove(routineModel);
     taskList.removeWhere((task) => task.routineID == routineID);
-    notifyListeners();
-
-    // Show undo snackbar
+    notifyListeners(); // Show undo snackbar
     Helper().getUndoMessage(
       message: "Routine deleted",
       onUndo: () => _undoDeleteRoutine(routineID),
+      statusColor: AppColors.red,
+      statusWord: "deleted",
     );
 
     // Set timer for permanent deletion
@@ -952,12 +957,12 @@ class TaskProvider with ChangeNotifier {
           _propagateSubtaskChangesToRoutineInstances(taskModel);
         }
 
-        notifyListeners();
-
-        // Show undo snackbar
+        notifyListeners(); // Show undo snackbar
         Helper().getUndoMessage(
           message: "Subtask deleted",
           onUndo: () => _undoRemoveSubtask(taskModel, undoKey),
+          statusColor: AppColors.red,
+          statusWord: "deleted",
         );
 
         // Set timer for permanent deletion
@@ -1052,13 +1057,13 @@ class TaskProvider with ChangeNotifier {
           TaskLogProvider().addTaskLog(
             taskModel,
             customStatus: TaskStatusEnum.COMPLETED,
-          );
-
-          // Show undo message for subtask completion
+          ); // Show undo message for subtask completion
           if (showUndo) {
             Helper().getUndoMessage(
               message: "Subtask completed",
               onUndo: () => toggleSubtaskCompletion(taskModel, subtask, showUndo: false),
+              statusColor: AppColors.green,
+              statusWord: "completed",
             );
           }
         }
@@ -1375,6 +1380,8 @@ class TaskProvider with ChangeNotifier {
       Helper().getUndoMessage(
         message: "Task completed",
         onUndo: () => _undoTaskCompletion(taskModel.id),
+        statusColor: AppColors.green,
+        statusWord: "completed",
       );
 
       // Set timer for permanent completion
@@ -1483,12 +1490,12 @@ class TaskProvider with ChangeNotifier {
     // Store the previous status for potential undo
     _failedTasks[taskModel.id] = _TaskFailureData(
       previousStatus: previousStatus,
-    );
-
-    // Show undo snackbar
+    ); // Show undo snackbar
     Helper().getUndoMessage(
       message: "Task marked as failed",
       onUndo: () => _undoTaskFailure(taskModel.id),
+      statusColor: AppColors.red,
+      statusWord: "failed",
     );
 
     // Set timer for permanent failure
@@ -1507,12 +1514,12 @@ class TaskProvider with ChangeNotifier {
     // Store the previous status for potential undo
     _cancelledTasks[taskModel.id] = _TaskCancellationData(
       previousStatus: previousStatus,
-    );
-
-    // Show undo snackbar
+    ); // Show undo snackbar
     Helper().getUndoMessage(
       message: "Task cancelled",
       onUndo: () => _undoTaskCancellation(taskModel.id),
+      statusColor: AppColors.purple,
+      statusWord: "cancelled",
     );
 
     // Set timer for permanent cancellation

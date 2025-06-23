@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -88,12 +89,12 @@ class AddTaskProvider with ChangeNotifier {
 
         // Remove from UI immediately
         subtasks.removeAt(index);
-        notifyListeners();
-
-        // Show undo snackbar
+        notifyListeners(); // Show undo snackbar
         Helper().getUndoMessage(
           message: "Subtask deleted",
           onUndo: () => _undoRemoveSubtask(index, subtask),
+          statusColor: AppColors.red,
+          statusWord: "deleted",
         );
 
         // Set timer for permanent deletion
