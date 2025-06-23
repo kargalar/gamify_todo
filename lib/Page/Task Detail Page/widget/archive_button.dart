@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -45,9 +46,8 @@ class ArchiveButton extends StatelessWidget {
               ],
             ),
           );
-
           if (confirm == true) {
-            // Mark routine as completed
+            // Mark routine as archived
             routine.isArchived = true;
 
             // Update the routine
@@ -55,11 +55,22 @@ class ArchiveButton extends StatelessWidget {
 
             // Mark all related tasks as archived
             final tasks = TaskProvider().taskList.where((t) => t.routineID == taskModel.routineID);
-
             for (var task in tasks) {
-              task.status = TaskStatusEnum.ARCHIVED;
-              await ServerManager().updateTask(taskModel: task);
+              // Only archive tasks that are not already archived to preserve existing status
+              if (task.status != TaskStatusEnum.ARCHIVED) {
+                task.status = TaskStatusEnum.ARCHIVED;
+                await ServerManager().updateTask(taskModel: task);
+
+                // Create log for the archiving action to maintain history
+                TaskLogProvider().addTaskLog(
+                  task,
+                  customStatus: TaskStatusEnum.ARCHIVED,
+                );
+              }
             }
+
+            // Note: We deliberately DO NOT delete task logs here to preserve progress history
+            // The logs will remain in the database and will be available when the routine is unarchived
 
             TaskProvider().updateItems();
           }

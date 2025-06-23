@@ -1646,15 +1646,116 @@ class TaskProvider with ChangeNotifier {
 
     // Mark all related tasks as active (null status) if they were archived
     final associatedTasks = taskList.where((task) => task.routineID == routineID).toList();
-
     for (final task in associatedTasks) {
       if (task.status == TaskStatusEnum.ARCHIVED) {
-        task.status = null; // Set to active state
+        // Check if task should be overdue based on date
+        if (task.taskDate != null) {
+          final now = DateTime.now();
+          final taskDateTime = task.taskDate!.copyWith(
+            hour: task.time?.hour ?? 23,
+            minute: task.time?.minute ?? 59,
+            second: 59,
+          );
+
+          if (taskDateTime.isBefore(now)) {
+            // Task date is in the past, mark as failed (since it's a routine task)
+            task.status = TaskStatusEnum.FAILED;
+            debugPrint('Unarchived routine task but date is past, setting to failed: ID=${task.id}');
+
+            // Create log for the status change to failed
+            TaskLogProvider().addTaskLog(
+              task,
+              customStatus: TaskStatusEnum.FAILED,
+            );
+          } else {
+            // Task date is in the future or today, set to active state
+            task.status = null;
+            debugPrint('Unarchived routine task with future/today date, setting to active: ID=${task.id}');
+
+            // Create log for the status change to active
+            TaskLogProvider().addTaskLog(
+              task,
+              customStatus: null,
+            );
+          }
+        } else {
+          // No date set, set to active state
+          task.status = null;
+          debugPrint('Unarchived routine task without date, setting to active: ID=${task.id}');
+
+          // Create log for the status change to active
+          TaskLogProvider().addTaskLog(
+            task,
+            customStatus: null,
+          );
+        }
+
         await ServerManager().updateTask(taskModel: task);
       }
     }
 
+    // Create tasks for the current period if needed
+    // This ensures that if a routine is unarchived, it will create new tasks from today onwards
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Check if routine should be active today and create task if it doesn't exist
+    if (routineModel.isActiveForThisDate(today)) {
+      final todayTaskExists = taskList.any((task) => task.routineID == routineID && task.taskDate != null && task.taskDate!.year == today.year && task.taskDate!.month == today.month && task.taskDate!.day == today.day);
+
+      if (!todayTaskExists) {
+        debugPrint('Creating new task for unarchived routine today: ${routineModel.title}');
+        // Create task for today
+        await _createTaskFromRoutine(routineModel, today);
+      }
+    }
+
     notifyListeners();
+  }
+
+  // Helper method to create a task from a routine for a specific date
+  Future<void> _createTaskFromRoutine(RoutineModel routine, DateTime date) async {
+    final prefs = await SharedPreferences.getInstance();
+    final int lastTaskId = prefs.getInt("last_task_id") ?? 0;
+    final int newTaskId = lastTaskId + 1;
+
+    final TaskModel task = TaskModel(
+      id: newTaskId,
+      title: routine.title,
+      description: routine.description,
+      taskDate: date,
+      status: null,
+      type: routine.type,
+      isNotificationOn: routine.isNotificationOn,
+      isAlarmOn: routine.isAlarmOn,
+      priority: routine.priority,
+      routineID: routine.id,
+      time: routine.time,
+      attributeIDList: routine.attirbuteIDList,
+      skillIDList: routine.skillIDList,
+      categoryId: routine.categoryId,
+      remainingDuration: routine.remainingDuration,
+      targetCount: routine.targetCount,
+      subtasks: routine.subtasks
+          ?.map((subtask) => SubTaskModel(
+                id: subtask.id,
+                title: subtask.title,
+                description: subtask.description,
+                isCompleted: false,
+              ))
+          .toList(),
+      earlyReminderMinutes: routine.earlyReminderMinutes,
+    );
+
+    // Add to task list and save
+    taskList.add(task);
+    await ServerManager().addTask(taskModel: task);
+    await prefs.setInt("last_task_id", newTaskId);
+
+    // Set up notifications if needed
+    checkNotification(task);
+
+    debugPrint('Created new task from routine: ID=$newTaskId, Title=${task.title}');
   }
 
   // Get overdue tasks (only for display purposes, not filtered by date)
