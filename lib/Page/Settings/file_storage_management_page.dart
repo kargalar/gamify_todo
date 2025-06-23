@@ -108,6 +108,7 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
     final fileSize = await file.length();
 
     final confirmed = await showDialog<bool>(
+      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Download File'),

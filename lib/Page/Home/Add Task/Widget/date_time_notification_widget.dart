@@ -297,9 +297,10 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
             ),
             padding: const EdgeInsets.all(8),
             child: TableCalendar(
+              locale: context.locale.toLanguageTag(),
               rowHeight: 36,
-              firstDay: DateTime.now().subtract(const Duration(days: 365)),
-              lastDay: DateTime.now().add(const Duration(days: 365)),
+              firstDay: DateTime(1950),
+              lastDay: DateTime(2100),
               focusedDay: addTaskProvider.selectedDate ?? DateTime.now(),
               selectedDayPredicate: (day) => addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, day),
               calendarFormat: CalendarFormat.month,

@@ -27,6 +27,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class Helper {
   Future registerAdapters() async {
@@ -411,22 +412,83 @@ class Helper {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Direct calendar view
+                    // Direct calendar view with TableCalendar
                     SizedBox(
-                      height: 300,
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: Theme.of(context).colorScheme.copyWith(
-                                primary: AppColors.main,
-                              ),
+                      height: 323,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.panelBackground.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.text.withValues(alpha: 0.1),
+                            width: 1,
+                          ),
                         ),
-                        child: CalendarDatePicker(
-                          initialDate: initialDate ?? DateTime.now(),
-                          firstDate: DateTime(1950),
-                          lastDate: DateTime(2100),
-                          onDateChanged: (date) {
+                        padding: const EdgeInsets.all(8),
+                        child: TableCalendar<DateTime>(
+                          locale: context.locale.toLanguageTag(),
+                          rowHeight: 36,
+                          firstDay: DateTime(1950),
+                          lastDay: DateTime(2100),
+                          focusedDay: selectedDate ?? DateTime.now(),
+                          selectedDayPredicate: (day) => selectedDate != null && isSameDay(selectedDate!, day),
+                          calendarFormat: CalendarFormat.month,
+                          startingDayOfWeek: StartingDayOfWeek.monday,
+                          availableGestures: AvailableGestures.horizontalSwipe,
+                          headerStyle: HeaderStyle(
+                            formatButtonVisible: false,
+                            titleCentered: true,
+                            titleTextStyle: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.main,
+                            ),
+                            leftChevronIcon: Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.main),
+                            rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
+                            headerPadding: const EdgeInsets.symmetric(vertical: 8),
+                            headerMargin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.main.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          daysOfWeekStyle: DaysOfWeekStyle(
+                            weekdayStyle: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text.withValues(alpha: 0.7),
+                            ),
+                            weekendStyle: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text.withValues(alpha: 0.7),
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.panelBackground.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          calendarStyle: CalendarStyle(
+                            selectedDecoration: BoxDecoration(
+                              color: AppColors.main,
+                              shape: BoxShape.circle,
+                            ),
+                            todayDecoration: BoxDecoration(
+                              color: selectedDate == null ? AppColors.main.withValues(alpha: 0.2) : AppColors.main.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                              border: selectedDate == null ? Border.all(color: AppColors.main, width: 1) : null,
+                            ),
+                            defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                            weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                            selectedTextStyle: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+                            todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
+                            outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
+                            cellMargin: const EdgeInsets.all(2),
+                            cellPadding: EdgeInsets.zero,
+                          ),
+                          onDaySelected: (selectedDay, focusedDay) {
                             setState(() {
-                              selectedDate = date;
+                              selectedDate = selectedDay;
                             });
                           },
                         ),

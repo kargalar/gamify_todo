@@ -49,6 +49,7 @@ class ColorProvider extends ChangeNotifier {
 
     // Save to SharedPreferences
     final prefs = await SharedPreferences.getInstance();
+    // ignore: deprecated_member_use
     await prefs.setInt('main_color', newColor.value);
 
     notifyListeners();
