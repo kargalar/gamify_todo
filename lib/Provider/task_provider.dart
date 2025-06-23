@@ -364,18 +364,51 @@ class TaskProvider with ChangeNotifier {
 
     if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
       taskModel.isTimerActive = false;
-    }
-
-    // Reset status to null when date is changed
-    if (taskModel.status != null) {
-      debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
-      taskModel.status = null;
-
-      // Create log for the status change to null (in progress)
-      TaskLogProvider().addTaskLog(
-        taskModel,
-        customStatus: null, // null status means "in progress"
+    } // Update task status based on the selected date
+    if (selectedDate != null) {
+      // Check if the selected date is in the past
+      final now = DateTime.now();
+      final selectedDateTime = selectedDate.copyWith(
+        hour: taskModel.time?.hour ?? 23,
+        minute: taskModel.time?.minute ?? 59,
+        second: 59,
       );
+
+      if (selectedDateTime.isBefore(now)) {
+        // Task date is in the past, mark as overdue
+        debugPrint('Setting task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
+        taskModel.status = TaskStatusEnum.OVERDUE;
+
+        // Create log for overdue status
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: TaskStatusEnum.OVERDUE,
+        );
+      } else {
+        // Task date is in the future or today, reset status to null (in progress)
+        if (taskModel.status != null) {
+          debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
+          taskModel.status = null;
+
+          // Create log for the status change to null (in progress)
+          TaskLogProvider().addTaskLog(
+            taskModel,
+            customStatus: null, // null status means "in progress"
+          );
+        }
+      }
+    } else {
+      // Dateless task, reset status to null
+      if (taskModel.status != null) {
+        debugPrint('Resetting task status to null due to dateless change: ID=${taskModel.id}, Title=${taskModel.title}');
+        taskModel.status = null;
+
+        // Create log for the status change to null (in progress)
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
+      }
     }
 
     taskModel.taskDate = selectedDate;
@@ -434,18 +467,36 @@ class TaskProvider with ChangeNotifier {
     // Stop timer if active
     if (taskModel.type == TaskTypeEnum.TIMER && taskModel.isTimerActive == true) {
       taskModel.isTimerActive = false;
-    }
+    } // Update task status based on the new date
+    final now = DateTime.now();
+    final newDateTime = newDate.copyWith(
+      hour: taskModel.time?.hour ?? 23,
+      minute: taskModel.time?.minute ?? 59,
+      second: 59,
+    );
 
-    // Reset status to null when date is changed
-    if (taskModel.status != null) {
-      debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
-      taskModel.status = null;
+    if (newDateTime.isBefore(now)) {
+      // Task date is in the past, mark as overdue
+      debugPrint('Setting task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
+      taskModel.status = TaskStatusEnum.OVERDUE;
 
-      // Create log for the status change to null (in progress)
+      // Create log for overdue status
       TaskLogProvider().addTaskLog(
         taskModel,
-        customStatus: null, // null status means "in progress"
+        customStatus: TaskStatusEnum.OVERDUE,
       );
+    } else {
+      // Task date is in the future or today, reset status to null (in progress)
+      if (taskModel.status != null) {
+        debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
+        taskModel.status = null;
+
+        // Create log for the status change to null (in progress)
+        TaskLogProvider().addTaskLog(
+          taskModel,
+          customStatus: null, // null status means "in progress"
+        );
+      }
     }
 
     // Update the task date
