@@ -247,7 +247,7 @@ class AddTaskProvider with ChangeNotifier {
   // File attachment methods
   Future<String> _getApplicationDirectory() async {
     final directory = await getApplicationDocumentsDirectory();
-    final attachmentsDir = Directory('${directory.path}/task_attachments');
+    final attachmentsDir = Directory('${directory.path}/NextLevel/task_attachments');
     if (!await attachmentsDir.exists()) {
       await attachmentsDir.create(recursive: true);
     }

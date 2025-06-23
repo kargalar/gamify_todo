@@ -4,6 +4,10 @@ import 'package:path/path.dart' as path;
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/file_storage_service.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:intl/intl.dart';
 
 class FileStorageManagementPage extends StatefulWidget {
   const FileStorageManagementPage({super.key});
@@ -13,10 +17,14 @@ class FileStorageManagementPage extends StatefulWidget {
 }
 
 class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
-  List<File> attachmentFiles = [];
+  List<Map<String, dynamic>> attachmentFilesWithDetails = [];
   Map<String, dynamic> storageStats = {};
   bool isLoading = true;
   final _fileStorageService = FileStorageService.instance;
+
+  // Sorting options
+  String _sortBy = 'name'; // 'name', 'size', 'date'
+  bool _sortAscending = true;
 
   @override
   void initState() {
@@ -30,14 +38,16 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
     });
 
     try {
-      final files = await _fileStorageService.getAllAttachmentFiles();
+      final filesWithDetails = await _fileStorageService.getAttachmentFilesWithDetails();
       final stats = await _fileStorageService.getStorageStats();
 
       setState(() {
-        attachmentFiles = files;
+        attachmentFilesWithDetails = filesWithDetails;
         storageStats = stats;
         isLoading = false;
       });
+
+      _sortFiles();
     } catch (e) {
       debugPrint('Error loading attachment files: $e');
       setState(() {
@@ -47,13 +57,13 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
   }
 
   Future<void> _downloadAllFiles() async {
-    if (attachmentFiles.isEmpty) return;
+    if (attachmentFilesWithDetails.isEmpty) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Download All Files'),
-        content: Text('Download all ${attachmentFiles.length} files to Downloads/Next Level folder?'),
+        content: Text('Download all ${attachmentFilesWithDetails.length} files to Downloads/Next Level folder?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -336,6 +346,52 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
     );
   }
 
+  void _sortFiles() {
+    attachmentFilesWithDetails.sort((a, b) {
+      final fileA = a['file'] as File;
+      final fileB = b['file'] as File;
+      final metadataA = a['metadata'] as Map<String, dynamic>;
+      final metadataB = b['metadata'] as Map<String, dynamic>;
+
+      int comparison = 0;
+
+      switch (_sortBy) {
+        case 'name':
+          comparison = path.basename(fileA.path).toLowerCase().compareTo(path.basename(fileB.path).toLowerCase());
+          break;
+        case 'size':
+          comparison = (metadataA['size'] as int).compareTo(metadataB['size'] as int);
+          break;
+        case 'date':
+          final dateA = metadataA['modified'] as DateTime;
+          final dateB = metadataB['modified'] as DateTime;
+          comparison = dateA.compareTo(dateB);
+          break;
+      }
+
+      return _sortAscending ? comparison : -comparison;
+    });
+  }
+
+  void _changeSortBy(String sortBy) {
+    setState(() {
+      if (_sortBy == sortBy) {
+        _sortAscending = !_sortAscending;
+      } else {
+        _sortBy = sortBy;
+        _sortAscending = true;
+      }
+      _sortFiles();
+    });
+  }
+
+  void _navigateToTask(TaskModel task) {
+    NavigatorService().goTo(
+      AddTaskPage(editTask: task),
+      transition: Transition.size,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -347,7 +403,84 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
           child: const Icon(Icons.arrow_back_ios),
         ),
         actions: [
-          if (attachmentFiles.isNotEmpty) ...[
+          if (attachmentFilesWithDetails.isNotEmpty) ...[
+            // Sort options
+            PopupMenuButton<String>(
+              icon: Icon(
+                Icons.sort_rounded,
+                color: AppColors.main,
+              ),
+              tooltip: 'Sort Files',
+              onSelected: _changeSortBy,
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'name',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.text_fields_rounded,
+                        size: 18,
+                        color: _sortBy == 'name' ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('Sort by Name'),
+                      if (_sortBy == 'name') ...[
+                        const Spacer(),
+                        Icon(
+                          _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 16,
+                          color: AppColors.main,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'size',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.data_usage_rounded,
+                        size: 18,
+                        color: _sortBy == 'size' ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('Sort by Size'),
+                      if (_sortBy == 'size') ...[
+                        const Spacer(),
+                        Icon(
+                          _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 16,
+                          color: AppColors.main,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'date',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 18,
+                        color: _sortBy == 'date' ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('Sort by Date'),
+                      if (_sortBy == 'date') ...[
+                        const Spacer(),
+                        Icon(
+                          _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                          size: 16,
+                          color: AppColors.main,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
             IconButton(
               onPressed: _downloadAllFiles,
               icon: const Icon(Icons.download_rounded),
@@ -478,11 +611,9 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                       ),
                     ],
                   ),
-                ),
-
-                // Files List
+                ), // Files List
                 Expanded(
-                  child: attachmentFiles.isEmpty
+                  child: attachmentFilesWithDetails.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -505,102 +636,134 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: attachmentFiles.length,
+                          itemCount: attachmentFilesWithDetails.length,
                           itemBuilder: (context, index) {
-                            final file = attachmentFiles[index];
+                            final fileData = attachmentFilesWithDetails[index];
+                            final file = fileData['file'] as File;
+                            final metadata = fileData['metadata'] as Map<String, dynamic>;
+                            final associatedTask = fileData['task'] as TaskModel?;
+
                             final fileName = path.basename(file.path);
                             final isImage = _isImageFile(file.path);
+                            final fileSize = metadata['size'] as int;
+                            final modifiedDate = metadata['modified'] as DateTime;
 
-                            return FutureBuilder<int>(
-                              future: file.length(),
-                              builder: (context, sizeSnapshot) {
-                                final fileSize = sizeSnapshot.data ?? 0;
-
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                color: AppColors.background,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.text.withValues(alpha: 0.1),
+                                  width: 1,
+                                ),
+                              ),
+                              child: ListTile(
+                                leading: Container(
+                                  width: 40,
+                                  height: 40,
                                   decoration: BoxDecoration(
-                                    color: AppColors.background,
+                                    color: AppColors.main.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: AppColors.text.withValues(alpha: 0.1),
-                                      width: 1,
-                                    ),
                                   ),
-                                  child: ListTile(
-                                    leading: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.main.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: isImage && File(file.path).existsSync()
-                                          ? ClipRRect(
-                                              borderRadius: BorderRadius.circular(8),
-                                              child: Image.file(
-                                                File(file.path),
-                                                width: 40,
-                                                height: 40,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (context, error, stackTrace) {
-                                                  return Icon(
-                                                    Icons.broken_image_rounded,
-                                                    color: AppColors.main,
-                                                    size: 20,
-                                                  );
-                                                },
-                                              ),
-                                            )
-                                          : Icon(
-                                              _getFileIcon(file.path),
-                                              color: AppColors.main,
-                                              size: 20,
-                                            ),
-                                    ),
-                                    title: Text(
-                                      fileName,
-                                      style: TextStyle(
-                                        color: AppColors.text,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    subtitle: Text(
+                                  child: isImage && File(file.path).existsSync()
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Image.file(
+                                            File(file.path),
+                                            width: 40,
+                                            height: 40,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Icon(
+                                                Icons.broken_image_rounded,
+                                                color: AppColors.main,
+                                                size: 20,
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      : Icon(
+                                          _getFileIcon(file.path),
+                                          color: AppColors.main,
+                                          size: 20,
+                                        ),
+                                ),
+                                title: Text(
+                                  fileName,
+                                  style: TextStyle(
+                                    color: AppColors.text,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
                                       _fileStorageService.formatFileSize(fileSize),
                                       style: TextStyle(
                                         color: AppColors.text.withValues(alpha: 0.6),
                                         fontSize: 12,
                                       ),
                                     ),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          onPressed: () => _downloadSingleFile(file),
-                                          icon: Icon(
-                                            Icons.download_rounded,
-                                            color: AppColors.main,
-                                            size: 20,
-                                          ),
-                                          tooltip: 'Download',
-                                        ),
-                                        IconButton(
-                                          onPressed: () => _deleteFile(file),
-                                          icon: const Icon(
-                                            Icons.delete_rounded,
-                                            color: AppColors.red,
-                                            size: 20,
-                                          ),
-                                          tooltip: 'Delete',
-                                        ),
-                                      ],
+                                    Text(
+                                      DateFormat('MMM dd, yyyy HH:mm').format(modifiedDate),
+                                      style: TextStyle(
+                                        color: AppColors.text.withValues(alpha: 0.5),
+                                        fontSize: 11,
+                                      ),
                                     ),
-                                    onTap: isImage ? () => _showFilePreview(file.path) : () => _downloadSingleFile(file),
-                                  ),
-                                );
-                              },
+                                    if (associatedTask != null)
+                                      Text(
+                                        'From: ${associatedTask.title}',
+                                        style: TextStyle(
+                                          color: AppColors.main.withValues(alpha: 0.8),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                  ],
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (associatedTask != null)
+                                      IconButton(
+                                        onPressed: () => _navigateToTask(associatedTask),
+                                        icon: Icon(
+                                          Icons.task_rounded,
+                                          color: AppColors.main,
+                                          size: 20,
+                                        ),
+                                        tooltip: 'Go to Task',
+                                      ),
+                                    IconButton(
+                                      onPressed: () => _downloadSingleFile(file),
+                                      icon: Icon(
+                                        Icons.download_rounded,
+                                        color: AppColors.main,
+                                        size: 20,
+                                      ),
+                                      tooltip: 'Download',
+                                    ),
+                                    IconButton(
+                                      onPressed: () => _deleteFile(file),
+                                      icon: const Icon(
+                                        Icons.delete_rounded,
+                                        color: AppColors.red,
+                                        size: 20,
+                                      ),
+                                      tooltip: 'Delete',
+                                    ),
+                                  ],
+                                ),
+                                onTap: isImage ? () => _showFilePreview(file.path) : () => _downloadSingleFile(file),
+                              ),
                             );
                           },
                         ),

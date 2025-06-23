@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Provider/task_provider.dart';
 
 class FileStorageService {
   static FileStorageService? _instance;
@@ -9,7 +11,7 @@ class FileStorageService {
 
   Future<Directory> getAttachmentsDirectory() async {
     final directory = await getApplicationDocumentsDirectory();
-    final attachmentsDir = Directory('${directory.path}/task_attachments');
+    final attachmentsDir = Directory('${directory.path}/NextLevel/task_attachments');
     if (!await attachmentsDir.exists()) {
       await attachmentsDir.create(recursive: true);
     }
@@ -185,6 +187,66 @@ class FileStorageService {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     } else {
       return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+    }
+  }
+
+  /// Find the task that contains the given file path
+  TaskModel? findTaskByFilePath(String filePath) {
+    try {
+      final allTasks = TaskProvider().taskList;
+      for (final task in allTasks) {
+        if (task.attachmentPaths != null && task.attachmentPaths!.contains(filePath)) {
+          return task;
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Get file metadata including creation/modification date
+  Future<Map<String, dynamic>> getFileMetadata(File file) async {
+    try {
+      final stat = await file.stat();
+      final size = await file.length();
+
+      return {
+        'size': size,
+        'created': stat.changed,
+        'modified': stat.modified,
+        'accessed': stat.accessed,
+      };
+    } catch (e) {
+      return {
+        'size': 0,
+        'created': DateTime.now(),
+        'modified': DateTime.now(),
+        'accessed': DateTime.now(),
+      };
+    }
+  }
+
+  /// Get all attachment files with their associated tasks and metadata
+  Future<List<Map<String, dynamic>>> getAttachmentFilesWithDetails() async {
+    try {
+      final files = await getAllAttachmentFiles();
+      final List<Map<String, dynamic>> filesWithDetails = [];
+
+      for (final file in files) {
+        final metadata = await getFileMetadata(file);
+        final associatedTask = findTaskByFilePath(file.path);
+
+        filesWithDetails.add({
+          'file': file,
+          'metadata': metadata,
+          'task': associatedTask,
+        });
+      }
+
+      return filesWithDetails;
+    } catch (e) {
+      return [];
     }
   }
 }
