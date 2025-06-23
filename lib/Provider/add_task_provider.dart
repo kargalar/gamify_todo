@@ -10,6 +10,7 @@ import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddTaskProvider with ChangeNotifier {
   // Widget variables
@@ -23,6 +24,12 @@ class AddTaskProvider with ChangeNotifier {
   final FocusNode descriptionFocus = FocusNode();
   final FocusNode locationFocus = FocusNode();
   final FocusNode subtaskFocus = FocusNode();
+
+  // Description editor timer
+  Timer? _descriptionTimer;
+  Duration _descriptionTimeSpent = Duration.zero;
+  DateTime? _descriptionStartTime;
+  bool _isDescriptionTimerActive = false;
 
   TimeOfDay? selectedTime;
   DateTime? selectedDate = DateTime.now();
@@ -44,6 +51,9 @@ class AddTaskProvider with ChangeNotifier {
   // Undo functionality for deleted subtasks
   final Map<int, SubTaskModel> _deletedSubtasks = {};
   final Map<int, Timer> _undoTimers = {};
+
+  Duration get descriptionTimeSpent => _descriptionTimeSpent;
+  bool get isDescriptionTimerActive => _isDescriptionTimerActive;
 
   void updateTime(TimeOfDay? time) {
     selectedTime = time;
@@ -400,6 +410,71 @@ class AddTaskProvider with ChangeNotifier {
     }
   }
 
+  void startDescriptionTimer() async {
+    if (!_isDescriptionTimerActive) {
+      _isDescriptionTimerActive = true;
+      _descriptionStartTime = DateTime.now();
+
+      // Load persisted time for this task
+      await _loadDescriptionTime();
+      _descriptionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_descriptionStartTime != null) {
+          _descriptionTimeSpent = _descriptionTimeSpent + const Duration(seconds: 1);
+          notifyListeners();
+
+          // Save time every second as requested
+          _saveDescriptionTime();
+        }
+      });
+
+      notifyListeners();
+    }
+  }
+
+  void pauseDescriptionTimer() {
+    if (_isDescriptionTimerActive) {
+      _isDescriptionTimerActive = false;
+      _descriptionTimer?.cancel();
+      _descriptionTimer = null;
+      _descriptionStartTime = null;
+      _saveDescriptionTime();
+      notifyListeners();
+    }
+  }
+
+  String _getDescriptionTimerKey() {
+    if (editTask != null) {
+      return 'description_timer_task_${editTask!.id}';
+    } else {
+      return 'description_timer_new_task';
+    }
+  }
+
+  Future<void> _loadDescriptionTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = _getDescriptionTimerKey();
+    final savedSeconds = prefs.getInt(key) ?? 0;
+    _descriptionTimeSpent = Duration(seconds: savedSeconds);
+  }
+
+  Future<void> _saveDescriptionTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = _getDescriptionTimerKey();
+    await prefs.setInt(key, _descriptionTimeSpent.inSeconds);
+  }
+
+  String formatDescriptionTime() {
+    final hours = _descriptionTimeSpent.inHours;
+    final minutes = (_descriptionTimeSpent.inMinutes % 60);
+    final seconds = (_descriptionTimeSpent.inSeconds % 60);
+
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else {
+      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+  }
+
   @override
   void dispose() {
     // Cancel any pending undo timers
@@ -429,6 +504,7 @@ class AddTaskProvider with ChangeNotifier {
     }
 
     disposeFocusNodes();
+    _descriptionTimer?.cancel();
     super.dispose();
   }
 }

@@ -33,6 +33,16 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
     } else {
       _provider = context.read<AddTaskProvider>();
     }
+
+    // Start the timer when the page opens
+    _provider.startDescriptionTimer();
+  }
+
+  @override
+  void dispose() {
+    // Pause the timer when leaving the page (time is already being saved every second)
+    _provider.pauseDescriptionTimer();
+    super.dispose();
   }
 
   void _autoSave(String text) {
@@ -169,12 +179,97 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Characters: ${_provider.descriptionController.text.length}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.text.withValues(alpha: 0.6),
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          widget.isStore
+                              ? Consumer<AddStoreItemProvider>(
+                                  builder: (context, provider, child) {
+                                    return Row(
+                                      children: [
+                                        Icon(
+                                          Icons.access_time_rounded,
+                                          size: 14,
+                                          color: AppColors.text.withValues(alpha: 0.6),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Time: ${provider.formatDescriptionTime()}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.text.withValues(alpha: 0.6),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        GestureDetector(
+                                          onTap: () {
+                                            provider.resetDescriptionTimer();
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.panelBackground,
+                                              borderRadius: BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color: AppColors.text.withValues(alpha: 0.1),
+                                                width: 1,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Reset',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: AppColors.text.withValues(alpha: 0.7),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                )
+                              : Consumer<AddTaskProvider>(
+                                  builder: (context, provider, child) {
+                                    return Row(
+                                      children: [
+                                        Icon(
+                                          Icons.access_time_rounded,
+                                          size: 14,
+                                          color: AppColors.text.withValues(alpha: 0.6),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Time: ${provider.formatDescriptionTime()}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.text.withValues(alpha: 0.6),
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                          const SizedBox(width: 10),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.edit_rounded,
+                                size: 14,
+                                color: AppColors.text.withValues(alpha: 0.6),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Characters: ${_provider.descriptionController.text.length}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.text.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                       GestureDetector(
                         onTap: _copyDescription,
