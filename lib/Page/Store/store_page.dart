@@ -15,32 +15,7 @@ class StorePage extends StatefulWidget {
   State<StorePage> createState() => _StorePageState();
 }
 
-class _StorePageState extends State<StorePage> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
+class _StorePageState extends State<StorePage> {
   @override
   Widget build(BuildContext context) {
     final storeItems = context.watch<StoreProvider>().storeItemList;
@@ -58,20 +33,17 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
             _buildCreditDisplay(),
           ],
         ),
-        body: FadeTransition(
-          opacity: _fadeAnimation,
-          child: storeItems.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: storeItems.length,
-                  itemBuilder: (context, index) {
-                    return StoreItem(
-                      storeItemModel: storeItems[index],
-                    );
-                  },
-                ),
-        ),
+        body: storeItems.isEmpty
+            ? _buildEmptyState()
+            : ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: storeItems.length,
+                itemBuilder: (context, index) {
+                  return StoreItem(
+                    storeItemModel: storeItems[index],
+                  );
+                },
+              ),
       ),
     );
   }
