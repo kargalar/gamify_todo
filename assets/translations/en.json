@@ -274,5 +274,11 @@
     "Changed": "changed",
     "Dateless": "dateless",
     "Deleted": "deleted",
-    "NoDate": "No Date"
+    "NoDate": "No Date",
+    "InvalidFormat": "Invalid format. Please use correct format.",
+    "Schedule": "Schedule",
+    "ChooseColorTheme": "Choose your preferred app color theme:",
+    "TestNotificationMessage": "This is a test notification. Notifications are working!",
+    "ScheduledTestNotificationTitle": "Scheduled Notification Test",
+    "ScheduledTestNotificationMessage": "This is a scheduled test notification. Shown after 5 seconds!"
 }

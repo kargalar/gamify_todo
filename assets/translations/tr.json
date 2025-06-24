@@ -273,6 +273,11 @@
     "TimerActive": "Zamanlayıcı aktif",
     "Changed": "değiştirildi",
     "Dateless": "tarihsiz",
-    "Deleted": "silindi",
-    "NoDate": "Tarihsiz"
+    "Deleted": "silindi",    "NoDate": "Tarihsiz",
+    "InvalidFormat": "Geçersiz format. Lütfen doğru formatı kullanın.",
+    "Schedule": "Program",
+    "ChooseColorTheme": "Tercih ettiğiniz uygulama renk temasını seçin:",
+    "TestNotificationMessage": "Bu bir test bildirimidir. Bildirimler çalışıyor!",
+    "ScheduledTestNotificationTitle": "Zamanlanmış Bildirim Testi",
+    "ScheduledTestNotificationMessage": "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!"
 }

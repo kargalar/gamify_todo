@@ -405,7 +405,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(LocaleKeys.ResetRoutineProgress.tr()),
-          content: const Text("Bu görevin ilerlemesini sıfırlamak istediğinizden emin misiniz? Bu işlem bu görevin ilerlemesini ve loglarını temizleyecektir."),
+          content: Text(LocaleKeys.ResetRoutineProgressWarning.tr()),
           actions: [
             TextButton(
               onPressed: () {

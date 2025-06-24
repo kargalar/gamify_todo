@@ -269,8 +269,13 @@
     "TestNotification": "Notification de test",
     "TargetDuration": "Durée cible",
     "TimerActive": "Minuteur actif",
-    "Changed": "modifié",
-    "Dateless": "sans date",
+    "Changed": "modifié",    "Dateless": "sans date",
     "Deleted": "supprimé",
-    "NoDate": "Aucune date"
+    "NoDate": "Aucune date",
+    "InvalidFormat": "Format invalide. Veuillez utiliser le format correct.",
+    "Schedule": "Programme",
+    "ChooseColorTheme": "Choisissez votre thème de couleur d'application préféré :",
+    "TestNotificationMessage": "Ceci est une notification de test. Les notifications fonctionnent !",
+    "ScheduledTestNotificationTitle": "Test de notification programmée",
+    "ScheduledTestNotificationMessage": "Ceci est une notification de test programmée. Affichée après 5 secondes !"
 }

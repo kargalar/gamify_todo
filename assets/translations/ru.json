@@ -269,8 +269,13 @@
     "TestNotification": "Тестовое уведомление",
     "TargetDuration": "Целевая продолжительность",
     "TimerActive": "Таймер активен",
-    "Changed": "изменено",
-    "Dateless": "без даты",
+    "Changed": "изменено",    "Dateless": "без даты",
     "Deleted": "удалено",
-    "NoDate": "Без даты"
+    "NoDate": "Без даты",
+    "InvalidFormat": "Неверный формат. Пожалуйста, используйте правильный формат.",
+    "Schedule": "Расписание",
+    "ChooseColorTheme": "Выберите предпочитаемую цветовую тему приложения:",
+    "TestNotificationMessage": "Это тестовое уведомление. Уведомления работают!",
+    "ScheduledTestNotificationTitle": "Тест запланированного уведомления",
+    "ScheduledTestNotificationMessage": "Это запланированное тестовое уведомление. Показано через 5 секунд!"
 }

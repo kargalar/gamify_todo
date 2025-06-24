@@ -409,7 +409,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(LocaleKeys.ResetStoreProgress.tr()),
-          content: const Text("Bu mağaza öğesinin ilerlemesini sıfırlamak istediğinizden emin misiniz?"),
+          content: Text(LocaleKeys.ResetStoreProgressWarning.tr()),
           actions: [
             TextButton(
               onPressed: () {

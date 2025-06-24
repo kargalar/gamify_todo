@@ -6,6 +6,8 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ArchiveButton extends StatelessWidget {
   const ArchiveButton({
@@ -32,16 +34,16 @@ class ArchiveButton extends StatelessWidget {
           final bool? confirm = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Archive Routine'),
-              content: const Text('Are you sure you want to archive this routine? This will stop new task creation but you can still view its statistics. Geri döndürülemez.'),
+              title: Text(LocaleKeys.ArchiveRoutine.tr()),
+              content: Text(LocaleKeys.ArchiveRoutineConfirmation.tr()),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Cancel'),
+                  child: Text(LocaleKeys.Cancel.tr()),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Archive'),
+                  child: Text(LocaleKeys.ArchiveRoutine.tr()),
                 ),
               ],
             ),
@@ -75,7 +77,7 @@ class ArchiveButton extends StatelessWidget {
             TaskProvider().updateItems();
           }
         },
-        child: const Text('Archive Routine'),
+        child: Text(LocaleKeys.ArchiveRoutine.tr()),
       ),
     );
   }
