@@ -27,7 +27,16 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
     final subtasks = widget.taskModel.subtasks ?? [];
-    final displayedSubtasks = widget.taskModel.showSubtasks ? subtasks : subtasks.where((subtask) => !subtask.isCompleted).toList();
+
+    // Sort subtasks: incomplete first, completed last
+    final sortedSubtasks = List<SubTaskModel>.from(subtasks)
+      ..sort((a, b) {
+        if (a.isCompleted && !b.isCompleted) return 1;
+        if (!a.isCompleted && b.isCompleted) return -1;
+        return 0;
+      });
+
+    final displayedSubtasks = widget.taskModel.showSubtasks ? sortedSubtasks : sortedSubtasks.where((subtask) => !subtask.isCompleted).toList();
     final completedCount = subtasks.where((subtask) => subtask.isCompleted).length;
     return Stack(
       children: [
