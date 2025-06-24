@@ -38,6 +38,23 @@ class DataManagementDialog extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _dialogButton(
+            icon: Icons.refresh,
+            title: LocaleKeys.ResetRoutineProgress.tr(),
+            color: AppColors.orange,
+            onTap: () {
+              Helper().getDialog(
+                withTimer: true,
+                message: LocaleKeys.ResetRoutineProgressWarning.tr(),
+                onAccept: () async {
+                  await HiveService().resetAllRoutineProgress();
+                },
+                acceptButtonText: LocaleKeys.Yes.tr(),
+                title: "Hurra?",
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          _dialogButton(
             icon: Icons.delete_forever,
             title: LocaleKeys.DeleteAllData.tr(),
             color: AppColors.red,

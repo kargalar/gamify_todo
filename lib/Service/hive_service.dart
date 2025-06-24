@@ -16,6 +16,7 @@ import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Service/global_timer.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
@@ -779,5 +780,97 @@ class HiveService {
       );
       rethrow;
     }
+  }
+
+  // Reset all routine progress
+  Future<void> resetAllRoutineProgress() async {
+    debugPrint('=== RESETTING ALL ROUTINE PROGRESS ===');
+
+    final taskProvider = TaskProvider();
+    final taskLogProvider = TaskLogProvider();
+    final today = DateTime.now();
+
+    // Get all tasks that belong to routines
+    final routineTasks = taskProvider.taskList.where((task) => task.routineID != null).toList();
+
+    // Separate tasks: past tasks to delete, today's tasks to reset
+    final tasksToDelete = <TaskModel>[];
+    final tasksToReset = <TaskModel>[];
+
+    for (final task in routineTasks) {
+      // Check if task is from a past date
+      if (task.taskDate != null) {
+        final taskDate = task.taskDate!;
+        final isPastTask = taskDate.year < today.year || (taskDate.year == today.year && taskDate.month < today.month) || (taskDate.year == today.year && taskDate.month == today.month && taskDate.day < today.day);
+
+        if (isPastTask) {
+          tasksToDelete.add(task);
+        } else {
+          tasksToReset.add(task);
+        }
+      } else {
+        // If no taskDate, consider it as a current task to reset
+        tasksToReset.add(task);
+      }
+    }
+
+    // Delete past routine tasks completely
+    for (final task in tasksToDelete) {
+      debugPrint('Deleting past routine task: ${task.title} (ID=${task.id}, Date=${task.taskDate})');
+      await deleteTask(task.id);
+    }
+
+    // Reset progress for current routine tasks (today's tasks)
+    for (final task in tasksToReset) {
+      debugPrint('Resetting progress for current routine task: ${task.title} (ID=${task.id})');
+
+      // Reset progress values
+      if (task.type == TaskTypeEnum.COUNTER) {
+        task.currentCount = 0;
+      } else if (task.type == TaskTypeEnum.TIMER) {
+        task.currentDuration = Duration.zero;
+        // Also stop timer if it's active
+        if (task.isTimerActive == true) {
+          task.isTimerActive = false;
+          GlobalTimer().startStopTimer(taskModel: task);
+        }
+      }
+
+      // Reset task status to null (in progress)
+      task.status = null;
+
+      // Update task in storage
+      await updateTask(task);
+    }
+
+    // Delete all task logs for routine tasks
+    final taskLogBox = await _taskLogBox;
+    final allLogs = taskLogBox.values.toList();
+    final routineLogIds = <int>[];
+
+    for (final log in allLogs) {
+      if (log.routineId != null) {
+        routineLogIds.add(log.id);
+      }
+    }
+
+    // Delete routine logs from Hive
+    for (final logId in routineLogIds) {
+      await taskLogBox.delete(logId);
+    }
+
+    // Clear routine logs from provider
+    taskLogProvider.taskLogList.removeWhere((log) => log.routineId != null);
+
+    // Remove deleted tasks from provider
+    taskProvider.taskList.removeWhere((task) => tasksToDelete.contains(task));
+
+    // Update providers
+    taskProvider.updateItems();
+
+    debugPrint('Routine progress reset completed. Deleted ${tasksToDelete.length} past tasks, reset ${tasksToReset.length} current tasks, and deleted ${routineLogIds.length} logs.');
+
+    // Show success message
+    Helper().getMessage(message: LocaleKeys.ResetRoutineProgressSuccess.tr());
   }
 }
