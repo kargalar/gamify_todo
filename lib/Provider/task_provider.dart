@@ -450,6 +450,8 @@ class TaskProvider with ChangeNotifier {
         onUndo: () => _undoDateChange(taskModel.id),
         statusColor: selectedDate != null ? AppColors.main : AppColors.orange,
         statusWord: selectedDate != null ? LocaleKeys.Changed.tr() : LocaleKeys.Dateless.tr(),
+        taskName: taskModel.title,
+        dateInfo: selectedDate != null ? 'tarihi ${DateFormat('dd MMMM yyyy', 'tr').format(selectedDate)} olarak değiştirildi' : null,
       );
 
       // Set timer for permanent change
@@ -550,6 +552,8 @@ class TaskProvider with ChangeNotifier {
         onUndo: () => _undoDateChange(taskModel.id),
         statusColor: AppColors.main,
         statusWord: LocaleKeys.Changed.tr(),
+        taskName: taskModel.title,
+        dateInfo: 'tarihi ${DateFormat('dd MMMM yyyy', 'tr').format(newDate)} olarak değiştirildi',
       );
 
       // Set timer for permanent change
@@ -805,16 +809,17 @@ class TaskProvider with ChangeNotifier {
     final task = taskList.firstWhere((task) => task.id == taskID);
 
     // Store the task for potential undo
-    _deletedTasks[taskID] = task;
-
-    // Remove from UI immediately
+    _deletedTasks[taskID] = task; // Remove from UI immediately
     taskList.removeWhere((task) => task.id == taskID);
-    notifyListeners(); // Show undo snackbar
+    notifyListeners();
+
+    // Show undo snackbar
     Helper().getUndoMessage(
       message: LocaleKeys.TaskDeleted.tr(),
       onUndo: () => _undoDeleteTask(taskID),
       statusColor: AppColors.red,
       statusWord: LocaleKeys.Deleted.tr(),
+      taskName: task.title,
     );
 
     // Set timer for permanent deletion
@@ -865,14 +870,13 @@ class TaskProvider with ChangeNotifier {
     } // Remove from UI immediately
     routineList.remove(routineModel);
     taskList.removeWhere((task) => task.routineID == routineID);
-    notifyListeners();
-
-    // Show undo snackbar
+    notifyListeners(); // Show undo snackbar
     Helper().getUndoMessage(
       message: LocaleKeys.RoutineDeleted.tr(),
       onUndo: () => _undoDeleteRoutine(routineID),
       statusColor: AppColors.red,
       statusWord: LocaleKeys.Deleted.tr(),
+      taskName: routineModel.title,
     );
 
     // Set timer for permanent deletion
@@ -1107,15 +1111,16 @@ class TaskProvider with ChangeNotifier {
           _propagateSubtaskChangesToRoutineInstances(taskModel);
         }
 
-        notifyListeners();
-
-        // Show undo snackbar
+        notifyListeners(); // Show undo snackbar
         Helper().getUndoMessage(
           message: LocaleKeys.SubtaskDeleted.tr(),
           onUndo: () => _undoRemoveSubtask(taskModel, undoKey),
           statusColor: AppColors.red,
           statusWord: LocaleKeys.Deleted.tr(),
-        ); // Set timer for permanent deletion
+          taskName: subtask.title,
+        );
+
+        // Set timer for permanent deletion
         _undoTimers['subtask_$undoKey'] = Timer(const Duration(seconds: 3), () {
           _permanentlyRemoveSubtask(undoKey);
         });
@@ -1199,23 +1204,24 @@ class TaskProvider with ChangeNotifier {
         // If this is a routine task, propagate subtask changes to other instances
         if (taskModel.routineID != null) {
           _propagateSubtaskChangesToRoutineInstances(taskModel);
-        }
-
-        // Alt görev tamamlandığında log oluştur
+        } // Alt görev tamamlandığında log oluştur
         if (isBeingCompleted) {
           // Alt görev tamamlandı
           TaskLogProvider().addTaskLog(
             taskModel,
             customStatus: TaskStatusEnum.COMPLETED,
-          ); // Show undo message for subtask completion
+          );
+
+          // Show undo message for subtask completion
           if (showUndo) {
             Helper().getUndoMessage(
               // TODO: localization
-              message: "Subtask completed",
+              message: "Subtask marked as completed",
               onUndo: () => toggleSubtaskCompletion(taskModel, subtask, showUndo: false),
               statusColor: AppColors.green,
               // TODO: localization
               statusWord: "completed",
+              taskName: subtask.title,
             );
           }
         }
@@ -1530,10 +1536,11 @@ class TaskProvider with ChangeNotifier {
     if (showUndo) {
       // Show undo snackbar
       Helper().getUndoMessage(
-        message: "Task completed",
+        message: "Task marked as completed",
         onUndo: () => _undoTaskCompletion(taskModel.id),
         statusColor: AppColors.green,
         statusWord: "completed",
+        taskName: taskModel.title,
       );
 
       // Set timer for permanent completion
@@ -1784,12 +1791,15 @@ class TaskProvider with ChangeNotifier {
     // Store the previous status for potential undo
     _failedTasks[taskModel.id] = _TaskFailureData(
       previousStatus: previousStatus,
-    ); // Show undo snackbar
+    );
+
+    // Show undo snackbar
     Helper().getUndoMessage(
       message: "Task marked as failed",
       onUndo: () => _undoTaskFailure(taskModel.id),
       statusColor: AppColors.red,
       statusWord: "failed",
+      taskName: taskModel.title,
     );
 
     // Set timer for permanent failure
@@ -1811,11 +1821,12 @@ class TaskProvider with ChangeNotifier {
     ); // Show undo snackbar
     Helper().getUndoMessage(
       // TODO: localization
-      message: "Task cancelled",
+      message: "Task marked as cancelled",
       onUndo: () => _undoTaskCancellation(taskModel.id),
       statusColor: AppColors.orange,
       // TODO: localization
       statusWord: "cancelled",
+      taskName: taskModel.title,
     );
 
     // Set timer for permanent cancellation

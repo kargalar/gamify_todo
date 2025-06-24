@@ -126,17 +126,31 @@ class Helper {
     required Function onUndo,
     Color? statusColor,
     String? statusWord,
+    String? taskName,
+    String? dateInfo,
   }) {
-    Get.closeCurrentSnackbar();
+    Get.closeCurrentSnackbar(); // Build detailed message
+    String detailedMessage = message;
+    if (taskName != null) {
+      if (dateInfo != null) {
+        // For date changes, create a cleaner message format
+        detailedMessage = '"$taskName" $dateInfo';
+      } else {
+        // For other actions (delete, complete, etc.)
+        detailedMessage = '"$taskName" $message';
+      }
+    } else if (dateInfo != null) {
+      detailedMessage = '$message $dateInfo';
+    }
 
     Get.snackbar(
       "",
       "",
-      messageText: _buildRichMessage(message, statusColor, statusWord),
+      messageText: _buildRichMessage(detailedMessage, statusColor, statusWord),
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: AppColors.panelBackground.withValues(alpha: 0.9),
       animationDuration: const Duration(milliseconds: 400),
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 4),
       dismissDirection: DismissDirection.horizontal,
       icon: const Icon(
         Icons.delete_rounded,
@@ -148,6 +162,7 @@ class Helper {
           Get.back();
         },
         child: Text(
+          // TODO: localization
           "UNDO",
           style: TextStyle(
             color: AppColors.main,

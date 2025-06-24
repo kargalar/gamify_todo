@@ -97,16 +97,17 @@ class AddTaskProvider with ChangeNotifier {
 
       if (showUndo) {
         // Store the subtask and its index for potential undo
-        _deletedSubtasks[index] = subtask;
-
-        // Remove from UI immediately
+        _deletedSubtasks[index] = subtask; // Remove from UI immediately
         subtasks.removeAt(index);
-        notifyListeners(); // Show undo snackbar
+        notifyListeners();
+
+        // Show undo snackbar
         Helper().getUndoMessage(
           message: LocaleKeys.SubtaskDeleted.tr(),
           onUndo: () => _undoRemoveSubtask(index, subtask),
           statusColor: AppColors.red,
           statusWord: LocaleKeys.Deleted.tr(),
+          taskName: subtask.title,
         );
 
         // Set timer for permanent deletion
