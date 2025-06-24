@@ -10,6 +10,7 @@ import 'package:next_level/Service/file_storage_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Service/auth_service.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
@@ -64,6 +65,11 @@ class HiveService {
   Future<void> updateUser(UserModel userModel) async {
     final box = await _userBox;
     await box.put(userModel.id, userModel);
+  }
+
+  Future<List<UserModel>> getUsers() async {
+    final box = await _userBox;
+    return box.values.toList();
   }
 
   // Item methods
@@ -425,13 +431,18 @@ class HiveService {
     TraitProvider().traitList.clear();
 
     StoreProvider().storeItemList.clear();
-    StoreProvider().setStateItems();
-
-    // Clear task logs in the provider
+    StoreProvider().setStateItems(); // Clear task logs in the provider
     await TaskLogProvider().clearAllLogs();
 
+    // Sign out user from Firebase
+    await AuthService().signOut();
+
+    // Set loginUser to null
+    loginUser = null;
+
+    // Navigate to login page instead of home
     NavigatorService().goBackNavbar(
-      isHome: true,
+      isHome: false,
       isDialog: true,
     );
 

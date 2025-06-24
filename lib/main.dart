@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:next_level/General/accessible.dart';
+import 'package:next_level/Core/auth_wrapper.dart';
 import 'package:next_level/General/app_theme.dart';
 import 'package:next_level/General/init_app.dart';
-import 'package:next_level/Page/Login/login_page.dart';
+import 'package:next_level/Page/Login/modern_login_page.dart';
 import 'package:next_level/Page/navbar_page_manager.dart';
 import 'package:next_level/Service/product_localization.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
@@ -58,7 +58,7 @@ class Main extends StatelessWidget {
     context.watch<ThemeProvider>();
 
     return ScreenUtilInit(
-      designSize: const Size(1080, 2400),
+      designSize: const Size(375, 812), // iPhone X boyutunu referans aldık
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
@@ -67,7 +67,11 @@ class Main extends StatelessWidget {
           theme: AppTheme().theme,
           debugShowCheckedModeBanner: false,
           showPerformanceOverlay: false,
-          home: loginUser != null ? const NavbarPageManager() : const LoginPage(),
+          home: const AuthWrapper(),
+          routes: {
+            '/main': (context) => const NavbarPageManager(),
+            '/login': (context) => const ModernLoginPage(),
+          },
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           locale: context.locale,

@@ -9,8 +9,8 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/notification_services.dart';
-import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Service/auth_service.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
@@ -28,7 +28,8 @@ Future<void> initApp() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   // Theme
   AppColors.updateTheme(isDarkTheme: await ThemeProvider().getSavedTheme());
-  // Hive Adapters
+
+  // Hive Adapters - initialize first
   await Helper().registerAdapters();
 
   // Localization
@@ -59,31 +60,30 @@ Future<void> initApp() async {
       await windowManager.show();
       await windowManager.focus();
     });
-  }
-  // Home Widget
+  } // Home Widget
   else {
     await HomeWidgetService.setupHomeWidget();
   }
 
-  // auto login
-  // SharedPreferences prefs = await SharedPreferences.getInstance();
-  // final String? email = prefs.getString('email');
-  // final String? password = prefs.getString('password');
-  // if (email != null && password != null) {
-  //   loginUser = await ServerManager().login(
-  //     email: email,
-  //     password: password,
-  //     isAutoLogin: true,
-  //   );
-  // }
+  // Ensure loginUser is null at startup for testing
+  debugPrint('initApp: loginUser before checkAuthState = ${loginUser?.username}');
 
-  loginUser = await ServerManager().getUser();
+  // Check authentication state
+  await AuthService().checkAuthState();
 
-  // Load task logs
-  await TaskLogProvider().loadTaskLogs();
+  debugPrint('initApp: loginUser after checkAuthState = ${loginUser?.username}');
 
-  // Load categories
-  await TaskProvider().loadCategories();
+  // If user is not authenticated, loginUser will be null
+  // Don't create any guest user - user must login to access the app
+
+  // Only load data if user is authenticated
+  if (loginUser != null) {
+    // Load task logs
+    await TaskLogProvider().loadTaskLogs();
+
+    // Load categories
+    await TaskProvider().loadCategories();
+  }
 
   // Custom Error
   ErrorWidget.builder = (FlutterErrorDetails details) {

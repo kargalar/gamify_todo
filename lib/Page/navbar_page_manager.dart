@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/quick_add_task_bottom_sheet.dart';
 import 'package:next_level/Page/Inbox/inbox_page.dart';
@@ -133,7 +132,8 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
   Future getData() async {
     // TODO: bütün veirler gelecek user bilgisi itemler rutinler tritler.....
     // user
-    loginUser = await ServerManager().getUser();
+    // !!!! bu olunca loginUser null oluyor, bu yüzden loginUser'ı burada kullanmıyorum
+    // loginUser = await ServerManager().getUser();
     // item
     context.read<StoreProvider>().storeItemList = await ServerManager().getItems();
     // trait

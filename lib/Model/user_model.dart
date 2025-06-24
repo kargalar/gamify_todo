@@ -2,7 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'user_model.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 0) // Changed from 0 to 1 for new version
 class UserModel extends HiveObject {
   @HiveField(0)
   int id;
@@ -14,15 +14,16 @@ class UserModel extends HiveObject {
   Duration creditProgress;
   @HiveField(4)
   int userCredit;
-
+  @HiveField(5)
+  String username;
   UserModel({
     required this.id,
     required this.email,
     required this.password,
+    required this.username,
     this.creditProgress = const Duration(hours: 0, minutes: 0, seconds: 0),
     this.userCredit = 0,
   });
-
   factory UserModel.fromJson(Map<String, dynamic> json) {
     Duration stringToDuration(String timeString) {
       List<String> split = timeString.split(':');
@@ -33,6 +34,7 @@ class UserModel extends HiveObject {
       id: json['id'],
       email: json['email'],
       password: json['password'],
+      username: json['username'],
       creditProgress: stringToDuration(json['credit_progress']),
       userCredit: json['user_credit'],
     );
@@ -51,6 +53,7 @@ class UserModel extends HiveObject {
       'id': id,
       'email': email,
       'password': password,
+      'username': username,
       'credit_progress': durationToString(creditProgress),
       'user_credit': userCredit,
     };

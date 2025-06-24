@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:next_level/Page/Login/login_page.dart';
+import 'package:next_level/Page/Login/modern_login_page.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
@@ -58,7 +58,7 @@ class NavigatorService {
 
     Get.offUntil(
       GetPageRoute(
-        page: () => const LoginPage(),
+        page: () => const ModernLoginPage(),
       ),
       (route) => false,
     );

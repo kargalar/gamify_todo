@@ -8,7 +8,6 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
-import 'package:next_level/Model/user_model.dart';
 
 class DataManagementDialog extends StatelessWidget {
   const DataManagementDialog({super.key});
@@ -64,18 +63,11 @@ class DataManagementDialog extends StatelessWidget {
                 message: LocaleKeys.DeleteAllDataWarning.tr(),
                 onAccept: () async {
                   await HiveService().deleteAllData();
-
                   TaskProvider().taskList = [];
                   TaskProvider().routineList = [];
                   TraitProvider().traitList = [];
                   StoreProvider().storeItemList = [];
-                  loginUser = UserModel(
-                    id: 0,
-                    email: "",
-                    password: "",
-                    creditProgress: Duration.zero,
-                    userCredit: 0,
-                  );
+                  loginUser = null; // User must login again after data deletion
                 },
                 acceptButtonText: LocaleKeys.Yes.tr(),
                 title: "Hurra?",

@@ -113,23 +113,9 @@ class ServerManager {
 
   // get user
   // TODO: auto login system
-  Future<UserModel> getUser() async {
-    // eğer boş ise 0 id li bir kullanıcı oluşturup kaydet
-    if (await HiveService().getUser(0) == null) {
-      final UserModel newUser = UserModel(
-        id: 0,
-        email: '',
-        password: '',
-        creditProgress: const Duration(hours: 0, minutes: 0, seconds: 0),
-        userCredit: 0,
-      );
-
-      await HiveService().addUser(newUser);
-
-      return newUser;
-    } else {
-      return (await HiveService().getUser(0))!;
-    }
+  Future<UserModel?> getUser() async {
+    // Return user only if exists, don't create guest user automatically
+    return await HiveService().getUser(0);
 
     // var response = await dio.get(
     //   // TODO: user id shared pref den alınacak
