@@ -92,7 +92,20 @@ class InboxTaskList extends StatelessWidget {
     // Apply search filter if search query is not empty
     if (searchQuery.isNotEmpty) {
       tasks = tasks.where((task) {
-        return task.title.toLowerCase().contains(searchQuery.toLowerCase()) || (task.description?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false);
+        final lowerQuery = searchQuery.toLowerCase();
+
+        // Search in task title and description
+        bool matchesTask = task.title.toLowerCase().contains(lowerQuery) || (task.description?.toLowerCase().contains(lowerQuery) ?? false);
+
+        // Search in subtasks titles and descriptions
+        bool matchesSubtasks = false;
+        if (task.subtasks != null && task.subtasks!.isNotEmpty) {
+          matchesSubtasks = task.subtasks!.any((subtask) {
+            return subtask.title.toLowerCase().contains(lowerQuery) || (subtask.description?.toLowerCase().contains(lowerQuery) ?? false);
+          });
+        }
+
+        return matchesTask || matchesSubtasks;
       }).toList();
     }
 
@@ -146,9 +159,9 @@ class InboxTaskList extends StatelessWidget {
     }
 
     // 2. Add today's tasks
-    if (groupedTasks.containsKey(todayDate)) {
-      sortedDates.add(todayDate);
-    }
+    // if (groupedTasks.containsKey(todayDate)) {
+    //   sortedDates.add(todayDate);
+    // }
 
     // 3. Add tasks without dates
     if (tasksWithoutDate.isNotEmpty) {
