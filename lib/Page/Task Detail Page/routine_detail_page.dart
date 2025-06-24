@@ -14,7 +14,9 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Service/hive_service.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -88,6 +90,27 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                       color: AppColors.main,
                     ),
                   ),
+                ),
+              // Reset routine progress menu
+              if (widget.taskModel.routineID != null && widget.taskModel.status != TaskStatusEnum.ARCHIVED)
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'reset_routine_progress') {
+                      _showResetRoutineProgressDialog();
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem<String>(
+                      value: 'reset_routine_progress',
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh, color: AppColors.text),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.ResetRoutineProgress.tr()),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
                 TextButton(
@@ -362,7 +385,6 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                             taskModel: widget.taskModel,
                           ),
                         ),
-
                       const SizedBox(height: 30),
                     ],
                   ),
@@ -373,5 +395,89 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
         );
       },
     );
+  }
+
+  void _showResetRoutineProgressDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(LocaleKeys.ResetRoutineProgress.tr()),
+          content: const Text("Bu görevin ilerlemesini sıfırlamak istediğinizden emin misiniz? Bu işlem bu görevin ilerlemesini ve loglarını temizleyecektir."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(LocaleKeys.Cancel.tr()),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _resetSingleRoutineProgress();
+              },
+              child: Text(LocaleKeys.Yes.tr()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _resetSingleRoutineProgress() async {
+    try {
+      if (widget.taskModel.routineID == null) {
+        Helper().getMessage(message: "Bu görev bir rutine ait değil.");
+        return;
+      }
+
+      final taskProvider = TaskProvider();
+
+      // Sadece bu spesifik task'ı sıfırla
+      final currentTask = widget.taskModel;
+
+      // Reset progress values
+      if (currentTask.type == TaskTypeEnum.COUNTER) {
+        currentTask.currentCount = 0;
+      } else if (currentTask.type == TaskTypeEnum.TIMER) {
+        currentTask.currentDuration = Duration.zero;
+        if (currentTask.isTimerActive == true) {
+          currentTask.isTimerActive = false;
+        }
+      }
+
+      // Reset task status to null
+      currentTask.status = null;
+
+      // Update task in storage
+      await HiveService().updateTask(currentTask);
+
+      // Bu task'a ait tüm logları sil
+      final taskLogBox = await HiveService().getTaskLogs();
+      final taskLogIds = <int>[];
+
+      for (final log in taskLogBox) {
+        if (log.taskId == currentTask.id) {
+          taskLogIds.add(log.id);
+        }
+      }
+
+      for (final logId in taskLogIds) {
+        await HiveService().deleteTaskLog(logId);
+      }
+
+      // Provider'ları güncelle
+      taskProvider.updateItems();
+
+      // Success message
+      Helper().getMessage(message: "Task ilerlemesi başarıyla sıfırlandı.");
+
+      // Sayfayı yenile
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      Helper().getMessage(message: "Hata: $e");
+    }
   }
 }

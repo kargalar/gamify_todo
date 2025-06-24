@@ -12,6 +12,8 @@ import 'package:next_level/Page/Store/Widget/store_item_recent_logs_widget.dart'
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Model/store_item_model.dart';
@@ -99,6 +101,27 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                ),
+              // Reset store item progress menu (only for edit mode)
+              if (widget.editItemModel != null)
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'reset_item_progress') {
+                      _showResetItemProgressDialog();
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem<String>(
+                      value: 'reset_item_progress',
+                      child: Row(
+                        children: [
+                          Icon(Icons.refresh, color: AppColors.text),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.ResetStoreProgress.tr()),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
             ],
           ),
@@ -377,6 +400,74 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
       NavigatorService().back();
     } else {
       NavigatorService().back();
+    }
+  }
+
+  void _showResetItemProgressDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(LocaleKeys.ResetStoreProgress.tr()),
+          content: const Text("Bu mağaza öğesinin ilerlemesini sıfırlamak istediğinizden emin misiniz?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(LocaleKeys.Cancel.tr()),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _resetSingleItemProgress();
+              },
+              child: Text(LocaleKeys.Yes.tr()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _resetSingleItemProgress() async {
+    try {
+      if (widget.editItemModel == null) return;
+
+      final item = widget.editItemModel!;
+
+      // Reset progress values
+      if (item.type == TaskTypeEnum.COUNTER) {
+        item.currentCount = 0;
+      } else if (item.type == TaskTypeEnum.TIMER) {
+        item.currentDuration = Duration.zero;
+        // Also stop timer if it's active
+        if (item.isTimerActive == true) {
+          item.isTimerActive = false;
+        }
+      }
+
+      // Update item in storage
+      await HiveService().updateItem(item);
+
+      // Clear logs for this item from TaskProgressViewModel
+      final logs = TaskProgressViewModel.getStoreItemLogs(item.id);
+      for (int i = logs.length - 1; i >= 0; i--) {
+        TaskProgressViewModel.deleteStoreItemLog(i);
+      }
+
+      // Update provider
+      storeProvider.setStateItems();
+
+      // Success message
+      Helper().getMessage(message: LocaleKeys.ResetStoreProgressSuccess.tr());
+
+      // Refresh the page
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      Helper().getMessage(message: "Hata: $e");
     }
   }
 }

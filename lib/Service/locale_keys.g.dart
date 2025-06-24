@@ -90,6 +90,12 @@ abstract class LocaleKeys {
   static const ResetRoutineProgress = 'ResetRoutineProgress';
   static const ResetRoutineProgressWarning = 'ResetRoutineProgressWarning';
   static const ResetRoutineProgressSuccess = 'ResetRoutineProgressSuccess';
+  static const ResetCredit = 'ResetCredit';
+  static const ResetCreditWarning = 'ResetCreditWarning';
+  static const ResetCreditSuccess = 'ResetCreditSuccess';
+  static const ResetStoreProgress = 'ResetStoreProgress';
+  static const ResetStoreProgressWarning = 'ResetStoreProgressWarning';
+  static const ResetStoreProgressSuccess = 'ResetStoreProgressSuccess';
   static const Yes = 'Yes';
   static const Hide = 'Hide';
   static const Show = 'Show';
