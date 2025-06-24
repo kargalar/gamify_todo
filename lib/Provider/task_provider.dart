@@ -1210,9 +1210,11 @@ class TaskProvider with ChangeNotifier {
           ); // Show undo message for subtask completion
           if (showUndo) {
             Helper().getUndoMessage(
+              // TODO: localization
               message: "Subtask completed",
               onUndo: () => toggleSubtaskCompletion(taskModel, subtask, showUndo: false),
               statusColor: AppColors.green,
+              // TODO: localization
               statusWord: "completed",
             );
           }
@@ -1808,9 +1810,11 @@ class TaskProvider with ChangeNotifier {
       previousStatus: previousStatus,
     ); // Show undo snackbar
     Helper().getUndoMessage(
+      // TODO: localization
       message: "Task cancelled",
       onUndo: () => _undoTaskCancellation(taskModel.id),
-      statusColor: AppColors.purple,
+      statusColor: AppColors.orange,
+      // TODO: localization
       statusWord: "cancelled",
     );
 

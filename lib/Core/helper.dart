@@ -112,6 +112,7 @@ class Helper {
                 Get.back();
               },
               child: Text(
+                // TODO: localization
                 mainButtonText ?? "Okay",
                 style: const TextStyle(color: AppColors.white),
               ),
@@ -214,6 +215,7 @@ class Helper {
       await Permission.photos.request();
       if (await Permission.photos.isGranted == false) {
         Helper().getMessage(
+          // TODO: localization
           message: "You must give permission to continue.",
           status: StatusEnum.WARNING,
         );
@@ -223,6 +225,7 @@ class Helper {
       if (await Permission.photos.isGranted == false) {
         if (await Permission.photos.isPermanentlyDenied) {
           Helper().getDialog(
+            // TODO: localization
             message: "You must grant access to the photos to continue.",
             onAccept: () async {
               await openAppSettings();
@@ -231,6 +234,7 @@ class Helper {
           return false;
         } else if (!await Permission.photos.isGranted) {
           Helper().getMessage(
+            // TODO: localization
             message: "You must grant access to the photos to continue.",
             status: StatusEnum.WARNING,
           );
@@ -243,6 +247,7 @@ class Helper {
       if (await Permission.storage.isGranted == false) {
         if (await Permission.storage.isPermanentlyDenied) {
           Helper().getDialog(
+            // TODO: localization
             message: "You must grant storage access to continue.",
             onAccept: () async {
               await openAppSettings();
@@ -251,6 +256,7 @@ class Helper {
           return false;
         } else if (!await Permission.storage.isGranted) {
           Helper().getMessage(
+            // TODO: localization
             message: "You must grant storage access to continue.",
             status: StatusEnum.WARNING,
           );
@@ -400,179 +406,154 @@ class Helper {
     return await showDialog<DateTime?>(
       context: context,
       builder: (BuildContext context) {
-        DateTime? selectedDate = initialDate; // Initialize with initialDate
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              insetPadding: const EdgeInsets.all(18),
-              contentPadding: const EdgeInsets.all(12),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Direct calendar view with TableCalendar
-                    SizedBox(
-                      height: 323,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.panelBackground.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.text.withValues(alpha: 0.1),
-                            width: 1,
-                          ),
+        return AlertDialog(
+          insetPadding: const EdgeInsets.all(18),
+          contentPadding: const EdgeInsets.all(12),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Direct calendar view with TableCalendar
+                SizedBox(
+                  height: 323,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.panelBackground.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.text.withValues(alpha: 0.1),
+                        width: 1,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: TableCalendar<DateTime>(
+                      locale: context.locale.toLanguageTag(),
+                      rowHeight: 36,
+                      firstDay: DateTime(1950),
+                      lastDay: DateTime(2100),
+                      focusedDay: initialDate ?? DateTime.now(),
+                      selectedDayPredicate: (day) => initialDate != null && isSameDay(initialDate, day),
+                      calendarFormat: CalendarFormat.month,
+                      startingDayOfWeek: StartingDayOfWeek.monday,
+                      availableGestures: AvailableGestures.horizontalSwipe,
+                      headerStyle: HeaderStyle(
+                        formatButtonVisible: false,
+                        titleCentered: true,
+                        titleTextStyle: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.main,
                         ),
-                        padding: const EdgeInsets.all(8),
-                        child: TableCalendar<DateTime>(
-                          locale: context.locale.toLanguageTag(),
-                          rowHeight: 36,
-                          firstDay: DateTime(1950),
-                          lastDay: DateTime(2100),
-                          focusedDay: selectedDate ?? DateTime.now(),
-                          selectedDayPredicate: (day) => selectedDate != null && isSameDay(selectedDate!, day),
-                          calendarFormat: CalendarFormat.month,
-                          startingDayOfWeek: StartingDayOfWeek.monday,
-                          availableGestures: AvailableGestures.horizontalSwipe,
-                          headerStyle: HeaderStyle(
-                            formatButtonVisible: false,
-                            titleCentered: true,
-                            titleTextStyle: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.main,
-                            ),
-                            leftChevronIcon: Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.main),
-                            rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
-                            headerPadding: const EdgeInsets.symmetric(vertical: 8),
-                            headerMargin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: AppColors.main.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          daysOfWeekStyle: DaysOfWeekStyle(
-                            weekdayStyle: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.text.withValues(alpha: 0.7),
-                            ),
-                            weekendStyle: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.text.withValues(alpha: 0.7),
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.panelBackground.withValues(alpha: 0.7),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          calendarStyle: CalendarStyle(
-                            selectedDecoration: BoxDecoration(
-                              color: AppColors.main,
-                              shape: BoxShape.circle,
-                            ),
-                            todayDecoration: BoxDecoration(
-                              color: selectedDate == null ? AppColors.main.withValues(alpha: 0.2) : AppColors.main.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                              border: selectedDate == null ? Border.all(color: AppColors.main, width: 1) : null,
-                            ),
-                            defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
-                            weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
-                            selectedTextStyle: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
-                            todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
-                            outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
-                            cellMargin: const EdgeInsets.all(2),
-                            cellPadding: EdgeInsets.zero,
-                          ),
-                          onDaySelected: (selectedDay, focusedDay) {
-                            setState(() {
-                              selectedDate = selectedDay;
-                            });
-                          },
+                        leftChevronIcon: Icon(Icons.chevron_left_rounded, size: 24, color: AppColors.main),
+                        rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
+                        headerPadding: const EdgeInsets.symmetric(vertical: 8),
+                        headerMargin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.main.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      daysOfWeekStyle: DaysOfWeekStyle(
+                        weekdayStyle: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.text.withValues(alpha: 0.7),
+                        ),
+                        weekendStyle: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.text.withValues(alpha: 0.7),
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.panelBackground.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      calendarStyle: CalendarStyle(
+                        selectedDecoration: BoxDecoration(
+                          color: AppColors.main,
+                          shape: BoxShape.circle,
+                        ),
+                        todayDecoration: BoxDecoration(
+                          color: AppColors.main.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.main, width: 1),
+                        ),
+                        defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                        weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
+                        selectedTextStyle: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+                        todayTextStyle: TextStyle(fontSize: 14, color: AppColors.main, fontWeight: FontWeight.bold),
+                        outsideTextStyle: TextStyle(fontSize: 14, color: AppColors.text.withValues(alpha: 0.4)),
+                        cellMargin: const EdgeInsets.all(2),
+                        cellPadding: EdgeInsets.zero,
+                      ),
+                      onDaySelected: (selectedDay, focusedDay) {
+                        Navigator.of(context).pop(selectedDay);
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Quick action buttons
+                Row(
+                  children: [
+                    // Today button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop(DateTime.now());
+                        },
+                        icon: const Icon(Icons.today_rounded),
+                        // TODO: localization
+                        label: const Text('Bugün'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.main.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.main,
+                          elevation: 0,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    // Quick action buttons
-                    Row(
-                      children: [
-                        // Today button
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).pop(DateTime.now());
-                            },
-                            icon: const Icon(Icons.today_rounded),
-                            label: const Text('Bugün'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.main.withValues(alpha: 0.1),
-                              foregroundColor: AppColors.main,
-                              elevation: 0,
-                            ),
-                          ),
+                    const SizedBox(width: 8),
+                    // Tomorrow button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop(DateTime.now().add(const Duration(days: 1)));
+                        },
+                        icon: const Icon(Icons.event_rounded),
+                        // TODO: localization
+                        label: const Text('Yarın'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.green.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.green,
+                          elevation: 0,
                         ),
-                        const SizedBox(width: 8),
-                        // Tomorrow button
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).pop(DateTime.now().add(const Duration(days: 1)));
-                            },
-                            icon: const Icon(Icons.event_rounded),
-                            label: const Text('Yarın'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.green.withValues(alpha: 0.1),
-                              foregroundColor: AppColors.green,
-                              elevation: 0,
-                            ),
-                          ),
+                      ),
+                    ),
+                    // Undated button
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // Use epoch time as marker for dateless selection
+                          Navigator.of(context).pop(DateTime.fromMillisecondsSinceEpoch(0));
+                        },
+                        icon: const Icon(Icons.clear_rounded),
+                        // TODO: localization
+                        label: const Text('Tarihsiz'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.red,
+                          elevation: 0,
                         ),
-                        // Undated button
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // Use epoch time as marker for dateless selection
-                              Navigator.of(context).pop(DateTime.fromMillisecondsSinceEpoch(0));
-                            },
-                            icon: const Icon(Icons.clear_rounded),
-                            label: const Text('Tarihsiz'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.red.withValues(alpha: 0.1),
-                              foregroundColor: AppColors.red,
-                              elevation: 0,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('İptal'),
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppColors.main,
-                    foregroundColor: AppColors.white,
-                  ),
-                  onPressed: selectedDate != null
-                      ? () {
-                          Navigator.of(context).pop(selectedDate);
-                        }
-                      : null,
-                  child: const Text('Seç'),
-                ),
               ],
-            );
-          },
+            ),
+          ),
         );
       },
     );
