@@ -445,17 +445,8 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     switch (style) {
       case TaskItemStyle.card:
         return BoxDecoration(
-          color: backgroundColor,
+          color: AppColors.panelBackground.withAlpha(180),
           borderRadius: _getBorderRadiusForStyle(style),
-          border: Border.all(color: AppColors.grey.withAlpha(70), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.grey.withAlpha(40),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 1),
-            ),
-          ],
         );
       case TaskItemStyle.minimal:
         return BoxDecoration(

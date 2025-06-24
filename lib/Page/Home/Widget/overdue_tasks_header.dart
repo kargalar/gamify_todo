@@ -144,15 +144,6 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
                   return TaskItem(taskModel: widget.overdueTasks[index]);
                 },
               ),
-
-              // Simple divider
-              const SizedBox(height: 12),
-              Divider(
-                height: 1,
-                thickness: 0.5,
-                color: AppColors.orange.withValues(alpha: 0.3),
-              ),
-              const SizedBox(height: 12),
             ],
           ),
         ),

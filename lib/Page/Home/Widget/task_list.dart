@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Page/Home/Widget/overdue_tasks_header.dart';
@@ -181,9 +182,13 @@ class _TaskListState extends State<TaskList> {
                 // Routine Tasks
                 if (selectedDateRutinTaskList.isNotEmpty) ...[
                   if (selectedDateTaskList.isNotEmpty) ...[
-                    const SizedBox(height: 15),
-                    const Divider(height: 1, thickness: 1),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 2),
+                    Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: AppColors.text.withAlpha(100),
+                    ),
+                    const SizedBox(height: 2),
                   ],
                   ListView.builder(
                     shrinkWrap: true,
