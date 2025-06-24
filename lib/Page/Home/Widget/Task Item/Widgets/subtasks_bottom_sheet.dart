@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -85,6 +86,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                         const SizedBox(width: 10),
                         ClickableTooltip(
                           title: LocaleKeys.Subtasks.tr(),
+                          // TODO: localization
                           bulletPoints: const ["Tap checkbox to mark subtask as completed", "Long press to edit a subtask", "Swipe left to delete a subtask"],
                           child: Text(
                             LocaleKeys.Subtasks.tr(),
@@ -110,6 +112,19 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                               color: AppColors.main,
                             ),
                           ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    // three dot menu
+                    PopupMenuButton(
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'copy all subtasks',
+                          child: const Text('Copy All Subtasks'),
+                          onTap: () {
+                            _copyAllSubtasks();
+                          },
                         ),
                       ],
                     ),
@@ -229,5 +244,36 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
         },
       ),
     );
+  }
+
+  void _copyAllSubtasks() {
+    final subtasks = widget.taskModel.subtasks ?? [];
+    if (subtasks.isEmpty) return;
+
+    // Create bullet list with completed/incomplete status and descriptions
+    final bulletList = subtasks.map((subtask) {
+      final status = subtask.isCompleted ? '✓' : '○';
+      String result = '$status ${subtask.title}';
+
+      // Add description if it exists and is not empty
+      if (subtask.description != null && subtask.description!.isNotEmpty) {
+        result += '\n    ${subtask.description}';
+      }
+
+      return result;
+    }).join('\n');
+
+    // Copy to clipboard
+    Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
+      // Show confirmation snackbar
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Subtasks copied to clipboard'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.main,
+        ),
+      );
+    });
   }
 }
