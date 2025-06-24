@@ -13,6 +13,8 @@ import 'package:next_level/Page/Task%20Detail%20Page/widget/unarchive_button.dar
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -432,45 +434,95 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       }
 
       final taskProvider = TaskProvider();
+      final taskLogProvider = TaskLogProvider();
+      final routineId = widget.taskModel.routineID!;
+      final today = DateTime.now();
 
-      // Sadece bu spesifik task'ı sıfırla
-      final currentTask = widget.taskModel;
+      debugPrint('=== RESETTING SINGLE ROUTINE PROGRESS ===');
+      debugPrint('Routine ID: $routineId');
 
-      // Reset progress values
-      if (currentTask.type == TaskTypeEnum.COUNTER) {
-        currentTask.currentCount = 0;
-      } else if (currentTask.type == TaskTypeEnum.TIMER) {
-        currentTask.currentDuration = Duration.zero;
-        if (currentTask.isTimerActive == true) {
-          currentTask.isTimerActive = false;
+      // Bu rutine ait tüm taskları bul
+      final routineTasks = taskProvider.taskList.where((task) => task.routineID == routineId).toList();
+
+      // Geçmiş taskları sil, şimdiki taskları sıfırla
+      final tasksToDelete = <TaskModel>[];
+      final tasksToReset = <TaskModel>[];
+
+      for (final task in routineTasks) {
+        if (task.taskDate != null) {
+          final taskDate = task.taskDate!;
+          final isPastTask = taskDate.year < today.year || (taskDate.year == today.year && taskDate.month < today.month) || (taskDate.year == today.year && taskDate.month == today.month && taskDate.day < today.day);
+
+          if (isPastTask) {
+            tasksToDelete.add(task);
+          } else {
+            tasksToReset.add(task);
+          }
+        } else {
+          // Tarihsiz taskları sıfırla
+          tasksToReset.add(task);
         }
       }
 
-      // Reset task status to null
-      currentTask.status = null;
+      debugPrint('Tasks to delete: ${tasksToDelete.length}');
+      debugPrint('Tasks to reset: ${tasksToReset.length}');
 
-      // Update task in storage
-      await HiveService().updateTask(currentTask);
+      // Geçmiş routine taskları tamamen sil
+      for (final task in tasksToDelete) {
+        debugPrint('Deleting past routine task: ${task.title} (ID=${task.id}, Date=${task.taskDate})');
+        await HiveService().deleteTask(task.id);
+      }
 
-      // Bu task'a ait tüm logları sil
+      // Şimdiki routine taskları sıfırla
+      for (final task in tasksToReset) {
+        debugPrint('Resetting current routine task: ${task.title} (ID=${task.id})');
+
+        // Reset progress values
+        if (task.type == TaskTypeEnum.COUNTER) {
+          task.currentCount = 0;
+        } else if (task.type == TaskTypeEnum.TIMER) {
+          task.currentDuration = Duration.zero;
+          if (task.isTimerActive == true) {
+            task.isTimerActive = false;
+            GlobalTimer().startStopTimer(taskModel: task);
+          }
+        }
+
+        // Reset task status to null
+        task.status = null;
+
+        // Update task in storage
+        await HiveService().updateTask(task);
+      }
+
+      // Bu rutine ait tüm logları sil
       final taskLogBox = await HiveService().getTaskLogs();
-      final taskLogIds = <int>[];
+      final routineLogIds = <int>[];
 
       for (final log in taskLogBox) {
-        if (log.taskId == currentTask.id) {
-          taskLogIds.add(log.id);
+        if (log.routineId == routineId) {
+          routineLogIds.add(log.id);
         }
       }
 
-      for (final logId in taskLogIds) {
+      // Routine loglarını Hive'dan sil
+      for (final logId in routineLogIds) {
         await HiveService().deleteTaskLog(logId);
       }
+
+      // Provider'dan silinen taskları kaldır
+      taskProvider.taskList.removeWhere((task) => tasksToDelete.contains(task));
+
+      // Provider'dan routine loglarını temizle
+      taskLogProvider.taskLogList.removeWhere((log) => log.routineId == routineId);
 
       // Provider'ları güncelle
       taskProvider.updateItems();
 
+      debugPrint('Single routine reset completed. Deleted ${tasksToDelete.length} past tasks, reset ${tasksToReset.length} current tasks, and deleted ${routineLogIds.length} logs.');
+
       // Success message
-      Helper().getMessage(message: "Task ilerlemesi başarıyla sıfırlandı.");
+      Helper().getMessage(message: "Rutin ilerlemesi başarıyla sıfırlandı. ${tasksToDelete.length} geçmiş görev silindi, ${tasksToReset.length} mevcut görev sıfırlandı.");
 
       // Sayfayı yenile
       if (mounted) {
@@ -478,6 +530,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       }
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");
+      debugPrint('Error in _resetSingleRoutineProgress: $e');
     }
   }
 }

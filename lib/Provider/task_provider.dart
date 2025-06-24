@@ -100,12 +100,12 @@ class TaskProvider with ChangeNotifier {
 
   // TODO: saat 00:00:00 geçtikten sonra hala dünü gösterecek muhtemelen her ana sayfaya gidişte. bunu düzelt. yani değişken uygulama açıldığında belirlendiği için 12 den sonra değişmeyecek.
   DateTime selectedDate = DateTime.now();
-  bool showCompleted = true;
+  bool showCompleted = false;
 
   // Uygulama başladığında showCompleted durumunu SharedPreferences'dan yükle
   Future<void> loadShowCompletedState() async {
     final prefs = await SharedPreferences.getInstance();
-    showCompleted = prefs.getBool('show_completed') ?? true;
+    showCompleted = prefs.getBool('show_completed') ?? false;
     notifyListeners();
   }
 

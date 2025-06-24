@@ -86,14 +86,12 @@ class _InboxPageState extends State<InboxPage> {
       // Ensure at least one task type is selected
       if (_selectedTaskTypes.isEmpty) {
         _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
-      }
-
-      // Load status filter preferences
-      final hasCompleted = prefs.getBool('categories_show_completed') ?? false;
-      final hasFailed = prefs.getBool('categories_show_failed') ?? false;
-      final hasCancel = prefs.getBool('categories_show_cancel') ?? false;
+      } // Load status filter preferences
+      final hasCompleted = prefs.getBool('categories_show_completed') ?? true;
+      final hasFailed = prefs.getBool('categories_show_failed') ?? true;
+      final hasCancel = prefs.getBool('categories_show_cancel') ?? true;
       final hasArchived = prefs.getBool('categories_show_archived') ?? false;
-      final hasOverdue = prefs.getBool('categories_show_overdue') ?? false;
+      final hasOverdue = prefs.getBool('categories_show_overdue') ?? true;
       _showEmptyStatus = prefs.getBool('categories_show_empty_status') ?? true;
 
       // Clear and rebuild the status set based on saved preferences
