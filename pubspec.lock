@@ -22,6 +22,14 @@ packages:
     description: dart
     source: sdk
     version: "0.3.3"
+  alarm:
+    dependency: "direct main"
+    description:
+      name: alarm
+      sha256: "1eef91f0b803a2370137e0dada9c7c24cc31edf4f1c30b06442dcf486cc192e0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.4"
   analyzer:
     dependency: transitive
     description:
@@ -491,6 +499,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.2"
+  flutter_fgbg:
+    dependency: transitive
+    description:
+      name: flutter_fgbg
+      sha256: eb6da9b2047372566a6e17b505975fe5bace94af01f6fc825c4b6f81baa6c447
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.1"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -1026,6 +1042,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.3"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
   screen_retriever:
     dependency: transitive
     description:
@@ -1070,10 +1094,10 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "846849e3e9b68f3ef4b60c60cf4b3e02e9321bc7f4d8c4692cf87ffa82fc8a3a"
+      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.2"
+    version: "2.5.3"
   shared_preferences_android:
     dependency: transitive
     description:

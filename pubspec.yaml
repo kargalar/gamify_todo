@@ -25,6 +25,7 @@ dependencies:
   # Notification
   flutter_local_notifications: ^19.0.0
   timezone: ^0.10.0
+  alarm: ^5.1.4
 
   # Save Data
   hive_flutter: ^1.1.0

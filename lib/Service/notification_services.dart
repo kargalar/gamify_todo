@@ -12,6 +12,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:alarm/alarm.dart';
 import 'dart:typed_data';
 
 class NotificationService {
@@ -46,6 +47,9 @@ class NotificationService {
 
   Future<void> init() async {
     tz.initializeTimeZones();
+
+    // Initialize alarm package
+    await Alarm.init();
 
     const WindowsInitializationSettings windowsIitializationSettings = WindowsInitializationSettings(
       appName: 'Next Level',
@@ -201,21 +205,15 @@ class NotificationService {
     debugPrint('Is Alarm: $isAlarm');
     debugPrint('Early Reminder Minutes: $earlyReminderMinutes');
 
-    final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(
-      scheduledDate,
-      tz.local,
-    );
-
-    debugPrint('Scheduled TZ Date: $scheduledTZDate');
-    debugPrint('Current TZ Date: ${tz.TZDateTime.now(tz.local)}');
-
     // Task ID'sini payload olarak ekle
-    final String payload = jsonEncode({'taskId': id}); // Eğer erken hatırlatma süresi belirtilmişse (alarm veya bildirim için), erken hatırlatma bildirimi planla
+    final Map<String, dynamic> payload = {'taskId': id};
+
+    // Eğer erken hatırlatma süresi belirtilmişse, erken hatırlatma bildirimi planla
     if (earlyReminderMinutes != null && earlyReminderMinutes > 0) {
-      final tz.TZDateTime earlyReminderDate = scheduledTZDate.subtract(Duration(minutes: earlyReminderMinutes));
+      final DateTime earlyReminderDate = scheduledDate.subtract(Duration(minutes: earlyReminderMinutes));
 
       // Erken hatırlatma zamanı geçmemişse bildirim planla
-      if (earlyReminderDate.isAfter(tz.TZDateTime.now(tz.local))) {
+      if (earlyReminderDate.isAfter(DateTime.now())) {
         String reminderText;
         if (earlyReminderMinutes >= 60) {
           final hours = earlyReminderMinutes ~/ 60;
@@ -229,36 +227,69 @@ class NotificationService {
           reminderText = "$earlyReminderMinutes dakika sonra başlayacak";
         }
 
+        final tz.TZDateTime earlyReminderTZDate = tz.TZDateTime.from(earlyReminderDate, tz.local);
+        final String earlyPayload = jsonEncode(payload);
+
         await flutterLocalNotificationsPlugin.zonedSchedule(
           id + 300000, // Erken hatırlatma için farklı bir ID kullan
           "⏰ $title",
           reminderText,
-          earlyReminderDate,
-          notificationDetails(false), // Erken hatırlatma için alarm değil, normal bildirim kullan
+          earlyReminderTZDate,
+          notificationDetails(false), // Erken hatırlatma için normal bildirim kullan
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           matchDateTimeComponents: DateTimeComponents.dateAndTime,
-          payload: payload,
+          payload: earlyPayload,
         );
       }
     }
 
-    // Asıl bildirimi planla
+    // Asıl bildirimi/alarmı planla
     try {
-      debugPrint('✓ Scheduling main notification...');
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        desc,
-        scheduledTZDate,
-        notificationDetails(isAlarm),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        // Use dateAndTime to ensure notifications are scheduled for the exact date and time
-        matchDateTimeComponents: DateTimeComponents.dateAndTime,
-        payload: payload,
-      );
-      debugPrint('✓ Main notification scheduled successfully');
+      if (isAlarm) {
+        // Alarm package kullanarak gerçek alarm planla
+        debugPrint('✓ Scheduling alarm with alarm package...');
+
+        final alarmSettings = AlarmSettings(
+          id: id,
+          dateTime: scheduledDate,
+          assetAudioPath: 'assets/sounds/alarm.mp3',
+          loopAudio: true,
+          vibrate: true,
+          volumeSettings: VolumeSettings.fade(
+            volume: 0.8,
+            fadeDuration: const Duration(seconds: 3),
+            volumeEnforced: true,
+          ),
+          notificationSettings: NotificationSettings(
+            title: title,
+            body: desc,
+            stopButton: 'Stop Alarm',
+            icon: 'notification_icon',
+          ),
+        );
+
+        await Alarm.set(alarmSettings: alarmSettings);
+        debugPrint('✓ Alarm scheduled successfully with alarm package');
+      } else {
+        // Normal bildirim için flutter_local_notifications kullan
+        debugPrint('✓ Scheduling notification...');
+        final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
+        final String notificationPayload = jsonEncode(payload);
+
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+          id,
+          title,
+          desc,
+          scheduledTZDate,
+          notificationDetails(false),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          matchDateTimeComponents: DateTimeComponents.dateAndTime,
+          payload: notificationPayload,
+        );
+        debugPrint('✓ Notification scheduled successfully');
+      }
     } catch (e) {
-      debugPrint('✗ Error scheduling main notification: $e');
+      debugPrint('✗ Error scheduling ${isAlarm ? 'alarm' : 'notification'}: $e');
     }
   }
 
@@ -274,7 +305,7 @@ class NotificationService {
     }
 
     // Test bildirimi için payload
-    final String payload = jsonEncode({'taskId': 0, 'isTest': true});
+    // final String payload = jsonEncode({'taskId': 0, 'isTest': true});
 
     // // Anlık bildirim gönder
     // await flutterLocalNotificationsPlugin.show(
@@ -307,26 +338,43 @@ class NotificationService {
     //   payload: payload,
     // );
 
-    // 10 saniye sonra alarm bildirimi gönder
-    final tz.TZDateTime alarmDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 2));
+    // 15 saniye sonra gerçek alarm (alarm package ile)
+    final DateTime realAlarmDate = DateTime.now().add(const Duration(seconds: 1));
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      77777, // Alarm test için farklı bir ID
-      "🚨 Alarm Testi",
-      "Bu bir alarm test bildirimidir. 10 saniye sonra çaldı!",
-      alarmDate,
-      notificationDetails(true), // Alarm bildirimi
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      payload: payload,
+    final alarmSettings = AlarmSettings(
+      id: 66666, // Gerçek alarm test için farklı bir ID
+      dateTime: realAlarmDate,
+      assetAudioPath: 'assets/sounds/alarm.mp3',
+      loopAudio: true,
+      vibrate: true,
+      volumeSettings: VolumeSettings.fade(
+        volume: 0.8,
+        fadeDuration: const Duration(seconds: 3),
+        volumeEnforced: true,
+      ),
+      notificationSettings: const NotificationSettings(
+        title: '⏰ Gerçek Alarm Testi',
+        body: 'Bu alarm package ile yapılan gerçek bir alarm testi!',
+        stopButton: 'Alarmı Durdur',
+        icon: 'notification_icon',
+      ),
     );
+
+    await Alarm.set(alarmSettings: alarmSettings);
+    debugPrint('✓ Real alarm test scheduled for 15 seconds');
   }
 
   Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
+    // Cancel all alarms from alarm package
+    await Alarm.stopAll();
   }
 
   Future<void> cancelNotificationOrAlarm(int id) async {
+    // Cancel flutter_local_notifications notification
     await flutterLocalNotificationsPlugin.cancel(id);
+    // Cancel alarm package alarm if it exists
+    await Alarm.stop(id);
   }
 
   NotificationDetails notificationDetails(bool isAlarm) {
