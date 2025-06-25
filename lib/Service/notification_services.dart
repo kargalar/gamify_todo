@@ -13,6 +13,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:alarm/alarm.dart';
+import 'package:alarm/utils/alarm_set.dart';
 import 'dart:typed_data';
 
 class NotificationService {
@@ -50,6 +51,21 @@ class NotificationService {
 
     // Initialize alarm package
     await Alarm.init();
+
+    // Alarm ringing listener'ı ayarla
+    Alarm.ringing.listen((AlarmSet alarmSet) {
+      debugPrint('');
+      debugPrint('🚨🚨🚨 ALARM IS RINGING! 🚨🚨🚨');
+      for (final alarm in alarmSet.alarms) {
+        debugPrint('🚨 ALARM ID: ${alarm.id}');
+        debugPrint('🚨 ALARM TITLE: ${alarm.notificationSettings.title}');
+        debugPrint('🚨 ALARM BODY: ${alarm.notificationSettings.body}');
+      }
+      debugPrint('🚨 CURRENT TIME: ${DateTime.now()}');
+      debugPrint('🚨🚨🚨 ALARM IS RINGING! 🚨🚨🚨');
+      debugPrint('');
+      // Burada alarm çaldığında yapılacak işlemleri ekleyebilirsin
+    });
 
     const WindowsInitializationSettings windowsIitializationSettings = WindowsInitializationSettings(
       appName: 'Next Level',
@@ -248,6 +264,16 @@ class NotificationService {
       if (isAlarm) {
         // Alarm package kullanarak gerçek alarm planla
         debugPrint('✓ Scheduling alarm with alarm package...');
+        debugPrint('Alarm DateTime: $scheduledDate');
+        debugPrint('Current DateTime: ${DateTime.now()}');
+        debugPrint('Time difference: ${scheduledDate.difference(DateTime.now()).inMinutes} minutes');
+
+        // Alarm package için gerekli izinleri kontrol et
+        bool hasAlarmPermission = await requestAlarmPermission();
+        if (!hasAlarmPermission) {
+          debugPrint('✗ Alarm permission not granted');
+          return;
+        }
 
         final alarmSettings = AlarmSettings(
           id: id,
@@ -255,21 +281,38 @@ class NotificationService {
           assetAudioPath: 'assets/sounds/alarm.mp3',
           loopAudio: true,
           vibrate: true,
+          warningNotificationOnKill: true, // Uygulama öldürüldüğünde uyarı
+          androidFullScreenIntent: true, // Android'de tam ekran intent
           volumeSettings: VolumeSettings.fade(
             volume: 0.8,
             fadeDuration: const Duration(seconds: 3),
             volumeEnforced: true,
           ),
           notificationSettings: NotificationSettings(
-            title: title,
+            title: '🚨 $title',
             body: desc,
-            stopButton: 'Stop Alarm',
+            stopButton: 'Alarmı Durdur',
             icon: 'notification_icon',
           ),
         );
 
         await Alarm.set(alarmSettings: alarmSettings);
+
+        // Alarm'ın doğru ayarlandığını doğrula
+        final alarms = await Alarm.getAlarms();
+        final setAlarm = alarms.where((alarm) => alarm.id == id).firstOrNull;
+        if (setAlarm != null) {
+          debugPrint('✓ Alarm successfully set and verified');
+          debugPrint('Alarm ID: ${setAlarm.id}');
+          debugPrint('Alarm DateTime: ${setAlarm.dateTime}');
+        } else {
+          debugPrint('✗ Alarm was not set properly');
+        }
+
         debugPrint('✓ Alarm scheduled successfully with alarm package');
+
+        // Debug: Alarm'ları kontrol et
+        await debugAlarms();
       } else {
         // Normal bildirim için flutter_local_notifications kullan
         debugPrint('✓ Scheduling notification...');
@@ -339,29 +382,46 @@ class NotificationService {
     // );
 
     // 15 saniye sonra gerçek alarm (alarm package ile)
-    final DateTime realAlarmDate = DateTime.now().add(const Duration(seconds: 1));
+    final DateTime realAlarmDate = DateTime.now().add(const Duration(seconds: 5));
 
-    final alarmSettings = AlarmSettings(
-      id: 66666, // Gerçek alarm test için farklı bir ID
-      dateTime: realAlarmDate,
-      assetAudioPath: 'assets/sounds/alarm.mp3',
-      loopAudio: true,
-      vibrate: true,
-      volumeSettings: VolumeSettings.fade(
-        volume: 0.8,
-        fadeDuration: const Duration(seconds: 3),
-        volumeEnforced: true,
-      ),
-      notificationSettings: const NotificationSettings(
-        title: '⏰ Gerçek Alarm Testi',
-        body: 'Bu alarm package ile yapılan gerçek bir alarm testi!',
-        stopButton: 'Alarmı Durdur',
-        icon: 'notification_icon',
-      ),
-    );
+    try {
+      final alarmSettings = AlarmSettings(
+        id: 66666, // Gerçek alarm test için farklı bir ID
+        dateTime: realAlarmDate,
+        assetAudioPath: 'assets/sounds/alarm.mp3',
+        loopAudio: true,
+        vibrate: true,
+        warningNotificationOnKill: true,
+        androidFullScreenIntent: true,
+        volumeSettings: VolumeSettings.fade(
+          volume: 0.8,
+          fadeDuration: const Duration(seconds: 3),
+          volumeEnforced: true,
+        ),
+        notificationSettings: const NotificationSettings(
+          title: '⏰ Gerçek Alarm Testi',
+          body: 'Bu alarm package ile yapılan gerçek bir alarm testi!',
+          stopButton: 'Alarmı Durdur',
+          icon: 'notification_icon',
+        ),
+      );
 
-    await Alarm.set(alarmSettings: alarmSettings);
-    debugPrint('✓ Real alarm test scheduled for 15 seconds');
+      await Alarm.set(alarmSettings: alarmSettings);
+
+      // Alarm'ın doğru ayarlandığını kontrol et
+      final alarms = await Alarm.getAlarms();
+      debugPrint('✓ Total alarms set: ${alarms.length}');
+      final testAlarm = alarms.where((alarm) => alarm.id == 66666).firstOrNull;
+      if (testAlarm != null) {
+        debugPrint('✓ Test alarm found: ID ${testAlarm.id}, DateTime: ${testAlarm.dateTime}');
+      } else {
+        debugPrint('✗ Test alarm not found in alarm list');
+      }
+
+      debugPrint('✓ Real alarm test scheduled for 5 seconds');
+    } catch (e) {
+      debugPrint('✗ Error setting test alarm: $e');
+    }
   }
 
   Future<void> cancelAllNotifications() async {
@@ -456,6 +516,30 @@ class NotificationService {
       ),
       payload: payload,
     );
+  }
+
+  /// Debug: Tüm ayarlanmış alarm'ları göster
+  Future<void> debugAlarms() async {
+    try {
+      final alarms = await Alarm.getAlarms();
+      debugPrint('=== DEBUG ALARMS ===');
+      debugPrint('Total alarms: ${alarms.length}');
+
+      if (alarms.isEmpty) {
+        debugPrint('No alarms set');
+      } else {
+        for (var alarm in alarms) {
+          debugPrint('Alarm ID: ${alarm.id}');
+          debugPrint('  DateTime: ${alarm.dateTime}');
+          debugPrint('  Title: ${alarm.notificationSettings.title}');
+          debugPrint('  Time until alarm: ${alarm.dateTime.difference(DateTime.now()).inMinutes} minutes');
+          debugPrint('  ---');
+        }
+      }
+      debugPrint('=== END DEBUG ALARMS ===');
+    } catch (e) {
+      debugPrint('Error getting alarms: $e');
+    }
   }
 }
 
