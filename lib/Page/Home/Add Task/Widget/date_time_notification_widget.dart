@@ -546,8 +546,9 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
 
     if (selectedTime != null) {
       if (await NotificationService().requestNotificationPermissions()) {
-        if (addTaskProvider.isAlarmOn) return;
-        addTaskProvider.isNotificationOn = true;
+        if (!addTaskProvider.isAlarmOn) {
+          addTaskProvider.isNotificationOn = true;
+        }
       } else {
         addTaskProvider.isNotificationOn = false;
         addTaskProvider.isAlarmOn = false;
@@ -558,6 +559,9 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
     }
 
     addTaskProvider.updateTime(selectedTime);
+
+    // Force UI update
+    setState(() {});
   }
 
   // Method to change notification status
@@ -576,8 +580,9 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
 
       if (selectedTime != null) {
         if (await NotificationService().requestNotificationPermissions()) {
-          if (addTaskProvider.isAlarmOn) return;
-          addTaskProvider.isNotificationOn = true;
+          if (!addTaskProvider.isAlarmOn) {
+            addTaskProvider.isNotificationOn = true;
+          }
         } else {
           addTaskProvider.isNotificationOn = false;
           addTaskProvider.isAlarmOn = false;
