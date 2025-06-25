@@ -64,6 +64,7 @@ class NotificationService {
       enableVibration: true,
       enableLights: true,
       sound: RawResourceAndroidNotificationSound('alarm'),
+      showBadge: true,
     );
 
     const AndroidNotificationChannel scheduleChannel = AndroidNotificationChannel(
@@ -89,9 +90,12 @@ class NotificationService {
 
     // Kanalları oluştur
     final androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-    await androidPlugin?.createNotificationChannel(alarmChannel);
-    await androidPlugin?.createNotificationChannel(scheduleChannel);
-    await androidPlugin?.createNotificationChannel(timerChannel);
+
+    if (androidPlugin != null) {
+      await androidPlugin.createNotificationChannel(alarmChannel);
+      await androidPlugin.createNotificationChannel(scheduleChannel);
+      await androidPlugin.createNotificationChannel(timerChannel);
+    }
 
     InitializationSettings initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
@@ -272,33 +276,46 @@ class NotificationService {
     // Test bildirimi için payload
     final String payload = jsonEncode({'taskId': 0, 'isTest': true});
 
-    // Anlık bildirim gönder
-    await flutterLocalNotificationsPlugin.show(
-      99999, // Test için özel ID
-      "Bildirim Testi",
-      "Bu bir test bildirimidir. Bildirimler çalışıyor!",
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'task_schedule',
-          'Task Schedule',
-          channelDescription: 'Notification for schedule tasks',
-          importance: Importance.max,
-          priority: Priority.high,
-          playSound: true,
-        ),
-      ),
-      payload: payload,
-    );
+    // // Anlık bildirim gönder
+    // await flutterLocalNotificationsPlugin.show(
+    //   99999, // Test için özel ID
+    //   "Bildirim Testi",
+    //   "Bu bir test bildirimidir. Bildirimler çalışıyor!",
+    //   const NotificationDetails(
+    //     android: AndroidNotificationDetails(
+    //       'task_schedule',
+    //       'Task Schedule',
+    //       channelDescription: 'Notification for schedule tasks',
+    //       importance: Importance.max,
+    //       priority: Priority.high,
+    //       playSound: true,
+    //     ),
+    //   ),
+    //   payload: payload,
+    // );
 
-    // 5 saniye sonra zamanlanmış bildirim gönder
-    final tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
+    // // 5 saniye sonra zamanlanmış bildirim gönder
+    // final tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
+
+    // await flutterLocalNotificationsPlugin.zonedSchedule(
+    //   88888, // Test için farklı bir ID
+    //   "Zamanlanmış Bildirim Testi",
+    //   "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!",
+    //   scheduledDate,
+    //   notificationDetails(false), // Normal bildirim
+    //   androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    //   payload: payload,
+    // );
+
+    // 10 saniye sonra alarm bildirimi gönder
+    final tz.TZDateTime alarmDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 2));
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      88888, // Test için farklı bir ID
-      "Zamanlanmış Bildirim Testi",
-      "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!",
-      scheduledDate,
-      notificationDetails(true),
+      77777, // Alarm test için farklı bir ID
+      "🚨 Alarm Testi",
+      "Bu bir alarm test bildirimidir. 10 saniye sonra çaldı!",
+      alarmDate,
+      notificationDetails(true), // Alarm bildirimi
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: payload,
     );
@@ -324,9 +341,9 @@ class NotificationService {
         sound: isAlarm ? const RawResourceAndroidNotificationSound('alarm') : null,
         enableLights: true,
         enableVibration: true,
-        vibrationPattern: isAlarm ? Int64List.fromList([0, 1000, 500, 1000, 500, 1000]) : null,
+        vibrationPattern: isAlarm ? Int64List.fromList([0, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800]) : null,
         ongoing: isAlarm, // Only alarms stay visible, notifications can be swiped away
-        autoCancel: !isAlarm, // Regular notifications can be auto-dismissed, alarms cannot
+        autoCancel: false, // Alarms cannot be auto-dismissed
         fullScreenIntent: isAlarm,
         category: isAlarm ? AndroidNotificationCategory.alarm : AndroidNotificationCategory.reminder,
         actions: isAlarm

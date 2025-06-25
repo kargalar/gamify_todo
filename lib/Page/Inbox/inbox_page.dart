@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
@@ -13,7 +12,6 @@ import 'package:next_level/Page/Inbox/Widget/inbox_task_list.dart';
 import 'package:next_level/Page/Inbox/Widget/date_filter_state.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Service/debug_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -182,19 +180,6 @@ class _InboxPageState extends State<InboxPage> {
           },
         ),
         actions: [
-          // Debug button (temporary)
-          if (kDebugMode)
-            IconButton(
-              icon: const Icon(
-                Icons.bug_report,
-                size: 20,
-                color: AppColors.red,
-              ),
-              tooltip: 'Debug',
-              onPressed: () async {
-                await DebugHelper.runFullDebug();
-              },
-            ),
           IconButton(
             icon: Icon(
               Icons.add_rounded,
