@@ -286,7 +286,7 @@ class NotificationService {
           volumeSettings: VolumeSettings.fade(
             volume: 0.8,
             fadeDuration: const Duration(seconds: 3),
-            volumeEnforced: true,
+            volumeEnforced: false, // Prevent volume control UI from appearing
           ),
           notificationSettings: NotificationSettings(
             title: '🚨 $title',
@@ -394,9 +394,9 @@ class NotificationService {
         warningNotificationOnKill: true,
         androidFullScreenIntent: true,
         volumeSettings: VolumeSettings.fade(
-          volume: 0.8,
+          // volume: 0.8,
           fadeDuration: const Duration(seconds: 3),
-          volumeEnforced: true,
+          // volumeEnforced: false, // Prevent volume control UI from appearing
         ),
         notificationSettings: const NotificationSettings(
           title: '⏰ Gerçek Alarm Testi',
@@ -451,7 +451,7 @@ class NotificationService {
         enableVibration: true,
         vibrationPattern: isAlarm ? Int64List.fromList([0, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800]) : null,
         ongoing: isAlarm, // Only alarms stay visible, notifications can be swiped away
-        autoCancel: false, // Alarms cannot be auto-dismissed
+        autoCancel: false, // Prevent auto-dismissal when notification panel is opened/closed
         fullScreenIntent: isAlarm,
         category: isAlarm ? AndroidNotificationCategory.alarm : AndroidNotificationCategory.reminder,
         actions: isAlarm
@@ -460,8 +460,8 @@ class NotificationService {
                   'stop_alarm',
                   '⏹️ STOP ALARM',
                   cancelNotification: true,
-                  showsUserInterface: true,
-                )
+                  showsUserInterface: false, // Prevent showing UI when action is pressed
+                ),
               ]
             : null,
         onlyAlertOnce: false,
@@ -503,7 +503,7 @@ class NotificationService {
           playSound: false,
           // Make active timer notifications non-dismissible, but completed ones dismissible
           ongoing: !isCompleted, // Cannot be swiped away when true for active timers
-          autoCancel: isCompleted, // Auto dismiss when tapped if completed
+          autoCancel: false,
           usesChronometer: !isCompleted, // Don't use chronometer for completed notifications
           chronometerCountDown: isCountDown && !isCompleted,
           when: isCountDown ? DateTime.now().millisecondsSinceEpoch + currentDuration.inMilliseconds : DateTime.now().millisecondsSinceEpoch - currentDuration.inMilliseconds,
