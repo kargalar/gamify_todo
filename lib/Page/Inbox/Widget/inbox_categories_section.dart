@@ -189,7 +189,15 @@ class InboxCategoriesSection extends StatelessWidget {
         case DateFilterState.withDate:
           return task.taskDate != null; // Show only tasks with dates
         case DateFilterState.withoutDate:
-          return task.taskDate == null; // Show only tasks without dates
+          // Show only tasks without dates, but exclude today's tasks
+          if (task.taskDate == null) {
+            return true; // Tasks without date
+          }
+          // Exclude today's tasks
+          final today = DateTime.now();
+          final todayDate = DateTime(today.year, today.month, today.day);
+          final taskDate = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+          return !taskDate.isAtSameMomentAs(todayDate);
       }
     }).toList();
 

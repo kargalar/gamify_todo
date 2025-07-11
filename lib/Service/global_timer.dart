@@ -141,15 +141,18 @@ class GlobalTimer {
         prefs.setString('item_last_update_${storeItemModel.id}', now.toIso8601String());
         prefs.setString('item_last_progress_${storeItemModel.id}', storeItemModel.currentDuration!.inSeconds.toString());
 
+        // Reset alarm triggered flag when timer starts
+        prefs.remove('store_item_alarm_triggered_${storeItemModel.id}');
+
         if (storeItemModel.currentDuration!.inSeconds > 0) {
-          // Süre dolduğunda bildirim planla
+          // Süre dolduğunda alarm çalsın
           final scheduledDate = now.add(storeItemModel.currentDuration!);
           NotificationService().scheduleNotification(
             id: storeItemModel.id + 100000,
             title: LocaleKeys.item_expired_title.tr(args: [storeItemModel.title]),
             desc: LocaleKeys.item_expired_desc.tr(),
             scheduledDate: scheduledDate,
-            isAlarm: true,
+            isAlarm: true, // Her zaman alarm çalsın
           );
         }
       } else {
@@ -159,6 +162,8 @@ class GlobalTimer {
         prefs.remove('item_timer_start_duration_${storeItemModel.id}');
         prefs.remove('item_last_update_${storeItemModel.id}');
         prefs.remove('item_last_progress_${storeItemModel.id}');
+        // Clear alarm triggered flag when timer stops
+        prefs.remove('store_item_alarm_triggered_${storeItemModel.id}');
 
         // Bildirimleri iptal et
         NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
@@ -268,33 +273,42 @@ class GlobalTimer {
 
           for (var storeItem in StoreProvider().storeItemList) {
             if (storeItem.isTimerActive != null && storeItem.isTimerActive == true) {
+              // Store previous duration to check if it crosses zero
+              Duration previousDuration = storeItem.currentDuration!;
+
+              // Decrease timer by 1 second
               storeItem.currentDuration = storeItem.currentDuration! - const Duration(seconds: 1);
 
-              // Check if timer has reached zero
-              if (storeItem.currentDuration!.inSeconds <= 0) {
-                // Cancel the scheduled notification first
-                NotificationService().cancelNotificationOrAlarm(storeItem.id + 100000);
+              // Check if timer just crossed zero (from positive to zero or negative)
+              if (previousDuration.inSeconds > 0 && storeItem.currentDuration!.inSeconds <= 0) {
+                // Check if alarm has already been triggered for this item
+                String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
+                bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
 
-                // Show timer completion notification
-                NotificationService().showTimerNotification(
-                  id: storeItem.id + 200000, // Different ID for completion notification
-                  title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
-                  currentDuration: Duration.zero,
-                  remainingDuration: null,
-                  isCountDown: true,
-                  isCompleted: true, // Mark as completed so it can be dismissed
-                );
+                if (!alarmTriggered) {
+                  // Cancel the scheduled notification first
+                  NotificationService().cancelNotificationOrAlarm(storeItem.id + 100000);
 
-                // Auto-dismiss notification after 10 seconds
-                Future.delayed(const Duration(seconds: 10), () {
-                  NotificationService().cancelNotificationOrAlarm(storeItem.id + 200000);
-                });
+                  // Show timer completion alarm (only once when timer reaches zero)
+                  NotificationService().scheduleNotification(
+                    id: storeItem.id + 200000, // Different ID for completion notification
+                    title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
+                    desc: LocaleKeys.item_expired_desc.tr(),
+                    scheduledDate: DateTime.now(), // Schedule it to trigger immediately
+                    isAlarm: true, // Always show alarm when timer completes
+                  );
 
-                // Reset timer to zero to prevent negative values
-                storeItem.currentDuration = Duration.zero;
+                  // Auto-dismiss notification after 10 seconds
+                  Future.delayed(const Duration(seconds: 10), () {
+                    NotificationService().cancelNotificationOrAlarm(storeItem.id + 200000);
+                  });
 
-                // Update item in database
-                ServerManager().updateItem(itemModel: storeItem);
+                  // Mark alarm as triggered so it won't trigger again
+                  prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
+
+                  // Update item in database
+                  ServerManager().updateItem(itemModel: storeItem);
+                }
               }
 
               if (storeItem.currentDuration!.inSeconds % 5 == 0) {
@@ -373,7 +387,37 @@ class GlobalTimer {
           final now = DateTime.now();
           final difference = now.difference(lastUpdate);
 
-          storeItem.currentDuration = lastProgress - difference;
+          // Calculate the new duration
+          Duration newDuration = lastProgress - difference;
+
+          // Check if timer crossed zero while app was closed
+          if (lastProgress.inSeconds > 0 && newDuration.inSeconds <= 0) {
+            // Check if alarm has already been triggered
+            String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
+            bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
+
+            if (!alarmTriggered) {
+              // Trigger alarm for expired timer
+              NotificationService().scheduleNotification(
+                id: storeItem.id + 200000,
+                title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
+                desc: LocaleKeys.item_expired_desc.tr(),
+                scheduledDate: DateTime.now(),
+                isAlarm: true,
+              );
+
+              // Auto-dismiss notification after 10 seconds
+              Future.delayed(const Duration(seconds: 10), () {
+                NotificationService().cancelNotificationOrAlarm(storeItem.id + 200000);
+              });
+
+              // Mark alarm as triggered
+              prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
+            }
+          }
+
+          // Update the duration (can go negative)
+          storeItem.currentDuration = newDuration;
 
           ServerManager().updateItem(itemModel: storeItem);
         }

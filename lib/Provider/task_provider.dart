@@ -300,6 +300,62 @@ class TaskProvider with ChangeNotifier {
         existingTask.title = taskModel.title;
         existingTask.description = taskModel.description;
         existingTask.taskDate = taskModel.taskDate;
+
+        // Handle task status based on date change (similar to changeTaskDate logic)
+        if (taskModel.taskDate == null) {
+          // Task is being made dateless
+          // Stop timer if active
+          if (existingTask.type == TaskTypeEnum.TIMER && existingTask.isTimerActive == true) {
+            existingTask.isTimerActive = false;
+          }
+
+          // Update task status to in progress if not completed
+          if (existingTask.status != TaskStatusEnum.COMPLETED) {
+            debugPrint('Resetting task status to null due to dateless change: ID=${existingTask.id}, Title=${existingTask.title}');
+            existingTask.status = null;
+
+            // Create log for the status change to null (in progress)
+            TaskLogProvider().addTaskLog(
+              existingTask,
+              customStatus: null, // null status means "in progress"
+            );
+          }
+        } else {
+          // Task has a specific date, check if it's in the past
+          final now = DateTime.now();
+          final taskDateTime = taskModel.taskDate!.copyWith(
+            hour: existingTask.time?.hour ?? 23,
+            minute: existingTask.time?.minute ?? 59,
+            second: 59,
+          );
+
+          if (taskDateTime.isBefore(now)) {
+            // Task date is in the past, mark as overdue if not already completed
+            if (existingTask.status != TaskStatusEnum.COMPLETED) {
+              debugPrint('Setting task status to overdue due to past date: ID=${existingTask.id}, Title=${existingTask.title}');
+              existingTask.status = TaskStatusEnum.OVERDUE;
+
+              // Create log for overdue status
+              TaskLogProvider().addTaskLog(
+                existingTask,
+                customStatus: TaskStatusEnum.OVERDUE,
+              );
+            }
+          } else {
+            // Task date is in the future or today, reset status to null (in progress) if not completed
+            if (existingTask.status != TaskStatusEnum.COMPLETED && existingTask.status != null) {
+              debugPrint('Resetting task status to null due to date change: ID=${existingTask.id}, Title=${existingTask.title}');
+              existingTask.status = null;
+
+              // Create log for the status change to null (in progress)
+              TaskLogProvider().addTaskLog(
+                existingTask,
+                customStatus: null, // null status means "in progress"
+              );
+            }
+          }
+        }
+
         existingTask.time = taskModel.time;
         existingTask.isNotificationOn = taskModel.isNotificationOn;
         existingTask.isAlarmOn = taskModel.isAlarmOn;

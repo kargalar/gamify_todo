@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -87,6 +88,9 @@ class CheckboxStatusViewModel extends ChangeNotifier {
 
         // If new status is completed, add credit
         if (newStatus == TaskStatusEnum.COMPLETED) {
+          // Add haptic feedback when completing a checkbox task
+          HapticFeedback.lightImpact();
+
           AppHelper().addCreditByProgress(taskModel.remainingDuration!);
         }
       }

@@ -31,14 +31,14 @@ class NotificationHelper {
     final isTimerActive = item.isTimerActive ?? false;
 
     if (currentDuration.inSeconds > 0 && isTimerActive) {
-      // Zamanlanmış bildirimi yeniden hesapla
+      // Timer aktifse ve süre varsa alarm planla
       final int secondsUntilCompletion = currentDuration.inSeconds;
       NotificationService().scheduleNotification(
         id: item.id,
         title: '⚠️ ${item.title} Süre Doldu',
         desc: 'Sınırı Aşma!',
         scheduledDate: DateTime.now().add(Duration(seconds: secondsUntilCompletion)),
-        isAlarm: true,
+        isAlarm: true, // Her zaman alarm çalsın
       );
     } else if (isTimerActive && currentDuration.inSeconds <= 0) {
       // Halihazırdaki zamanlanmış bildirimi iptal et
