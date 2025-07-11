@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
-import 'package:next_level/Page/Task%20Detail%20Page/routine_detail_page.dart';
+import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
@@ -98,21 +98,21 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () async {
-          // Create a task model from the routine to pass to RoutineDetailPage
+          // Create a task model from the routine to pass to AddTaskPage for editing
           final routineTask = taskProvider.taskList.firstWhere(
             (task) => task.routineID == routine.id,
             orElse: () => TaskModel(
+              routineID: routine.id,
               title: routine.title,
               type: routine.type,
               taskDate: DateTime.now(),
               isNotificationOn: routine.isNotificationOn,
               isAlarmOn: routine.isAlarmOn,
-              routineID: routine.id,
             ),
           );
 
           await NavigatorService().goTo(
-            RoutineDetailPage(taskModel: routineTask),
+            AddTaskPage(editTask: routineTask),
             transition: Transition.rightToLeft,
           );
         },

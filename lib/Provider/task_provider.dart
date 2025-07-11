@@ -170,7 +170,12 @@ class TaskProvider with ChangeNotifier {
       debugPrint('Task belongs to routine ID=${taskModel.routineID}');
 
       // Find the routine in the list
-      RoutineModel routine = routineList.firstWhere((element) => element.id == taskModel.routineID); // Update routine properties
+      RoutineModel routine = routineList.firstWhere((element) => element.id == taskModel.routineID);
+
+      // Preserve the original isArchived status - don't change it during edit
+      bool originalIsArchived = routine.isArchived;
+
+      // Update routine properties
       routine.title = taskModel.title;
       routine.description = taskModel.description;
       routine.type = taskModel.type;
@@ -181,7 +186,7 @@ class TaskProvider with ChangeNotifier {
       routine.repeatDays = selectedDays;
       routine.attirbuteIDList = taskModel.attributeIDList;
       routine.skillIDList = taskModel.skillIDList;
-      routine.isArchived = taskModel.status == TaskStatusEnum.COMPLETED ? true : false;
+      routine.isArchived = originalIsArchived; // Preserve the original archive status
       routine.priority = taskModel.priority;
       routine.categoryId = taskModel.categoryId;
       routine.earlyReminderMinutes = taskModel.earlyReminderMinutes;
