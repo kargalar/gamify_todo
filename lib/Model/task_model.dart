@@ -28,15 +28,15 @@ class TaskModel extends HiveObject {
   @HiveField(8)
   bool isAlarmOn; // notification açık mı
   @HiveField(9)
-  Duration? currentDuration; // timer ise süre buradan takip edilecek
+  late Duration? currentDuration; // timer ise süre buradan takip edilecek
   @HiveField(10)
-  Duration? remainingDuration; // timer ise hedef süre timer değilse tecrübe puanı buna göre gelecek
+  late Duration? remainingDuration; // timer ise hedef süre timer değilse tecrübe puanı buna göre gelecek
   @HiveField(11)
-  int? currentCount; // counter ise sayı buradan takip edilecek
+  late int? currentCount; // counter ise sayı buradan takip edilecek
   @HiveField(12)
-  int? targetCount; // counter ise hedef sayı
+  late int? targetCount; // counter ise hedef sayı
   @HiveField(13)
-  bool? isTimerActive; // timer aktif mi
+  late bool? isTimerActive; // timer aktif mi
   @HiveField(14)
   List<int>? attributeIDList; // etki edeceği özellikler
   @HiveField(15)
@@ -74,11 +74,11 @@ class TaskModel extends HiveObject {
     this.time,
     required this.isNotificationOn,
     required this.isAlarmOn,
-    this.currentDuration,
-    this.remainingDuration,
-    this.currentCount,
-    this.targetCount,
-    this.isTimerActive,
+    Duration? currentDuration,
+    Duration? remainingDuration,
+    int? currentCount,
+    int? targetCount,
+    bool? isTimerActive,
     this.attributeIDList,
     this.skillIDList,
     this.status,
@@ -89,7 +89,12 @@ class TaskModel extends HiveObject {
     bool? showSubtasks,
     this.earlyReminderMinutes,
     this.attachmentPaths,
-  }) : _showSubtasks = showSubtasks;
+  })  : _showSubtasks = showSubtasks,
+        isTimerActive = type == TaskTypeEnum.TIMER ? (isTimerActive ?? false) : isTimerActive,
+        currentDuration = type == TaskTypeEnum.TIMER ? (currentDuration ?? Duration.zero) : currentDuration,
+        remainingDuration = type == TaskTypeEnum.TIMER ? (remainingDuration ?? const Duration(minutes: 30)) : remainingDuration,
+        currentCount = type == TaskTypeEnum.COUNTER ? (currentCount ?? 0) : currentCount,
+        targetCount = type == TaskTypeEnum.COUNTER ? (targetCount ?? 1) : targetCount;
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     Duration stringToDuration(String timeString) {
@@ -109,10 +114,10 @@ class TaskModel extends HiveObject {
       time: json['time'] != null ? TimeOfDay.fromDateTime(DateTime.parse("1970-01-01 ${json['time']}")) : null,
       isNotificationOn: json['is_notification_on'],
       isAlarmOn: json['is_alarm_on'],
-      currentDuration: json['current_duration'] != null ? stringToDuration(json['current_duration']) : null,
-      remainingDuration: json['remaining_duration'] != null ? stringToDuration(json['remaining_duration']) : null,
-      currentCount: json['current_count'],
-      targetCount: json['target_count'],
+      currentDuration: json['current_duration'] != null ? stringToDuration(json['current_duration']) : (type == TaskTypeEnum.TIMER ? Duration.zero : null),
+      remainingDuration: json['remaining_duration'] != null ? stringToDuration(json['remaining_duration']) : (type == TaskTypeEnum.TIMER ? const Duration(minutes: 30) : null),
+      currentCount: json['current_count'] ?? (type == TaskTypeEnum.COUNTER ? 0 : null),
+      targetCount: json['target_count'] ?? (type == TaskTypeEnum.COUNTER ? 1 : null),
       isTimerActive: json['is_timer_active'] ?? (type == TaskTypeEnum.TIMER ? false : null),
       attributeIDList: json['attribute_id_list'] != null ? (json['attribute_id_list'] as List).map((i) => i as int).toList() : null,
       skillIDList: json['skill_id_list'] != null ? (json['skill_id_list'] as List).map((i) => i as int).toList() : null,
@@ -182,7 +187,7 @@ extension TaskModelExtension on TaskModel {
     }
 
     bool isCompletedCheck() {
-      return isCompleted ? status == null || (type == TaskTypeEnum.TIMER && isTimerActive == true && isRoutineCheck()) : true;
+      return isCompleted ? status == null || (type == TaskTypeEnum.TIMER && (isTimerActive ?? false) && isRoutineCheck()) : true;
     }
 
     return taskDate?.isSameDay(date) == true && isRoutineCheck() && isCompletedCheck();

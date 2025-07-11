@@ -27,7 +27,7 @@ class GlobalTimer {
   }) async {
     if (taskModel != null) {
       // Timer durumunu değiştir
-      bool newTimerState = !taskModel.isTimerActive!;
+      bool newTimerState = !(taskModel.isTimerActive ?? false);
       taskModel.isTimerActive = newTimerState;
 
       // Timer başlatıldığında zamanı kaydet
@@ -116,7 +116,7 @@ class GlobalTimer {
       ServerManager().updateTask(taskModel: taskModel);
     } else if (storeItemModel != null) {
       // Store item timer durumunu değiştir
-      bool newTimerState = !storeItemModel.isTimerActive!;
+      bool newTimerState = !(storeItemModel.isTimerActive ?? false);
       storeItemModel.isTimerActive = newTimerState;
 
       // Timer başlatıldığında zamanı kaydet
@@ -180,7 +180,7 @@ class GlobalTimer {
   }
 
   void startStopGlobalTimer() {
-    final bool isAllTimersOff = !TaskProvider().taskList.any((element) => element.isTimerActive != null && element.isTimerActive!) && !StoreProvider().storeItemList.any((element) => element.isTimerActive != null && element.isTimerActive!);
+    final bool isAllTimersOff = !TaskProvider().taskList.any((element) => element.isTimerActive != null && (element.isTimerActive ?? false)) && !StoreProvider().storeItemList.any((element) => element.isTimerActive != null && (element.isTimerActive ?? false));
 
     if (_timer != null && _timer!.isActive && isAllTimersOff) {
       _timer!.cancel();

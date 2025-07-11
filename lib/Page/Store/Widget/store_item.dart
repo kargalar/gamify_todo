@@ -152,7 +152,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
 
     switch (widget.storeItemModel.type) {
       case TaskTypeEnum.TIMER:
-        iconData = widget.storeItemModel.isTimerActive! ? Icons.pause : Icons.play_arrow;
+        iconData = (widget.storeItemModel.isTimerActive ?? false) ? Icons.pause : Icons.play_arrow;
         break;
       case TaskTypeEnum.COUNTER:
         iconData = Icons.add;
@@ -190,7 +190,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     } else {
       // TIMER
       valueText = widget.storeItemModel.currentDuration!.textShortDynamic();
-      textColor = widget.storeItemModel.isTimerActive! ? AppColors.main : AppColors.text;
+      textColor = (widget.storeItemModel.isTimerActive ?? false) ? AppColors.main : AppColors.text;
     }
 
     return Row(

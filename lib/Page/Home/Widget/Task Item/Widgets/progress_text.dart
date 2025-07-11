@@ -38,11 +38,11 @@ class ProgressText extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    "${taskModel.currentDuration!.textShortDynamic()}/${taskModel.remainingDuration!.textShortDynamic()}",
+                    "${taskModel.currentDuration?.textShortDynamic() ?? '0:00'}/${taskModel.remainingDuration?.textShortDynamic() ?? '0:00'}",
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: taskModel.isTimerActive! ? AppColors.main : null,
+                      color: (taskModel.isTimerActive ?? false) ? AppColors.main : null,
                     ),
                   ),
           ),

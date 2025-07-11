@@ -1757,6 +1757,31 @@ class TaskProvider with ChangeNotifier {
           );
         }
 
+        // Fix null values for task properties that might be corrupted during archiving
+        if (task.type == TaskTypeEnum.TIMER) {
+          if (task.isTimerActive == null) {
+            task.isTimerActive = false;
+            debugPrint('Fixed null isTimerActive for timer task: ID=${task.id}');
+          }
+          if (task.currentDuration == null) {
+            task.currentDuration = Duration.zero;
+            debugPrint('Fixed null currentDuration for timer task: ID=${task.id}');
+          }
+          if (task.remainingDuration == null) {
+            task.remainingDuration = const Duration(minutes: 30); // Default 30 minutes
+            debugPrint('Fixed null remainingDuration for timer task: ID=${task.id}');
+          }
+        } else if (task.type == TaskTypeEnum.COUNTER) {
+          if (task.currentCount == null) {
+            task.currentCount = 0;
+            debugPrint('Fixed null currentCount for counter task: ID=${task.id}');
+          }
+          if (task.targetCount == null) {
+            task.targetCount = 1;
+            debugPrint('Fixed null targetCount for counter task: ID=${task.id}');
+          }
+        }
+
         await ServerManager().updateTask(taskModel: task);
       }
     }

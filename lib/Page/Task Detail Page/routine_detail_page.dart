@@ -36,7 +36,12 @@ class RoutineDetailPage extends StatefulWidget {
 
 class _RoutineDetailPageState extends State<RoutineDetailPage> {
   late TaskDetailViewModel _viewModel;
-  late final routine = TaskProvider().routineList.firstWhere((r) => r.id == widget.taskModel.routineID);
+  late final routine = widget.taskModel.routineID != null
+      ? TaskProvider().routineList.firstWhere(
+            (r) => r.id == widget.taskModel.routineID,
+            orElse: () => throw ArgumentError('Routine not found with ID: ${widget.taskModel.routineID}'),
+          )
+      : throw ArgumentError('Task model has no routine ID');
 
   @override
   void initState() {

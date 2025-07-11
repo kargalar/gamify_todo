@@ -171,7 +171,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                   onFailAnimation: _playFailAnimation,
                   onCancelAnimation: _playCancelAnimation,
                   child: Opacity(
-                    opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive!) ? 0.75 : 1.0,
+                    opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && (widget.taskModel.isTimerActive ?? false)) ? 0.75 : 1.0,
                     child: InkWell(
                       onTap: () {
                         // eğer subtask var ise subtask bottom sheet açılır
@@ -194,7 +194,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && widget.taskModel.isTimerActive! ? null : _getBorderRadiusForStyle(styleProvider.currentStyle),
+                              borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && (widget.taskModel.isTimerActive ?? false) ? null : _getBorderRadiusForStyle(styleProvider.currentStyle),
                             ),
                             child: Row(
                               children: [
@@ -296,7 +296,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                       ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.COMPLETED)
                           ? Icons.check_box
                           : Icons.check_box_outline_blank
-                      : widget.taskModel.isTimerActive!
+                      : (widget.taskModel.isTimerActive ?? false)
                           ? Icons.pause
                           : Icons.play_arrow,
                   size: 27,
