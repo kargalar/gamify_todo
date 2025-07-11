@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
@@ -256,6 +257,9 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
     final bool isSubtaskBeingCompleted = !widget.subtask.isCompleted;
 
     if (isSubtaskBeingCompleted) {
+      // Add haptic feedback when completing a subtask
+      // HapticFeedback.lightImpact();
+
       // First, immediately update the visual state (checkbox appears checked)
       _isVisuallyCompleted = true;
       setState(() {});

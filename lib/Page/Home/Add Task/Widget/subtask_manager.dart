@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/subtask_model.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
+import 'package:next_level/Page/Home/Add Task/Widget/subtask_dialog.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
@@ -108,6 +109,14 @@ class _SubtaskManagerState extends State<SubtaskManager> {
         status: StatusEnum.WARNING,
         message: 'You cannot complete subtasks for future routine tasks. Please wait until ${DateFormat('MMM dd').format(addTaskProvider.editTask!.taskDate!)} to complete this subtask.',
       );
+    }
+
+    // Check if this subtask is being completed (not already completed)
+    final bool isSubtaskBeingCompleted = !addTaskProvider.subtasks[index].isCompleted;
+
+    if (isSubtaskBeingCompleted) {
+      // Add haptic feedback when completing a subtask
+      HapticFeedback.lightImpact();
     }
 
     addTaskProvider.toggleSubtaskCompletion(index);

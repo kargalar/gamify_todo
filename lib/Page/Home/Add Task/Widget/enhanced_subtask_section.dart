@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
@@ -213,6 +214,15 @@ class _EnhancedSubtaskSectionState extends State<EnhancedSubtaskSection> {
 
   void _toggleSubtaskCompletion(int index) {
     final addTaskProvider = context.read<AddTaskProvider>();
+
+    // Check if this subtask is being completed (not already completed)
+    final bool isSubtaskBeingCompleted = !addTaskProvider.subtasks[index].isCompleted;
+
+    if (isSubtaskBeingCompleted) {
+      // Add haptic feedback when completing a subtask
+      HapticFeedback.lightImpact();
+    }
+
     addTaskProvider.toggleSubtaskCompletion(index);
     setState(() {}); // Refresh the UI
   }

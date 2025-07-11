@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -111,9 +110,6 @@ class TaskActionHandler {
         ServerManager().updateTask(taskModel: taskModel);
         HomeWidgetService.updateAllWidgets();
       } else {
-        // Add haptic feedback when completing a checkbox task
-        HapticFeedback.lightImpact();
-
         // Use the new undo functionality for completion
         TaskProvider().completeTaskWithUndo(taskModel);
         return; // Return early since completeTaskWithUndo handles all updates

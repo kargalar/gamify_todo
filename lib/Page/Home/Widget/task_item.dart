@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/Handlers/task_action_handler.dart';
 import 'package:next_level/Core/extensions.dart';
@@ -129,6 +130,9 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   }
 
   void _createBatchLog(int change) {
+    // Add haptic feedback when completing a checkbox task
+    HapticFeedback.lightImpact();
+
     // Create a single batch log entry
     TaskActionHandler.handleTaskAction(
       widget.taskModel,
@@ -343,6 +347,9 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       _isVisuallyCompleted = true;
       setState(() {});
 
+      // Add haptic feedback when completing a checkbox task
+      HapticFeedback.lightImpact();
+
       // Then play the completion animation, and complete the task when animation finishes
       _playCompletionAnimation(() {
         // Actually complete the task after animation
@@ -355,6 +362,8 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         );
       });
     } else {
+      // Add haptic feedback when completing a checkbox task
+      HapticFeedback.lightImpact();
       // For other task types, handle the action immediately
       TaskActionHandler.handleTaskAction(
         widget.taskModel,
