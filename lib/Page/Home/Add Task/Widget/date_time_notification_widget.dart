@@ -306,6 +306,44 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
               calendarFormat: CalendarFormat.month,
               startingDayOfWeek: StartingDayOfWeek.monday,
               availableGestures: AvailableGestures.horizontalSwipe,
+              calendarBuilders: CalendarBuilders(
+                headerTitleBuilder: (context, day) {
+                  final selectedDate = addTaskProvider.selectedDate;
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.main.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          // Show selected date with day number, month and year
+                          Text(
+                            selectedDate != null ? DateFormat('d MMMM yyyy', context.locale.toLanguageTag()).format(selectedDate) : DateFormat('MMMM yyyy', context.locale.toLanguageTag()).format(day),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.main,
+                            ),
+                          ),
+                          // Show day of week for selected date
+                          if (selectedDate != null)
+                            Text(
+                              DateFormat('EEEE', context.locale.toLanguageTag()).format(selectedDate),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.main.withValues(alpha: 0.7),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
               headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
@@ -318,10 +356,6 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                 rightChevronIcon: Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.main),
                 headerPadding: const EdgeInsets.symmetric(vertical: 8),
                 headerMargin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.main.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(8),
-                ),
               ),
               daysOfWeekStyle: DaysOfWeekStyle(
                 weekdayStyle: TextStyle(
