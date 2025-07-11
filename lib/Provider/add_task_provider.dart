@@ -108,6 +108,7 @@ class AddTaskProvider with ChangeNotifier {
           statusColor: AppColors.red,
           statusWord: LocaleKeys.Deleted.tr(),
           taskName: subtask.title,
+          taskModel: editTask, // Eğer edit modundaysa task'ı göster
         );
 
         // Set timer for permanent deletion

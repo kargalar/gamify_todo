@@ -20,6 +20,8 @@ import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
 import 'package:next_level/Model/user_model.dart';
+import 'package:next_level/Page/Task Detail Page/routine_detail_page.dart';
+import 'package:next_level/Page/Home/Add Task/add_task_page.dart';
 import 'package:get/route_manager.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/Widgets/sure_dialog.dart';
@@ -128,6 +130,7 @@ class Helper {
     String? statusWord,
     String? taskName,
     String? dateInfo,
+    TaskModel? taskModel, // Task detay sayfasına gitmek için
   }) {
     Get.closeCurrentSnackbar(); // Build detailed message
     String detailedMessage = message;
@@ -152,6 +155,13 @@ class Helper {
       animationDuration: const Duration(milliseconds: 400),
       duration: const Duration(seconds: 4),
       dismissDirection: DismissDirection.horizontal,
+      onTap: taskModel != null
+          ? (snackbar) {
+              // Mesaja tıklandığında task detay sayfasına git
+              Get.back(); // Snackbar'ı kapat
+              _navigateToTaskDetail(taskModel);
+            }
+          : null,
       icon: const Icon(
         Icons.delete_rounded,
         color: AppColors.red,
@@ -572,5 +582,22 @@ class Helper {
         );
       },
     );
+  }
+
+  // Task detay sayfasına navigate etmek için yardımcı metod
+  void _navigateToTaskDetail(TaskModel taskModel) {
+    if (taskModel.routineID != null) {
+      // Routine task ise RoutineDetailPage açılır
+      Get.to(
+        () => RoutineDetailPage(taskModel: taskModel),
+        transition: Transition.rightToLeft,
+      );
+    } else {
+      // Normal task ise AddTaskPage (edit modunda) açılır
+      Get.to(
+        () => AddTaskPage(editTask: taskModel),
+        transition: Transition.rightToLeft,
+      );
+    }
   }
 }

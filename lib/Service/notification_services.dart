@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
-import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:next_level/Page/Task Detail Page/routine_detail_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -128,13 +128,12 @@ class NotificationService {
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         // Bildirime tıklandığında yapılacak işlemler
-        // _handleNotificationTap(response.payload);
+        _handleNotificationTap(response.payload);
       },
     );
   }
 
   // Bildirime tıklandığında çağrılacak metod
-  // ignore: unused_element
   void _handleNotificationTap(String? payload) {
     if (payload != null) {
       try {
@@ -150,8 +149,8 @@ class NotificationService {
           // Task detay sayfasına yönlendir
           final task = taskList[taskIndex];
           NavigatorService().goTo(
-            AddTaskPage(editTask: task),
-            transition: Transition.size,
+            RoutineDetailPage(taskModel: task),
+            transition: Transition.rightToLeft,
           );
         }
       } catch (e) {

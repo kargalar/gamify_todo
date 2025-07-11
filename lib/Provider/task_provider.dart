@@ -513,6 +513,7 @@ class TaskProvider with ChangeNotifier {
         statusWord: selectedDate != null ? LocaleKeys.Changed.tr() : LocaleKeys.Dateless.tr(),
         taskName: taskModel.title,
         dateInfo: selectedDate != null ? 'tarihi ${DateFormat('dd MMMM yyyy', 'tr').format(selectedDate)} olarak değiştirildi' : null,
+        taskModel: taskModel, // Task'ı göster
       );
 
       // Set timer for permanent change
@@ -615,6 +616,7 @@ class TaskProvider with ChangeNotifier {
         statusWord: LocaleKeys.Changed.tr(),
         taskName: taskModel.title,
         dateInfo: 'tarihi ${DateFormat('dd MMMM yyyy', 'tr').format(newDate)} olarak değiştirildi',
+        taskModel: taskModel, // Task'ı göster
       );
 
       // Set timer for permanent change
@@ -881,6 +883,7 @@ class TaskProvider with ChangeNotifier {
       statusColor: AppColors.red,
       statusWord: LocaleKeys.Deleted.tr(),
       taskName: task.title,
+      taskModel: task, // Task detay sayfasına gitmek için
     );
 
     // Set timer for permanent deletion
@@ -938,6 +941,7 @@ class TaskProvider with ChangeNotifier {
       statusColor: AppColors.red,
       statusWord: LocaleKeys.Deleted.tr(),
       taskName: routineModel.title,
+      taskModel: associatedTasks.isNotEmpty ? associatedTasks.first : null, // İlk task'ı göster
     );
 
     // Set timer for permanent deletion
@@ -1179,6 +1183,7 @@ class TaskProvider with ChangeNotifier {
           statusColor: AppColors.red,
           statusWord: LocaleKeys.Deleted.tr(),
           taskName: subtask.title,
+          taskModel: taskModel, // Ana task'ı göster
         );
 
         // Set timer for permanent deletion
@@ -1283,6 +1288,7 @@ class TaskProvider with ChangeNotifier {
               // TODO: localization
               statusWord: "completed",
               taskName: subtask.title,
+              taskModel: taskModel, // Ana task'ı göster
             );
           }
         }
@@ -1602,6 +1608,7 @@ class TaskProvider with ChangeNotifier {
         statusColor: AppColors.green,
         statusWord: "completed",
         taskName: taskModel.title,
+        taskModel: taskModel, // Task'ı göster
       );
 
       // Set timer for permanent completion
@@ -1886,6 +1893,7 @@ class TaskProvider with ChangeNotifier {
       statusColor: AppColors.red,
       statusWord: "failed",
       taskName: taskModel.title,
+      taskModel: taskModel, // Task'ı göster
     );
 
     // Set timer for permanent failure
@@ -1913,6 +1921,7 @@ class TaskProvider with ChangeNotifier {
       // TODO: localization
       statusWord: "cancelled",
       taskName: taskModel.title,
+      taskModel: taskModel, // Task'ı göster
     );
 
     // Set timer for permanent cancellation
