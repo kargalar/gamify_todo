@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/firebase_service.dart';
@@ -11,7 +10,7 @@ import 'package:next_level/Model/trait_model.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ServerManager extends ChangeNotifier {
+class ServerManager {
   ServerManager._privateConstructor();
   static final ServerManager _instance = ServerManager._privateConstructor();
   factory ServerManager() {
@@ -61,7 +60,7 @@ class ServerManager extends ChangeNotifier {
     }
   }
 
-  // Sync data from local to Firebase (for app exit)
+  // Sync data from local to Firebase (for backup)
   Future<void> syncToFirebase() async {
     // Check if user is authenticated with Firebase
     if (_firebaseService.currentUserUid == null) {
@@ -72,39 +71,9 @@ class ServerManager extends ChangeNotifier {
     try {
       debugPrint('🔄 Syncing to Firebase...');
       await _firebaseService.syncToFirebase();
-      debugPrint('✅ Firebase sync completed');
+      debugPrint('✅ Firebase upload completed');
     } catch (e) {
-      debugPrint('❌ Firebase sync failed: $e');
-    }
-  }
-
-  // Start real-time sync
-  Future<void> startRealTimeSync() async {
-    // Check if user is authenticated with Firebase
-    if (_firebaseService.currentUserUid == null) {
-      debugPrint('⚠️ User not authenticated with Firebase, skipping real-time sync');
-      return;
-    }
-
-    try {
-      debugPrint('🔄 Starting real-time sync...');
-      await _firebaseService.startRealTimeSync();
-      debugPrint('✅ Real-time sync started');
-      notifyListeners();
-    } catch (e) {
-      debugPrint('❌ Real-time sync failed to start: $e');
-    }
-  }
-
-  // Stop real-time sync
-  Future<void> stopRealTimeSync() async {
-    try {
-      debugPrint('🔄 Stopping real-time sync...');
-      await _firebaseService.stopRealTimeSync();
-      debugPrint('✅ Real-time sync stopped');
-      notifyListeners();
-    } catch (e) {
-      debugPrint('❌ Real-time sync failed to stop: $e');
+      debugPrint('❌ Firebase upload failed: $e');
     }
   }
 
@@ -632,9 +601,4 @@ class ServerManager extends ChangeNotifier {
   }
 
   // trigger tasks !!!!! normalde bu kullanılmıyor. 00:00 olduğunda otomatik backendde yapılıyor. test etmek için böyle koyuldu.
-
-  // Real-time sync status
-  bool get isRealTimeSyncActive => _firebaseService.isRealTimeSyncActive;
-
-  // Real-time sync methods
 }
