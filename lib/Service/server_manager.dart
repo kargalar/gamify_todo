@@ -513,15 +513,23 @@ class ServerManager extends ChangeNotifier {
   Future<void> updateTask({
     required TaskModel taskModel,
   }) async {
+    debugPrint('🔄 ServerManager: Updating task - ID=${taskModel.id}, Title="${taskModel.title}"');
+
     // Update local storage first
     await HiveService().updateTask(taskModel);
+    debugPrint('✅ ServerManager: Task updated in local storage');
 
     // Then sync to Firebase (only if user is authenticated)
     if (_firebaseService.currentUserUid != null) {
+      debugPrint('🔄 ServerManager: Syncing task update to Firebase...');
       await _firebaseService.updateTaskInFirebase(taskModel);
+      debugPrint('✅ ServerManager: Task update synced to Firebase');
     } else {
       debugPrint('⚠️ User not authenticated, task update not synced to Firebase');
     }
+
+    // Notify UI
+    notifyListeners();
   }
 
   // update category
@@ -572,15 +580,23 @@ class ServerManager extends ChangeNotifier {
   Future<void> deleteTask({
     required int id,
   }) async {
+    debugPrint('🔄 ServerManager: Deleting task - ID=$id');
+
     // Delete from local storage first
     await HiveService().deleteTask(id);
+    debugPrint('✅ ServerManager: Task deleted from local storage');
 
     // Then delete from Firebase (only if user is authenticated)
     if (_firebaseService.currentUserUid != null) {
+      debugPrint('🔄 ServerManager: Syncing task deletion to Firebase...');
       await _firebaseService.deleteTaskFromFirebase(id);
+      debugPrint('✅ ServerManager: Task deletion synced to Firebase');
     } else {
       debugPrint('⚠️ User not authenticated, task deletion not synced to Firebase');
     }
+
+    // Notify UI
+    notifyListeners();
   }
 
   // delete category
