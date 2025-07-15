@@ -130,10 +130,8 @@ class HiveService {
     debugPrint('Updating routine in Hive: ID=${routineModel.id}, Title=${routineModel.title}');
 
     try {
-      // First save the HiveObject to ensure changes are persisted
-      routineModel.save();
-
-      // Then update the box with the routine model
+      // Simply put the routine in the box without calling save()
+      // save() is only for HiveObjects that are already in a box
       await box.put(routineModel.id, routineModel);
 
       // Verify the routine was saved correctly
@@ -177,12 +175,8 @@ class HiveService {
     debugPrint('Updating task in Hive: ID=${taskModel.id}, Title=${taskModel.title}');
 
     try {
-      // First save the HiveObject to ensure changes are persisted
-      debugPrint('Calling save() on task: ID=${taskModel.id}');
-      taskModel.save();
-      debugPrint('save() completed successfully for task: ID=${taskModel.id}');
-
-      // Then update the box with the task model
+      // Simply put the task in the box without calling save()
+      // save() is only for HiveObjects that are already in a box
       debugPrint('Putting task in Hive box: ID=${taskModel.id}');
       await box.put(taskModel.id, taskModel);
       debugPrint('put() completed successfully for task: ID=${taskModel.id}');
@@ -190,12 +184,12 @@ class HiveService {
       // Verify the task was saved correctly
       final savedTask = box.get(taskModel.id);
       if (savedTask != null) {
-        debugPrint('Task successfully saved to Hive: ID=${savedTask.id}, Title=${savedTask.title}');
+        debugPrint('Task verified in Hive: ID=${savedTask.id}, Title=${savedTask.title}');
       } else {
-        debugPrint('ERROR: Failed to retrieve saved task from Hive');
+        debugPrint('WARNING: Task not found in Hive after put(): ID=${taskModel.id}');
       }
     } catch (e) {
-      debugPrint('ERROR saving task to Hive: $e');
+      debugPrint('ERROR updating task in Hive: $e');
       rethrow;
     }
   }

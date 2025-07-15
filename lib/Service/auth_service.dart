@@ -165,6 +165,16 @@ class AuthService {
           // Don't fail login if sync fails
         }
 
+        // Start real-time sync
+        debugPrint('Starting real-time sync...');
+        try {
+          await _serverManager.startRealTimeSync();
+          debugPrint('Real-time sync started successfully');
+        } catch (e) {
+          debugPrint('Real-time sync failed to start: $e');
+          // Don't fail login if real-time sync fails
+        }
+
         debugPrint('User signed in successfully: ${localUser.email}');
         return localUser;
       } else {
@@ -184,6 +194,16 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
+      // Stop real-time sync before signing out
+      debugPrint('Stopping real-time sync before logout...');
+      try {
+        await _serverManager.stopRealTimeSync();
+        debugPrint('Real-time sync stopped successfully');
+      } catch (e) {
+        debugPrint('Real-time sync stop failed: $e');
+        // Don't fail logout if real-time sync stop fails
+      }
+
       // Sync data to Firebase before signing out
       debugPrint('Starting Firebase sync before logout...');
       try {
