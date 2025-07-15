@@ -10,11 +10,13 @@ import 'package:next_level/Page/Settings/data_management_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
 import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
+import 'package:next_level/Page/Debug/sync_debug_page.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/auth_service.dart';
 import 'package:next_level/Provider/theme_provider.dart';
+import 'package:next_level/Widgets/sync_status_widget.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -39,161 +41,181 @@ class SettingsPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _settingsOption(
-              title: LocaleKeys.SelectLanguage.tr(),
-              icon: Icons.language,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const LanguageSelectionPopup(),
-                );
-              },
-            ),
-            _settingsOption(
-              title: LocaleKeys.ThemeSelection.tr(),
-              subtitle: LocaleKeys.ThemeSelectionSubtitle.tr(),
-              icon: Icons.dark_mode,
-              onTap: () {
-                context.read<ThemeProvider>().changeTheme();
-              },
-              trailing: Switch.adaptive(
-                value: AppColors.isDark,
-                thumbIcon: AppColors.isDark
-                    ? WidgetStateProperty.all(
-                        const Icon(
-                          Icons.brightness_2,
-                          color: AppColors.black,
-                        ),
-                      )
-                    : WidgetStateProperty.all(
-                        const Icon(
-                          Icons.wb_sunny,
-                          color: AppColors.white,
-                        ),
-                      ),
-                trackOutlineColor: AppColors.isDark ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
-                inactiveThumbColor: AppColors.dirtyRed,
-                inactiveTrackColor: AppColors.white,
-                onChanged: (_) {
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Sync Status Widget
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: const SyncStatusWidget(
+                  showFullStatus: true,
+                ),
+              ),
+              _settingsOption(
+                title: LocaleKeys.SelectLanguage.tr(),
+                icon: Icons.language,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const LanguageSelectionPopup(),
+                  );
+                },
+              ),
+              _settingsOption(
+                title: LocaleKeys.ThemeSelection.tr(),
+                subtitle: LocaleKeys.ThemeSelectionSubtitle.tr(),
+                icon: Icons.dark_mode,
+                onTap: () {
                   context.read<ThemeProvider>().changeTheme();
                 },
-              ),
-            ),
-            _settingsOption(
-              title: 'Archived Routines',
-              subtitle: 'View your archived routines',
-              icon: Icons.archive,
-              onTap: () {
-                NavigatorService().goTo(const ArchivedRoutinesPage());
-              },
-            ),
-            _settingsOption(
-              title: 'Task Style',
-              subtitle: 'Change how task items are displayed',
-              icon: Icons.palette,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const TaskStyleSelectionDialog(),
-                );
-              },
-            ),
-            Consumer<ColorProvider>(
-              builder: (context, colorProvider, child) {
-                return _settingsOption(
-                  title: 'App Color Theme',
-                  subtitle: 'Choose your preferred color: ${colorProvider.getColorName(colorProvider.currentColor)}',
-                  icon: Icons.color_lens,
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const ColorSelectionDialog(),
-                    );
+                trailing: Switch.adaptive(
+                  value: AppColors.isDark,
+                  thumbIcon: AppColors.isDark
+                      ? WidgetStateProperty.all(
+                          const Icon(
+                            Icons.brightness_2,
+                            color: AppColors.black,
+                          ),
+                        )
+                      : WidgetStateProperty.all(
+                          const Icon(
+                            Icons.wb_sunny,
+                            color: AppColors.white,
+                          ),
+                        ),
+                  trackOutlineColor: AppColors.isDark ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
+                  inactiveThumbColor: AppColors.dirtyRed,
+                  inactiveTrackColor: AppColors.white,
+                  onChanged: (_) {
+                    context.read<ThemeProvider>().changeTheme();
                   },
-                  trailing: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: colorProvider.currentColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.text.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            // _settingsOption(
-            //   title: LocaleKeys.Help.tr(),
-            //   subtitle: LocaleKeys.HelpText.tr(),
-            //   onTap: () {
-            //     yardimDialog(context);
-            //   },            // ),
-            _settingsOption(
-              title: 'File Storage',
-              subtitle: 'Manage attachment files and storage',
-              icon: Icons.folder_rounded,
-              onTap: () {
-                NavigatorService().goTo(const FileStorageManagementPage());
-              },
-            ),
-            _settingsOption(
-              title: LocaleKeys.DataManagement.tr(),
-              subtitle: LocaleKeys.DataManagementSubtitle.tr(),
-              icon: Icons.storage,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const DataManagementDialog(),
-                );
-              },
-            ),
-            _settingsOption(
-              title: LocaleKeys.ContactUs.tr(),
-              subtitle: LocaleKeys.ContactUsSubtitle.tr(),
-              icon: Icons.contact_support,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const ContactUsDialog(),
-                );
-              },
-            ),
-            _settingsOption(
-              title: LocaleKeys.PrivacyPolicy.tr(),
-              subtitle: LocaleKeys.PrivacyPolicySubtitle.tr(),
-              icon: Icons.privacy_tip,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const PrivacyPolicyDialog(),
-                );
-              },
-            ),
-            // Logout option - only show if user is logged in
-            if (loginUser != null)
+                ),
+              ),
               _settingsOption(
-                title: 'Çıkış Yap',
-                subtitle: 'Hesabınızdan çıkış yapın',
-                icon: Icons.logout,
-                color: AppColors.red,
+                title: 'Archived Routines',
+                subtitle: 'View your archived routines',
+                icon: Icons.archive,
                 onTap: () {
-                  _showLogoutDialog(context);
+                  NavigatorService().goTo(const ArchivedRoutinesPage());
                 },
               ),
-            // TODO: for with database accounts
-            // _settingsOption(
-            //   title: LocaleKeys.Exit.tr(),
-            //   color: AppColors.red,
-            //   onTap: () {
-            //     NavigatorService().logout();
-            //   },
-            // ),
-          ],
+              _settingsOption(
+                title: 'Task Style',
+                subtitle: 'Change how task items are displayed',
+                icon: Icons.palette,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const TaskStyleSelectionDialog(),
+                  );
+                },
+              ),
+              Consumer<ColorProvider>(
+                builder: (context, colorProvider, child) {
+                  return _settingsOption(
+                    title: 'App Color Theme',
+                    subtitle: 'Choose your preferred color: ${colorProvider.getColorName(colorProvider.currentColor)}',
+                    icon: Icons.color_lens,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const ColorSelectionDialog(),
+                      );
+                    },
+                    trailing: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: colorProvider.currentColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.text.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              // _settingsOption(
+              //   title: LocaleKeys.Help.tr(),
+              //   subtitle: LocaleKeys.HelpText.tr(),
+              //   onTap: () {
+              //     yardimDialog(context);
+              //   },            // ),
+              _settingsOption(
+                title: 'File Storage',
+                subtitle: 'Manage attachment files and storage',
+                icon: Icons.folder_rounded,
+                onTap: () {
+                  NavigatorService().goTo(const FileStorageManagementPage());
+                },
+              ),
+              _settingsOption(
+                title: LocaleKeys.DataManagement.tr(),
+                subtitle: LocaleKeys.DataManagementSubtitle.tr(),
+                icon: Icons.storage,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const DataManagementDialog(),
+                  );
+                },
+              ),
+              _settingsOption(
+                title: LocaleKeys.ContactUs.tr(),
+                subtitle: LocaleKeys.ContactUsSubtitle.tr(),
+                icon: Icons.contact_support,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const ContactUsDialog(),
+                  );
+                },
+              ),
+              _settingsOption(
+                title: LocaleKeys.PrivacyPolicy.tr(),
+                subtitle: LocaleKeys.PrivacyPolicySubtitle.tr(),
+                icon: Icons.privacy_tip,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const PrivacyPolicyDialog(),
+                  );
+                },
+              ),
+              // Logout option - only show if user is logged in
+              if (loginUser != null)
+                _settingsOption(
+                  title: 'Çıkış Yap',
+                  subtitle: 'Hesabınızdan çıkış yapın',
+                  icon: Icons.logout,
+                  color: AppColors.red,
+                  onTap: () {
+                    _showLogoutDialog(context);
+                  },
+                ),
+              // Firebase Sync Debug - only show if user is logged in
+              if (loginUser != null)
+                _settingsOption(
+                  title: 'Firebase Sync Debug',
+                  subtitle: 'Test Firebase synchronization',
+                  icon: Icons.sync,
+                  color: Colors.blue,
+                  onTap: () {
+                    NavigatorService().goTo(const SyncDebugPage());
+                  },
+                ),
+              // TODO: for with database accounts
+              // _settingsOption(
+              //   title: LocaleKeys.Exit.tr(),
+              //   color: AppColors.red,
+              //   onTap: () {
+              //     NavigatorService().logout();
+              //   },
+              // ),
+            ],
+          ),
         ),
       ),
     );

@@ -18,6 +18,7 @@ import 'package:next_level/Provider/task_style_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/color_provider.dart';
+import 'package:next_level/Widgets/sync_lifecycle_wrapper.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -67,9 +68,13 @@ class Main extends StatelessWidget {
           theme: AppTheme().theme,
           debugShowCheckedModeBanner: false,
           showPerformanceOverlay: false,
-          home: const AuthWrapper(),
+          home: const SyncLifecycleWrapper(
+            child: AuthWrapper(),
+          ),
           routes: {
-            '/main': (context) => const NavbarPageManager(),
+            '/main': (context) => const SyncLifecycleWrapper(
+                  child: NavbarPageManager(),
+                ),
             '/login': (context) => const ModernLoginPage(),
           },
           localizationsDelegates: context.localizationDelegates,
