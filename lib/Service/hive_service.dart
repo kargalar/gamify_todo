@@ -78,6 +78,11 @@ class HiveService {
     await box.put(itemModel.id, itemModel);
   }
 
+  Future<ItemModel?> getItem(int id) async {
+    final box = await _itemBox;
+    return box.get(id);
+  }
+
   Future<List<ItemModel>> getItems() async {
     final box = await _itemBox;
     return box.values.toList();
@@ -99,6 +104,11 @@ class HiveService {
     await box.put(traitModel.id, traitModel);
   }
 
+  Future<TraitModel?> getTrait(int id) async {
+    final box = await _traitBox;
+    return box.get(id);
+  }
+
   Future<List<TraitModel>> getTraits() async {
     final box = await _traitBox;
     return box.values.toList();
@@ -118,6 +128,11 @@ class HiveService {
   Future<void> addRoutine(RoutineModel routineModel) async {
     final box = await _routineBox;
     await box.put(routineModel.id, routineModel);
+  }
+
+  Future<RoutineModel?> getRoutine(int id) async {
+    final box = await _routineBox;
+    return box.get(id);
   }
 
   Future<List<RoutineModel>> getRoutines() async {
@@ -163,6 +178,11 @@ class HiveService {
   Future<void> addTask(TaskModel taskModel) async {
     final box = await _taskBox;
     await box.put(taskModel.id, taskModel);
+  }
+
+  Future<TaskModel?> getTask(int id) async {
+    final box = await _taskBox;
+    return box.get(id);
   }
 
   Future<List<TaskModel>> getTasks() async {
@@ -212,6 +232,11 @@ class HiveService {
     await box.put(categoryModel.id, categoryModel);
   }
 
+  Future<CategoryModel?> getCategory(int id) async {
+    final box = await _categoryBox;
+    return box.get(id);
+  }
+
   Future<List<CategoryModel>> getCategories() async {
     final box = await _categoryBox;
     return box.values.toList();
@@ -231,6 +256,11 @@ class HiveService {
   Future<void> addTaskLog(TaskLogModel taskLogModel) async {
     final box = await _taskLogBox;
     await box.put(taskLogModel.id, taskLogModel);
+  }
+
+  Future<TaskLogModel?> getTaskLog(int id) async {
+    final box = await _taskLogBox;
+    return box.get(id);
   }
 
   Future<List<TaskLogModel>> getTaskLogs() async {
