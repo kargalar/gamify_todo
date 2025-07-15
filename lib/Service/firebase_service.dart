@@ -163,39 +163,15 @@ class FirebaseService {
 
   Future<void> _syncTasksFromFirebase() async {
     try {
-      debugPrint('🔄 Syncing tasks from Firebase...');
       final querySnapshot = await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).get();
 
-      debugPrint('Found ${querySnapshot.docs.length} tasks in Firebase');
-
-      // Get all existing local tasks
-      final localTasks = await _hiveService.getTasks();
-      final Map<int, TaskModel> localTaskMap = {for (final task in localTasks) task.id: task};
-
       for (final doc in querySnapshot.docs) {
-        try {
-          final taskData = doc.data();
-          final taskModel = TaskModel.fromJson(taskData);
-
-          // Check if task exists locally
-          if (localTaskMap.containsKey(taskModel.id)) {
-            // Update existing task
-            await _hiveService.updateTask(taskModel);
-            debugPrint('Updated existing task: ${taskModel.title}');
-          } else {
-            // Add new task
-            await _hiveService.addTask(taskModel);
-            debugPrint('Added new task: ${taskModel.title}');
-          }
-        } catch (e) {
-          debugPrint('Error processing task ${doc.id}: $e');
-        }
+        final taskData = doc.data();
+        final taskModel = TaskModel.fromJson(taskData);
+        await _hiveService.updateTask(taskModel);
       }
-
-      debugPrint('✅ Tasks sync from Firebase completed');
     } catch (e) {
-      debugPrint('❌ Error syncing tasks from Firebase: $e');
-      rethrow;
+      debugPrint('Error syncing tasks from Firebase: $e');
     }
   }
 
@@ -269,39 +245,15 @@ class FirebaseService {
 
   Future<void> _syncItemsFromFirebase() async {
     try {
-      debugPrint('🔄 Syncing items from Firebase...');
       final querySnapshot = await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_itemsCollection).get();
 
-      debugPrint('Found ${querySnapshot.docs.length} items in Firebase');
-
-      // Get all existing local items
-      final localItems = await _hiveService.getItems();
-      final Map<int, ItemModel> localItemMap = {for (final item in localItems) item.id: item};
-
       for (final doc in querySnapshot.docs) {
-        try {
-          final itemData = doc.data();
-          final itemModel = ItemModel.fromJson(itemData);
-
-          // Check if item exists locally
-          if (localItemMap.containsKey(itemModel.id)) {
-            // Update existing item
-            await _hiveService.updateItem(itemModel);
-            debugPrint('Updated existing item: ${itemModel.title}');
-          } else {
-            // Add new item
-            await _hiveService.addItem(itemModel);
-            debugPrint('Added new item: ${itemModel.title}');
-          }
-        } catch (e) {
-          debugPrint('Error processing item ${doc.id}: $e');
-        }
+        final itemData = doc.data();
+        final itemModel = ItemModel.fromJson(itemData);
+        await _hiveService.updateItem(itemModel);
       }
-
-      debugPrint('✅ Items sync from Firebase completed');
     } catch (e) {
-      debugPrint('❌ Error syncing items from Firebase: $e');
-      rethrow;
+      debugPrint('Error syncing items from Firebase: $e');
     }
   }
 
@@ -375,39 +327,15 @@ class FirebaseService {
 
   Future<void> _syncTraitsFromFirebase() async {
     try {
-      debugPrint('🔄 Syncing traits from Firebase...');
       final querySnapshot = await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_traitsCollection).get();
 
-      debugPrint('Found ${querySnapshot.docs.length} traits in Firebase');
-
-      // Get all existing local traits
-      final localTraits = await _hiveService.getTraits();
-      final Map<int, TraitModel> localTraitMap = {for (final trait in localTraits) trait.id: trait};
-
       for (final doc in querySnapshot.docs) {
-        try {
-          final traitData = doc.data();
-          final traitModel = TraitModel.fromJson(traitData);
-
-          // Check if trait exists locally
-          if (localTraitMap.containsKey(traitModel.id)) {
-            // Update existing trait
-            await _hiveService.updateTrait(traitModel);
-            debugPrint('Updated existing trait: ${traitModel.title}');
-          } else {
-            // Add new trait
-            await _hiveService.addTrait(traitModel);
-            debugPrint('Added new trait: ${traitModel.title}');
-          }
-        } catch (e) {
-          debugPrint('Error processing trait ${doc.id}: $e');
-        }
+        final traitData = doc.data();
+        final traitModel = TraitModel.fromJson(traitData);
+        await _hiveService.updateTrait(traitModel);
       }
-
-      debugPrint('✅ Traits sync from Firebase completed');
     } catch (e) {
-      debugPrint('❌ Error syncing traits from Firebase: $e');
-      rethrow;
+      debugPrint('Error syncing traits from Firebase: $e');
     }
   }
 
@@ -481,39 +409,15 @@ class FirebaseService {
 
   Future<void> _syncRoutinesFromFirebase() async {
     try {
-      debugPrint('🔄 Syncing routines from Firebase...');
       final querySnapshot = await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_routinesCollection).get();
 
-      debugPrint('Found ${querySnapshot.docs.length} routines in Firebase');
-
-      // Get all existing local routines
-      final localRoutines = await _hiveService.getRoutines();
-      final Map<int, RoutineModel> localRoutineMap = {for (final routine in localRoutines) routine.id: routine};
-
       for (final doc in querySnapshot.docs) {
-        try {
-          final routineData = doc.data();
-          final routineModel = RoutineModel.fromJson(routineData);
-
-          // Check if routine exists locally
-          if (localRoutineMap.containsKey(routineModel.id)) {
-            // Update existing routine
-            await _hiveService.updateRoutine(routineModel);
-            debugPrint('Updated existing routine: ${routineModel.title}');
-          } else {
-            // Add new routine
-            await _hiveService.addRoutine(routineModel);
-            debugPrint('Added new routine: ${routineModel.title}');
-          }
-        } catch (e) {
-          debugPrint('Error processing routine ${doc.id}: $e');
-        }
+        final routineData = doc.data();
+        final routineModel = RoutineModel.fromJson(routineData);
+        await _hiveService.updateRoutine(routineModel);
       }
-
-      debugPrint('✅ Routines sync from Firebase completed');
     } catch (e) {
-      debugPrint('❌ Error syncing routines from Firebase: $e');
-      rethrow;
+      debugPrint('Error syncing routines from Firebase: $e');
     }
   }
 
@@ -587,39 +491,15 @@ class FirebaseService {
 
   Future<void> _syncCategoriesFromFirebase() async {
     try {
-      debugPrint('🔄 Syncing categories from Firebase...');
       final querySnapshot = await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_categoriesCollection).get();
 
-      debugPrint('Found ${querySnapshot.docs.length} categories in Firebase');
-
-      // Get all existing local categories
-      final localCategories = await _hiveService.getCategories();
-      final Map<int, CategoryModel> localCategoryMap = {for (final category in localCategories) category.id: category};
-
       for (final doc in querySnapshot.docs) {
-        try {
-          final categoryData = doc.data();
-          final categoryModel = CategoryModel.fromJson(categoryData);
-
-          // Check if category exists locally
-          if (localCategoryMap.containsKey(categoryModel.id)) {
-            // Update existing category
-            await _hiveService.updateCategory(categoryModel);
-            debugPrint('Updated existing category: ${categoryModel.title}');
-          } else {
-            // Add new category
-            await _hiveService.addCategory(categoryModel);
-            debugPrint('Added new category: ${categoryModel.title}');
-          }
-        } catch (e) {
-          debugPrint('Error processing category ${doc.id}: $e');
-        }
+        final categoryData = doc.data();
+        final categoryModel = CategoryModel.fromJson(categoryData);
+        await _hiveService.updateCategory(categoryModel);
       }
-
-      debugPrint('✅ Categories sync from Firebase completed');
     } catch (e) {
-      debugPrint('❌ Error syncing categories from Firebase: $e');
-      rethrow;
+      debugPrint('Error syncing categories from Firebase: $e');
     }
   }
 
@@ -693,35 +573,15 @@ class FirebaseService {
 
   Future<void> _syncTaskLogsFromFirebase() async {
     try {
-      debugPrint('🔄 Syncing task logs from Firebase...');
       final querySnapshot = await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_taskLogsCollection).get();
 
-      debugPrint('Found ${querySnapshot.docs.length} task logs in Firebase');
-
-      // Get all existing local task logs
-      final localTaskLogs = await _hiveService.getTaskLogs();
-      final Map<int, TaskLogModel> localTaskLogMap = {for (final taskLog in localTaskLogs) taskLog.id: taskLog};
-
       for (final doc in querySnapshot.docs) {
-        try {
-          final taskLogData = doc.data();
-          final taskLogModel = TaskLogModel.fromJson(taskLogData);
-
-          // Check if task log exists locally
-          if (!localTaskLogMap.containsKey(taskLogModel.id)) {
-            // Add new task log (task logs are usually not updated, only added)
-            await _hiveService.addTaskLog(taskLogModel);
-            debugPrint('Added new task log: ${taskLogModel.id}');
-          }
-        } catch (e) {
-          debugPrint('Error processing task log ${doc.id}: $e');
-        }
+        final taskLogData = doc.data();
+        final taskLogModel = TaskLogModel.fromJson(taskLogData);
+        await _hiveService.addTaskLog(taskLogModel);
       }
-
-      debugPrint('✅ Task logs sync from Firebase completed');
     } catch (e) {
-      debugPrint('❌ Error syncing task logs from Firebase: $e');
-      rethrow;
+      debugPrint('Error syncing task logs from Firebase: $e');
     }
   }
 
