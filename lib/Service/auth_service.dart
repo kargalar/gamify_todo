@@ -4,6 +4,7 @@ import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/id_service.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -49,13 +50,10 @@ class AuthService {
         await user.updateDisplayName(username);
         debugPrint('Display name updated successfully');
 
-        // Generate unique ID for local storage
-        debugPrint('Generating local user ID...');
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        int userId = prefs.getInt('last_user_id') ?? 0;
-        userId++;
-        await prefs.setInt('last_user_id', userId);
-        debugPrint('Local user ID generated: $userId');
+        // Generate unique ID for local storage using timestamp-based ID
+        debugPrint('Generating unique user ID...');
+        final int userId = IdService().generateUserId();
+        debugPrint('Unique user ID generated: $userId');
 
         // Create UserModel for local storage
         debugPrint('Creating UserModel for local storage...');
@@ -290,17 +288,11 @@ class AuthService {
         loginUser = localUser;
         debugPrint('User authenticated: ${localUser.email}');
 
-        // Sync data from Firebase after authentication check
-        debugPrint('Starting Firebase sync after auth check...');
-        try {
-          await _serverManager.syncFromFirebase();
-          debugPrint('Firebase sync completed successfully');
-        } catch (e) {
-          debugPrint('Firebase sync failed: $e');
-          // Don't fail auth check if sync fails
-        }
+        // Note: Firebase sync is handled by login method, not here
+        debugPrint('Local user loaded successfully from storage');
       } else {
         // If no local user found, sign out from Firebase
+        debugPrint('No local user found for Firebase user ${user.email}, signing out');
         await signOut();
       }
     } else {
