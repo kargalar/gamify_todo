@@ -185,4 +185,8 @@ class TaskLogProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  void updateItems() {
+    notifyListeners();
+  }
 }

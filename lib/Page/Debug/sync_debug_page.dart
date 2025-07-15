@@ -390,6 +390,123 @@ Firebase Console'da:
     }
   }
 
+  Future<void> _checkDeletedItems() async {
+    try {
+      _addLog('🔄 Checking deleted items...');
+
+      final deletedItems = await _firebaseService.getDeletedItems();
+
+      _addLog('📊 Deleted items count: ${deletedItems.length}');
+
+      for (final deletedItem in deletedItems) {
+        _addLog('   - $deletedItem');
+      }
+
+      setState(() {
+        _status = 'Deleted items checked';
+      });
+    } catch (e) {
+      _addLog('❌ Failed to check deleted items: $e');
+      setState(() {
+        _status = 'Failed to check deleted items';
+      });
+    }
+  }
+
+  Future<void> _clearDeletedItems() async {
+    setState(() {
+      _isLoading = true;
+      _status = 'Clearing deleted items...';
+    });
+
+    try {
+      _addLog('🔄 Clearing deleted items...');
+
+      final uid = _firebaseService.currentUserUid;
+      if (uid == null) {
+        _addLog('❌ No authenticated user found');
+        setState(() {
+          _status = 'No authenticated user';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Get all deleted items
+      final deletedSnapshot = await FirebaseFirestore.instance.collection('users').doc(uid).collection('deleted_items').get();
+
+      // Delete all deleted items records
+      final batch = FirebaseFirestore.instance.batch();
+      for (final doc in deletedSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+
+      _addLog('✅ Deleted items cleared (${deletedSnapshot.docs.length} records)');
+
+      setState(() {
+        _status = 'Deleted items cleared successfully';
+        _isLoading = false;
+      });
+    } catch (e) {
+      _addLog('❌ Failed to clear deleted items: $e');
+      setState(() {
+        _status = 'Failed to clear deleted items';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _startRealTimeSync() async {
+    setState(() {
+      _isLoading = true;
+      _status = 'Starting real-time sync...';
+    });
+
+    try {
+      _addLog('🔄 Starting real-time sync...');
+
+      await _serverManager.startRealTimeSync();
+      _addLog('✅ Real-time sync started');
+
+      setState(() {
+        _status = 'Real-time sync started successfully';
+        _isLoading = false;
+      });
+    } catch (e) {
+      _addLog('❌ Failed to start real-time sync: $e');
+      setState(() {
+        _status = 'Failed to start real-time sync';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _stopRealTimeSync() async {
+    setState(() {
+      _isLoading = true;
+      _status = 'Stopping real-time sync...';
+    });
+
+    try {
+      _addLog('🔄 Stopping real-time sync...');
+
+      await _serverManager.stopRealTimeSync();
+      _addLog('✅ Real-time sync stopped');
+
+      setState(() {
+        _status = 'Real-time sync stopped successfully';
+        _isLoading = false;
+      });
+    } catch (e) {
+      _addLog('❌ Failed to stop real-time sync: $e');
+      setState(() {
+        _status = 'Failed to stop real-time sync';
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -488,6 +605,37 @@ Firebase Console'da:
                   onPressed: _isLoading ? null : _checkLocalDataCount,
                   child: const Text('Check Local Data Count'),
                 ),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _checkDeletedItems,
+                  child: const Text('Check Deleted Items'),
+                ),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _clearDeletedItems,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Clear Deleted Items'),
+                ),
+                // Real-time sync controls
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _startRealTimeSync,
+                        child: const Text('Start Real-time Sync'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _stopRealTimeSync,
+                        child: const Text('Stop Real-time Sync'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
               ],
             ),
           ),

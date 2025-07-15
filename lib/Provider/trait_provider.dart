@@ -37,4 +37,8 @@ class TraitProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  void updateItems() {
+    notifyListeners();
+  }
 }
