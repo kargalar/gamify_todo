@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -19,6 +20,9 @@ class ServerManager extends ChangeNotifier {
   }
 
   final FirebaseService _firebaseService = FirebaseService();
+
+  // Periodic flush timer for Firebase operations
+  Timer? _flushTimer;
 
   // static const String _baseUrl = 'http://localhost:3001';
   // static const String _baseUrl = 'http://192.168.1.21:3001';
@@ -90,16 +94,33 @@ class ServerManager extends ChangeNotifier {
       debugPrint('🔄 Starting real-time sync...');
       await _firebaseService.startRealTimeSync();
       debugPrint('✅ Real-time sync started');
+
+      // Start periodic flush timer (every 30 seconds)
+      _startPeriodicFlush();
+
       notifyListeners();
     } catch (e) {
       debugPrint('❌ Real-time sync failed to start: $e');
     }
   }
 
+  // Start periodic flush timer
+  void _startPeriodicFlush() {
+    _flushTimer?.cancel();
+    _flushTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _firebaseService.flushPendingOperations();
+    });
+  }
+
   // Stop real-time sync
   Future<void> stopRealTimeSync() async {
     try {
       debugPrint('🔄 Stopping real-time sync...');
+
+      // Stop periodic flush timer
+      _flushTimer?.cancel();
+      _flushTimer = null;
+
       await _firebaseService.stopRealTimeSync();
       debugPrint('✅ Real-time sync stopped');
       notifyListeners();
@@ -311,17 +332,23 @@ class ServerManager extends ChangeNotifier {
   }) async {
     // Generate unique timestamp-based ID
     itemModel.id = IdService().generateItemId();
-    debugPrint('Generated unique item ID: ${itemModel.id}');
+    debugPrint('Generated unique item ID: [32m${itemModel.id}[0m');
 
-    // Save to local storage first
+    // Save to local storage first (UI instantly updates)
     await HiveService().addItem(itemModel);
 
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.addItemToFirebase(itemModel);
-    } else {
-      debugPrint('⚠️ User not authenticated, item not synced to Firebase');
-    }
+    // Firebase sync arka planda başlasın, hata olursa kullanıcıya yansıtma
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          await _firebaseService.addItemToFirebase(itemModel);
+        } else {
+          debugPrint('⚠️ User not authenticated, item not synced to Firebase');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (addItem): $e\n$st');
+      }
+    });
 
     return itemModel.id;
 
@@ -351,11 +378,20 @@ class ServerManager extends ChangeNotifier {
     traitModel.id = IdService().generateTraitId();
     debugPrint('Generated unique trait ID: ${traitModel.id}');
 
-    // Save to local storage first
+    // Save to local storage first (UI instantly updates)
     await HiveService().addTrait(traitModel);
 
-    // Then sync to Firebase (traits don't have individual Firebase methods yet, will be synced in bulk)
-    // await _firebaseService.addTraitToFirebase(traitModel);
+    // Firebase sync arka planda başlasın, bulk sync ile halledilecek
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          // Traits are handled in bulk sync, not individual operations
+          debugPrint('Trait will be synced in next bulk sync cycle');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (addTrait): $e\n$st');
+      }
+    });
 
     return traitModel.id;
 
@@ -385,11 +421,20 @@ class ServerManager extends ChangeNotifier {
     routineModel.id = IdService().generateRoutineId();
     debugPrint('Generated unique routine ID: ${routineModel.id}');
 
-    // Save to local storage first
+    // Save to local storage first (UI instantly updates)
     await HiveService().addRoutine(routineModel);
 
-    // Then sync to Firebase (routines don't have individual Firebase methods yet, will be synced in bulk)
-    // await _firebaseService.addRoutineToFirebase(routineModel);
+    // Firebase sync arka planda başlasın, bulk sync ile halledilecek
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          // Routines are handled in bulk sync, not individual operations
+          debugPrint('Routine will be synced in next bulk sync cycle');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (addRoutine): $e\n$st');
+      }
+    });
 
     return routineModel.id;
 
@@ -419,15 +464,21 @@ class ServerManager extends ChangeNotifier {
     taskModel.id = IdService().generateTaskId();
     debugPrint('Generated unique task ID: ${taskModel.id}');
 
-    // Save to local storage first
+    // Save to local storage first (UI instantly updates)
     await HiveService().addTask(taskModel);
 
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.addTaskToFirebase(taskModel);
-    } else {
-      debugPrint('⚠️ User not authenticated, task not synced to Firebase');
-    }
+    // Firebase sync arka planda başlasın, hata olursa kullanıcıya yansıtma
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          await _firebaseService.addTaskToFirebase(taskModel);
+        } else {
+          debugPrint('⚠️ User not authenticated, task not synced to Firebase');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (addTask): $e\n$st');
+      }
+    });
 
     return taskModel.id;
   }
@@ -440,7 +491,20 @@ class ServerManager extends ChangeNotifier {
     categoryModel.id = IdService().generateCategoryId();
     debugPrint('Generated unique category ID: ${categoryModel.id}');
 
+    // Save to local storage first (UI instantly updates)
     HiveService().addCategory(categoryModel);
+
+    // Firebase sync arka planda başlasın, bulk sync ile halledilecek
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          // Categories are handled in bulk sync, not individual operations
+          debugPrint('Category will be synced in next bulk sync cycle');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (addCategory): $e\n$st');
+      }
+    });
 
     return categoryModel.id;
 
@@ -476,15 +540,21 @@ class ServerManager extends ChangeNotifier {
   Future<void> updateItem({
     required ItemModel itemModel,
   }) async {
-    // Update local storage first
+    // Update local storage first (UI instantly updates)
     await HiveService().updateItem(itemModel);
 
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.updateItemInFirebase(itemModel);
-    } else {
-      debugPrint('⚠️ User not authenticated, item update not synced to Firebase');
-    }
+    // Firebase sync arka planda başlasın, hata olursa kullanıcıya yansıtma
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          await _firebaseService.updateItemInFirebase(itemModel);
+        } else {
+          debugPrint('⚠️ User not authenticated, item update not synced to Firebase');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (updateItem): $e\n$st');
+      }
+    });
   }
 
   // update trait
@@ -515,18 +585,24 @@ class ServerManager extends ChangeNotifier {
   }) async {
     debugPrint('🔄 ServerManager: Updating task - ID=${taskModel.id}, Title="${taskModel.title}"');
 
-    // Update local storage first
+    // Update local storage first (UI instantly updates)
     await HiveService().updateTask(taskModel);
     debugPrint('✅ ServerManager: Task updated in local storage');
 
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      debugPrint('🔄 ServerManager: Syncing task update to Firebase...');
-      await _firebaseService.updateTaskInFirebase(taskModel);
-      debugPrint('✅ ServerManager: Task update synced to Firebase');
-    } else {
-      debugPrint('⚠️ User not authenticated, task update not synced to Firebase');
-    }
+    // Firebase sync arka planda başlasın, hata olursa kullanıcıya yansıtma
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          debugPrint('🔄 ServerManager: Syncing task update to Firebase...');
+          await _firebaseService.updateTaskInFirebase(taskModel);
+          debugPrint('✅ ServerManager: Task update synced to Firebase');
+        } else {
+          debugPrint('⚠️ User not authenticated, task update not synced to Firebase');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (updateTask): $e\n$st');
+      }
+    });
 
     // Notify UI
     notifyListeners();
@@ -543,15 +619,21 @@ class ServerManager extends ChangeNotifier {
   Future<void> deleteItem({
     required int id,
   }) async {
-    // Delete from local storage first
+    // Delete from local storage first (UI instantly updates)
     await HiveService().deleteItem(id);
 
-    // Then delete from Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.deleteItemFromFirebase(id);
-    } else {
-      debugPrint('⚠️ User not authenticated, item deletion not synced to Firebase');
-    }
+    // Firebase sync arka planda başlasın, hata olursa kullanıcıya yansıtma
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          await _firebaseService.deleteItemFromFirebase(id);
+        } else {
+          debugPrint('⚠️ User not authenticated, item deletion not synced to Firebase');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (deleteItem): $e\n$st');
+      }
+    });
   }
 
   // delete trait
@@ -582,18 +664,24 @@ class ServerManager extends ChangeNotifier {
   }) async {
     debugPrint('🔄 ServerManager: Deleting task - ID=$id');
 
-    // Delete from local storage first
+    // Delete from local storage first (UI instantly updates)
     await HiveService().deleteTask(id);
     debugPrint('✅ ServerManager: Task deleted from local storage');
 
-    // Then delete from Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      debugPrint('🔄 ServerManager: Syncing task deletion to Firebase...');
-      await _firebaseService.deleteTaskFromFirebase(id);
-      debugPrint('✅ ServerManager: Task deletion synced to Firebase');
-    } else {
-      debugPrint('⚠️ User not authenticated, task deletion not synced to Firebase');
-    }
+    // Firebase sync arka planda başlasın, hata olursa kullanıcıya yansıtma
+    Future(() async {
+      try {
+        if (_firebaseService.currentUserUid != null) {
+          debugPrint('🔄 ServerManager: Syncing task deletion to Firebase...');
+          await _firebaseService.deleteTaskFromFirebase(id);
+          debugPrint('✅ ServerManager: Task deletion synced to Firebase');
+        } else {
+          debugPrint('⚠️ User not authenticated, task deletion not synced to Firebase');
+        }
+      } catch (e, st) {
+        debugPrint('Firebase sync error (deleteTask): $e\n$st');
+      }
+    });
 
     // Notify UI
     notifyListeners();
