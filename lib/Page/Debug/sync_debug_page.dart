@@ -507,69 +507,6 @@ Firebase Console'da:
     }
   }
 
-  Future<void> _testRealTimeSync() async {
-    setState(() {
-      _isLoading = true;
-      _status = 'Testing real-time sync...';
-      _logs.clear();
-    });
-
-    try {
-      _addLog('🔄 Testing real-time sync...');
-
-      // Check if real-time sync is active
-      final isActive = _serverManager.isRealTimeSyncActive;
-      _addLog('Real-time sync active: $isActive');
-
-      if (!isActive) {
-        _addLog('⚠️ Real-time sync is not active, starting...');
-        await _serverManager.startRealTimeSync();
-        _addLog('✅ Real-time sync started');
-      }
-
-      // Create a test task
-      final testTask = TaskModel(
-        id: DateTime.now().millisecondsSinceEpoch,
-        title: 'Test Task ${DateTime.now().millisecondsSinceEpoch}',
-        description: 'This is a test task for real-time sync',
-        type: TaskTypeEnum.CHECKBOX,
-        isNotificationOn: false,
-        isAlarmOn: false,
-        categoryId: 1,
-      );
-
-      _addLog('🔄 Creating test task...');
-      await _serverManager.addTask(taskModel: testTask);
-      _addLog('✅ Test task created with ID: ${testTask.id}');
-
-      // Wait a bit for sync
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Update the task
-      testTask.title = 'Updated Test Task ${DateTime.now().millisecondsSinceEpoch}';
-      _addLog('🔄 Updating test task...');
-      await _serverManager.updateTask(taskModel: testTask);
-      _addLog('✅ Test task updated');
-
-      // Wait a bit for sync
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Delete the task
-      _addLog('🔄 Deleting test task...');
-      await _serverManager.deleteTask(id: testTask.id);
-      _addLog('✅ Test task deleted');
-
-      _addLog('✅ Real-time sync test completed');
-    } catch (e) {
-      _addLog('❌ Real-time sync test failed: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-        _status = 'Ready';
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -697,10 +634,6 @@ Firebase Console'da:
                       ),
                     ),
                   ],
-                ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _testRealTimeSync,
-                  child: const Text('Test Real-Time Sync'),
                 ),
                 const SizedBox(height: 16),
               ],

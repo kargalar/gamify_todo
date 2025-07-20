@@ -847,32 +847,23 @@ class FirebaseService {
 
   /// Update single task in Firebase
   Future<void> updateTaskInFirebase(TaskModel task) async {
-    if (currentUserUid == null) {
-      debugPrint('❌ Cannot update task in Firebase: User not authenticated');
-      return;
-    }
+    if (currentUserUid == null) return;
 
     try {
-      debugPrint('🔄 Updating task in Firebase: ID=${task.id}, Title="${task.title}"');
       await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(task.id.toString()).update({
         ...task.toJson(),
         'updated_at': FieldValue.serverTimestamp(),
       });
-      debugPrint('✅ Task updated successfully in Firebase: ID=${task.id}');
     } catch (e) {
-      debugPrint('❌ Error updating task in Firebase: $e');
+      debugPrint('Error updating task in Firebase: $e');
     }
   }
 
   /// Delete single task from Firebase
   Future<void> deleteTaskFromFirebase(int taskId) async {
-    if (currentUserUid == null) {
-      debugPrint('❌ Cannot delete task from Firebase: User not authenticated');
-      return;
-    }
+    if (currentUserUid == null) return;
 
     try {
-      debugPrint('🔄 Deleting task from Firebase: ID=$taskId');
       // Delete the task from Firebase
       await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(taskId.toString()).delete();
 
@@ -1047,35 +1038,31 @@ class FirebaseService {
 
     final subscription = _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).snapshots().listen((snapshot) async {
       try {
-        debugPrint('🔄 Real-time tasks update: ${snapshot.docs.length} tasks, ${snapshot.docChanges.length} changes');
+        debugPrint('🔄 Real-time tasks update: ${snapshot.docs.length} tasks');
 
         for (final change in snapshot.docChanges) {
           final taskData = change.doc.data();
           if (taskData != null) {
             final taskModel = TaskModel.fromJson(taskData);
-            debugPrint('📋 Processing task change: Type=${change.type}, ID=${taskModel.id}, Title="${taskModel.title}"');
 
             switch (change.type) {
               case DocumentChangeType.added:
-                debugPrint('➕ Task added via listener: ${taskModel.title}');
+                debugPrint('➕ Task added: ${taskModel.title}');
                 // Check if task already exists locally to prevent duplicates
                 final existingTask = await _hiveService.getTask(taskModel.id);
                 if (existingTask == null) {
                   await _hiveService.addTask(taskModel);
-                  debugPrint('✅ Task added to local storage from listener');
                 } else {
-                  debugPrint('⚠️ Task already exists locally, skipping add');
+                  debugPrint('Task already exists locally, skipping add');
                 }
                 break;
               case DocumentChangeType.modified:
-                debugPrint('✏️ Task modified via listener: ${taskModel.title}');
+                debugPrint('✏️ Task modified: ${taskModel.title}');
                 await _updateTaskDirectly(taskModel);
-                debugPrint('✅ Task updated in local storage from listener');
                 break;
               case DocumentChangeType.removed:
-                debugPrint('❌ Task removed via listener: ${taskModel.title}');
+                debugPrint('❌ Task removed: ${taskModel.title}');
                 await _hiveService.deleteTask(taskModel.id);
-                debugPrint('✅ Task deleted from local storage from listener');
                 break;
             }
           }
@@ -1083,7 +1070,6 @@ class FirebaseService {
 
         // Update UI
         TaskProvider().updateItems();
-        debugPrint('✅ UI updated after task changes');
       } catch (e) {
         debugPrint('❌ Error in tasks listener: $e');
       }
