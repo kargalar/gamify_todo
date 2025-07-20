@@ -1048,13 +1048,7 @@ class FirebaseService {
             switch (change.type) {
               case DocumentChangeType.added:
                 debugPrint('➕ Task added: ${taskModel.title}');
-                // Check if task already exists locally to prevent duplicates
-                final existingTask = await _hiveService.getTask(taskModel.id);
-                if (existingTask == null) {
-                  await _hiveService.addTask(taskModel);
-                } else {
-                  debugPrint('Task already exists locally, skipping add');
-                }
+                await _hiveService.addTask(taskModel);
                 break;
               case DocumentChangeType.modified:
                 debugPrint('✏️ Task modified: ${taskModel.title}');
@@ -1094,13 +1088,7 @@ class FirebaseService {
             switch (change.type) {
               case DocumentChangeType.added:
                 debugPrint('➕ Item added: ${itemModel.title}');
-                // Check if item already exists locally to prevent duplicates
-                final existingItem = await _hiveService.getItem(itemModel.id);
-                if (existingItem == null) {
-                  await _hiveService.addItem(itemModel);
-                } else {
-                  debugPrint('Item already exists locally, skipping add');
-                }
+                await _hiveService.addItem(itemModel);
                 break;
               case DocumentChangeType.modified:
                 debugPrint('✏️ Item modified: ${itemModel.title}');
@@ -1140,13 +1128,7 @@ class FirebaseService {
             switch (change.type) {
               case DocumentChangeType.added:
                 debugPrint('➕ Trait added: ${traitModel.title}');
-                // Check if trait already exists locally to prevent duplicates
-                final existingTrait = await _hiveService.getTrait(traitModel.id);
-                if (existingTrait == null) {
-                  await _hiveService.addTrait(traitModel);
-                } else {
-                  debugPrint('Trait already exists locally, skipping add');
-                }
+                await _hiveService.addTrait(traitModel);
                 break;
               case DocumentChangeType.modified:
                 debugPrint('✏️ Trait modified: ${traitModel.title}');
@@ -1186,13 +1168,7 @@ class FirebaseService {
             switch (change.type) {
               case DocumentChangeType.added:
                 debugPrint('➕ Routine added: ${routineModel.title}');
-                // Check if routine already exists locally to prevent duplicates
-                final existingRoutine = await _hiveService.getRoutine(routineModel.id);
-                if (existingRoutine == null) {
-                  await _hiveService.addRoutine(routineModel);
-                } else {
-                  debugPrint('Routine already exists locally, skipping add');
-                }
+                await _hiveService.addRoutine(routineModel);
                 break;
               case DocumentChangeType.modified:
                 debugPrint('✏️ Routine modified: ${routineModel.title}');
@@ -1232,13 +1208,7 @@ class FirebaseService {
             switch (change.type) {
               case DocumentChangeType.added:
                 debugPrint('➕ Category added: ${categoryModel.title}');
-                // Check if category already exists locally to prevent duplicates
-                final existingCategory = await _hiveService.getCategory(categoryModel.id);
-                if (existingCategory == null) {
-                  await _hiveService.addCategory(categoryModel);
-                } else {
-                  debugPrint('Category already exists locally, skipping add');
-                }
+                await _hiveService.addCategory(categoryModel);
                 break;
               case DocumentChangeType.modified:
                 debugPrint('✏️ Category modified: ${categoryModel.title}');
@@ -1275,13 +1245,7 @@ class FirebaseService {
             switch (change.type) {
               case DocumentChangeType.added:
                 debugPrint('➕ Task log added: ${taskLogModel.id}');
-                // Check if task log already exists locally to prevent duplicates
-                final existingTaskLog = await _hiveService.getTaskLog(taskLogModel.id);
-                if (existingTaskLog == null) {
-                  await _hiveService.addTaskLog(taskLogModel);
-                } else {
-                  debugPrint('Task log already exists locally, skipping add');
-                }
+                await _hiveService.addTaskLog(taskLogModel);
                 break;
               case DocumentChangeType.modified:
                 debugPrint('✏️ Task log modified: ${taskLogModel.id}');
