@@ -10,11 +10,11 @@ import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/task_log_model.dart';
 import 'package:next_level/Service/hive_service.dart';
-import 'package:next_level/Service/firebase_optimizer.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseService {
@@ -25,7 +25,6 @@ class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final HiveService _hiveService = HiveService();
-  final FirebaseOptimizer _optimizer = FirebaseOptimizer();
 
   // Get current user's UID
   String? get currentUserUid => _auth.currentUser?.uid;
@@ -832,118 +831,103 @@ class FirebaseService {
   // INDIVIDUAL ITEM METHODS
   // ===============================
 
-  /// Add single task to Firebase (optimized with throttling)
+  /// Add single task to Firebase
   Future<void> addTaskToFirebase(TaskModel task) async {
     if (currentUserUid == null) return;
 
-    _optimizer.addThrottledOperation('addTask', () async {
-      try {
-        await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(task.id.toString()).set({
-          ...task.toJson(),
-          'updated_at': FieldValue.serverTimestamp(),
-        });
-        debugPrint('✅ Task added to Firebase (throttled): ${task.title}');
-      } catch (e) {
-        debugPrint('❌ Error adding task to Firebase: $e');
-      }
-    });
+    try {
+      await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(task.id.toString()).set({
+        ...task.toJson(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Error adding task to Firebase: $e');
+    }
   }
 
-  /// Update single task in Firebase (optimized with throttling)
+  /// Update single task in Firebase
   Future<void> updateTaskInFirebase(TaskModel task) async {
     if (currentUserUid == null) {
       debugPrint('❌ Cannot update task in Firebase: User not authenticated');
       return;
     }
 
-    _optimizer.addThrottledOperation('updateTask_${task.id}', () async {
-      try {
-        debugPrint('🔄 Updating task in Firebase (throttled): ID=${task.id}, Title="${task.title}"');
-        await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(task.id.toString()).update({
-          ...task.toJson(),
-          'updated_at': FieldValue.serverTimestamp(),
-        });
-        debugPrint('✅ Task updated successfully in Firebase (throttled): ID=${task.id}');
-      } catch (e) {
-        debugPrint('❌ Error updating task in Firebase: $e');
-      }
-    });
+    try {
+      debugPrint('🔄 Updating task in Firebase: ID=${task.id}, Title="${task.title}"');
+      await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(task.id.toString()).update({
+        ...task.toJson(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+      debugPrint('✅ Task updated successfully in Firebase: ID=${task.id}');
+    } catch (e) {
+      debugPrint('❌ Error updating task in Firebase: $e');
+    }
   }
 
-  /// Delete single task from Firebase (optimized with throttling)
+  /// Delete single task from Firebase
   Future<void> deleteTaskFromFirebase(int taskId) async {
     if (currentUserUid == null) {
       debugPrint('❌ Cannot delete task from Firebase: User not authenticated');
       return;
     }
 
-    _optimizer.addThrottledOperation('deleteTask_$taskId', () async {
-      try {
-        debugPrint('🔄 Deleting task from Firebase (throttled): ID=$taskId');
-        // Delete the task from Firebase
-        await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(taskId.toString()).delete();
+    try {
+      debugPrint('🔄 Deleting task from Firebase: ID=$taskId');
+      // Delete the task from Firebase
+      await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_tasksCollection).doc(taskId.toString()).delete();
 
-        // Track the deletion
-        await _trackDeletedItem('task', taskId);
+      // Track the deletion
+      await _trackDeletedItem('task', taskId);
 
-        debugPrint('✅ Deleted task from Firebase (throttled): $taskId');
-      } catch (e) {
-        debugPrint('❌ Error deleting task from Firebase: $e');
-      }
-    });
+      debugPrint('✅ Deleted task from Firebase: $taskId');
+    } catch (e) {
+      debugPrint('❌ Error deleting task from Firebase: $e');
+    }
   }
 
-  /// Add single item to Firebase (optimized with throttling)
+  /// Add single item to Firebase
   Future<void> addItemToFirebase(ItemModel item) async {
     if (currentUserUid == null) return;
 
-    _optimizer.addThrottledOperation('addItem', () async {
-      try {
-        await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_itemsCollection).doc(item.id.toString()).set({
-          ...item.toJson(),
-          'updated_at': FieldValue.serverTimestamp(),
-        });
-        debugPrint('✅ Item added to Firebase (throttled): ${item.title}');
-      } catch (e) {
-        debugPrint('❌ Error adding item to Firebase: $e');
-      }
-    });
+    try {
+      await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_itemsCollection).doc(item.id.toString()).set({
+        ...item.toJson(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Error adding item to Firebase: $e');
+    }
   }
 
-  /// Update single item in Firebase (optimized with throttling)
+  /// Update single item in Firebase
   Future<void> updateItemInFirebase(ItemModel item) async {
     if (currentUserUid == null) return;
 
-    _optimizer.addThrottledOperation('updateItem_${item.id}', () async {
-      try {
-        await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_itemsCollection).doc(item.id.toString()).update({
-          ...item.toJson(),
-          'updated_at': FieldValue.serverTimestamp(),
-        });
-        debugPrint('✅ Item updated in Firebase (throttled): ${item.title}');
-      } catch (e) {
-        debugPrint('❌ Error updating item in Firebase: $e');
-      }
-    });
+    try {
+      await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_itemsCollection).doc(item.id.toString()).update({
+        ...item.toJson(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Error updating item in Firebase: $e');
+    }
   }
 
-  /// Delete single item from Firebase (optimized with throttling)
+  /// Delete single item from Firebase
   Future<void> deleteItemFromFirebase(int itemId) async {
     if (currentUserUid == null) return;
 
-    _optimizer.addThrottledOperation('deleteItem_$itemId', () async {
-      try {
-        // Delete the item from Firebase
-        await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_itemsCollection).doc(itemId.toString()).delete();
+    try {
+      // Delete the item from Firebase
+      await _firestore.collection(_usersCollection).doc(currentUserUid).collection(_itemsCollection).doc(itemId.toString()).delete();
 
-        // Track the deletion
-        await _trackDeletedItem('item', itemId);
+      // Track the deletion
+      await _trackDeletedItem('item', itemId);
 
-        debugPrint('✅ Deleted item from Firebase (throttled): $itemId');
-      } catch (e) {
-        debugPrint('❌ Error deleting item from Firebase: $e');
-      }
-    });
+      debugPrint('✅ Deleted item from Firebase: $itemId');
+    } catch (e) {
+      debugPrint('❌ Error deleting item from Firebase: $e');
+    }
   }
 
   /// Update single routine in Firebase
@@ -1018,23 +1002,23 @@ class FirebaseService {
   // REAL-TIME SYNC METHODS
   // ===============================
 
-  /// Start real-time listeners for all collections (optimized)
+  /// Start real-time listeners for all collections
   Future<void> startRealTimeSync() async {
     if (currentUserUid == null) return;
 
     try {
-      debugPrint('🔄 Starting real-time sync listeners (optimized)...');
+      debugPrint('🔄 Starting real-time sync listeners...');
 
-      // Start listeners for critical collections only
+      // Start listeners for each collection
       await _startTasksListener();
       await _startItemsListener();
+      await _startTraitsListener();
+      await _startRoutinesListener();
+      await _startCategoriesListener();
+      await _startTaskLogsListener();
       await _startDeletedItemsListener();
 
-      // Start less critical listeners with lower frequency
-      // Traits, routines, categories change less frequently
-      // These will be synced via periodic bulk sync instead
-
-      debugPrint('✅ Real-time sync listeners started successfully (optimized)');
+      debugPrint('✅ Real-time sync listeners started successfully');
     } catch (e) {
       debugPrint('❌ Error starting real-time sync: $e');
     }
@@ -1044,9 +1028,6 @@ class FirebaseService {
   Future<void> stopRealTimeSync() async {
     try {
       debugPrint('🔄 Stopping real-time sync listeners...');
-
-      // Flush any pending operations before stopping
-      await _optimizer.flushAll();
 
       // Cancel all subscriptions
       for (final subscription in _subscriptions) {
@@ -1151,6 +1132,187 @@ class FirebaseService {
         StoreProvider().setStateItems();
       } catch (e) {
         debugPrint('❌ Error in items listener: $e');
+      }
+    });
+
+    _subscriptions.add(subscription);
+  }
+
+  /// Start real-time listener for traits
+  Future<void> _startTraitsListener() async {
+    if (currentUserUid == null) return;
+
+    final subscription = _firestore.collection(_usersCollection).doc(currentUserUid).collection(_traitsCollection).snapshots().listen((snapshot) async {
+      try {
+        debugPrint('🔄 Real-time traits update: ${snapshot.docs.length} traits');
+
+        for (final change in snapshot.docChanges) {
+          final traitData = change.doc.data();
+          if (traitData != null) {
+            final traitModel = TraitModel.fromJson(traitData);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+                debugPrint('➕ Trait added: ${traitModel.title}');
+                // Check if trait already exists locally to prevent duplicates
+                final existingTrait = await _hiveService.getTrait(traitModel.id);
+                if (existingTrait == null) {
+                  await _hiveService.addTrait(traitModel);
+                } else {
+                  debugPrint('Trait already exists locally, skipping add');
+                }
+                break;
+              case DocumentChangeType.modified:
+                debugPrint('✏️ Trait modified: ${traitModel.title}');
+                await _updateTraitDirectly(traitModel);
+                break;
+              case DocumentChangeType.removed:
+                debugPrint('❌ Trait removed: ${traitModel.title}');
+                await _hiveService.deleteTrait(traitModel.id);
+                break;
+            }
+          }
+        }
+
+        // Update UI
+        TraitProvider().updateItems();
+      } catch (e) {
+        debugPrint('❌ Error in traits listener: $e');
+      }
+    });
+
+    _subscriptions.add(subscription);
+  }
+
+  /// Start real-time listener for routines
+  Future<void> _startRoutinesListener() async {
+    if (currentUserUid == null) return;
+
+    final subscription = _firestore.collection(_usersCollection).doc(currentUserUid).collection(_routinesCollection).snapshots().listen((snapshot) async {
+      try {
+        debugPrint('🔄 Real-time routines update: ${snapshot.docs.length} routines');
+
+        for (final change in snapshot.docChanges) {
+          final routineData = change.doc.data();
+          if (routineData != null) {
+            final routineModel = RoutineModel.fromJson(routineData);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+                debugPrint('➕ Routine added: ${routineModel.title}');
+                // Check if routine already exists locally to prevent duplicates
+                final existingRoutine = await _hiveService.getRoutine(routineModel.id);
+                if (existingRoutine == null) {
+                  await _hiveService.addRoutine(routineModel);
+                } else {
+                  debugPrint('Routine already exists locally, skipping add');
+                }
+                break;
+              case DocumentChangeType.modified:
+                debugPrint('✏️ Routine modified: ${routineModel.title}');
+                await _updateRoutineDirectly(routineModel);
+                break;
+              case DocumentChangeType.removed:
+                debugPrint('❌ Routine removed: ${routineModel.title}');
+                await _hiveService.deleteRoutine(routineModel.id);
+                break;
+            }
+          }
+        }
+
+        // Update UI
+        TaskProvider().updateItems();
+      } catch (e) {
+        debugPrint('❌ Error in routines listener: $e');
+      }
+    });
+
+    _subscriptions.add(subscription);
+  }
+
+  /// Start real-time listener for categories
+  Future<void> _startCategoriesListener() async {
+    if (currentUserUid == null) return;
+
+    final subscription = _firestore.collection(_usersCollection).doc(currentUserUid).collection(_categoriesCollection).snapshots().listen((snapshot) async {
+      try {
+        debugPrint('🔄 Real-time categories update: ${snapshot.docs.length} categories');
+
+        for (final change in snapshot.docChanges) {
+          final categoryData = change.doc.data();
+          if (categoryData != null) {
+            final categoryModel = CategoryModel.fromJson(categoryData);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+                debugPrint('➕ Category added: ${categoryModel.title}');
+                // Check if category already exists locally to prevent duplicates
+                final existingCategory = await _hiveService.getCategory(categoryModel.id);
+                if (existingCategory == null) {
+                  await _hiveService.addCategory(categoryModel);
+                } else {
+                  debugPrint('Category already exists locally, skipping add');
+                }
+                break;
+              case DocumentChangeType.modified:
+                debugPrint('✏️ Category modified: ${categoryModel.title}');
+                await _hiveService.updateCategory(categoryModel);
+                break;
+              case DocumentChangeType.removed:
+                debugPrint('❌ Category removed: ${categoryModel.title}');
+                await _hiveService.deleteCategory(categoryModel.id);
+                break;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('❌ Error in categories listener: $e');
+      }
+    });
+
+    _subscriptions.add(subscription);
+  }
+
+  /// Start real-time listener for task logs
+  Future<void> _startTaskLogsListener() async {
+    if (currentUserUid == null) return;
+
+    final subscription = _firestore.collection(_usersCollection).doc(currentUserUid).collection(_taskLogsCollection).snapshots().listen((snapshot) async {
+      try {
+        debugPrint('🔄 Real-time task logs update: ${snapshot.docs.length} task logs');
+
+        for (final change in snapshot.docChanges) {
+          final taskLogData = change.doc.data();
+          if (taskLogData != null) {
+            final taskLogModel = TaskLogModel.fromJson(taskLogData);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+                debugPrint('➕ Task log added: ${taskLogModel.id}');
+                // Check if task log already exists locally to prevent duplicates
+                final existingTaskLog = await _hiveService.getTaskLog(taskLogModel.id);
+                if (existingTaskLog == null) {
+                  await _hiveService.addTaskLog(taskLogModel);
+                } else {
+                  debugPrint('Task log already exists locally, skipping add');
+                }
+                break;
+              case DocumentChangeType.modified:
+                debugPrint('✏️ Task log modified: ${taskLogModel.id}');
+                // Task logs are usually not modified, but handle it just in case
+                break;
+              case DocumentChangeType.removed:
+                debugPrint('❌ Task log removed: ${taskLogModel.id}');
+                // Task logs are usually not removed, but handle it just in case
+                break;
+            }
+          }
+        }
+
+        // Update UI
+        TaskLogProvider().updateItems();
+      } catch (e) {
+        debugPrint('❌ Error in task logs listener: $e');
       }
     });
 
@@ -1276,23 +1438,16 @@ class FirebaseService {
     await _hiveService.updateItem(itemModel);
   }
 
+  Future<void> _updateTraitDirectly(TraitModel traitModel) async {
+    await _hiveService.updateTrait(traitModel);
+  }
+
+  Future<void> _updateRoutineDirectly(RoutineModel routineModel) async {
+    await _hiveService.updateRoutine(routineModel);
+  }
+
   // Real-time sync status
   bool get isRealTimeSyncActive => _subscriptions.isNotEmpty;
-
-  /// Force flush all pending Firebase operations
-  Future<void> flushPendingOperations() async {
-    try {
-      await _optimizer.flushAll();
-      debugPrint('✅ Flushed all pending Firebase operations');
-    } catch (e) {
-      debugPrint('❌ Error flushing pending operations: $e');
-    }
-  }
-
-  /// Get pending operations count for debugging
-  Map<String, int> getPendingOperationsCounts() {
-    return _optimizer.getPendingCounts();
-  }
 
   // Real-time sync methods
 }
