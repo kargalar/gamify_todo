@@ -307,89 +307,6 @@ Firebase Console'da:
     );
   }
 
-  Future<void> _clearLocalData() async {
-    setState(() {
-      _isLoading = true;
-      _status = 'Clearing local data...';
-    });
-
-    try {
-      _addLog('🔄 Clearing all local data...');
-
-      // Clear all local data using the existing method
-      await _hiveService.deleteAllData(isLogout: false);
-
-      _addLog('✅ All local data cleared');
-
-      setState(() {
-        _status = 'Local data cleared successfully';
-        _isLoading = false;
-      });
-    } catch (e) {
-      _addLog('❌ Failed to clear local data: $e');
-      setState(() {
-        _status = 'Failed to clear local data';
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _fullSyncFromFirebase() async {
-    setState(() {
-      _isLoading = true;
-      _status = 'Full sync from Firebase...';
-    });
-
-    try {
-      _addLog('🔄 Starting full sync from Firebase...');
-
-      // Force sync from Firebase
-      await _firebaseService.syncFromFirebase();
-      _addLog('✅ Full sync from Firebase completed');
-
-      setState(() {
-        _status = 'Full sync completed successfully';
-        _isLoading = false;
-      });
-    } catch (e) {
-      _addLog('❌ Full sync failed: $e');
-      setState(() {
-        _status = 'Full sync failed';
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _checkLocalDataCount() async {
-    try {
-      _addLog('🔄 Checking local data count...');
-
-      final tasks = await _hiveService.getTasks();
-      final items = await _hiveService.getItems();
-      final traits = await _hiveService.getTraits();
-      final routines = await _hiveService.getRoutines();
-      final categories = await _hiveService.getCategories();
-      final taskLogs = await _hiveService.getTaskLogs();
-
-      _addLog('📊 Local data count:');
-      _addLog('   Tasks: ${tasks.length}');
-      _addLog('   Items: ${items.length}');
-      _addLog('   Traits: ${traits.length}');
-      _addLog('   Routines: ${routines.length}');
-      _addLog('   Categories: ${categories.length}');
-      _addLog('   Task Logs: ${taskLogs.length}');
-
-      setState(() {
-        _status = 'Local data count checked';
-      });
-    } catch (e) {
-      _addLog('❌ Failed to check local data count: $e');
-      setState(() {
-        _status = 'Failed to check local data count';
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -471,22 +388,6 @@ Firebase Console'da:
                     foregroundColor: Colors.white,
                   ),
                   child: const Text('Firebase Rules Help'),
-                ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _clearLocalData,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Clear Local Data'),
-                ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _fullSyncFromFirebase,
-                  child: const Text('Full Sync from Firebase'),
-                ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _checkLocalDataCount,
-                  child: const Text('Check Local Data Count'),
                 ),
               ],
             ),

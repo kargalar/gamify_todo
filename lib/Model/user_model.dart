@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:next_level/Core/firebase_utils.dart';
 
 part 'user_model.g.dart';
 
@@ -31,24 +30,37 @@ class UserModel extends HiveObject {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    Duration stringToDuration(String timeString) {
+      List<String> split = timeString.split(':');
+      return Duration(hours: int.parse(split[0]), minutes: int.parse(split[1]), seconds: int.parse(split[2]));
+    }
+
     return UserModel(
-      id: json['id'] ?? 0,
-      email: json['email'] ?? '',
-      password: json['password'] ?? '',
-      username: json['username'] ?? '',
-      creditProgress: FirebaseUtils.parseDuration(json['credit_progress']) ?? const Duration(hours: 0, minutes: 0, seconds: 0),
-      userCredit: json['user_credit'] ?? 0,
-      updatedAt: FirebaseUtils.parseTimestamp(json['updated_at']),
+      id: json['id'],
+      email: json['email'],
+      password: json['password'],
+      username: json['username'],
+      creditProgress: stringToDuration(json['credit_progress']),
+      userCredit: json['user_credit'],
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
+    String durationToString(Duration duration) {
+      final hours = duration.inHours;
+      final minutes = duration.inMinutes.remainder(60);
+      final seconds = duration.inSeconds.remainder(60);
+
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+
     return {
       'id': id,
       'email': email,
       'password': password,
       'username': username,
-      'credit_progress': FirebaseUtils.durationToString(creditProgress),
+      'credit_progress': durationToString(creditProgress),
       'user_credit': userCredit,
       'updated_at': updatedAt?.toIso8601String(),
     };
