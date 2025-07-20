@@ -5,7 +5,6 @@ import 'package:next_level/Page/Home/Widget/day_item.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/debug_helper.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Widgets/sync_status_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 
@@ -98,11 +97,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         await DebugHelper.runFullDebug();
                       },
                     ),
-                  // Sync Status Widget
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: SyncStatusWidget(),
-                  ),
                 ],
               ),
             ),

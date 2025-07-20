@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Service/hive_service.dart';
-import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,7 +12,6 @@ class AuthService {
   AuthService._internal();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final HiveService _hiveService = HiveService();
-  final ServerManager _serverManager = ServerManager();
 
   // Get current Firebase user
   User? get currentUser => _auth.currentUser;
@@ -77,16 +75,6 @@ class AuthService {
         // Set as logged in user
         loginUser = userModel;
         debugPrint('loginUser set successfully');
-
-        // Sync data to Firebase after successful registration
-        debugPrint('Starting Firebase sync after registration...');
-        try {
-          await _serverManager.syncToFirebase();
-          debugPrint('Firebase sync completed successfully');
-        } catch (e) {
-          debugPrint('Firebase sync failed: $e');
-          // Don't fail registration if sync fails
-        }
 
         debugPrint('User registered successfully: ${userModel.email}');
         return userModel;
@@ -155,16 +143,6 @@ class AuthService {
         loginUser = localUser;
         debugPrint('loginUser set successfully: ${loginUser?.username}');
 
-        // Sync data from Firebase after successful login
-        debugPrint('Starting Firebase sync after login...');
-        try {
-          await _serverManager.syncFromFirebase();
-          debugPrint('Firebase sync completed successfully');
-        } catch (e) {
-          debugPrint('Firebase sync failed: $e');
-          // Don't fail login if sync fails
-        }
-
         debugPrint('User signed in successfully: ${localUser.email}');
         return localUser;
       } else {
@@ -184,16 +162,6 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
-      // Sync data to Firebase before signing out
-      debugPrint('Starting Firebase sync before logout...');
-      try {
-        await _serverManager.syncToFirebase();
-        debugPrint('Firebase sync completed successfully');
-      } catch (e) {
-        debugPrint('Firebase sync failed: $e');
-        // Don't fail logout if sync fails
-      }
-
       await _auth.signOut();
       loginUser = null;
       debugPrint('User signed out successfully');
@@ -269,16 +237,6 @@ class AuthService {
       if (localUser != null) {
         loginUser = localUser;
         debugPrint('User authenticated: ${localUser.email}');
-
-        // Sync data from Firebase after authentication check
-        debugPrint('Starting Firebase sync after auth check...');
-        try {
-          await _serverManager.syncFromFirebase();
-          debugPrint('Firebase sync completed successfully');
-        } catch (e) {
-          debugPrint('Firebase sync failed: $e');
-          // Don't fail auth check if sync fails
-        }
       } else {
         // If no local user found, sign out from Firebase
         await signOut();

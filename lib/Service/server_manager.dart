@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/hive_service.dart';
-import 'package:next_level/Service/firebase_service.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -17,65 +16,12 @@ class ServerManager {
     return _instance;
   }
 
-  final FirebaseService _firebaseService = FirebaseService();
-
   // static const String _baseUrl = 'http://localhost:3001';
   // static const String _baseUrl = 'http://192.168.1.21:3001';
   // static const String _baseUrl = 'https://gamify-273bac1e9487.herokuapp.com';
 
   var dio = Dio();
-  // --------------------------------------------
-
-  // Sync all data bidirectionally
-  Future<void> syncAllData() async {
-    // Check if user is authenticated with Firebase
-    if (_firebaseService.currentUserUid == null) {
-      debugPrint('⚠️ User not authenticated with Firebase, skipping sync');
-      return;
-    }
-
-    try {
-      debugPrint('🔄 Starting bidirectional sync...');
-      await _firebaseService.bidirectionalSync();
-      debugPrint('✅ Bidirectional sync completed');
-    } catch (e) {
-      debugPrint('❌ Sync failed: $e');
-    }
-  }
-
-  // Sync data from Firebase to local (for app startup)
-  Future<void> syncFromFirebase() async {
-    // Check if user is authenticated with Firebase
-    if (_firebaseService.currentUserUid == null) {
-      debugPrint('⚠️ User not authenticated with Firebase, skipping sync');
-      return;
-    }
-
-    try {
-      debugPrint('🔄 Syncing from Firebase...');
-      await _firebaseService.syncFromFirebase();
-      debugPrint('✅ Firebase sync completed');
-    } catch (e) {
-      debugPrint('❌ Firebase sync failed: $e');
-    }
-  }
-
-  // Sync data from local to Firebase (for backup)
-  Future<void> syncToFirebase() async {
-    // Check if user is authenticated with Firebase
-    if (_firebaseService.currentUserUid == null) {
-      debugPrint('⚠️ User not authenticated with Firebase, skipping sync');
-      return;
-    }
-
-    try {
-      debugPrint('🔄 Syncing to Firebase...');
-      await _firebaseService.syncToFirebase();
-      debugPrint('✅ Firebase upload completed');
-    } catch (e) {
-      debugPrint('❌ Firebase upload failed: $e');
-    }
-  }
+  // --------------------------------------------w
 
   // check request
   void checkRequest(Response response) {
@@ -278,20 +224,14 @@ class ServerManager {
   Future<int> addItem({
     required ItemModel itemModel,
   }) async {
+    // TODO: SERVER MANAGER AKTİF OLDUĞUNDA ID SERVER MANAGERDAN GELEN İD OLACAK. yani zaten buna gerek olmayacak. server managere kaydeildikten sonra hive kaydedilecek ???????????
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final int id = prefs.getInt("last_item_id") ?? 0;
 
     itemModel.id = id + 1;
 
-    // Save to local storage first
-    await HiveService().addItem(itemModel);
-
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.addItemToFirebase(itemModel);
-    } else {
-      debugPrint('⚠️ User not authenticated, item not synced to Firebase');
-    }
+    HiveService().addItem(itemModel);
 
     prefs.setInt("last_item_id", itemModel.id);
 
@@ -319,16 +259,14 @@ class ServerManager {
   Future<int> addTrait({
     required TraitModel traitModel,
   }) async {
+    // TODO: SERVER MANAGER AKTİF OLDUĞUNDA ID SERVER MANAGERDAN GELEN İD OLACAK. yani zaten buna gerek olmayacak. server managere kaydeildikten sonra hive kaydedilecek ???????????
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final int id = prefs.getInt("last_trait_id") ?? 0;
 
     traitModel.id = id + 1;
 
-    // Save to local storage first
-    await HiveService().addTrait(traitModel);
-
-    // Then sync to Firebase (traits don't have individual Firebase methods yet, will be synced in bulk)
-    // await _firebaseService.addTraitToFirebase(traitModel);
+    HiveService().addTrait(traitModel);
 
     prefs.setInt("last_trait_id", traitModel.id);
 
@@ -356,6 +294,8 @@ class ServerManager {
   Future<int> addRoutine({
     required RoutineModel routineModel,
   }) async {
+    // TODO: SERVER MANAGER AKTİF OLDUĞUNDA ID SERVER MANAGERDAN GELEN İD OLACAK. yani zaten buna gerek olmayacak. server managere kaydeildikten sonra hive kaydedilecek ???????????
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final int lastId = prefs.getInt("last_routine_id") ?? 0;
 
@@ -373,11 +313,8 @@ class ServerManager {
     // Set the new routine ID to be one higher than the highest existing ID
     routineModel.id = highestId + 1;
 
-    // Save to local storage first
+    // Save the routine
     await HiveService().addRoutine(routineModel);
-
-    // Then sync to Firebase (routines don't have individual Firebase methods yet, will be synced in bulk)
-    // await _firebaseService.addRoutineToFirebase(routineModel);
 
     // Update the last routine ID in SharedPreferences
     await prefs.setInt("last_routine_id", routineModel.id);
@@ -406,6 +343,8 @@ class ServerManager {
   Future<int> addTask({
     required TaskModel taskModel,
   }) async {
+    // TODO: SERVER MANAGER AKTİF OLDUĞUNDA ID SERVER MANAGERDAN GELEN İD OLACAK. yani zaten buna gerek olmayacak. server managere kaydeildikten sonra hive kaydedilecek ???????????
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final int lastId = prefs.getInt("last_task_id") ?? 0;
 
@@ -423,15 +362,8 @@ class ServerManager {
     // Set the new task ID to be one higher than the highest existing ID
     taskModel.id = highestId + 1;
 
-    // Save to local storage first
+    // Save the task
     await HiveService().addTask(taskModel);
-
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.addTaskToFirebase(taskModel);
-    } else {
-      debugPrint('⚠️ User not authenticated, task not synced to Firebase');
-    }
 
     // Update the last task ID in SharedPreferences
     await prefs.setInt("last_task_id", taskModel.id);
@@ -475,63 +407,70 @@ class ServerManager {
   Future<void> updateUser({
     required UserModel userModel,
   }) async {
-    // Update local storage first
-    await HiveService().updateUser(userModel);
+    HiveService().updateUser(userModel);
 
-    // Then sync to Firebase (user updates are handled in bulk sync)
-    // await _firebaseService.updateUserInFirebase(userModel);
+    // var response = await dio.put(
+    //   "$_baseUrl/updateUser",
+    //   data: userModel.toJson(),
+    // );
+
+    // checkRequest(response);
   }
 
   // update items
   Future<void> updateItem({
     required ItemModel itemModel,
   }) async {
-    // Update local storage first
-    await HiveService().updateItem(itemModel);
+    HiveService().updateItem(itemModel);
 
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.updateItemInFirebase(itemModel);
-    } else {
-      debugPrint('⚠️ User not authenticated, item update not synced to Firebase');
-    }
+    // var response = await dio.put(
+    //   "$_baseUrl/updateItem",
+    //   data: itemModel.toJson(),
+    // );
+
+    // checkRequest(response);
   }
 
   // update trait
   Future<void> updateTrait({
     required TraitModel traitModel,
   }) async {
-    // Update local storage first
-    await HiveService().updateTrait(traitModel);
+    HiveService().updateTrait(traitModel);
 
-    // Then sync to Firebase (traits are handled in bulk sync)
-    // await _firebaseService.updateTraitInFirebase(traitModel);
+    // var response = await dio.put(
+    //   "$_baseUrl/updateTrait",
+    //   data: traitModel.toJson(),
+    // );
+
+    // checkRequest(response);
   }
 
   // update routines
   Future<void> updateRoutine({
     required RoutineModel routineModel,
   }) async {
-    // Update local storage first
-    await HiveService().updateRoutine(routineModel);
+    HiveService().updateRoutine(routineModel);
 
-    // Then sync to Firebase (routines are handled in bulk sync)
-    // await _firebaseService.updateRoutineInFirebase(routineModel);
+    // var response = await dio.put(
+    //   "$_baseUrl/updateRoutine",
+    //   data: routineModel.toJson(),
+    // );
+
+    // checkRequest(response);
   }
 
   // update tasks
   Future<void> updateTask({
     required TaskModel taskModel,
   }) async {
-    // Update local storage first
-    await HiveService().updateTask(taskModel);
+    HiveService().updateTask(taskModel);
 
-    // Then sync to Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.updateTaskInFirebase(taskModel);
-    } else {
-      debugPrint('⚠️ User not authenticated, task update not synced to Firebase');
-    }
+    // var response = await dio.put(
+    //   "$_baseUrl/updateTask",
+    //   data: taskModel.toJson(),
+    // );
+
+    // checkRequest(response);
   }
 
   // update category
@@ -545,52 +484,64 @@ class ServerManager {
   Future<void> deleteItem({
     required int id,
   }) async {
-    // Delete from local storage first
-    await HiveService().deleteItem(id);
+    HiveService().deleteItem(id);
 
-    // Then delete from Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.deleteItemFromFirebase(id);
-    } else {
-      debugPrint('⚠️ User not authenticated, item deletion not synced to Firebase');
-    }
+    // var response = await dio.delete(
+    //   "$_baseUrl/deleteItem",
+    //   queryParameters: {
+    //     'item_id': id,
+    //   },
+    // );
+
+    // checkRequest(response);
   }
 
   // delete trait
   Future<void> deleteTrait({
     required int id,
   }) async {
-    // Delete from local storage first
-    await HiveService().deleteTrait(id);
+    HiveService().deleteTrait(id);
 
-    // Then sync to Firebase (traits are handled in bulk sync)
-    // await _firebaseService.deleteTraitFromFirebase(id);
+    // var response = await dio.delete(
+    //   "$_baseUrl/deleteTrait",
+    //   queryParameters: {
+    //     'trait_id': id,
+    //   },
+    // );
+
+    // checkRequest(response);
   }
 
   // delete routine
   Future<void> deleteRoutine({
     required int id,
   }) async {
-    // Delete from local storage first
-    await HiveService().deleteRoutine(id);
+    HiveService().deleteRoutine(id);
 
-    // Then sync to Firebase (routines are handled in bulk sync)
-    // await _firebaseService.deleteRoutineFromFirebase(id);
+    // var response = await dio.delete(
+    //   "$_baseUrl/deleteRoutine",
+    //   queryParameters: {
+    //     'routine_id': id,
+    //   },
+    // );
+
+    // checkRequest(response);
   }
 
   // delete task
   Future<void> deleteTask({
     required int id,
   }) async {
-    // Delete from local storage first
     await HiveService().deleteTask(id);
 
-    // Then delete from Firebase (only if user is authenticated)
-    if (_firebaseService.currentUserUid != null) {
-      await _firebaseService.deleteTaskFromFirebase(id);
-    } else {
-      debugPrint('⚠️ User not authenticated, task deletion not synced to Firebase');
-    }
+    // var response = await dio.delete(
+    //   "$_baseUrl/deleteTask",
+    //   queryParameters: {
+    //     'task_id': id,
+    //   },
+    // );
+
+    // checkRequest(response);
   }
 
   // delete category

@@ -16,9 +16,6 @@ class UserModel extends HiveObject {
   int userCredit;
   @HiveField(5)
   String username;
-  @HiveField(6)
-  DateTime? updatedAt;
-
   UserModel({
     required this.id,
     required this.email,
@@ -26,9 +23,7 @@ class UserModel extends HiveObject {
     required this.username,
     this.creditProgress = const Duration(hours: 0, minutes: 0, seconds: 0),
     this.userCredit = 0,
-    this.updatedAt,
   });
-
   factory UserModel.fromJson(Map<String, dynamic> json) {
     Duration stringToDuration(String timeString) {
       List<String> split = timeString.split(':');
@@ -42,7 +37,6 @@ class UserModel extends HiveObject {
       username: json['username'],
       creditProgress: stringToDuration(json['credit_progress']),
       userCredit: json['user_credit'],
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
     );
   }
 
@@ -62,7 +56,6 @@ class UserModel extends HiveObject {
       'username': username,
       'credit_progress': durationToString(creditProgress),
       'user_credit': userCredit,
-      'updated_at': updatedAt?.toIso8601String(),
     };
   }
 }
