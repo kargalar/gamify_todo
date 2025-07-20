@@ -7,7 +7,6 @@ import 'package:next_level/General/init_app.dart';
 import 'package:next_level/Page/Login/modern_login_page.dart';
 import 'package:next_level/Page/navbar_page_manager.dart';
 import 'package:next_level/Service/product_localization.dart';
-import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
@@ -47,7 +46,6 @@ void main() async {
       ChangeNotifierProvider(create: (context) => TraitProvider()),
       ChangeNotifierProvider(create: (context) => TaskLogProvider()),
       ChangeNotifierProvider(create: (context) => CategoryProvider()),
-      ChangeNotifierProvider(create: (context) => ServerManager()),
     ],
     child: ProductLocalization(child: const Main()),
   ));
