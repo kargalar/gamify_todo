@@ -574,9 +574,10 @@ class HiveService {
 
       // Export existing settings
       sharedPrefsMap["lastLoginDate"] = prefs.getString('lastLoginDate');
-
-      // Note: ID tracking is now handled by timestamp-based unique IDs,
-      // so we don't need to export last_*_id values from SharedPreferences
+      sharedPrefsMap["last_task_id"] = prefs.getInt('last_task_id') ?? 0;
+      sharedPrefsMap["last_routine_id"] = prefs.getInt('last_routine_id') ?? 0;
+      sharedPrefsMap["last_trait_id"] = prefs.getInt('last_trait_id') ?? 0;
+      sharedPrefsMap["last_category_id"] = prefs.getInt('last_category_id') ?? 0;
 
       // Export inbox page filter settings with default values
       sharedPrefsMap["categories_show_tasks"] = prefs.getBool('categories_show_tasks') ?? true;
@@ -707,17 +708,17 @@ class HiveService {
               final taskLog = TaskLogModel.fromJson(entry.value);
               await taskLogBox.put(int.parse(entry.key), taskLog);
             }
-          }
-          // Import SharedPrefs (legacy settings only)
+          } // Import SharedPrefs
           final prefs = await SharedPreferences.getInstance();
           final sharedPrefsMap = allData["SharedPreferances"] as Map<String, dynamic>;
 
           // Set lastLoginDate to yesterday so that createTasksFromRoutines creates tasks for today
           // Because createTasksFromRoutines starts from lastLoginDate + 1 day
           await prefs.setString('lastLoginDate', DateTime.now().subtract(const Duration(days: 1)).toIso8601String());
-
-          // Note: ID tracking is now handled by timestamp-based unique IDs,
-          // so we don't need to restore last_*_id values from SharedPreferences
+          await prefs.setInt('last_task_id', sharedPrefsMap["last_task_id"] ?? 0);
+          await prefs.setInt('last_routine_id', sharedPrefsMap["last_routine_id"] ?? 0);
+          await prefs.setInt('last_trait_id', sharedPrefsMap["last_trait_id"] ?? 0);
+          await prefs.setInt('last_category_id', sharedPrefsMap["last_category_id"] ?? 0);
 
           // Import inbox page filter settings with proper defaults
           await prefs.setBool('categories_show_tasks', sharedPrefsMap["categories_show_tasks"] ?? true);

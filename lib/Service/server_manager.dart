@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/firebase_service.dart';
-import 'package:next_level/Service/id_service.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
 import 'package:next_level/Model/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ServerManager extends ChangeNotifier {
   ServerManager._privateConstructor();
@@ -309,9 +309,10 @@ class ServerManager extends ChangeNotifier {
   Future<int> addItem({
     required ItemModel itemModel,
   }) async {
-    // Generate unique timestamp-based ID
-    itemModel.id = IdService().generateItemId();
-    debugPrint('Generated unique item ID: ${itemModel.id}');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int id = prefs.getInt("last_item_id") ?? 0;
+
+    itemModel.id = id + 1;
 
     // Save to local storage first
     await HiveService().addItem(itemModel);
@@ -322,6 +323,8 @@ class ServerManager extends ChangeNotifier {
     } else {
       debugPrint('⚠️ User not authenticated, item not synced to Firebase');
     }
+
+    prefs.setInt("last_item_id", itemModel.id);
 
     return itemModel.id;
 
@@ -347,15 +350,18 @@ class ServerManager extends ChangeNotifier {
   Future<int> addTrait({
     required TraitModel traitModel,
   }) async {
-    // Generate unique timestamp-based ID
-    traitModel.id = IdService().generateTraitId();
-    debugPrint('Generated unique trait ID: ${traitModel.id}');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int id = prefs.getInt("last_trait_id") ?? 0;
+
+    traitModel.id = id + 1;
 
     // Save to local storage first
     await HiveService().addTrait(traitModel);
 
     // Then sync to Firebase (traits don't have individual Firebase methods yet, will be synced in bulk)
     // await _firebaseService.addTraitToFirebase(traitModel);
+
+    prefs.setInt("last_trait_id", traitModel.id);
 
     return traitModel.id;
 
@@ -381,15 +387,31 @@ class ServerManager extends ChangeNotifier {
   Future<int> addRoutine({
     required RoutineModel routineModel,
   }) async {
-    // Generate unique timestamp-based ID
-    routineModel.id = IdService().generateRoutineId();
-    debugPrint('Generated unique routine ID: ${routineModel.id}');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int lastId = prefs.getInt("last_routine_id") ?? 0;
+
+    // Get all existing routines to ensure we don't have ID conflicts
+    final existingRoutines = await HiveService().getRoutines();
+
+    // Find the highest ID among existing routines
+    int highestId = lastId;
+    for (final routine in existingRoutines) {
+      if (routine.id > highestId) {
+        highestId = routine.id;
+      }
+    }
+
+    // Set the new routine ID to be one higher than the highest existing ID
+    routineModel.id = highestId + 1;
 
     // Save to local storage first
     await HiveService().addRoutine(routineModel);
 
     // Then sync to Firebase (routines don't have individual Firebase methods yet, will be synced in bulk)
     // await _firebaseService.addRoutineToFirebase(routineModel);
+
+    // Update the last routine ID in SharedPreferences
+    await prefs.setInt("last_routine_id", routineModel.id);
 
     return routineModel.id;
 
@@ -415,9 +437,22 @@ class ServerManager extends ChangeNotifier {
   Future<int> addTask({
     required TaskModel taskModel,
   }) async {
-    // Generate unique timestamp-based ID
-    taskModel.id = IdService().generateTaskId();
-    debugPrint('Generated unique task ID: ${taskModel.id}');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int lastId = prefs.getInt("last_task_id") ?? 0;
+
+    // Get all existing tasks to ensure we don't have ID conflicts
+    final existingTasks = await HiveService().getTasks();
+
+    // Find the highest ID among existing tasks
+    int highestId = lastId;
+    for (final task in existingTasks) {
+      if (task.id > highestId) {
+        highestId = task.id;
+      }
+    }
+
+    // Set the new task ID to be one higher than the highest existing ID
+    taskModel.id = highestId + 1;
 
     // Save to local storage first
     await HiveService().addTask(taskModel);
@@ -429,6 +464,9 @@ class ServerManager extends ChangeNotifier {
       debugPrint('⚠️ User not authenticated, task not synced to Firebase');
     }
 
+    // Update the last task ID in SharedPreferences
+    await prefs.setInt("last_task_id", taskModel.id);
+
     return taskModel.id;
   }
 
@@ -436,11 +474,14 @@ class ServerManager extends ChangeNotifier {
   Future<int> addCategory({
     required CategoryModel categoryModel,
   }) async {
-    // Generate unique timestamp-based ID
-    categoryModel.id = IdService().generateCategoryId();
-    debugPrint('Generated unique category ID: ${categoryModel.id}');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int id = prefs.getInt("last_category_id") ?? 0;
+
+    categoryModel.id = id + 1;
 
     HiveService().addCategory(categoryModel);
+
+    prefs.setInt("last_category_id", categoryModel.id);
 
     return categoryModel.id;
 
