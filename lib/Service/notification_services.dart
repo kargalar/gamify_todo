@@ -213,20 +213,26 @@ class NotificationService {
     required bool isAlarm,
     int? earlyReminderMinutes,
   }) async {
+    // Bildirim/alarm ID'sini 32-bit integer sınırında tut
+    final safeId = id % 2147483647;
     debugPrint('=== scheduleNotification Debug ===');
-    debugPrint('ID: $id');
+    debugPrint('ID: $id | safeId: $safeId');
     debugPrint('Title: $title');
     debugPrint('Scheduled Date: $scheduledDate');
     debugPrint('Is Alarm: $isAlarm');
     debugPrint('Early Reminder Minutes: $earlyReminderMinutes');
+    debugPrint('Current DateTime: ${DateTime.now()}');
+    debugPrint('ScheduledDate isAfter now: ${scheduledDate.isAfter(DateTime.now())}');
 
     // Task ID'sini payload olarak ekle
     final Map<String, dynamic> payload = {'taskId': id};
+    debugPrint('Payload: $payload');
 
     // Eğer erken hatırlatma süresi belirtilmişse, erken hatırlatma bildirimi planla
     if (earlyReminderMinutes != null && earlyReminderMinutes > 0) {
       final DateTime earlyReminderDate = scheduledDate.subtract(Duration(minutes: earlyReminderMinutes));
-
+      debugPrint('EarlyReminderDate: $earlyReminderDate');
+      debugPrint('EarlyReminderDate isAfter now: ${earlyReminderDate.isAfter(DateTime.now())}');
       // Erken hatırlatma zamanı geçmemişse bildirim planla
       if (earlyReminderDate.isAfter(DateTime.now())) {
         String reminderText;
@@ -243,18 +249,27 @@ class NotificationService {
         }
 
         final tz.TZDateTime earlyReminderTZDate = tz.TZDateTime.from(earlyReminderDate, tz.local);
+        debugPrint('earlyReminderTZDate: $earlyReminderTZDate');
         final String earlyPayload = jsonEncode(payload);
-
-        await flutterLocalNotificationsPlugin.zonedSchedule(
-          id + 300000, // Erken hatırlatma için farklı bir ID kullan
-          "⏰ $title",
-          reminderText,
-          earlyReminderTZDate,
-          notificationDetails(false), // Erken hatırlatma için normal bildirim kullan
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          matchDateTimeComponents: DateTimeComponents.dateAndTime,
-          payload: earlyPayload,
-        );
+        debugPrint('earlyPayload: $earlyPayload');
+        try {
+          final earlyId = (safeId + 300000) % 2147483647;
+          await flutterLocalNotificationsPlugin.zonedSchedule(
+            earlyId, // Güvenli ID
+            "⏰ $title",
+            reminderText,
+            earlyReminderTZDate,
+            notificationDetails(false), // Erken hatırlatma için normal bildirim kullan
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            matchDateTimeComponents: DateTimeComponents.dateAndTime,
+            payload: earlyPayload,
+          );
+          debugPrint('✓ Early reminder notification scheduled (earlyId: $earlyId)');
+        } catch (e) {
+          debugPrint('✗ Error scheduling early reminder notification: $e');
+        }
+      } else {
+        debugPrint('✗ Early reminder date is not after now, notification not scheduled');
       }
     }
 
@@ -275,7 +290,7 @@ class NotificationService {
         }
 
         final alarmSettings = AlarmSettings(
-          id: id,
+          id: safeId,
           dateTime: scheduledDate,
           assetAudioPath: 'assets/sounds/alarm.mp3',
           loopAudio: true,
@@ -295,17 +310,26 @@ class NotificationService {
           ),
         );
 
-        await Alarm.set(alarmSettings: alarmSettings);
+        try {
+          await Alarm.set(alarmSettings: alarmSettings);
+          debugPrint('✓ Alarm set called');
+        } catch (e) {
+          debugPrint('✗ Error calling Alarm.set: $e');
+        }
 
         // Alarm'ın doğru ayarlandığını doğrula
-        final alarms = await Alarm.getAlarms();
-        final setAlarm = alarms.where((alarm) => alarm.id == id).firstOrNull;
-        if (setAlarm != null) {
-          debugPrint('✓ Alarm successfully set and verified');
-          debugPrint('Alarm ID: ${setAlarm.id}');
-          debugPrint('Alarm DateTime: ${setAlarm.dateTime}');
-        } else {
-          debugPrint('✗ Alarm was not set properly');
+        try {
+          final alarms = await Alarm.getAlarms();
+          final setAlarm = alarms.where((alarm) => alarm.id == safeId).firstOrNull;
+          if (setAlarm != null) {
+            debugPrint('✓ Alarm successfully set and verified');
+            debugPrint('Alarm ID: ${setAlarm.id}');
+            debugPrint('Alarm DateTime: ${setAlarm.dateTime}');
+          } else {
+            debugPrint('✗ Alarm was not set properly');
+          }
+        } catch (e) {
+          debugPrint('✗ Error verifying alarm: $e');
         }
 
         debugPrint('✓ Alarm scheduled successfully with alarm package');
@@ -316,19 +340,24 @@ class NotificationService {
         // Normal bildirim için flutter_local_notifications kullan
         debugPrint('✓ Scheduling notification...');
         final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
+        debugPrint('scheduledTZDate: $scheduledTZDate');
         final String notificationPayload = jsonEncode(payload);
-
-        await flutterLocalNotificationsPlugin.zonedSchedule(
-          id,
-          title,
-          desc,
-          scheduledTZDate,
-          notificationDetails(false),
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          matchDateTimeComponents: DateTimeComponents.dateAndTime,
-          payload: notificationPayload,
-        );
-        debugPrint('✓ Notification scheduled successfully');
+        debugPrint('notificationPayload: $notificationPayload');
+        try {
+          await flutterLocalNotificationsPlugin.zonedSchedule(
+            safeId,
+            title,
+            desc,
+            scheduledTZDate,
+            notificationDetails(false),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            matchDateTimeComponents: DateTimeComponents.dateAndTime,
+            payload: notificationPayload,
+          );
+          debugPrint('✓ Notification scheduled successfully (safeId: $safeId)');
+        } catch (e) {
+          debugPrint('✗ Error scheduling notification: $e');
+        }
       }
     } catch (e) {
       debugPrint('✗ Error scheduling ${isAlarm ? 'alarm' : 'notification'}: $e');
@@ -347,42 +376,48 @@ class NotificationService {
     }
 
     // Test bildirimi için payload
-    // final String payload = jsonEncode({'taskId': 0, 'isTest': true});
+    final String payload = jsonEncode({'taskId': 0, 'isTest': true});
 
-    // // Anlık bildirim gönder
-    // await flutterLocalNotificationsPlugin.show(
-    //   99999, // Test için özel ID
-    //   "Bildirim Testi",
-    //   "Bu bir test bildirimidir. Bildirimler çalışıyor!",
-    //   const NotificationDetails(
-    //     android: AndroidNotificationDetails(
-    //       'task_schedule',
-    //       'Task Schedule',
-    //       channelDescription: 'Notification for schedule tasks',
-    //       importance: Importance.max,
-    //       priority: Priority.high,
-    //       playSound: true,
-    //     ),
-    //   ),
-    //   payload: payload,
-    // );
-
-    // // 5 saniye sonra zamanlanmış bildirim gönder
-    // final tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
-
-    // await flutterLocalNotificationsPlugin.zonedSchedule(
-    //   88888, // Test için farklı bir ID
-    //   "Zamanlanmış Bildirim Testi",
-    //   "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!",
-    //   scheduledDate,
-    //   notificationDetails(false), // Normal bildirim
-    //   androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    //   payload: payload,
-    // );
-
-    // 15 saniye sonra gerçek alarm (alarm package ile)
+    // Anlık bildirim gönder
+    try {
+      await flutterLocalNotificationsPlugin.show(
+        99999, // Test için özel ID
+        "Bildirim Testi",
+        "Bu bir test bildirimidir. Bildirimler çalışıyor!",
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'task_schedule',
+            'Task Schedule',
+            channelDescription: 'Notification for schedule tasks',
+            importance: Importance.max,
+            priority: Priority.high,
+            playSound: true,
+          ),
+        ),
+        payload: payload,
+      );
+      debugPrint('✓ Test bildirimi gönderildi');
+    } catch (e) {
+      debugPrint('✗ Test bildirimi gönderilemedi: $e');
+    }
+    // 5 saniye sonra zamanlanmış bildirim gönder
+    final tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        88888, // Test için farklı bir ID
+        "Zamanlanmış Bildirim Testi",
+        "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!",
+        scheduledDate,
+        notificationDetails(false), // Normal bildirim
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: payload,
+      );
+      debugPrint('✓ Zamanlanmış test bildirimi gönderildi');
+    } catch (e) {
+      debugPrint('✗ Zamanlanmış test bildirimi gönderilemedi: $e');
+    }
+    // 5 saniye sonra gerçek alarm (alarm package ile)
     final DateTime realAlarmDate = DateTime.now().add(const Duration(seconds: 5));
-
     try {
       final alarmSettings = AlarmSettings(
         id: 66666, // Gerçek alarm test için farklı bir ID
@@ -393,9 +428,7 @@ class NotificationService {
         warningNotificationOnKill: true,
         androidFullScreenIntent: true,
         volumeSettings: VolumeSettings.fade(
-          // volume: 0.8,
           fadeDuration: const Duration(seconds: 3),
-          // volumeEnforced: false, // Prevent volume control UI from appearing
         ),
         notificationSettings: const NotificationSettings(
           title: '⏰ Gerçek Alarm Testi',
@@ -430,10 +463,10 @@ class NotificationService {
   }
 
   Future<void> cancelNotificationOrAlarm(int id) async {
-    // Cancel flutter_local_notifications notification
-    await flutterLocalNotificationsPlugin.cancel(id);
-    // Cancel alarm package alarm if it exists
-    await Alarm.stop(id);
+    // Cancel işlemlerinde de güvenli ID kullan
+    final safeId = id % 2147483647;
+    await flutterLocalNotificationsPlugin.cancel(safeId);
+    await Alarm.stop(safeId);
   }
 
   NotificationDetails notificationDetails(bool isAlarm) {
