@@ -17,6 +17,19 @@ import 'package:alarm/utils/alarm_set.dart';
 import 'dart:typed_data';
 
 class NotificationService {
+  /// Timer taskı durdurulunca çağrılacak örnek fonksiyon
+  Future<void> stopTimerTask(int id) async {
+    // ...timerı durdurma işlemleri...
+    await cancelTimerNotification(id);
+    debugPrint('Timer bildirimi iptal edildi (id: $id)');
+  }
+
+  /// Timer bildirimi için kullanılan ID hesaplama fonksiyonu
+  int getTimerNotificationId(int id) {
+    final int taskId = id < 0 ? -id : id;
+    return (1000000000 + taskId) % 2147483647;
+  }
+
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
     notificationCategories: [
@@ -518,8 +531,8 @@ class NotificationService {
     // Task ID'sini payload olarak ekle ve timer bildirimi için güvenli pozitif ID kullan
     final int taskId = id < 0 ? -id : id;
     final String payload = jsonEncode({'taskId': taskId});
-    // Timer bildirimleri için safeId üret (hem pozitif hem 32-bit sınırında)
-    final int safeTimerId = (1000000000 + taskId) % 2147483647;
+    final int safeTimerId = getTimerNotificationId(id);
+    debugPrint('showTimerNotification: id=$id, safeTimerId=$safeTimerId');
 
     await flutterLocalNotificationsPlugin.show(
       safeTimerId,
@@ -549,6 +562,14 @@ class NotificationService {
       ),
       payload: payload,
     );
+  }
+
+  /// Timer bildirimi iptal fonksiyonu
+  Future<void> cancelTimerNotification(int id) async {
+    final int safeTimerId = getTimerNotificationId(id);
+    debugPrint('cancelTimerNotification: id=$id, safeTimerId=$safeTimerId');
+    await flutterLocalNotificationsPlugin.cancel(safeTimerId);
+    cancelNotificationOrAlarm(id);
   }
 
   /// Debug: Tüm ayarlanmış alarm'ları göster

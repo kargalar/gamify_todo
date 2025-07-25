@@ -34,7 +34,7 @@ class GlobalTimer {
       final prefs = await SharedPreferences.getInstance();
       if (newTimerState) {
         // Önce mevcut timer bildirimini iptal et
-        NotificationService().cancelNotificationOrAlarm(-taskModel.id);
+        NotificationService().stopTimerTask(-taskModel.id);
 
         // Timer başlatılıyor
         NotificationService().showTimerNotification(
@@ -107,7 +107,7 @@ class GlobalTimer {
         }
 
         // Bildirimleri iptal et
-        NotificationService().cancelNotificationOrAlarm(-taskModel.id);
+        NotificationService().stopTimerTask(-taskModel.id);
         NotificationService().cancelNotificationOrAlarm(taskModel.id + 100000);
         NotificationService().cancelNotificationOrAlarm(taskModel.id + 200000); // Tamamlanma bildirimini de iptal et
       }
@@ -123,7 +123,7 @@ class GlobalTimer {
       final prefs = await SharedPreferences.getInstance();
       if (newTimerState) {
         // Önce mevcut timer bildirimini iptal et
-        NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
+        NotificationService().stopTimerTask(-storeItemModel.id);
 
         // Timer başlatılıyor
         NotificationService().showTimerNotification(
@@ -166,7 +166,7 @@ class GlobalTimer {
         prefs.remove('store_item_alarm_triggered_${storeItemModel.id}');
 
         // Bildirimleri iptal et
-        NotificationService().cancelNotificationOrAlarm(-storeItemModel.id);
+        NotificationService().stopTimerTask(-storeItemModel.id);
         NotificationService().cancelNotificationOrAlarm(storeItemModel.id + 100000);
         NotificationService().cancelNotificationOrAlarm(storeItemModel.id + 200000); // Tamamlanma bildirimini de iptal et
       }
