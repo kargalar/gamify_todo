@@ -515,13 +515,14 @@ class NotificationService {
     required bool isCountDown,
     bool isCompleted = false, // Add isCompleted parameter with default value false
   }) async {
-    // Task ID'sini payload olarak ekle (negatif ID'yi pozitife çevir)
+    // Task ID'sini payload olarak ekle ve timer bildirimi için güvenli pozitif ID kullan
     final int taskId = id < 0 ? -id : id;
     final String payload = jsonEncode({'taskId': taskId});
+    // Timer bildirimleri için safeId üret (hem pozitif hem 32-bit sınırında)
+    final int safeTimerId = (1000000000 + taskId) % 2147483647;
 
     await flutterLocalNotificationsPlugin.show(
-      // ? schedule notification ile çakışmaması için "-"
-      -id,
+      safeTimerId,
       title,
       remainingDuration != null ? "Target Duration: ${remainingDuration.textShort2hour()}" : "Timer active",
       NotificationDetails(
