@@ -14,6 +14,7 @@ import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/auth_service.dart';
+import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -152,6 +153,17 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
+            // Cloud Sync section - only show if user is logged in
+            if (loginUser != null) ...[
+              _settingsOption(
+                title: 'Veri Senkronizasyonu',
+                subtitle: 'Verilerinizi bulutta yedekleyin ve senkronize edin',
+                icon: Icons.cloud_sync,
+                onTap: () {
+                  _showSyncDialog(context);
+                },
+              ),
+            ],
             _settingsOption(
               title: LocaleKeys.ContactUs.tr(),
               subtitle: LocaleKeys.ContactUsSubtitle.tr(),
@@ -323,5 +335,173 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showSyncDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => _SyncDialog(),
+    );
+  }
+}
+
+class _SyncDialog extends StatefulWidget {
+  @override
+  _SyncDialogState createState() => _SyncDialogState();
+}
+
+class _SyncDialogState extends State<_SyncDialog> {
+  final SyncManager _syncManager = SyncManager();
+  bool _isSyncing = false;
+  String _statusMessage = '';
+  DateTime? _lastSyncTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLastSyncTime();
+  }
+
+  Future<void> _loadLastSyncTime() async {
+    final lastSync = await _syncManager.getLastSyncTime();
+    setState(() {
+      _lastSyncTime = lastSync;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Veri Senkronizasyonu'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Verilerinizi Firebase bulut veritabanı ile senkronize edin.',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.text.withValues(alpha: 0.8),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_lastSyncTime != null) ...[
+              Row(
+                children: [
+                  Icon(Icons.schedule, size: 16, color: AppColors.text.withValues(alpha: 0.6)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Son senkronizasyon: ${DateFormat('dd.MM.yyyy HH:mm').format(_lastSyncTime!)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+            if (_statusMessage.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    if (_isSyncing)
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    else
+                      Icon(
+                        Icons.info,
+                        size: 16,
+                        color: AppColors.main,
+                      ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _statusMessage,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            // Sync Button (tek buton)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _isSyncing ? null : _syncData,
+                icon: _isSyncing
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.sync),
+                label: Text(_isSyncing ? 'Senkronize ediliyor...' : 'Verileri Senkronize Et'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.main,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Not: Bu işlemler internet bağlantısı gerektirir. Veriler Firebase Firestore\'da güvenli bir şekilde saklanır.',
+              style: TextStyle(
+                fontSize: 11,
+                color: AppColors.text.withValues(alpha: 0.6),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Kapat'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _syncData() async {
+    setState(() {
+      _isSyncing = true;
+      _statusMessage = 'Veriler senkronize ediliyor...';
+    });
+
+    try {
+      // Önce local verileri upload et, sonra güncellemeleri download et
+      final uploadSuccess = await _syncManager.performFullUpload();
+      final downloadSuccess = await _syncManager.performFullDownload();
+
+      final allSuccess = uploadSuccess && downloadSuccess;
+
+      setState(() {
+        _isSyncing = false;
+        _statusMessage = allSuccess ? 'Tüm veriler başarıyla senkronize edildi!' : 'Senkronizasyon sırasında hata oluştu.';
+      });
+
+      if (allSuccess) {
+        await _loadLastSyncTime();
+      }
+    } catch (e) {
+      setState(() {
+        _isSyncing = false;
+        _statusMessage = 'Senkronizasyon sırasında hata: $e';
+      });
+    }
   }
 }

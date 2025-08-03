@@ -10,10 +10,17 @@ import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/sync_manager.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 
 /// A centralized handler for task-related actions
 class TaskActionHandler {
+  /// Helper method to update task and sync to Firestore
+  static void _updateTaskAndSync(TaskModel taskModel) {
+    ServerManager().updateTask(taskModel: taskModel);
+    SyncManager().syncTask(taskModel);
+  }
+
   /// Handles the primary action for a task based on its type
   static void handleTaskAction(TaskModel taskModel, {Function? onStateChanged, bool skipLogging = false, int? batchChange}) {
     final bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
@@ -47,7 +54,8 @@ class TaskActionHandler {
       }
 
       // Update task in provider and save
-      ServerManager().updateTask(taskModel: taskModel);
+      _updateTaskAndSync(taskModel);
+
       TaskProvider().updateItems();
 
       if (onStateChanged != null) onStateChanged();
@@ -107,7 +115,7 @@ class TaskActionHandler {
         }
 
         // Update task in provider and save
-        ServerManager().updateTask(taskModel: taskModel);
+        _updateTaskAndSync(taskModel);
         HomeWidgetService.updateAllWidgets();
       } else {
         // Use the new undo functionality for completion
@@ -152,7 +160,7 @@ class TaskActionHandler {
     }
 
     // Update task in provider
-    ServerManager().updateTask(taskModel: taskModel);
+    _updateTaskAndSync(taskModel);
     TaskProvider().updateItems();
 
     // Notify state change if callback provided

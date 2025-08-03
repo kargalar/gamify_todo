@@ -388,7 +388,12 @@ class HiveService {
   // delete all data
   Future<void> deleteAllData({bool isLogout = false}) async {
     // Cancel all notifications first
-    await NotificationService().cancelAllNotifications();
+    try {
+      await NotificationService().cancelAllNotifications();
+    } catch (e) {
+      debugPrint('Error canceling notifications during data deletion: $e');
+      // Devam et, bildirimler iptal edilemese bile veri silinebilir
+    }
 
     // Clear all attachment files
     try {

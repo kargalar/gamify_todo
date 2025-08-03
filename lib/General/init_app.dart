@@ -11,6 +11,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/auth_service.dart';
+import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
@@ -83,6 +84,9 @@ Future<void> initApp() async {
 
     // Load categories
     await TaskProvider().loadCategories();
+
+    // Initialize SyncManager
+    await SyncManager().initialize();
   }
 
   // Custom Error

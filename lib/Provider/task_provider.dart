@@ -10,6 +10,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -140,6 +141,9 @@ class TaskProvider with ChangeNotifier {
     }
 
     taskList.add(taskModel);
+
+    // Sync to Firestore
+    SyncManager().syncTask(taskModel);
 
     if (taskModel.time != null) {
       checkNotification(taskModel);
@@ -903,6 +907,10 @@ class TaskProvider with ChangeNotifier {
 
       // Delete the task from storage (this also calls HiveService().deleteTask())
       await ServerManager().deleteTask(id: taskID);
+
+      // Delete from Firestore
+      SyncManager().deleteTaskFromFirestore(taskID);
+
       await HomeWidgetService.updateTaskCount();
 
       // Cancel any notifications for this task

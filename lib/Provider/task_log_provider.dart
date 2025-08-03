@@ -6,6 +6,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/sync_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskLogProvider with ChangeNotifier {
@@ -101,6 +102,9 @@ class TaskLogProvider with ChangeNotifier {
 
     await HiveService().addTaskLog(taskLog);
     taskLogList.add(taskLog);
+
+    // Sync to Firestore
+    SyncManager().syncTaskLog(taskLog);
 
     await prefs.setInt("last_task_log_id", taskLog.id);
 

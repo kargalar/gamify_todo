@@ -470,16 +470,37 @@ class NotificationService {
   }
 
   Future<void> cancelAllNotifications() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
-    // Cancel all alarms from alarm package
-    await Alarm.stopAll();
+    try {
+      await flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      debugPrint('Error canceling local notifications: $e');
+    }
+
+    try {
+      // Cancel all alarms from alarm package
+      await Alarm.stopAll();
+    } catch (e) {
+      debugPrint('Error stopping all alarms: $e');
+      // Alarm paketinde hata olursa devam et
+    }
   }
 
   Future<void> cancelNotificationOrAlarm(int id) async {
-    // Cancel işlemlerinde de güvenli ID kullan
-    final safeId = id % 2147483647;
-    await flutterLocalNotificationsPlugin.cancel(safeId);
-    await Alarm.stop(safeId);
+    try {
+      // Cancel işlemlerinde de güvenli ID kullan
+      final safeId = id % 2147483647;
+      await flutterLocalNotificationsPlugin.cancel(safeId);
+    } catch (e) {
+      debugPrint('Error canceling notification for id $id: $e');
+    }
+
+    try {
+      final safeId = id % 2147483647;
+      await Alarm.stop(safeId);
+    } catch (e) {
+      debugPrint('Error stopping alarm for id $id: $e');
+      // Alarm paketinde hata olursa devam et
+    }
   }
 
   NotificationDetails notificationDetails(bool isAlarm) {
