@@ -26,16 +26,6 @@ class StoreItemLog {
       int minutes = isPositive ? duration.inMinutes.remainder(60) : -duration.inMinutes.remainder(60);
       int seconds = isPositive ? duration.inSeconds.remainder(60) : -duration.inSeconds.remainder(60);
 
-      // Sıfır duration için özel durum - action'a göre değerlendirme
-      if (duration == Duration.zero) {
-        if (action == "Timer Started") {
-          return "Started";
-        } else if (action == "Timer Stopped") {
-          return "Stopped";
-        } else {
-          return "0s";
-        }
-      }
       String sign = isPositive ? "+" : "-";
 
       // Saat, dakika ve saniye değerlerini göster
@@ -62,7 +52,7 @@ class StoreItemLog {
       } else if (seconds > 0) {
         return "$sign${seconds}s";
       } else {
-        // Sıfır durumu
+        // Gerçekten sıfır ise (hiç süre geçmemiş)
         return "0s";
       }
     }

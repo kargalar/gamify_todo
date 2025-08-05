@@ -331,6 +331,31 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
       // Timer için timer aktif durumunu kaydet
       bool wasTimerActive = widget.storeItemModel.isTimerActive ?? false;
 
+      // Eğer timer durdurulacaksa, önce elapsed time'ı hesapla
+      Duration? elapsedTime;
+      if (wasTimerActive) {
+        final prefs = await SharedPreferences.getInstance();
+        String? timerStartTimeStr = prefs.getString('item_timer_start_time_${widget.storeItemModel.id}');
+        String? timerStartDurationStr = prefs.getString('item_timer_start_duration_${widget.storeItemModel.id}');
+
+        debugPrint('DEBUG: Timer will be stopped for item ${widget.storeItemModel.id}');
+        debugPrint('DEBUG: timerStartTimeStr = $timerStartTimeStr');
+        debugPrint('DEBUG: timerStartDurationStr = $timerStartDurationStr');
+
+        if (timerStartTimeStr != null && timerStartDurationStr != null) {
+          DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
+          DateTime currentTime = DateTime.now();
+
+          // Geçen süreyi hesapla (timer ne kadar çalıştı)
+          elapsedTime = currentTime.difference(timerStartTime);
+
+          debugPrint('DEBUG: timerStartTime = $timerStartTime');
+          debugPrint('DEBUG: currentTime = $currentTime');
+          debugPrint('DEBUG: elapsedTime = ${elapsedTime.inSeconds} seconds (${elapsedTime.inMinutes}m ${elapsedTime.inSeconds % 60}s)');
+          debugPrint('DEBUG: elapsedTime.inMilliseconds = ${elapsedTime.inMilliseconds}');
+        }
+      }
+
       // Timer'ı başlat/durdur
       GlobalTimer().startStopTimer(
         storeItemModel: widget.storeItemModel,
@@ -340,36 +365,20 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
       if (!wasTimerActive && (widget.storeItemModel.isTimerActive ?? false)) {
         // Timer başlatıldı
         action = "Timer Started";
-        value = Duration.zero; // Başlangıçta değişiklik yok      } else if (wasTimerActive && !(widget.storeItemModel.isTimerActive ?? false)) {
-        // Timer durduruldu - geçen süreyi hesapla
+        value = Duration.zero; // Başlangıçta değişiklik yok
+      } else if (wasTimerActive && !(widget.storeItemModel.isTimerActive ?? false)) {
+        // Timer durduruldu - önceden hesaplanan elapsed time'ı kullan
+        action = "Timer Stopped";
 
-        // SharedPreferences'dan timer bilgilerini al
-        final prefs = await SharedPreferences.getInstance();
-        String? timerStartTimeStr = prefs.getString('item_timer_start_time_${widget.storeItemModel.id}');
-        String? timerStartDurationStr = prefs.getString('item_timer_start_duration_${widget.storeItemModel.id}');
-
-        debugPrint('DEBUG: Timer stopped for item ${widget.storeItemModel.id}');
-        debugPrint('DEBUG: timerStartTimeStr = $timerStartTimeStr');
-        debugPrint('DEBUG: timerStartDurationStr = $timerStartDurationStr');
-
-        if (timerStartTimeStr != null && timerStartDurationStr != null) {
-          DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
-
-          // Geçen süreyi hesapla (timer ne kadar çalıştı)
-          Duration elapsedTime = DateTime.now().difference(timerStartTime);
-
-          debugPrint('DEBUG: elapsedTime = ${elapsedTime.inSeconds} seconds');
-
+        if (elapsedTime != null) {
           // Store item timer'ları geri sayım yapar, kullanılan süre negatif olarak log'lanır
           value = -elapsedTime;
-
           debugPrint('DEBUG: value to log = ${value.inSeconds} seconds');
+          debugPrint('DEBUG: value.inMinutes = ${value.inMinutes}, value.inSeconds % 60 = ${value.inSeconds % 60}');
         } else {
-          debugPrint('DEBUG: Timer data not found in SharedPreferences');
+          debugPrint('DEBUG: Timer data was not available, logging as zero');
           value = Duration.zero;
         }
-
-        action = "Timer Stopped";
       } else {
         // Durum değişmedi
         value = Duration.zero;
@@ -380,7 +389,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     }
 
     // Log kaydını oluştur - sadece anlamlı değişiklikler için
-    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER || (widget.storeItemModel.type == TaskTypeEnum.TIMER && (action == "Timer Started" || (action == "Timer Stopped" && value != Duration.zero)))) {
+    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER || (widget.storeItemModel.type == TaskTypeEnum.TIMER && action == "Timer Stopped")) {
       TaskProgressViewModel.addStoreItemLog(
         itemId: widget.storeItemModel.id,
         action: action,
