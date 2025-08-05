@@ -43,6 +43,11 @@ class SyncManager {
       _startPeriodicSync();
     }
 
+    // Start real-time listeners for instant sync
+    if (_authService.isLoggedIn) {
+      await _firestoreService.startRealtimeListeners();
+    }
+
     // Perform startup sync if enabled
     if (_syncOnStartupEnabled && _authService.isLoggedIn) {
       _performStartupSync();
@@ -349,9 +354,15 @@ class SyncManager {
     }
   }
 
+  /// Stop real-time listeners
+  void stopRealtimeListeners() {
+    _firestoreService.stopRealtimeListeners();
+  }
+
   /// Cleanup resources
   void dispose() {
     _syncTimer?.cancel();
     _connectivitySubscription?.cancel();
+    stopRealtimeListeners();
   }
 }

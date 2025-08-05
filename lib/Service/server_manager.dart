@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -231,9 +232,19 @@ class ServerManager {
 
     itemModel.id = id + 1;
 
+    // Save locally first
     HiveService().addItem(itemModel);
 
     prefs.setInt("last_item_id", itemModel.id);
+
+    // Sync to Firebase immediately
+    try {
+      await SyncManager().syncStoreItem(itemModel);
+      debugPrint('Store item synced to Firebase: ${itemModel.id}');
+    } catch (e) {
+      debugPrint('Error syncing store item to Firebase: $e');
+      // Don't throw error, item is saved locally
+    }
 
     return itemModel.id;
 
@@ -362,11 +373,20 @@ class ServerManager {
     // Set the new task ID to be one higher than the highest existing ID
     taskModel.id = highestId + 1;
 
-    // Save the task
+    // Save the task locally
     await HiveService().addTask(taskModel);
 
     // Update the last task ID in SharedPreferences
     await prefs.setInt("last_task_id", taskModel.id);
+
+    // Sync to Firebase immediately
+    try {
+      await SyncManager().syncTask(taskModel);
+      debugPrint('Task synced to Firebase: ${taskModel.id}');
+    } catch (e) {
+      debugPrint('Error syncing task to Firebase: $e');
+      // Don't throw error, task is saved locally
+    }
 
     return taskModel.id;
   }
@@ -421,7 +441,17 @@ class ServerManager {
   Future<void> updateItem({
     required ItemModel itemModel,
   }) async {
+    // Save locally first
     HiveService().updateItem(itemModel);
+
+    // Sync to Firebase immediately
+    try {
+      await SyncManager().syncStoreItem(itemModel);
+      debugPrint('Store item updated and synced to Firebase: ${itemModel.id}');
+    } catch (e) {
+      debugPrint('Error syncing updated store item to Firebase: $e');
+      // Don't throw error, item is saved locally
+    }
 
     // var response = await dio.put(
     //   "$_baseUrl/updateItem",
@@ -463,7 +493,17 @@ class ServerManager {
   Future<void> updateTask({
     required TaskModel taskModel,
   }) async {
+    // Save locally first
     HiveService().updateTask(taskModel);
+
+    // Sync to Firebase immediately
+    try {
+      await SyncManager().syncTask(taskModel);
+      debugPrint('Task updated and synced to Firebase: ${taskModel.id}');
+    } catch (e) {
+      debugPrint('Error syncing updated task to Firebase: $e');
+      // Don't throw error, task is saved locally
+    }
 
     // var response = await dio.put(
     //   "$_baseUrl/updateTask",

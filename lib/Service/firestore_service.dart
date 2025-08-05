@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,9 @@ import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/store_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
 
 class FirestoreService {
   static final FirestoreService _instance = FirestoreService._internal();
@@ -19,6 +23,14 @@ class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final HiveService _hiveService = HiveService();
+
+  // Real-time listeners
+  StreamSubscription<QuerySnapshot>? _tasksListener;
+  StreamSubscription<QuerySnapshot>? _taskLogsListener;
+  StreamSubscription<QuerySnapshot>? _storeItemsListener;
+  StreamSubscription<QuerySnapshot>? _categoriesListener;
+  StreamSubscription<QuerySnapshot>? _traitsListener;
+  StreamSubscription<QuerySnapshot>? _routinesListener;
 
   // Collection names
   static const String _usersCollection = 'users';
@@ -898,5 +910,343 @@ class FirestoreService {
   RoutineModel _firestoreMapToRoutine(Map<String, dynamic> data) {
     data.remove('updatedAt');
     return RoutineModel.fromJson(data);
+  }
+
+  // ==================== REAL-TIME LISTENERS ====================
+
+  /// Start real-time listeners for all collections
+  Future<void> startRealtimeListeners() async {
+    if (!isAuthenticated) return;
+
+    try {
+      debugPrint('Starting real-time listeners...');
+      await _startTasksListener();
+      await _startTaskLogsListener();
+      await _startStoreItemsListener();
+      await _startCategoriesListener();
+      await _startTraitsListener();
+      await _startRoutinesListener();
+      debugPrint('Real-time listeners started successfully');
+    } catch (e) {
+      debugPrint('Error starting real-time listeners: $e');
+    }
+  }
+
+  /// Stop all real-time listeners
+  void stopRealtimeListeners() {
+    debugPrint('Stopping real-time listeners...');
+    _tasksListener?.cancel();
+    _taskLogsListener?.cancel();
+    _storeItemsListener?.cancel();
+    _categoriesListener?.cancel();
+    _traitsListener?.cancel();
+    _routinesListener?.cancel();
+
+    _tasksListener = null;
+    _taskLogsListener = null;
+    _storeItemsListener = null;
+    _categoriesListener = null;
+    _traitsListener = null;
+    _routinesListener = null;
+    debugPrint('Real-time listeners stopped');
+  }
+
+  /// Start tasks real-time listener
+  Future<void> _startTasksListener() async {
+    if (!isAuthenticated) return;
+
+    _tasksListener = _userDoc!.collection(_tasksCollection).snapshots().listen(
+      (snapshot) async {
+        debugPrint('Tasks snapshot received: ${snapshot.docs.length} tasks');
+
+        for (final change in snapshot.docChanges) {
+          try {
+            final data = change.doc.data() as Map<String, dynamic>;
+            final task = _firestoreMapToTask(data);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+              case DocumentChangeType.modified:
+                // Check if task already exists locally
+                final existingTasks = await _hiveService.getTasks();
+                final existingTask = existingTasks.where((t) => t.id == task.id).isNotEmpty ? existingTasks.firstWhere((t) => t.id == task.id) : null;
+
+                if (existingTask != null) {
+                  // Update existing task but preserve local state
+                  existingTask.title = task.title;
+                  existingTask.description = task.description;
+                  existingTask.priority = task.priority;
+                  existingTask.categoryId = task.categoryId;
+                  existingTask.subtasks = task.subtasks;
+                  existingTask.location = task.location;
+                  existingTask.attachmentPaths = task.attachmentPaths;
+                  existingTask.attributeIDList = task.attributeIDList;
+                  existingTask.skillIDList = task.skillIDList;
+
+                  // Only update progress values, preserve date/status/time
+                  if (task.type == existingTask.type) {
+                    existingTask.currentDuration = task.currentDuration;
+                    existingTask.remainingDuration = task.remainingDuration;
+                    existingTask.currentCount = task.currentCount;
+                    existingTask.targetCount = task.targetCount;
+                    existingTask.isTimerActive = task.isTimerActive;
+                  }
+
+                  await _hiveService.updateTask(existingTask);
+                  // Update UI
+                  TaskProvider().updateItems();
+                } else {
+                  // Add new task
+                  await _hiveService.addTask(task);
+                  TaskProvider().taskList.add(task);
+                  TaskProvider().updateItems();
+                }
+                break;
+              case DocumentChangeType.removed:
+                await _hiveService.deleteTask(task.id);
+                TaskProvider().taskList.removeWhere((t) => t.id == task.id);
+                TaskProvider().updateItems();
+                break;
+            }
+          } catch (e) {
+            debugPrint('Error processing task change: $e');
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('Tasks listener error: $error');
+      },
+    );
+  }
+
+  /// Start task logs real-time listener
+  Future<void> _startTaskLogsListener() async {
+    if (!isAuthenticated) return;
+
+    _taskLogsListener = _userDoc!.collection(_taskLogsCollection).snapshots().listen(
+      (snapshot) async {
+        debugPrint('Task logs snapshot received: ${snapshot.docs.length} logs');
+
+        for (final change in snapshot.docChanges) {
+          try {
+            final data = change.doc.data() as Map<String, dynamic>;
+            final log = _firestoreMapToTaskLog(data);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+              case DocumentChangeType.modified:
+                await _hiveService.addTaskLog(log);
+
+                // Check if log exists in provider
+                final existingIndex = TaskLogProvider().taskLogList.indexWhere((l) => l.id == log.id);
+                if (existingIndex != -1) {
+                  TaskLogProvider().taskLogList[existingIndex] = log;
+                } else {
+                  TaskLogProvider().taskLogList.add(log);
+                }
+                break;
+              case DocumentChangeType.removed:
+                // Remove from local storage and provider
+                final existingLogs = await _hiveService.getTaskLogs();
+                final existingLog = existingLogs.where((l) => l.id == log.id).isNotEmpty ? existingLogs.firstWhere((l) => l.id == log.id) : null;
+                if (existingLog != null) {
+                  await _hiveService.deleteTaskLog(existingLog.id);
+                }
+
+                TaskLogProvider().taskLogList.removeWhere((l) => l.id == log.id);
+                break;
+            }
+          } catch (e) {
+            debugPrint('Error processing task log change: $e');
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('Task logs listener error: $error');
+      },
+    );
+  }
+
+  /// Start store items real-time listener
+  Future<void> _startStoreItemsListener() async {
+    if (!isAuthenticated) return;
+
+    _storeItemsListener = _userDoc!.collection(_storeItemsCollection).snapshots().listen(
+      (snapshot) async {
+        debugPrint('Store items snapshot received: ${snapshot.docs.length} items');
+
+        for (final change in snapshot.docChanges) {
+          try {
+            final data = change.doc.data() as Map<String, dynamic>;
+            final item = _firestoreMapToStoreItem(data);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+              case DocumentChangeType.modified:
+                // Check if item already exists locally
+                final existingItems = await _hiveService.getItems();
+                final existingItem = existingItems.where((i) => i.id == item.id).isNotEmpty ? existingItems.firstWhere((i) => i.id == item.id) : null;
+
+                if (existingItem != null) {
+                  // Update existing item properties (create new instance due to final fields)
+                  final updatedItem = ItemModel(
+                    id: existingItem.id,
+                    title: item.title,
+                    description: item.description,
+                    credit: item.credit,
+                    type: item.type,
+                    addCount: item.addCount,
+                    addDuration: item.addDuration,
+                    currentCount: existingItem.isTimerActive == true ? existingItem.currentCount : item.currentCount,
+                    currentDuration: existingItem.isTimerActive == true ? existingItem.currentDuration : item.currentDuration,
+                    isTimerActive: existingItem.isTimerActive,
+                  );
+
+                  await _hiveService.updateItem(updatedItem);
+
+                  // Update in provider
+                  final providerIndex = StoreProvider().storeItemList.indexWhere((i) => i.id == item.id);
+                  if (providerIndex != -1) {
+                    StoreProvider().storeItemList[providerIndex] = updatedItem;
+                  }
+                } else {
+                  // Add new item
+                  await _hiveService.addItem(item);
+                  StoreProvider().storeItemList.add(item);
+                }
+
+                StoreProvider().setStateItems();
+                break;
+              case DocumentChangeType.removed:
+                await _hiveService.deleteItem(item.id);
+                StoreProvider().storeItemList.removeWhere((i) => i.id == item.id);
+                StoreProvider().setStateItems();
+                break;
+            }
+          } catch (e) {
+            debugPrint('Error processing store item change: $e');
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('Store items listener error: $error');
+      },
+    );
+  }
+
+  /// Start categories real-time listener
+  Future<void> _startCategoriesListener() async {
+    if (!isAuthenticated) return;
+
+    _categoriesListener = _userDoc!.collection(_categoriesCollection).snapshots().listen(
+      (snapshot) async {
+        debugPrint('Categories snapshot received: ${snapshot.docs.length} categories');
+
+        for (final change in snapshot.docChanges) {
+          try {
+            final data = change.doc.data() as Map<String, dynamic>;
+            final category = _firestoreMapToCategory(data);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+              case DocumentChangeType.modified:
+                await _hiveService.addCategory(category);
+                // Reload categories in task provider
+                TaskProvider().loadCategories();
+                break;
+              case DocumentChangeType.removed:
+                await _hiveService.deleteCategory(category.id);
+                TaskProvider().loadCategories();
+                break;
+            }
+          } catch (e) {
+            debugPrint('Error processing category change: $e');
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('Categories listener error: $error');
+      },
+    );
+  }
+
+  /// Start traits real-time listener
+  Future<void> _startTraitsListener() async {
+    if (!isAuthenticated) return;
+
+    _traitsListener = _userDoc!.collection(_traitsCollection).snapshots().listen(
+      (snapshot) async {
+        debugPrint('Traits snapshot received: ${snapshot.docs.length} traits');
+
+        for (final change in snapshot.docChanges) {
+          try {
+            final data = change.doc.data() as Map<String, dynamic>;
+            final trait = _firestoreMapToTrait(data);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+              case DocumentChangeType.modified:
+                await _hiveService.addTrait(trait);
+                // You may want to update TraitProvider here if it exists
+                break;
+              case DocumentChangeType.removed:
+                await _hiveService.deleteTrait(trait.id);
+                // You may want to update TraitProvider here if it exists
+                break;
+            }
+          } catch (e) {
+            debugPrint('Error processing trait change: $e');
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('Traits listener error: $error');
+      },
+    );
+  }
+
+  /// Start routines real-time listener
+  Future<void> _startRoutinesListener() async {
+    if (!isAuthenticated) return;
+
+    _routinesListener = _userDoc!.collection(_routinesCollection).snapshots().listen(
+      (snapshot) async {
+        debugPrint('Routines snapshot received: ${snapshot.docs.length} routines');
+
+        for (final change in snapshot.docChanges) {
+          try {
+            final data = change.doc.data() as Map<String, dynamic>;
+            final routine = _firestoreMapToRoutine(data);
+
+            switch (change.type) {
+              case DocumentChangeType.added:
+              case DocumentChangeType.modified:
+                await _hiveService.addRoutine(routine);
+
+                // Check if routine exists in provider
+                final existingIndex = TaskProvider().routineList.indexWhere((r) => r.id == routine.id);
+                if (existingIndex != -1) {
+                  TaskProvider().routineList[existingIndex] = routine;
+                } else {
+                  TaskProvider().routineList.add(routine);
+                }
+
+                TaskProvider().updateItems();
+                break;
+              case DocumentChangeType.removed:
+                await _hiveService.deleteRoutine(routine.id);
+                TaskProvider().routineList.removeWhere((r) => r.id == routine.id);
+                TaskProvider().updateItems();
+                break;
+            }
+          } catch (e) {
+            debugPrint('Error processing routine change: $e');
+          }
+        }
+      },
+      onError: (error) {
+        debugPrint('Routines listener error: $error');
+      },
+    );
   }
 }

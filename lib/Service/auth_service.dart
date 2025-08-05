@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -143,6 +144,14 @@ class AuthService {
         loginUser = localUser;
         debugPrint('loginUser set successfully: ${loginUser?.username}');
 
+        // Start real-time listeners after successful login
+        try {
+          await SyncManager().initialize();
+          debugPrint('SyncManager re-initialized after login');
+        } catch (e) {
+          debugPrint('Error re-initializing SyncManager: $e');
+        }
+
         debugPrint('User signed in successfully: ${localUser.email}');
         return localUser;
       } else {
@@ -162,6 +171,9 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
+      // Stop real-time listeners before sign out
+      SyncManager().stopRealtimeListeners();
+
       await _auth.signOut();
       loginUser = null;
       debugPrint('User signed out successfully');
