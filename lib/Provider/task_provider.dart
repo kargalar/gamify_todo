@@ -1601,6 +1601,10 @@ class TaskProvider with ChangeNotifier {
     }
 
     ServerManager().updateTask(taskModel: taskModel);
+
+    // Sync to Firebase immediately
+    SyncManager().syncTask(taskModel);
+
     HomeWidgetService.updateAllWidgets();
 
     // Check task status for notifications
@@ -1710,6 +1714,9 @@ class TaskProvider with ChangeNotifier {
 
         // Update in storage
         ServerManager().updateTask(taskModel: task);
+
+        // Sync to Firebase immediately
+        SyncManager().syncTask(task);
 
         // Update notifications
         checkNotification(task);
@@ -2014,6 +2021,9 @@ class TaskProvider with ChangeNotifier {
         // Update in storage
         ServerManager().updateTask(taskModel: task);
 
+        // Sync to Firebase immediately
+        SyncManager().syncTask(task);
+
         // Update notifications
         checkNotification(task);
 
@@ -2104,6 +2114,9 @@ class TaskProvider with ChangeNotifier {
 
         // Update in storage
         ServerManager().updateTask(taskModel: task);
+
+        // Sync to Firebase immediately
+        SyncManager().syncTask(task);
 
         // Update notifications
         checkNotification(task);

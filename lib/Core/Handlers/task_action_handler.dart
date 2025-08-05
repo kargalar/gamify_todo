@@ -242,6 +242,7 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
+      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
@@ -264,6 +265,7 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
+      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 
@@ -316,6 +318,7 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
+      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
@@ -338,6 +341,7 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
+      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 

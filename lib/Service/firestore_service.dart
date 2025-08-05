@@ -149,8 +149,7 @@ class FirestoreService {
         final existingTask = existingTasks.where((t) => t.id == task.id).isNotEmpty ? existingTasks.firstWhere((t) => t.id == task.id) : null;
 
         if (existingTask != null) {
-          // Mevcut task varsa, sadece belirli alanları güncelle
-          // Tarih, durum ve zaman bilgilerini KORUYARAK güncelle
+          // Update existing task - sync all changes from remote including status
           existingTask.title = task.title;
           existingTask.description = task.description;
           existingTask.priority = task.priority;
@@ -161,7 +160,7 @@ class FirestoreService {
           existingTask.attributeIDList = task.attributeIDList;
           existingTask.skillIDList = task.skillIDList;
 
-          // Sadece current değerleri güncelle (duration, count vs.)
+          // Update progress values
           if (task.type == existingTask.type) {
             existingTask.currentDuration = task.currentDuration;
             existingTask.remainingDuration = task.remainingDuration;
@@ -170,10 +169,16 @@ class FirestoreService {
             existingTask.isTimerActive = task.isTimerActive;
           }
 
-          // Tarih, status ve time bilgilerini KORUR
-          // existingTask.taskDate = KORUNUR
-          // existingTask.time = KORUNUR
-          // existingTask.status = KORUNUR
+          // IMPORTANT: Sync status changes from remote
+          existingTask.status = task.status;
+
+          // Sync date and time changes too
+          if (task.taskDate != null) {
+            existingTask.taskDate = task.taskDate;
+          }
+          if (task.time != null) {
+            existingTask.time = task.time;
+          }
 
           await _hiveService.updateTask(existingTask);
         } else {
@@ -972,7 +977,7 @@ class FirestoreService {
                 final existingTask = existingTasks.where((t) => t.id == task.id).isNotEmpty ? existingTasks.firstWhere((t) => t.id == task.id) : null;
 
                 if (existingTask != null) {
-                  // Update existing task but preserve local state
+                  // Update existing task - sync all changes from remote
                   existingTask.title = task.title;
                   existingTask.description = task.description;
                   existingTask.priority = task.priority;
@@ -983,13 +988,25 @@ class FirestoreService {
                   existingTask.attributeIDList = task.attributeIDList;
                   existingTask.skillIDList = task.skillIDList;
 
-                  // Only update progress values, preserve date/status/time
+                  // Update progress values
                   if (task.type == existingTask.type) {
                     existingTask.currentDuration = task.currentDuration;
                     existingTask.remainingDuration = task.remainingDuration;
                     existingTask.currentCount = task.currentCount;
                     existingTask.targetCount = task.targetCount;
                     existingTask.isTimerActive = task.isTimerActive;
+                  }
+
+                  // IMPORTANT: Sync status changes from remote
+                  // Only preserve date/time, but sync status changes
+                  existingTask.status = task.status;
+
+                  // Keep local date and time if they exist and remote doesn't have them
+                  if (task.taskDate != null) {
+                    existingTask.taskDate = task.taskDate;
+                  }
+                  if (task.time != null) {
+                    existingTask.time = task.time;
                   }
 
                   await _hiveService.updateTask(existingTask);
