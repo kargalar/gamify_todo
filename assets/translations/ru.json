@@ -277,5 +277,9 @@
     "ChooseColorTheme": "Выберите предпочитаемую цветовую тему приложения:",
     "TestNotificationMessage": "Это тестовое уведомление. Уведомления работают!",
     "ScheduledTestNotificationTitle": "Тест запланированного уведомления",
-    "ScheduledTestNotificationMessage": "Это запланированное тестовое уведомление. Показано через 5 секунд!"
+    "ScheduledTestNotificationMessage": "Это запланированное тестовое уведомление. Показано через 5 секунд!",
+    "OfflineMode": "Автономный режим",
+    "OfflineModeSubtitle": "Отключить синхронизацию Firebase",
+    "OfflineModeEnabled": "Автономный режим включен",
+    "OfflineModeDisabled": "Автономный режим отключен"
 }

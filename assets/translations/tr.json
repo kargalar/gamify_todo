@@ -279,5 +279,9 @@
     "ChooseColorTheme": "Tercih ettiğiniz uygulama renk temasını seçin:",
     "TestNotificationMessage": "Bu bir test bildirimidir. Bildirimler çalışıyor!",
     "ScheduledTestNotificationTitle": "Zamanlanmış Bildirim Testi",
-    "ScheduledTestNotificationMessage": "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!"
+    "ScheduledTestNotificationMessage": "Bu bir zamanlanmış test bildirimidir. 5 saniye sonra gösterildi!",
+    "OfflineMode": "Çevrimdışı Mod",
+    "OfflineModeSubtitle": "Firebase senkronizasyonunu devre dışı bırak",
+    "OfflineModeEnabled": "Çevrimdışı mod etkinleştirildi",
+    "OfflineModeDisabled": "Çevrimdışı mod devre dışı bırakıldı"
 }

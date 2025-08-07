@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/auth_service.dart';
@@ -85,8 +86,12 @@ Future<void> initApp() async {
     // Load categories
     await TaskProvider().loadCategories();
 
-    // Initialize SyncManager
-    await SyncManager().initialize();
+    // Initialize SyncManager (only if offline mode is disabled)
+    if (!OfflineModeProvider().shouldDisableFirebase()) {
+      await SyncManager().initialize();
+    } else {
+      debugPrint('Offline mode enabled, skipping SyncManager initialization');
+    }
   }
 
   // Custom Error

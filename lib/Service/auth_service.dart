@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Model/user_model.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Core/helper.dart';
@@ -13,6 +14,7 @@ class AuthService {
   AuthService._internal();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final HiveService _hiveService = HiveService();
+  final OfflineModeProvider _offlineModeProvider = OfflineModeProvider();
 
   // Get current Firebase user
   User? get currentUser => _auth.currentUser;
@@ -144,12 +146,16 @@ class AuthService {
         loginUser = localUser;
         debugPrint('loginUser set successfully: ${loginUser?.username}');
 
-        // Start real-time listeners after successful login
-        try {
-          await SyncManager().initialize();
-          debugPrint('SyncManager re-initialized after login');
-        } catch (e) {
-          debugPrint('Error re-initializing SyncManager: $e');
+        // Start real-time listeners after successful login (only if offline mode is disabled)
+        if (!_offlineModeProvider.shouldDisableFirebase()) {
+          try {
+            await SyncManager().initialize();
+            debugPrint('SyncManager re-initialized after login');
+          } catch (e) {
+            debugPrint('Error re-initializing SyncManager: $e');
+          }
+        } else {
+          debugPrint('Offline mode enabled, skipping SyncManager initialization');
         }
 
         debugPrint('User signed in successfully: ${localUser.email}');

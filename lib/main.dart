@@ -11,6 +11,7 @@ import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -32,6 +33,10 @@ void main() async {
   final colorProvider = ColorProvider();
   await colorProvider.loadSavedColor();
 
+  // Initialize OfflineModeProvider and load saved settings
+  final offlineModeProvider = OfflineModeProvider();
+  await offlineModeProvider.initialize();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -39,6 +44,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => TaskProvider()),
       ChangeNotifierProvider.value(value: taskStyleProvider),
       ChangeNotifierProvider.value(value: colorProvider),
+      ChangeNotifierProvider.value(value: offlineModeProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),
       ChangeNotifierProvider(create: (context) => AddStoreItemProvider()),

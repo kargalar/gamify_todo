@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:next_level/Service/firestore_service.dart';
 import 'package:next_level/Service/auth_service.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,6 +13,7 @@ class SyncManager {
 
   final FirestoreService _firestoreService = FirestoreService();
   final AuthService _authService = AuthService();
+  final OfflineModeProvider _offlineModeProvider = OfflineModeProvider();
   final Connectivity _connectivity = Connectivity();
 
   static const String _lastSyncKey = 'last_full_sync';
@@ -36,6 +38,13 @@ class SyncManager {
   /// Initialize sync manager
   Future<void> initialize() async {
     await _loadSettings();
+
+    // Skip Firebase operations if offline mode is enabled
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      debugPrint('SyncManager: Offline mode is enabled, skipping Firebase initialization');
+      return;
+    }
+
     await _firestoreService.enableOfflinePersistence();
     _setupConnectivityListener();
 
@@ -98,7 +107,7 @@ class SyncManager {
 
   /// Perform startup sync (incremental)
   Future<void> _performStartupSync() async {
-    if (_isSyncing) return;
+    if (_isSyncing || _offlineModeProvider.shouldDisableFirebase()) return;
 
     try {
       _isSyncing = true;
@@ -122,7 +131,7 @@ class SyncManager {
 
   /// Perform incremental sync
   Future<void> _performIncrementalSync() async {
-    if (_isSyncing) return;
+    if (_isSyncing || _offlineModeProvider.shouldDisableFirebase()) return;
 
     try {
       _isSyncing = true;
@@ -144,7 +153,7 @@ class SyncManager {
 
   /// Perform full upload (manual)
   Future<bool> performFullUpload() async {
-    if (_isSyncing) return false;
+    if (_isSyncing || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       _isSyncing = true;
@@ -171,7 +180,7 @@ class SyncManager {
 
   /// Perform full download (manual)
   Future<bool> performFullDownload() async {
-    if (_isSyncing) return false;
+    if (_isSyncing || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       _isSyncing = true;
@@ -198,7 +207,7 @@ class SyncManager {
 
   /// Sync a single task immediately
   Future<bool> syncTask(dynamic task) async {
-    if (!_authService.isLoggedIn) return false;
+    if (!_authService.isLoggedIn || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       final hasConnection = await _hasInternetConnection();
@@ -213,7 +222,7 @@ class SyncManager {
 
   /// Sync a single task log immediately
   Future<bool> syncTaskLog(dynamic log) async {
-    if (!_authService.isLoggedIn) return false;
+    if (!_authService.isLoggedIn || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       final hasConnection = await _hasInternetConnection();
@@ -228,7 +237,7 @@ class SyncManager {
 
   /// Sync a single category immediately
   Future<bool> syncCategory(dynamic category) async {
-    if (!_authService.isLoggedIn) return false;
+    if (!_authService.isLoggedIn || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       final hasConnection = await _hasInternetConnection();
@@ -243,7 +252,7 @@ class SyncManager {
 
   /// Sync a single trait immediately
   Future<bool> syncTrait(dynamic trait) async {
-    if (!_authService.isLoggedIn) return false;
+    if (!_authService.isLoggedIn || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       final hasConnection = await _hasInternetConnection();
@@ -258,7 +267,7 @@ class SyncManager {
 
   /// Sync a single store item immediately
   Future<bool> syncStoreItem(dynamic item) async {
-    if (!_authService.isLoggedIn) return false;
+    if (!_authService.isLoggedIn || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       final hasConnection = await _hasInternetConnection();
@@ -273,7 +282,7 @@ class SyncManager {
 
   /// Sync a single routine immediately
   Future<bool> syncRoutine(dynamic routine) async {
-    if (!_authService.isLoggedIn) return false;
+    if (!_authService.isLoggedIn || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       final hasConnection = await _hasInternetConnection();
@@ -288,7 +297,7 @@ class SyncManager {
 
   /// Delete task from Firestore
   Future<bool> deleteTaskFromFirestore(int taskId) async {
-    if (!_authService.isLoggedIn) return false;
+    if (!_authService.isLoggedIn || _offlineModeProvider.shouldDisableFirebase()) return false;
 
     try {
       final hasConnection = await _hasInternetConnection();

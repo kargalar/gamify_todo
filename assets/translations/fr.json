@@ -277,5 +277,9 @@
     "ChooseColorTheme": "Choisissez votre thème de couleur d'application préféré :",
     "TestNotificationMessage": "Ceci est une notification de test. Les notifications fonctionnent !",
     "ScheduledTestNotificationTitle": "Test de notification programmée",
-    "ScheduledTestNotificationMessage": "Ceci est une notification de test programmée. Affichée après 5 secondes !"
+    "ScheduledTestNotificationMessage": "Ceci est une notification de test programmée. Affichée après 5 secondes !",
+    "OfflineMode": "Mode Hors Ligne",
+    "OfflineModeSubtitle": "Désactiver la synchronisation Firebase",
+    "OfflineModeEnabled": "Mode hors ligne activé",
+    "OfflineModeDisabled": "Mode hors ligne désactivé"
 }

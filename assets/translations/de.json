@@ -278,5 +278,9 @@
     "ChooseColorTheme": "Wählen Sie Ihr bevorzugtes App-Farbschema:",
     "TestNotificationMessage": "Dies ist eine Testbenachrichtigung. Benachrichtigungen funktionieren!",
     "ScheduledTestNotificationTitle": "Geplanter Benachrichtigungstest",
-    "ScheduledTestNotificationMessage": "Dies ist eine geplante Testbenachrichtigung. Nach 5 Sekunden angezeigt!"
+    "ScheduledTestNotificationMessage": "Dies ist eine geplante Testbenachrichtigung. Nach 5 Sekunden angezeigt!",
+    "OfflineMode": "Offline-Modus",
+    "OfflineModeSubtitle": "Firebase-Synchronisation deaktivieren",
+    "OfflineModeEnabled": "Offline-Modus aktiviert",
+    "OfflineModeDisabled": "Offline-Modus deaktiviert"
 }

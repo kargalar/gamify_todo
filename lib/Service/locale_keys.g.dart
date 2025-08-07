@@ -198,6 +198,10 @@ abstract class LocaleKeys {
   static const Turkish = 'Turkish';
   static const NextLevel = 'NextLevel';
   static const Started = 'Started';
+  static const OfflineMode = 'OfflineMode';
+  static const OfflineModeSubtitle = 'OfflineModeSubtitle';
+  static const OfflineModeEnabled = 'OfflineModeEnabled';
+  static const OfflineModeDisabled = 'OfflineModeDisabled';
   static const Stopped = 'Stopped';
   static const Done = 'Done';
   static const NotSpecified = 'NotSpecified';

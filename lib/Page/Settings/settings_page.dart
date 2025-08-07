@@ -11,6 +11,7 @@ import 'package:next_level/Page/Settings/file_storage_management_page.dart';
 import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/auth_service.dart';
@@ -128,6 +129,43 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
+            // Offline Mode option
+            Consumer<OfflineModeProvider>(
+              builder: (context, offlineModeProvider, child) {
+                return _settingsOption(
+                  title: LocaleKeys.OfflineMode.tr(),
+                  subtitle: LocaleKeys.OfflineModeSubtitle.tr(),
+                  icon: Icons.cloud_off,
+                  onTap: () {
+                    offlineModeProvider.toggleOfflineMode();
+                  },
+                  trailing: Switch.adaptive(
+                    value: offlineModeProvider.isOfflineModeEnabled,
+                    thumbIcon: offlineModeProvider.isOfflineModeEnabled
+                        ? WidgetStateProperty.all(
+                            const Icon(
+                              Icons.cloud_off,
+                              color: AppColors.white,
+                              size: 16,
+                            ),
+                          )
+                        : WidgetStateProperty.all(
+                            const Icon(
+                              Icons.cloud,
+                              color: AppColors.white,
+                              size: 16,
+                            ),
+                          ),
+                    trackOutlineColor: offlineModeProvider.isOfflineModeEnabled ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
+                    inactiveThumbColor: AppColors.dirtyRed,
+                    inactiveTrackColor: AppColors.white,
+                    onChanged: (_) {
+                      offlineModeProvider.toggleOfflineMode();
+                    },
+                  ),
+                );
+              },
+            ),
             // _settingsOption(
             //   title: LocaleKeys.Help.tr(),
             //   subtitle: LocaleKeys.HelpText.tr(),
@@ -153,14 +191,24 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
-            // Cloud Sync section - only show if user is logged in
+            // Cloud Sync section - only show if user is logged in and offline mode is disabled
             if (loginUser != null) ...[
-              _settingsOption(
-                title: 'Veri Senkronizasyonu',
-                subtitle: 'Verilerinizi bulutta yedekleyin ve senkronize edin',
-                icon: Icons.cloud_sync,
-                onTap: () {
-                  _showSyncDialog(context);
+              Consumer<OfflineModeProvider>(
+                builder: (context, offlineModeProvider, child) {
+                  // Show sync option only if offline mode is disabled
+                  if (!offlineModeProvider.isOfflineModeEnabled) {
+                    return _settingsOption(
+                      title: 'Veri Senkronizasyonu',
+                      subtitle: 'Verilerinizi bulutta yedekleyin ve senkronize edin',
+                      icon: Icons.cloud_sync,
+                      onTap: () {
+                        _showSyncDialog(context);
+                      },
+                    );
+                  } else {
+                    // Return empty widget when offline mode is enabled
+                    return const SizedBox.shrink();
+                  }
                 },
               ),
             ],
