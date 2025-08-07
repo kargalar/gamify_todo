@@ -525,6 +525,14 @@ class _SyncDialogState extends State<_SyncDialog> {
   }
 
   Future<void> _syncData() async {
+    // Check if offline mode is enabled
+    if (OfflineModeProvider().shouldDisableFirebase()) {
+      setState(() {
+        _statusMessage = 'Çevrimdışı mod etkinken senkronizasyon yapılamaz.';
+      });
+      return;
+    }
+
     setState(() {
       _isSyncing = true;
       _statusMessage = 'Veriler senkronize ediliyor...';

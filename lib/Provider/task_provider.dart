@@ -18,6 +18,7 @@ import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Helper class to store task date change data for undo functionality
@@ -908,8 +909,12 @@ class TaskProvider with ChangeNotifier {
       // Delete the task from storage (this also calls HiveService().deleteTask())
       await ServerManager().deleteTask(id: taskID);
 
-      // Delete from Firestore
-      SyncManager().deleteTaskFromFirestore(taskID);
+      // Delete from Firestore only if offline mode is disabled
+      if (!OfflineModeProvider().shouldDisableFirebase()) {
+        SyncManager().deleteTaskFromFirestore(taskID);
+      } else {
+        debugPrint('Offline mode enabled, skipping Firestore deletion for task: $taskID');
+      }
 
       await HomeWidgetService.updateTaskCount();
 

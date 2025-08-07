@@ -82,7 +82,7 @@ class SyncManager {
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen((connectivityResults) {
       final hasConnection = connectivityResults.any((result) => result == ConnectivityResult.mobile || result == ConnectivityResult.wifi);
 
-      if (hasConnection && _autoSyncEnabled && _authService.isLoggedIn) {
+      if (hasConnection && _autoSyncEnabled && _authService.isLoggedIn && !_offlineModeProvider.shouldDisableFirebase()) {
         // Connection restored, perform incremental sync
         _performIncrementalSync();
       }
@@ -93,7 +93,7 @@ class SyncManager {
   void _startPeriodicSync() {
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(_syncInterval, (timer) {
-      if (_authService.isLoggedIn && !_isSyncing) {
+      if (_authService.isLoggedIn && !_isSyncing && !_offlineModeProvider.shouldDisableFirebase()) {
         _performIncrementalSync();
       }
     });

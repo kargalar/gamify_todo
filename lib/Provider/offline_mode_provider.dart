@@ -4,6 +4,8 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Service/sync_manager.dart';
+import 'package:next_level/Service/auth_service.dart';
 
 class OfflineModeProvider extends ChangeNotifier {
   static final OfflineModeProvider _instance = OfflineModeProvider._internal();
@@ -54,6 +56,9 @@ class OfflineModeProvider extends ChangeNotifier {
       status: StatusEnum.INFO,
     );
 
+    // Stop or start Firebase services based on offline mode
+    await _handleFirebaseServices();
+
     notifyListeners();
   }
 
@@ -69,5 +74,42 @@ class OfflineModeProvider extends ChangeNotifier {
   /// Check if Firebase operations should be disabled
   bool shouldDisableFirebase() {
     return _isOfflineModeEnabled;
+  }
+
+  /// Handle Firebase services based on offline mode status
+  Future<void> _handleFirebaseServices() async {
+    try {
+      if (_isOfflineModeEnabled) {
+        // Stop Firebase services when going offline
+        await _stopFirebaseServices();
+      } else {
+        // Start Firebase services when going online
+        await _startFirebaseServices();
+      }
+    } catch (e) {
+      debugPrint('Error handling Firebase services: $e');
+    }
+  }
+
+  /// Stop Firebase services
+  Future<void> _stopFirebaseServices() async {
+    try {
+      SyncManager().stopRealtimeListeners();
+      debugPrint('Firebase services stopped for offline mode');
+    } catch (e) {
+      debugPrint('Error stopping Firebase services: $e');
+    }
+  }
+
+  /// Start Firebase services
+  Future<void> _startFirebaseServices() async {
+    try {
+      if (AuthService().isLoggedIn) {
+        await SyncManager().initialize();
+        debugPrint('Firebase services started for online mode');
+      }
+    } catch (e) {
+      debugPrint('Error starting Firebase services: $e');
+    }
   }
 }

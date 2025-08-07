@@ -977,6 +977,7 @@ class FirestoreService {
                 final existingTask = existingTasks.where((t) => t.id == task.id).isNotEmpty ? existingTasks.firstWhere((t) => t.id == task.id) : null;
 
                 if (existingTask != null) {
+                  debugPrint('Updating existing task from Firestore: ${task.title}');
                   // Update existing task - sync all changes from remote
                   existingTask.title = task.title;
                   existingTask.description = task.description;
@@ -1013,9 +1014,15 @@ class FirestoreService {
                   // Update UI
                   TaskProvider().updateItems();
                 } else {
-                  // Add new task
+                  // Only add truly new tasks that don't exist locally
+                  debugPrint('Adding new task from Firestore: ${task.title}');
                   await _hiveService.addTask(task);
-                  TaskProvider().taskList.add(task);
+
+                  // Check if task is already in provider list before adding
+                  final existingInProvider = TaskProvider().taskList.any((t) => t.id == task.id);
+                  if (!existingInProvider) {
+                    TaskProvider().taskList.add(task);
+                  }
                   TaskProvider().updateItems();
                 }
                 break;
