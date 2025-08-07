@@ -330,7 +330,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     isLoadign = true;
 
     if (addTaskProvider.selectedDays.isEmpty) {
-      taskProvider.addTask(
+      await taskProvider.addTask(
         TaskModel(
           title: addTaskProvider.taskNameController.text,
           description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
@@ -379,7 +379,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       );
 
       if (addTaskProvider.selectedDays.contains(DateTime.now().weekday - 1) && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeOrSameDay(DateTime.now())) {
-        taskProvider.addTask(
+        await taskProvider.addTask(
           TaskModel(
             title: addTaskProvider.taskNameController.text,
             description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,

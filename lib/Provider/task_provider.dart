@@ -111,7 +111,7 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void addTask(TaskModel taskModel) async {
+  Future<void> addTask(TaskModel taskModel) async {
     final int taskId = await ServerManager().addTask(taskModel: taskModel);
 
     taskModel.id = taskId;
@@ -144,14 +144,14 @@ class TaskProvider with ChangeNotifier {
     taskList.add(taskModel);
 
     // Sync to Firestore
-    SyncManager().syncTask(taskModel);
+    await SyncManager().syncTask(taskModel);
 
     if (taskModel.time != null) {
       checkNotification(taskModel);
     }
 
     // Update home widget when task is added
-    HomeWidgetService.updateAllWidgets();
+    await HomeWidgetService.updateAllWidgets();
 
     notifyListeners();
   }

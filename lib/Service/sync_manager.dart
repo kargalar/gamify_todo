@@ -11,10 +11,18 @@ class SyncManager {
   factory SyncManager() => _instance;
   SyncManager._internal();
 
-  final FirestoreService _firestoreService = FirestoreService();
+  FirestoreService? _firestoreService;
   final AuthService _authService = AuthService();
   final OfflineModeProvider _offlineModeProvider = OfflineModeProvider();
   final Connectivity _connectivity = Connectivity();
+
+  // Lazy getter for FirestoreService
+  FirestoreService get firestoreService {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      throw Exception('Firebase is disabled in offline mode');
+    }
+    return _firestoreService ??= FirestoreService();
+  }
 
   static const String _lastSyncKey = 'last_full_sync';
   static const String _autoSyncKey = 'auto_sync_enabled';
@@ -45,7 +53,7 @@ class SyncManager {
       return;
     }
 
-    await _firestoreService.enableOfflinePersistence();
+    await firestoreService.enableOfflinePersistence();
     _setupConnectivityListener();
 
     if (_autoSyncEnabled) {
@@ -54,7 +62,7 @@ class SyncManager {
 
     // Start real-time listeners for instant sync
     if (_authService.isLoggedIn) {
-      await _firestoreService.startRealtimeListeners();
+      await firestoreService.startRealtimeListeners();
     }
 
     // Perform startup sync if enabled
@@ -116,8 +124,8 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (hasConnection) {
         // İlk açılışta hem upload hem download yap
-        await _firestoreService.performFullUpload(); // Local verileri yükle
-        await _firestoreService.performIncrementalSync(); // Güncellemeleri indir
+        await firestoreService.performFullUpload(); // Local verileri yükle
+        await firestoreService.performIncrementalSync(); // Güncellemeleri indir
         debugPrint('Startup sync completed');
       } else {
         debugPrint('No internet connection for startup sync');
@@ -139,7 +147,7 @@ class SyncManager {
 
       final hasConnection = await _hasInternetConnection();
       if (hasConnection) {
-        await _firestoreService.performIncrementalSync();
+        await firestoreService.performIncrementalSync();
         debugPrint('Incremental sync completed');
       } else {
         debugPrint('No internet connection for incremental sync');
@@ -165,7 +173,7 @@ class SyncManager {
         return false;
       }
 
-      final success = await _firestoreService.performFullUpload();
+      final success = await firestoreService.performFullUpload();
       if (success) {
         await _updateLastSyncTime();
       }
@@ -192,7 +200,7 @@ class SyncManager {
         return false;
       }
 
-      final success = await _firestoreService.performFullDownload();
+      final success = await firestoreService.performFullDownload();
       if (success) {
         await _updateLastSyncTime();
       }
@@ -213,7 +221,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (!hasConnection) return false;
 
-      return await _firestoreService.syncTask(task);
+      return await firestoreService.syncTask(task);
     } catch (e) {
       debugPrint('Error syncing task: $e');
       return false;
@@ -228,7 +236,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (!hasConnection) return false;
 
-      return await _firestoreService.syncTaskLog(log);
+      return await firestoreService.syncTaskLog(log);
     } catch (e) {
       debugPrint('Error syncing task log: $e');
       return false;
@@ -243,7 +251,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (!hasConnection) return false;
 
-      return await _firestoreService.syncCategory(category);
+      return await firestoreService.syncCategory(category);
     } catch (e) {
       debugPrint('Error syncing category: $e');
       return false;
@@ -258,7 +266,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (!hasConnection) return false;
 
-      return await _firestoreService.syncTrait(trait);
+      return await firestoreService.syncTrait(trait);
     } catch (e) {
       debugPrint('Error syncing trait: $e');
       return false;
@@ -273,7 +281,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (!hasConnection) return false;
 
-      return await _firestoreService.syncStoreItem(item);
+      return await firestoreService.syncStoreItem(item);
     } catch (e) {
       debugPrint('Error syncing store item: $e');
       return false;
@@ -288,7 +296,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (!hasConnection) return false;
 
-      return await _firestoreService.syncRoutine(routine);
+      return await firestoreService.syncRoutine(routine);
     } catch (e) {
       debugPrint('Error syncing routine: $e');
       return false;
@@ -303,7 +311,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (!hasConnection) return false;
 
-      return await _firestoreService.deleteTaskFromFirestore(taskId);
+      return await firestoreService.deleteTaskFromFirestore(taskId);
     } catch (e) {
       debugPrint('Error deleting task from Firestore: $e');
       return false;
@@ -365,7 +373,7 @@ class SyncManager {
 
   /// Stop real-time listeners
   void stopRealtimeListeners() {
-    _firestoreService.stopRealtimeListeners();
+    firestoreService.stopRealtimeListeners();
   }
 
   /// Cleanup resources

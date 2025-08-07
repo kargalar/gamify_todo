@@ -79,7 +79,7 @@ class _QuickAddTaskBottomSheetState extends State<QuickAddTaskBottomSheet> {
     );
 
     // Add the task
-    taskProvider.addTask(newTask);
+    await taskProvider.addTask(newTask);
 
     setState(() {
       _isLoading = false;
