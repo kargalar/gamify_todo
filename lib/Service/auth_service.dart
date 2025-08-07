@@ -6,24 +6,47 @@ import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  FirebaseAuth? _auth;
   final HiveService _hiveService = HiveService();
   final OfflineModeProvider _offlineModeProvider = OfflineModeProvider();
 
+  // Get Firebase Auth instance (lazy initialization)
+  FirebaseAuth? get auth {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      return null;
+    }
+    _auth ??= FirebaseAuth.instance;
+    return _auth;
+  }
+
   // Get current Firebase user
-  User? get currentUser => _auth.currentUser;
+  // Get current Firebase user
+  User? get currentUser {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      return null;
+    }
+    return auth?.currentUser;
+  }
 
   // Check if user is logged in
   bool get isLoggedIn => currentUser != null;
 
   // Stream for authentication state changes
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<User?> get authStateChanges {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      // In offline mode, return a stream that emits current user state once
+      return Stream.value(loginUser != null ? auth?.currentUser : null);
+    }
+    return auth?.authStateChanges() ?? Stream.value(null);
+  }
 
   // Register with email, password and username
   Future<UserModel?> registerWithEmailPassword({
@@ -31,13 +54,21 @@ class AuthService {
     required String password,
     required String username,
   }) async {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      Helper().getMessage(
+        message: "Offline modda kayıt işlemi yapılamaz. Lütfen çevrimiçi moda geçin.",
+        status: StatusEnum.WARNING,
+      );
+      return null;
+    }
+
     try {
       debugPrint('Starting registration process...');
       debugPrint('Email: $email, Username: $username');
 
       // Create user with Firebase Auth
       debugPrint('Creating user with Firebase Auth...');
-      final UserCredential result = await _auth.createUserWithEmailAndPassword(
+      final UserCredential result = await auth!.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -100,13 +131,21 @@ class AuthService {
     required String email,
     required String password,
   }) async {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      Helper().getMessage(
+        message: "Offline modda giriş işlemi yapılamaz. Lütfen çevrimiçi moda geçin.",
+        status: StatusEnum.WARNING,
+      );
+      return null;
+    }
+
     try {
       debugPrint('Starting sign in process...');
       debugPrint('Email: $email');
 
       // Sign in with Firebase Auth
       debugPrint('Signing in with Firebase Auth...');
-      final UserCredential result = await _auth.signInWithEmailAndPassword(
+      final UserCredential result = await auth!.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -180,7 +219,14 @@ class AuthService {
       // Stop real-time listeners before sign out
       SyncManager().stopRealtimeListeners();
 
-      await _auth.signOut();
+      // Only sign out from Firebase if offline mode is disabled
+      if (!_offlineModeProvider.shouldDisableFirebase()) {
+        await auth?.signOut();
+        debugPrint('Firebase sign out completed');
+      } else {
+        debugPrint('Offline mode enabled, skipping Firebase sign out');
+      }
+
       loginUser = null;
       debugPrint('User signed out successfully');
     } catch (e) {
@@ -206,8 +252,16 @@ class AuthService {
 
   // Reset password
   Future<bool> resetPassword(String email) async {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      Helper().getMessage(
+        message: "Offline modda şifre sıfırlama yapılamaz. Lütfen çevrimiçi moda geçin.",
+        status: StatusEnum.WARNING,
+      );
+      return false;
+    }
+
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      await auth?.sendPasswordResetEmail(email: email);
       Helper().getMessage(
         message: "Şifre sıfırlama e-postası gönderildi",
       );
@@ -248,19 +302,58 @@ class AuthService {
 
   // Check authentication state and initialize user
   Future<void> checkAuthState() async {
-    final User? user = currentUser;
-    if (user != null) {
-      // User is signed in, get local user data
-      UserModel? localUser = await _getUserFromLocalStorage(user.email!);
-      if (localUser != null) {
-        loginUser = localUser;
-        debugPrint('User authenticated: ${localUser.email}');
-      } else {
-        // If no local user found, sign out from Firebase
-        await signOut();
+    debugPrint('checkAuthState: Starting, offline mode: ${_offlineModeProvider.shouldDisableFirebase()}');
+
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      // In offline mode, try to load any local user without Firebase authentication
+      debugPrint('checkAuthState: Offline mode - trying to load any local user');
+      try {
+        final users = await _hiveService.getUsers();
+        if (users.isNotEmpty) {
+          // Use the first available user (or could be the last used user)
+          final prefs = await SharedPreferences.getInstance();
+          final lastUserEmail = prefs.getString('last_user_email');
+
+          if (lastUserEmail != null) {
+            // Try to find the last used user
+            final lastUser = users.where((u) => u.email == lastUserEmail).isNotEmpty ? users.firstWhere((u) => u.email == lastUserEmail) : users.first;
+            loginUser = lastUser;
+            debugPrint('checkAuthState: Offline mode - loaded last user: ${lastUser.email}');
+          } else {
+            // Just use the first available user
+            loginUser = users.first;
+            debugPrint('checkAuthState: Offline mode - loaded first available user: ${users.first.email}');
+          }
+        } else {
+          debugPrint('checkAuthState: Offline mode - no local users found');
+          loginUser = null;
+        }
+      } catch (e) {
+        debugPrint('checkAuthState: Error loading offline user: $e');
+        loginUser = null;
       }
     } else {
-      loginUser = null;
+      // Online mode with Firebase authentication
+      final User? user = currentUser;
+      if (user != null) {
+        // User is signed in, get local user data
+        UserModel? localUser = await _getUserFromLocalStorage(user.email!);
+        if (localUser != null) {
+          loginUser = localUser;
+          debugPrint('checkAuthState: Online mode - user authenticated: ${localUser.email}');
+
+          // Save as last used user
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('last_user_email', localUser.email);
+        } else {
+          // If no local user found, sign out from Firebase
+          debugPrint('checkAuthState: Online mode - no local user found, signing out');
+          await signOut();
+        }
+      } else {
+        debugPrint('checkAuthState: Online mode - no Firebase user');
+        loginUser = null;
+      }
     }
   }
 }

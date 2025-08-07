@@ -33,9 +33,8 @@ void main() async {
   final colorProvider = ColorProvider();
   await colorProvider.loadSavedColor();
 
-  // Initialize OfflineModeProvider and load saved settings
+  // Get the already initialized OfflineModeProvider from initApp
   final offlineModeProvider = OfflineModeProvider();
-  await offlineModeProvider.initialize();
 
   runApp(MultiProvider(
     providers: [

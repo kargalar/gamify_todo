@@ -14,6 +14,7 @@ import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 
 class FirestoreService {
   static final FirestoreService _instance = FirestoreService._internal();
@@ -23,6 +24,7 @@ class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final HiveService _hiveService = HiveService();
+  final OfflineModeProvider _offlineModeProvider = OfflineModeProvider();
 
   // Real-time listeners
   StreamSubscription<QuerySnapshot>? _tasksListener;
@@ -45,14 +47,19 @@ class FirestoreService {
   // Get current user ID
   String? get _currentUserId => _auth.currentUser?.uid;
 
-  // Check if user is authenticated
-  bool get isAuthenticated => _currentUserId != null;
+  // Check if user is authenticated and offline mode is disabled
+  bool get isAuthenticated => _currentUserId != null && !_offlineModeProvider.shouldDisableFirebase();
 
   // Get user's document reference
   DocumentReference? get _userDoc => _currentUserId != null ? _firestore.collection(_usersCollection).doc(_currentUserId) : null;
 
   // Enable offline persistence
   Future<void> enableOfflinePersistence() async {
+    if (_offlineModeProvider.shouldDisableFirebase()) {
+      debugPrint('Offline mode enabled, skipping Firestore persistence');
+      return;
+    }
+
     try {
       await _firestore.enablePersistence();
       debugPrint('Firestore offline persistence enabled');

@@ -4,6 +4,7 @@ import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Page/Login/modern_login_page.dart';
 import 'package:next_level/Page/navbar_page_manager.dart';
 import 'package:next_level/Service/auth_service.dart';
+import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -12,6 +13,42 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('AuthWrapper: build() called');
+
+    // Check if offline mode is enabled
+    if (OfflineModeProvider().shouldDisableFirebase()) {
+      debugPrint('AuthWrapper: Offline mode enabled, checking local user');
+
+      // In offline mode, check only for local user
+      if (loginUser != null) {
+        debugPrint('AuthWrapper: Local user exists in offline mode, showing NavbarPageManager');
+        return const NavbarPageManager();
+      } else {
+        debugPrint('AuthWrapper: No local user in offline mode, trying to load from storage');
+        return FutureBuilder<UserModel?>(
+          future: _loadLocalUserForOfflineMode(),
+          builder: (context, localSnapshot) {
+            if (localSnapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            if (localSnapshot.hasData && localSnapshot.data != null && loginUser != null) {
+              debugPrint('AuthWrapper: Local user loaded in offline mode, showing NavbarPageManager');
+              return const NavbarPageManager();
+            } else {
+              debugPrint('AuthWrapper: No local user found in offline mode, showing NavbarPageManager anyway');
+              // In offline mode, allow access even without authentication
+              return const NavbarPageManager();
+            }
+          },
+        );
+      }
+    }
+
+    // Online mode - use Firebase authentication
     return StreamBuilder<User?>(
       stream: AuthService().authStateChanges,
       builder: (context, snapshot) {
@@ -71,6 +108,27 @@ class AuthWrapper extends StatelessWidget {
         }
       },
     );
+  }
+
+  /// Load local user for offline mode
+  Future<UserModel?> _loadLocalUserForOfflineMode() async {
+    debugPrint('_loadLocalUserForOfflineMode: Checking for local user in offline mode');
+
+    if (loginUser != null) {
+      debugPrint('_loadLocalUserForOfflineMode: loginUser already exists');
+      return loginUser;
+    }
+
+    // Try to load from local storage without Firebase
+    try {
+      final AuthService authService = AuthService();
+      await authService.checkAuthState();
+      debugPrint('_loadLocalUserForOfflineMode: After checkAuthState, loginUser = ${loginUser?.username}');
+      return loginUser;
+    } catch (e) {
+      debugPrint('_loadLocalUserForOfflineMode: Error loading local user: $e');
+      return null;
+    }
   }
 
   Future<UserModel?> _ensureLocalUser(User firebaseUser) async {

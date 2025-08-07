@@ -13,6 +13,8 @@ import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/auth_service.dart';
 import 'package:next_level/Service/sync_manager.dart';
+import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
@@ -22,9 +24,20 @@ import 'package:window_manager/window_manager.dart';
 Future<void> initApp() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize OfflineModeProvider first to check settings
+  final offlineModeProvider = OfflineModeProvider();
+  await offlineModeProvider.initialize();
+
+  // Only initialize Firebase if offline mode is disabled
+  if (!offlineModeProvider.shouldDisableFirebase()) {
+    debugPrint('Initializing Firebase...');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('Firebase initialized successfully');
+  } else {
+    debugPrint('Offline mode enabled, skipping Firebase initialization');
+  }
 
   // Orientation
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -74,6 +87,12 @@ Future<void> initApp() async {
   await AuthService().checkAuthState();
 
   debugPrint('initApp: loginUser after checkAuthState = ${loginUser?.username}');
+
+  // In offline mode, create a default user if none exists
+  if (OfflineModeProvider().shouldDisableFirebase() && loginUser == null) {
+    await _createDefaultOfflineUser();
+    debugPrint('initApp: Created default offline user, loginUser = ${loginUser?.username}');
+  }
 
   // If user is not authenticated, loginUser will be null
   // Don't create any guest user - user must login to access the app
@@ -134,4 +153,39 @@ Future<void> initApp() async {
       ),
     );
   };
+}
+
+/// Create a default offline user
+Future<void> _createDefaultOfflineUser() async {
+  try {
+    final hiveService = HiveService();
+
+    // Check if any users already exist
+    final existingUsers = await hiveService.getUsers();
+    if (existingUsers.isNotEmpty) {
+      // Users already exist, just set the first one as loginUser
+      loginUser = existingUsers.first;
+      debugPrint('_createDefaultOfflineUser: Using existing user: ${loginUser!.username}');
+      return;
+    }
+
+    // Create a default offline user
+    final defaultUser = UserModel(
+      id: 1,
+      username: 'Offline User',
+      email: 'offline@gamify.todo',
+      password: '', // No password needed for offline mode
+      userCredit: 0,
+    );
+
+    // Save to Hive
+    await hiveService.addUser(defaultUser);
+
+    // Set as current user
+    loginUser = defaultUser;
+
+    debugPrint('_createDefaultOfflineUser: Created and set default user: ${defaultUser.username}');
+  } catch (e) {
+    debugPrint('_createDefaultOfflineUser: Error creating default user: $e');
+  }
 }
