@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/widget/progress_bar.dart';
 
 class TraitProgressWidget extends StatelessWidget {
   final TaskDetailViewModel viewModel;
@@ -34,7 +35,7 @@ class TraitProgressWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Attributes Section
-          if (viewModel.attributeBars.isNotEmpty) ...[
+          if (viewModel.attributeProgressList.isNotEmpty) ...[
             Row(
               children: [
                 Icon(
@@ -54,12 +55,12 @@ class TraitProgressWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            _buildTraitGrid(viewModel.attributeBars),
+            _buildTraitGrid(viewModel.attributeProgressList),
             const SizedBox(height: 16),
           ],
 
           // Skills Section
-          if (viewModel.skillBars.isNotEmpty) ...[
+          if (viewModel.skillProgressList.isNotEmpty) ...[
             Row(
               children: [
                 Icon(
@@ -79,17 +80,28 @@ class TraitProgressWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            _buildTraitGrid(viewModel.skillBars),
+            _buildTraitGrid(viewModel.skillProgressList),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildTraitGrid(List<Widget> traitBars) {
+  Widget _buildTraitGrid(List<TraitProgressData> list) {
+    final bars = list
+        .map(
+          (e) => ProgressBar(
+            title: e.title,
+            progress: e.progress,
+            color: e.color,
+            icon: e.icon,
+          ),
+        )
+        .toList();
+
     // If there's only one trait, don't use a grid
-    if (traitBars.length == 1) {
-      return traitBars.first;
+    if (bars.length == 1) {
+      return bars.first;
     }
 
     // Create a grid layout for multiple traits
@@ -102,8 +114,8 @@ class TraitProgressWidget extends StatelessWidget {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
-      itemCount: traitBars.length,
-      itemBuilder: (context, index) => traitBars[index],
+      itemCount: bars.length,
+      itemBuilder: (c, i) => bars[i],
     );
   }
 }

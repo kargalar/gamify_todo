@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
-import 'package:next_level/Page/Task%20Detail%20Page/widget/progress_bar.dart';
+// Removed direct widget dependency for cleaner MVVM
+// import 'package:next_level/Page/Task Detail Page/widget/progress_bar.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
@@ -9,6 +10,15 @@ import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/task_log_model.dart';
 import 'package:intl/intl.dart';
+
+class TraitProgressData {
+  final int traitId;
+  final String title;
+  final double progress; // 0..1
+  final Color color;
+  final String icon;
+  const TraitProgressData({required this.traitId, required this.title, required this.progress, required this.color, required this.icon});
+}
 
 class TaskLog {
   final String dateTime;
@@ -24,8 +34,8 @@ class TaskDetailViewModel with ChangeNotifier {
   Duration allTimeDuration = Duration.zero;
   int allTimeCount = 0;
   late DateTime taskRutinCreatedDate;
-  List<Widget> attributeBars = [];
-  List<Widget> skillBars = [];
+  List<TraitProgressData> attributeProgressList = [];
+  List<TraitProgressData> skillProgressList = [];
   int completedTaskCount = 0;
   int failedTaskCount = 0;
   String bestHour = "15:00";
@@ -42,21 +52,28 @@ class TaskDetailViewModel with ChangeNotifier {
     calculateStatistics();
     loadTraits();
     loadRecentLogs();
-
-    // TaskLogProvider'ı dinle
     _taskLogProvider.addListener(_onTaskLogChanged);
   }
 
   @override
   void dispose() {
-    // Listener'ı kaldır
     _taskLogProvider.removeListener(_onTaskLogChanged);
     super.dispose();
   }
 
   void _onTaskLogChanged() {
-    // TaskLogProvider değiştiğinde logları yeniden yükle
+    // Log değiştiğinde tüm istatistik ve trait progress yeniden hesapla
+    calculateStatistics();
+    refreshTraits();
     loadRecentLogs();
+    notifyListeners();
+  }
+
+  // Traits'i yeniden hesaplamak için (tarih değişimi vb.) dışarıdan da çağrılabilir
+  void refreshTraits() {
+    attributeProgressList.clear();
+    skillProgressList.clear();
+    loadTraits();
     notifyListeners();
   }
 
@@ -94,6 +111,9 @@ class TaskDetailViewModel with ChangeNotifier {
     completedTaskCount = 0;
     failedTaskCount = 0;
 
+    final completedTaskIds = <int>{};
+    final failedTaskIds = <int>{};
+
     // Logları işle
     for (var log in logs) {
       if (taskModel.type == TaskTypeEnum.TIMER && log.duration != null) {
@@ -101,13 +121,16 @@ class TaskDetailViewModel with ChangeNotifier {
       } else if (taskModel.type == TaskTypeEnum.COUNTER && log.count != null) {
         allTimeCount += log.count!;
       }
-
       if (log.status == TaskStatusEnum.COMPLETED) {
-        completedTaskCount++;
+        completedTaskIds.add(log.taskId);
       } else if (log.status == TaskStatusEnum.FAILED) {
-        failedTaskCount++;
+        failedTaskIds.add(log.taskId);
       }
-    } // Rutin oluşturulma tarihini al
+    }
+    completedTaskCount = completedTaskIds.length;
+    failedTaskCount = failedTaskIds.length;
+
+    // Rutin oluşturulma tarihini al
     if (taskModel.routineID != null) {
       try {
         final routine = TaskProvider().routineList.firstWhere((element) => element.id == taskModel.routineID);
@@ -124,106 +147,72 @@ class TaskDetailViewModel with ChangeNotifier {
   }
 
   void loadTraits() {
+    // Build attribute progress data
     if (taskModel.attributeIDList?.isNotEmpty ?? false) {
-      for (int e in taskModel.attributeIDList!) {
+      for (final traitId in taskModel.attributeIDList!) {
         try {
-          final trait = TraitProvider().traitList.firstWhere((element) => element.id == e);
-
-          // Calculate progress for attribute
-          double progress = calculateTraitProgress(e);
-
-          attributeBars.add(ProgressBar(
-            title: trait.title,
-            progress: progress,
-            color: trait.color,
-            icon: trait.icon,
-          ));
-        } catch (e) {
-          // Skip trait if not found in the list
-          debugPrint('Trait with ID $e not found in TraitProvider list');
-        }
+          final trait = TraitProvider().traitList.firstWhere((t) => t.id == traitId);
+          final progress = calculateTraitProgress(traitId);
+          attributeProgressList.add(TraitProgressData(traitId: traitId, title: trait.title, progress: progress, color: trait.color, icon: trait.icon));
+        } catch (_) {}
       }
     }
-
+    // Build skill progress data
     if (taskModel.skillIDList?.isNotEmpty ?? false) {
-      for (int e in taskModel.skillIDList!) {
+      for (final traitId in taskModel.skillIDList!) {
         try {
-          final trait = TraitProvider().traitList.firstWhere((element) => element.id == e);
-
-          // Calculate progress for skill
-          double progress = calculateTraitProgress(e);
-
-          skillBars.add(ProgressBar(
-            title: trait.title,
-            progress: progress,
-            color: trait.color,
-            icon: trait.icon,
-          ));
-        } catch (e) {
-          // Skip trait if not found in the list
-          debugPrint('Trait with ID $e not found in TraitProvider list');
-        }
+          final trait = TraitProvider().traitList.firstWhere((t) => t.id == traitId);
+          final progress = calculateTraitProgress(traitId);
+          skillProgressList.add(TraitProgressData(traitId: traitId, title: trait.title, progress: progress, color: trait.color, icon: trait.icon));
+        } catch (_) {}
       }
     }
   }
 
   double calculateTraitProgress(int traitId) {
-    Duration totalDuration = Duration.zero;
-    Duration completedDuration = Duration.zero;
+    // İstenen: Bu task'ın söz konusu trait (attribute/skill) için GLOBAL toplam ilerlemeye katkı oranı.
+    // Yani: currentTaskUnits / sum(allTasksWithTraitUnits)
 
-    // Tüm logları al
-    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
+    // 1. Trait'e sahip tüm taskları (routine bağımsız) al
+    final tasksWithTrait = TaskProvider().taskList.where((t) => (t.attributeIDList?.contains(traitId) ?? false) || (t.skillIDList?.contains(traitId) ?? false)).toList();
+    if (tasksWithTrait.isEmpty) return 0.0;
 
-    // TaskProvider'dan seçili tarihi al
-    final selectedDate = TaskProvider().selectedDate;
-    final selectedDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    // 2. İlgili logları filtrele (yalnızca trait'e sahip tasklar)
+    final traitTaskIds = tasksWithTrait.map((e) => e.id).toSet();
+    final logs = TaskLogProvider().taskLogList.where((log) => traitTaskIds.contains(log.taskId));
 
-    // Sadece seçili tarihe ait logları filtrele
-    allLogs = allLogs.where((log) {
-      final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
-      return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
-    }).toList();
+    // 3. Her task için units hesapla
+    final Map<int, double> unitsPerTask = {for (final t in tasksWithTrait) t.id: 0.0};
 
-    // Tüm taskları al
-    List<TaskModel> allTasks = TaskProvider().taskList;
-
-    // Trait ile ilgili taskları bul
-    List<TaskModel> tasksWithTrait = allTasks.where((task) {
-      return (task.attributeIDList?.contains(traitId) ?? false) || (task.skillIDList?.contains(traitId) ?? false);
-    }).toList();
-
-    // Her task için toplam süreyi hesapla
-    for (var task in tasksWithTrait) {
-      Duration taskDuration;
-      if (task.type == TaskTypeEnum.TIMER) {
-        taskDuration = task.remainingDuration ?? Duration.zero;
-      } else if (task.type == TaskTypeEnum.COUNTER) {
-        taskDuration = (task.remainingDuration ?? Duration.zero) * (task.targetCount ?? 1);
-      } else {
-        taskDuration = task.remainingDuration ?? Duration.zero;
-      }
-
-      totalDuration += taskDuration;
-
-      // Bu task için logları bul
-      List<TaskLogModel> taskLogs = allLogs.where((log) => log.taskId == task.id).toList();
-
-      // Tamamlanmış loglar için süreyi hesapla
-      for (var log in taskLogs) {
-        if (log.status == TaskStatusEnum.COMPLETED) {
-          if (task.type == TaskTypeEnum.TIMER && log.duration != null) {
-            completedDuration += log.duration!;
-          } else if (task.type == TaskTypeEnum.COUNTER && log.count != null) {
-            completedDuration += (task.remainingDuration ?? Duration.zero) * log.count!;
-          } else if (task.type == TaskTypeEnum.CHECKBOX) {
-            completedDuration += task.remainingDuration ?? Duration.zero;
+    for (final t in tasksWithTrait) {
+      double units = 0;
+      final taskLogs = logs.where((l) => l.taskId == t.id);
+      switch (t.type) {
+        case TaskTypeEnum.TIMER:
+          for (final l in taskLogs) {
+            if (l.duration != null) units += l.duration!.inSeconds;
           }
-        }
+          if (t.currentDuration != null && t.currentDuration!.inSeconds > 0) units += t.currentDuration!.inSeconds;
+          break;
+        case TaskTypeEnum.COUNTER:
+          for (final l in taskLogs) {
+            if (l.count != null) units += l.count!;
+          }
+          if (t.currentCount != null && t.currentCount! > 0) units += t.currentCount!;
+          break;
+        case TaskTypeEnum.CHECKBOX:
+          final hasCompleted = taskLogs.any((l) => l.status == TaskStatusEnum.COMPLETED) || t.status == TaskStatusEnum.COMPLETED;
+          if (hasCompleted) units = 1; // checkbox katkısı 1
+          break;
       }
+      unitsPerTask[t.id] = units;
     }
 
-    if (totalDuration == Duration.zero) return 0.0;
-    return completedDuration.inSeconds / totalDuration.inSeconds;
+    // 4. Toplam ve mevcut task katkısı
+    final totalUnits = unitsPerTask.values.fold<double>(0, (p, e) => p + e);
+    if (totalUnits <= 0) return 0.0;
+    final currentUnits = unitsPerTask[taskModel.id] ?? 0.0;
+    return (currentUnits / totalUnits).clamp(0.0, 1.0);
   }
 
   void loadRecentLogs() {
@@ -339,7 +328,7 @@ class TaskDetailViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  bool get hasTraits => attributeBars.isNotEmpty || skillBars.isNotEmpty;
+  bool get hasTraits => attributeProgressList.isNotEmpty || skillProgressList.isNotEmpty;
 
   int get daysInProgress => DateTime.now().difference(taskRutinCreatedDate).inDays + 2;
 
