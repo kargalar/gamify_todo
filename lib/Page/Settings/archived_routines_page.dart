@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
-import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:next_level/Page/Task Detail Page/routine_detail_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:provider/provider.dart';
 import 'package:get/route_manager.dart';
@@ -98,21 +99,33 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () async {
-          // Create a task model from the routine to pass to AddTaskPage for editing
-          final routineTask = taskProvider.taskList.firstWhere(
+          // Routine detayına git (edit yerine)
+          final existingTask = taskProvider.taskList.firstWhere(
             (task) => task.routineID == routine.id,
             orElse: () => TaskModel(
+              // Negatif id vererek çakışma riskini azalt
+              id: -routine.id,
               routineID: routine.id,
               title: routine.title,
+              description: routine.description,
               type: routine.type,
-              taskDate: DateTime.now(),
+              taskDate: routine.startDate ?? DateTime.now(),
+              time: routine.time,
               isNotificationOn: routine.isNotificationOn,
               isAlarmOn: routine.isAlarmOn,
+              remainingDuration: routine.remainingDuration,
+              targetCount: routine.targetCount,
+              attributeIDList: routine.attirbuteIDList,
+              skillIDList: routine.skillIDList,
+              categoryId: routine.categoryId,
+              earlyReminderMinutes: routine.earlyReminderMinutes,
+              status: TaskStatusEnum.ARCHIVED, // Arşivli olduğunu belirt
+              subtasks: routine.subtasks,
             ),
           );
 
           await NavigatorService().goTo(
-            AddTaskPage(editTask: routineTask),
+            RoutineDetailPage(taskModel: existingTask),
             transition: Transition.rightToLeft,
           );
         },
