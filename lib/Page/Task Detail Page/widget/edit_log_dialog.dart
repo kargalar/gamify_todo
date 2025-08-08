@@ -80,180 +80,149 @@ class _EditLogDialogState extends State<EditLogDialog> {
     }
 
     return AlertDialog(
-      title: Text(LocaleKeys.EditLog.tr()),
+      titlePadding: const EdgeInsets.fromLTRB(24, 20, 16, 0),
+      contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 4),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      title: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.main.withAlpha(38),
+              shape: BoxShape.circle,
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Icon(Icons.edit_note_outlined, color: AppColors.main, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Text(LocaleKeys.EditLog.tr()),
+        ],
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tarih seçimi
-            Text(LocaleKeys.Date.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () async {
-                final date = await Helper().selectDate(
-                  context: context,
-                  initialDate: selectedDate,
-                );
-                if (date != null) {
-                  setState(() {
-                    selectedDate = date;
-                  });
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground,
-                  borderRadius: AppColors.borderRadiusAll,
+            // Tarih ve Saat (yan yana kartlar)
+            Row(
+              children: [
+                Expanded(
+                  child: _CompactSection(
+                    label: LocaleKeys.Date.tr(),
+                    icon: Icons.calendar_today,
+                    child: InkWell(
+                      onTap: () async {
+                        final date = await Helper().selectDate(
+                          context: context,
+                          initialDate: selectedDate,
+                        );
+                        if (date != null) {
+                          setState(() => selectedDate = date);
+                        }
+                      },
+                      child: _Pill(value: DateFormat('d MMM yyyy').format(selectedDate)),
+                    ),
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(DateFormat('d MMMM yyyy').format(selectedDate)),
-                    const Icon(Icons.calendar_today, size: 16),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Saat seçimi
-            Text(LocaleKeys.Time.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () async {
-                final time = await Helper().selectTime(
-                  context,
-                  initialTime: selectedTime,
-                );
-                if (time != null) {
-                  setState(() {
-                    selectedTime = time;
-                  });
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground,
-                  borderRadius: AppColors.borderRadiusAll,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(selectedTime.format(context)),
-                    const Icon(Icons.access_time, size: 16),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Durum seçimi
-            Text(LocaleKeys.Status.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<TaskStatusEnum?>(
-              value: selectedStatus,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                // Null değer için özel bir DropdownMenuItem
-                DropdownMenuItem<TaskStatusEnum?>(
-                  value: null,
-                  child: Text(LocaleKeys.InProgress.tr()),
-                ),
-                DropdownMenuItem(
-                  value: TaskStatusEnum.COMPLETED,
-                  child: Text(LocaleKeys.Completed.tr()),
-                ),
-                DropdownMenuItem(
-                  value: TaskStatusEnum.FAILED,
-                  child: Text(LocaleKeys.Failed.tr()),
-                ),
-                DropdownMenuItem(
-                  value: TaskStatusEnum.CANCEL,
-                  child: Text(LocaleKeys.Cancelled.tr()),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _CompactSection(
+                    label: LocaleKeys.Time.tr(),
+                    icon: Icons.access_time,
+                    child: InkWell(
+                      onTap: () async {
+                        final time = await Helper().selectTime(context, initialTime: selectedTime);
+                        if (time != null) {
+                          setState(() => selectedTime = time);
+                        }
+                      },
+                      child: _Pill(value: selectedTime.format(context)),
+                    ),
+                  ),
                 ),
               ],
-              onChanged: (value) {
-                setState(() {
-                  selectedStatus = value; // value null olabilir
-                });
-              },
             ),
-
             const SizedBox(height: 16),
-
-            // İlerleme girişi (task tipine göre)
-            if (widget.taskModel.type != TaskTypeEnum.CHECKBOX) Text(LocaleKeys.Progress.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-
-            if (widget.taskModel.type == TaskTypeEnum.COUNTER)
-              // Counter için sayı girişi
-              TextField(
-                keyboardType: TextInputType.number,
-                textCapitalization: TextCapitalization.sentences,
+            // Status
+            _CompactSection(
+              label: LocaleKeys.Status.tr(),
+              icon: Icons.flag_outlined,
+              child: DropdownButtonFormField<TaskStatusEnum?>(
+                value: selectedStatus,
                 decoration: InputDecoration(
-                  hintText: LocaleKeys.EnterCount.tr(),
-                  border: const OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                controller: TextEditingController(text: count?.toString() ?? ""),
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    setState(() {
-                      count = int.tryParse(value);
-                    });
-                  }
-                },
-              )
-            else if (widget.taskModel.type == TaskTypeEnum.TIMER)
-              // Timer için saat ve dakika girişi
-              Row(
-                children: [
-                  // Saat
-                  Expanded(
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        hintText: LocaleKeys.Hours.tr(),
-                        border: const OutlineInputBorder(),
-                      ),
-                      controller: TextEditingController(text: hours.toString()),
-                      onChanged: (value) {
-                        if (value.isNotEmpty) {
-                          setState(() {
-                            hours = int.tryParse(value) ?? 0;
-                          });
-                        }
-                      },
-                    ),
+                items: [
+                  DropdownMenuItem<TaskStatusEnum?>(
+                    value: null,
+                    child: Text(LocaleKeys.InProgress.tr()),
                   ),
-                  const SizedBox(width: 8),
-                  // Dakika
-                  Expanded(
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        hintText: LocaleKeys.Minutes.tr(),
-                        border: const OutlineInputBorder(),
-                      ),
-                      controller: TextEditingController(text: minutes.toString()),
-                      onChanged: (value) {
-                        if (value.isNotEmpty) {
-                          setState(() {
-                            minutes = int.tryParse(value) ?? 0;
-                          });
-                        }
-                      },
-                    ),
+                  DropdownMenuItem(
+                    value: TaskStatusEnum.COMPLETED,
+                    child: Text(LocaleKeys.Completed.tr()),
+                  ),
+                  DropdownMenuItem(
+                    value: TaskStatusEnum.FAILED,
+                    child: Text(LocaleKeys.Failed.tr()),
+                  ),
+                  DropdownMenuItem(
+                    value: TaskStatusEnum.CANCEL,
+                    child: Text(LocaleKeys.Cancelled.tr()),
                   ),
                 ],
+                onChanged: (value) => setState(() => selectedStatus = value),
+              ),
+            ),
+            if (widget.taskModel.type != TaskTypeEnum.CHECKBOX) const SizedBox(height: 16),
+            if (widget.taskModel.type != TaskTypeEnum.CHECKBOX)
+              _CompactSection(
+                label: LocaleKeys.Progress.tr(),
+                icon: Icons.trending_up_outlined,
+                child: widget.taskModel.type == TaskTypeEnum.COUNTER
+                    ? TextField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: LocaleKeys.EnterCount.tr(),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        controller: TextEditingController(text: count?.toString() ?? ''),
+                        onChanged: (v) => setState(() => count = int.tryParse(v)),
+                      )
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: LocaleKeys.Hours.tr(),
+                                filled: true,
+                                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                              controller: TextEditingController(text: hours.toString()),
+                              onChanged: (v) => setState(() => hours = int.tryParse(v) ?? 0),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: LocaleKeys.Minutes.tr(),
+                                filled: true,
+                                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                              controller: TextEditingController(text: minutes.toString()),
+                              onChanged: (v) => setState(() => minutes = int.tryParse(v) ?? 0),
+                            ),
+                          ),
+                        ],
+                      ),
               ),
           ],
         ),
@@ -263,20 +232,21 @@ class _EditLogDialogState extends State<EditLogDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(LocaleKeys.Cancel.tr()),
         ),
-        ElevatedButton(
-          onPressed: () {
-            // Önce log güncelleme işlemini başlat
-            _updateLogAndNavigate();
-          },
-          child: Text(LocaleKeys.Save.tr()),
-        ),
-        TextButton(
-          onPressed: () {
-            // Önce log silme işlemini başlat
-            _deleteLogAndNavigate();
-          },
+        TextButton.icon(
           style: TextButton.styleFrom(foregroundColor: Colors.red),
-          child: Text(LocaleKeys.Delete.tr()),
+          onPressed: _deleteLogAndNavigate,
+          icon: const Icon(Icons.delete_outline, size: 18),
+          label: Text(LocaleKeys.Delete.tr()),
+        ),
+        ElevatedButton.icon(
+          onPressed: _updateLogAndNavigate,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.main,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+          icon: const Icon(Icons.save_outlined, size: 18),
+          label: Text(LocaleKeys.Save.tr()),
         ),
       ],
     );
@@ -362,5 +332,55 @@ class _EditLogDialogState extends State<EditLogDialog> {
         taskProvider.updateItems();
       }
     }
+  }
+}
+
+// Compact section wrapper for consistent styling
+class _CompactSection extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Widget child;
+  const _CompactSection({required this.label, required this.icon, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary.withAlpha(200)),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        child,
+      ],
+    );
+  }
+}
+
+// Pill style display for date/time
+class _Pill extends StatelessWidget {
+  final String value;
+  const _Pill({required this.value});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Theme.of(context).dividerColor.withAlpha(77)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(value),
+          const Icon(Icons.expand_more, size: 18),
+        ],
+      ),
+    );
   }
 }

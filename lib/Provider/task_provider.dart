@@ -1937,7 +1937,7 @@ class TaskProvider with ChangeNotifier {
       // TODO: localization
       message: "Task marked as cancelled",
       onUndo: () => _undoTaskCancellation(taskModel.id),
-      statusColor: AppColors.orange,
+      statusColor: AppColors.purple,
       // TODO: localization
       statusWord: "cancelled",
       taskName: taskModel.title,
