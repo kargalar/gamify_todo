@@ -61,6 +61,9 @@ class FirestoreService {
     }
 
     try {
+      // 'enablePersistence' is deprecated and shouldn't be used. Use Settings.persistenceEnabled instead.
+      // Try replacing the use of the deprecated member with the replacement.dartdeprecated_member_use
+      // ignore: deprecated_member_use
       await _firestore.enablePersistence();
       debugPrint('Firestore offline persistence enabled');
     } catch (e) {

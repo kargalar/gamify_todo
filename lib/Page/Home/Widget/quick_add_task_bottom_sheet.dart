@@ -86,6 +86,7 @@ class _QuickAddTaskBottomSheetState extends State<QuickAddTaskBottomSheet> {
     });
 
     // Close the bottom sheet
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
   }
 

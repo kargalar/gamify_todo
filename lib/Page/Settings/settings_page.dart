@@ -6,7 +6,6 @@ import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Page/Settings/archived_routines_page.dart';
 import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
-import 'package:next_level/Page/Settings/data_management_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
 import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
@@ -173,22 +172,11 @@ class SettingsPage extends StatelessWidget {
             //     yardimDialog(context);
             //   },            // ),
             _settingsOption(
-              title: 'File Storage',
-              subtitle: 'Manage attachment files and storage',
-              icon: Icons.folder_rounded,
-              onTap: () {
-                NavigatorService().goTo(const FileStorageManagementPage());
-              },
-            ),
-            _settingsOption(
               title: LocaleKeys.DataManagement.tr(),
               subtitle: LocaleKeys.DataManagementSubtitle.tr(),
-              icon: Icons.storage,
+              icon: Icons.storage_rounded,
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const DataManagementDialog(),
-                );
+                NavigatorService().goTo(const FileStorageManagementPage());
               },
             ),
             // Cloud Sync section - only show if user is logged in and offline mode is disabled
