@@ -19,15 +19,11 @@ class SelectTaskType extends StatefulWidget {
 }
 
 class _SelectTaskTypeState extends State<SelectTaskType> {
-  late final dynamic provider = widget.isStore ? context.read<AddStoreItemProvider>() : context.read<AddTaskProvider>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Listen to provider so UI rebuilds when setEditItem(null) resets selectedTaskType
+    final dynamic provider = widget.isStore ? context.watch<AddStoreItemProvider>() : context.watch<AddTaskProvider>();
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
@@ -87,9 +83,9 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
             crossAxisSpacing: 8,
             childAspectRatio: 1.6,
             children: [
-              if (!widget.isStore) taskTypeButton(TaskTypeEnum.CHECKBOX),
-              taskTypeButton(TaskTypeEnum.COUNTER),
-              taskTypeButton(TaskTypeEnum.TIMER),
+              if (!widget.isStore) taskTypeButton(TaskTypeEnum.CHECKBOX, provider),
+              taskTypeButton(TaskTypeEnum.COUNTER, provider),
+              taskTypeButton(TaskTypeEnum.TIMER, provider),
             ],
           ),
         ],
@@ -97,7 +93,7 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
     );
   }
 
-  Widget taskTypeButton(TaskTypeEnum taskType) {
+  Widget taskTypeButton(TaskTypeEnum taskType, dynamic provider) {
     final bool isSelected = provider.selectedTaskType == taskType;
 
     String taskTypeName;
@@ -130,7 +126,6 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
           } else {
             (provider as AddStoreItemProvider).unfocusAll();
           }
-          // Also unfocus using FocusScope for any other fields
           FocusScope.of(context).unfocus();
           setState(() {
             provider.selectedTaskType = taskType;

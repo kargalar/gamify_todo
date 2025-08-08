@@ -118,6 +118,8 @@ class AddStoreItemProvider with ChangeNotifier {
         isTimerActive: selectedTaskType == TaskTypeEnum.TIMER ? false : null,
       ),
     );
+    // Reset form state after adding new item so next add starts clean
+    setEditItem(null);
   }
 
   void updateItem(ItemModel existingItem) {
