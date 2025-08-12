@@ -181,23 +181,24 @@ class InboxCategoriesSection extends StatelessWidget {
     // Apply task type filter
     tasks = tasks.where((task) => selectedTaskTypes.contains(task.type)).toList();
 
-    // Apply date filter
+    // Apply date filter (mirror InboxTaskList grouping: today's dated tasks are not shown, so don't count them)
+    final now = DateTime.now();
+    final todayDate = DateTime(now.year, now.month, now.day);
     tasks = tasks.where((task) {
       switch (dateFilterState) {
         case DateFilterState.all:
-          return true; // Show all tasks
+          // Include undated tasks and dated tasks except those dated today
+          if (task.taskDate == null) return true;
+          final d = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+          return d != todayDate;
         case DateFilterState.withDate:
-          return task.taskDate != null; // Show only tasks with dates
+          // Include only dated tasks except those dated today
+          if (task.taskDate == null) return false;
+          final d = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+          return d != todayDate;
         case DateFilterState.withoutDate:
-          // Show only tasks without dates, but exclude today's tasks
-          if (task.taskDate == null) {
-            return true; // Tasks without date
-          }
-          // Exclude today's tasks
-          final today = DateTime.now();
-          final todayDate = DateTime(today.year, today.month, today.day);
-          final taskDate = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
-          return !taskDate.isAtSameMomentAs(todayDate);
+          // Only undated tasks
+          return task.taskDate == null;
       }
     }).toList();
 

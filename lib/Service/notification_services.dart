@@ -152,6 +152,13 @@ class NotificationService {
       try {
         // Payload'dan task ID'sini çıkar
         final Map<String, dynamic> data = jsonDecode(payload);
+
+        // Aktif timer bildirimleri: tıklayınca hiçbir yere gitme
+        // (Uygulama açıkken ya da kapalıyken sadece bildirim paneli kapanmalı)
+        if (data['noNavigate'] == true) {
+          return; // erken çıkış, yönlendirme yapma
+        }
+
         final int taskId = data['taskId'];
 
         // İlgili task'ı bul
@@ -551,7 +558,8 @@ class NotificationService {
   }) async {
     // Task ID'sini payload olarak ekle ve timer bildirimi için güvenli pozitif ID kullan
     final int taskId = id < 0 ? -id : id;
-    final String payload = jsonEncode({'taskId': taskId});
+    // Aktif timer bildirimi: tıklayınca navigasyon istemiyoruz
+    final String payload = jsonEncode({'taskId': taskId, 'noNavigate': true});
     final int safeTimerId = getTimerNotificationId(id);
     debugPrint('showTimerNotification: id=$id, safeTimerId=$safeTimerId');
 
