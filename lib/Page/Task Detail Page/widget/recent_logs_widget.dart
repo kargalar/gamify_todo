@@ -46,7 +46,7 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
   // Durum rengini döndürür
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Completed':
+      case 'Done':
         return AppColors.green;
       case 'Failed':
         return AppColors.red;

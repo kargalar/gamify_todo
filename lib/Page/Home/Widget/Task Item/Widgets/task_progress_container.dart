@@ -18,7 +18,7 @@ class TaskProgressContainer extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       height: 2,
-      width: taskModel.status == TaskStatusEnum.COMPLETED
+      width: taskModel.status == TaskStatusEnum.DONE
           ? 1.sw
           : taskModel.type == TaskTypeEnum.TIMER
               ? ((taskModel.currentDuration?.inSeconds ?? 0) / (taskModel.remainingDuration?.inSeconds ?? 1)).clamp(0.0, 1.0) * 1.sw

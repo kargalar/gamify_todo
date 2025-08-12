@@ -121,7 +121,7 @@ class TaskModel extends HiveObject {
       isTimerActive: json['is_timer_active'] ?? (type == TaskTypeEnum.TIMER ? false : null),
       attributeIDList: json['attribute_id_list'] != null ? (json['attribute_id_list'] as List).map((i) => i as int).toList() : null,
       skillIDList: json['skill_id_list'] != null ? (json['skill_id_list'] as List).map((i) => i as int).toList() : null,
-      status: json['status'] != null ? TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == json['status']) : null,
+      status: json['status'] != null ? TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == (json['status'] == 'COMPLETED' ? 'DONE' : json['status'])) : null,
       priority: json['priority'] ?? 3,
       subtasks: json['subtasks'] != null ? SubTaskModel.fromJsonList(json['subtasks']) : null,
       location: json['location'],

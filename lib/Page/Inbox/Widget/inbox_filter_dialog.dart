@@ -53,7 +53,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
   // Get status color based on TaskStatusEnum
   Color _getStatusColor(TaskStatusEnum status) {
     switch (status) {
-      case TaskStatusEnum.COMPLETED:
+      case TaskStatusEnum.DONE:
         return AppColors.green;
       case TaskStatusEnum.FAILED:
         return AppColors.red;
@@ -69,7 +69,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
   // Get status icon based on TaskStatusEnum
   IconData _getStatusIcon(TaskStatusEnum status) {
     switch (status) {
-      case TaskStatusEnum.COMPLETED:
+      case TaskStatusEnum.DONE:
         return Icons.check_circle;
       case TaskStatusEnum.FAILED:
         return Icons.cancel;
@@ -85,8 +85,8 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
   // Get status label based on TaskStatusEnum
   String _getStatusLabel(TaskStatusEnum status) {
     switch (status) {
-      case TaskStatusEnum.COMPLETED:
-        return LocaleKeys.Completed.tr();
+      case TaskStatusEnum.DONE:
+        return LocaleKeys.Done.tr();
       case TaskStatusEnum.FAILED:
         return LocaleKeys.Failed.tr();
       case TaskStatusEnum.CANCEL:

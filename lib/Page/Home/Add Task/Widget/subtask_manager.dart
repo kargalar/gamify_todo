@@ -320,7 +320,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                     const SizedBox(width: 10),
                     ClickableTooltip(
                       title: LocaleKeys.Subtasks.tr(),
-                      bulletPoints: const ["Break down your task into smaller steps", "Tap checkbox to mark subtask as completed", "Long press to edit a subtask", "Swipe left to delete a subtask", "Drag to reorder subtasks"],
+                      bulletPoints: const ["Break down your task into smaller steps", "Tap checkbox to mark subtask as done", "Long press to edit a subtask", "Swipe left to delete a subtask", "Drag to reorder subtasks"],
                       child: Text(
                         LocaleKeys.Subtasks.tr(),
                         style: const TextStyle(

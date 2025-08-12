@@ -72,7 +72,7 @@ class CheckboxStatusViewModel extends ChangeNotifier {
       }
 
       // Credit adjustment: if task was completed before, subtract credit
-      if (previousStatus == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+      if (previousStatus == TaskStatusEnum.DONE && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
       }
     } else {
@@ -82,12 +82,12 @@ class CheckboxStatusViewModel extends ChangeNotifier {
       // Credit adjustment based on status change
       if (taskModel.remainingDuration != null) {
         // If previously completed, subtract the credit first
-        if (previousStatus == TaskStatusEnum.COMPLETED) {
+        if (previousStatus == TaskStatusEnum.DONE) {
           AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
         }
 
         // If new status is completed, add credit
-        if (newStatus == TaskStatusEnum.COMPLETED) {
+        if (newStatus == TaskStatusEnum.DONE) {
           // Add haptic feedback when completing a checkbox task
           HapticFeedback.lightImpact();
 

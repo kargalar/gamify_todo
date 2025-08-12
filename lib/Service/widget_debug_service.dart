@@ -134,7 +134,7 @@ class WidgetDebugService {
       try {
         await HomeWidgetService.setupHomeWidget();
         await HomeWidgetService.updateAllWidgets();
-        debugPrint('Force widget update completed successfully');
+        debugPrint('Force widget update done successfully');
       } catch (e) {
         debugPrint('Force widget update failed: $e');
       }
@@ -154,7 +154,7 @@ class WidgetDebugService {
       // Force update
       await forceWidgetUpdate();
 
-      debugPrint('Widget test with sample data completed');
+      debugPrint('Widget test with sample data done');
     }
   }
 }

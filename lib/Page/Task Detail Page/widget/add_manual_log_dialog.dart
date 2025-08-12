@@ -31,7 +31,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
   int minutes = 0;
 
   // Durum değeri
-  TaskStatusEnum selectedStatus = TaskStatusEnum.COMPLETED;
+  TaskStatusEnum selectedStatus = TaskStatusEnum.DONE;
 
   @override
   Widget build(BuildContext context) {
@@ -119,8 +119,8 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
                 ),
                 items: [
                   DropdownMenuItem(
-                    value: TaskStatusEnum.COMPLETED,
-                    child: Text(LocaleKeys.Completed.tr()),
+                    value: TaskStatusEnum.DONE,
+                    child: Text(LocaleKeys.Done.tr()),
                   ),
                   DropdownMenuItem(
                     value: TaskStatusEnum.FAILED,
@@ -256,7 +256,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
 
     // Log oluştur - manuel girilen değer doğrudan log olarak kaydedilir
     // Status sadece checkbox için kullanılır, timer ve counter için otomatik COMPLETED
-    TaskStatusEnum logStatus = widget.taskModel.type == TaskTypeEnum.CHECKBOX ? selectedStatus : TaskStatusEnum.COMPLETED;
+    TaskStatusEnum logStatus = widget.taskModel.type == TaskTypeEnum.CHECKBOX ? selectedStatus : TaskStatusEnum.DONE;
 
     await TaskLogProvider().addTaskLog(
       widget.taskModel,

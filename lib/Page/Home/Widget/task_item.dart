@@ -297,7 +297,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                 ),
                 child: Icon(
                   widget.taskModel.type == TaskTypeEnum.CHECKBOX
-                      ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.COMPLETED)
+                      ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.DONE)
                           ? Icons.check_box
                           : Icons.check_box_outline_blank
                       : (widget.taskModel.isTimerActive ?? false)
@@ -340,7 +340,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     }
 
     // Check if this is a checkbox task being completed
-    final bool isCheckboxTaskBeingCompleted = widget.taskModel.type == TaskTypeEnum.CHECKBOX && widget.taskModel.status != TaskStatusEnum.COMPLETED;
+    final bool isCheckboxTaskBeingCompleted = widget.taskModel.type == TaskTypeEnum.CHECKBOX && widget.taskModel.status != TaskStatusEnum.DONE;
 
     if (isCheckboxTaskBeingCompleted) {
       // First, immediately update the visual state (checkbox appears checked)

@@ -65,8 +65,8 @@ class _CheckboxStatusWidgetState extends State<CheckboxStatusWidget> {
             runSpacing: 8,
             children: [
               _buildStatusButton(
-                label: LocaleKeys.Completed.tr(),
-                status: TaskStatusEnum.COMPLETED,
+                label: LocaleKeys.Done.tr(),
+                status: TaskStatusEnum.DONE,
                 color: AppColors.green,
               ),
               _buildStatusButton(
@@ -88,8 +88,8 @@ class _CheckboxStatusWidgetState extends State<CheckboxStatusWidget> {
 
   String _getCheckboxStatus() {
     switch (_viewModel.currentStatus) {
-      case TaskStatusEnum.COMPLETED:
-        return LocaleKeys.Completed.tr();
+      case TaskStatusEnum.DONE:
+        return LocaleKeys.Done.tr();
       case TaskStatusEnum.FAILED:
         return LocaleKeys.Failed.tr();
       case TaskStatusEnum.CANCEL:

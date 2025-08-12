@@ -21,7 +21,7 @@ class TaskStatus extends StatelessWidget {
     // First check for explicit status
     if (taskModel.status != null) {
       switch (taskModel.status) {
-        case TaskStatusEnum.COMPLETED:
+        case TaskStatusEnum.DONE:
           statusWidgets.add(
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -30,7 +30,7 @@ class TaskStatus extends StatelessWidget {
                 borderRadius: AppColors.borderRadiusAll,
               ),
               child: Text(
-                LocaleKeys.Completed.tr(),
+                LocaleKeys.Done.tr(),
                 style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -138,7 +138,7 @@ class TaskStatus extends StatelessWidget {
               borderRadius: AppColors.borderRadiusAll,
             ),
             child: Text(
-              LocaleKeys.Completed.tr(),
+              LocaleKeys.Done.tr(),
               style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,

@@ -121,7 +121,7 @@ class TaskDetailViewModel with ChangeNotifier {
       } else if (taskModel.type == TaskTypeEnum.COUNTER && log.count != null) {
         allTimeCount += log.count!;
       }
-      if (log.status == TaskStatusEnum.COMPLETED) {
+      if (log.status == TaskStatusEnum.DONE) {
         completedTaskIds.add(log.taskId);
       } else if (log.status == TaskStatusEnum.FAILED) {
         failedTaskIds.add(log.taskId);
@@ -201,7 +201,7 @@ class TaskDetailViewModel with ChangeNotifier {
           if (t.currentCount != null && t.currentCount! > 0) units += t.currentCount!;
           break;
         case TaskTypeEnum.CHECKBOX:
-          final hasCompleted = taskLogs.any((l) => l.status == TaskStatusEnum.COMPLETED) || t.status == TaskStatusEnum.COMPLETED;
+          final hasCompleted = taskLogs.any((l) => l.status == TaskStatusEnum.DONE) || t.status == TaskStatusEnum.DONE;
           if (hasCompleted) units = 1; // checkbox katkısı 1
           break;
       }

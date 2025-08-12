@@ -126,7 +126,7 @@ class SyncManager {
         // İlk açılışta hem upload hem download yap
         await firestoreService.performFullUpload(); // Local verileri yükle
         await firestoreService.performIncrementalSync(); // Güncellemeleri indir
-        debugPrint('Startup sync completed');
+        debugPrint('Startup sync done');
       } else {
         debugPrint('No internet connection for startup sync');
       }
@@ -148,7 +148,7 @@ class SyncManager {
       final hasConnection = await _hasInternetConnection();
       if (hasConnection) {
         await firestoreService.performIncrementalSync();
-        debugPrint('Incremental sync completed');
+        debugPrint('Incremental sync done');
       } else {
         debugPrint('No internet connection for incremental sync');
       }

@@ -55,7 +55,7 @@ class GlobalTimer {
         prefs.setString('task_last_progress_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
 
         // Bildirim ayarla
-        if (taskModel.status != TaskStatusEnum.COMPLETED) {
+        if (taskModel.status != TaskStatusEnum.DONE) {
           // Tamamlanma zamanı için bildirim planla
           final scheduledDate = DateTime.now().add(taskModel.remainingDuration! - taskModel.currentDuration!);
           NotificationService().scheduleNotification(
@@ -230,9 +230,9 @@ class GlobalTimer {
               }
 
               // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma
-              if (task.status != TaskStatusEnum.COMPLETED && task.currentDuration! >= task.remainingDuration!) {
+              if (task.status != TaskStatusEnum.DONE && task.currentDuration! >= task.remainingDuration!) {
                 // Clear any existing status before setting to COMPLETED
-                task.status = TaskStatusEnum.COMPLETED;
+                task.status = TaskStatusEnum.DONE;
                 HomeWidgetService.updateTaskCount();
 
                 // Zamanlanmış alarmı iptal etme; yalnızca alarm çalsın istiyoruz

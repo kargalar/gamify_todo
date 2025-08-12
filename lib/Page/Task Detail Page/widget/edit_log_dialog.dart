@@ -160,8 +160,8 @@ class _EditLogDialogState extends State<EditLogDialog> {
                     child: Text(LocaleKeys.InProgress.tr()),
                   ),
                   DropdownMenuItem(
-                    value: TaskStatusEnum.COMPLETED,
-                    child: Text(LocaleKeys.Completed.tr()),
+                    value: TaskStatusEnum.DONE,
+                    child: Text(LocaleKeys.Done.tr()),
                   ),
                   DropdownMenuItem(
                     value: TaskStatusEnum.FAILED,

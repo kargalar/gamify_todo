@@ -723,7 +723,7 @@ class FirestoreService {
           status: StatusEnum.SUCCESS,
           message: "Tüm veriler başarıyla yedeklendi",
         );
-        debugPrint('Full upload completed successfully');
+        debugPrint('Full upload done successfully');
       } else {
         Helper().getMessage(
           status: StatusEnum.WARNING,
@@ -772,7 +772,7 @@ class FirestoreService {
           status: StatusEnum.SUCCESS,
           message: "Tüm veriler başarıyla indirildi",
         );
-        debugPrint('Full download completed successfully');
+        debugPrint('Full download done successfully');
       } else {
         Helper().getMessage(
           status: StatusEnum.WARNING,

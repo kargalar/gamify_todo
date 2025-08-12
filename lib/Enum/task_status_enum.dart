@@ -1,5 +1,5 @@
 enum TaskStatusEnum {
-  COMPLETED,
+  DONE,
   CANCEL,
   FAILED,
   ARCHIVED,

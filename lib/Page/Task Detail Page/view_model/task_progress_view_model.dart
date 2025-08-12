@@ -320,10 +320,10 @@ class TaskProgressViewModel extends ChangeNotifier {
         // Kullanıcının yaptığı değişikliği hesapla
         Duration userChange = value - previousDuration;
 
-        if (value >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.COMPLETED) {
+        if (value >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.DONE) {
           // Clear any existing status before setting to COMPLETED
-          taskModel!.status = TaskStatusEnum.COMPLETED;
-        } else if (value < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.COMPLETED) {
+          taskModel!.status = TaskStatusEnum.DONE;
+        } else if (value < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.DONE) {
           taskModel!.status = null;
         }
 
@@ -337,7 +337,7 @@ class TaskProgressViewModel extends ChangeNotifier {
             taskModel!,
             customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, DateTime.now().hour, DateTime.now().minute, DateTime.now().second, DateTime.now().millisecond),
             customDuration: userChange,
-            customStatus: value >= taskModel!.remainingDuration! ? TaskStatusEnum.COMPLETED : null,
+            customStatus: value >= taskModel!.remainingDuration! ? TaskStatusEnum.DONE : null,
           );
 
           // Son loglanan süreyi SharedPreferences'a kaydet
@@ -436,10 +436,10 @@ class TaskProgressViewModel extends ChangeNotifier {
       // Kullanıcının yaptığı değişikliği hesapla
       int userChange = value - previousCount;
 
-      if (value >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.COMPLETED) {
+      if (value >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.DONE) {
         // Clear any existing status before setting to COMPLETED
-        taskModel!.status = TaskStatusEnum.COMPLETED;
-      } else if (value < taskModel!.targetCount! && taskModel!.status == TaskStatusEnum.COMPLETED) {
+        taskModel!.status = TaskStatusEnum.DONE;
+      } else if (value < taskModel!.targetCount! && taskModel!.status == TaskStatusEnum.DONE) {
         taskModel!.status = null;
       }
 
@@ -453,7 +453,7 @@ class TaskProgressViewModel extends ChangeNotifier {
           taskModel!,
           customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
           customCount: userChange, // Sadece kullanıcının yaptığı değişikliği logla
-          customStatus: value >= taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
+          customStatus: value >= taskModel!.targetCount! ? TaskStatusEnum.DONE : null,
         );
       }
     } else {
@@ -490,9 +490,9 @@ class TaskProgressViewModel extends ChangeNotifier {
       taskModel!.currentCount = newValue;
 
       // Status kontrolü
-      if (newValue >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.COMPLETED) {
-        taskModel!.status = TaskStatusEnum.COMPLETED;
-      } else if (newValue < taskModel!.targetCount! && taskModel!.status == TaskStatusEnum.COMPLETED) {
+      if (newValue >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.DONE) {
+        taskModel!.status = TaskStatusEnum.DONE;
+      } else if (newValue < taskModel!.targetCount! && taskModel!.status == TaskStatusEnum.DONE) {
         taskModel!.status = null;
       }
 
@@ -508,7 +508,7 @@ class TaskProgressViewModel extends ChangeNotifier {
         taskModel!,
         customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
         customCount: totalChange, // Toplam değişikliği logla
-        customStatus: newValue >= taskModel!.targetCount! ? TaskStatusEnum.COMPLETED : null,
+        customStatus: newValue >= taskModel!.targetCount! ? TaskStatusEnum.DONE : null,
       );
 
       updateProgress(newValue);
@@ -536,9 +536,9 @@ class TaskProgressViewModel extends ChangeNotifier {
       taskModel!.currentDuration = newValue;
 
       // Status kontrolü
-      if (newValue >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.COMPLETED) {
-        taskModel!.status = TaskStatusEnum.COMPLETED;
-      } else if (newValue < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.COMPLETED) {
+      if (newValue >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.DONE) {
+        taskModel!.status = TaskStatusEnum.DONE;
+      } else if (newValue < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.DONE) {
         taskModel!.status = null;
       }
 
@@ -553,7 +553,7 @@ class TaskProgressViewModel extends ChangeNotifier {
         taskModel!,
         customLogDate: DateTime(selectedDate.year, selectedDate.month, selectedDate.day, now.hour, now.minute, now.second, now.millisecond),
         customDuration: totalChange, // Toplam değişikliği logla
-        customStatus: newValue >= taskModel!.remainingDuration! ? TaskStatusEnum.COMPLETED : null,
+        customStatus: newValue >= taskModel!.remainingDuration! ? TaskStatusEnum.DONE : null,
       );
 
       updateProgress(newValue);

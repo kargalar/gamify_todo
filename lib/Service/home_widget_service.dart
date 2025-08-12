@@ -52,7 +52,7 @@ class HomeWidgetService {
       await HomeWidget.updateWidget(
         androidName: 'TaskWidgetProvider',
       );
-      debugPrint('Widget update completed with real task data');
+      debugPrint('Widget update done with real task data');
     } catch (e, stackTrace) {
       debugPrint('=== WIDGET UPDATE ERROR ===');
       debugPrint('Error updating task count widget: $e');
@@ -77,7 +77,7 @@ class HomeWidgetService {
     try {
       debugPrint('Setting up home widget with app group ID: $appGroupId');
       await HomeWidget.setAppGroupId(appGroupId);
-      debugPrint('Home widget setup completed successfully');
+      debugPrint('Home widget setup done successfully');
     } catch (e) {
       debugPrint('Error setting up home widget: $e');
       rethrow;
@@ -95,7 +95,7 @@ class HomeWidgetService {
       // Update widget
       await HomeWidget.updateWidget(androidName: 'TaskWidgetProvider');
 
-      debugPrint('Home widget reset completed');
+      debugPrint('Home widget reset done');
     } catch (e) {
       debugPrint('Error resetting home widget: $e');
     }

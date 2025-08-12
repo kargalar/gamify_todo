@@ -43,7 +43,7 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
           // Header with title and icon
           ClickableTooltip(
             title: "Task Type",
-            bulletPoints: const ["Checkbox: Simple task that can be marked as completed", "Counter: Task with a target count that can be incremented", "Timer: Task with a timer that counts down from a set duration"],
+            bulletPoints: const ["Checkbox: Simple task that can be marked as done", "Counter: Task with a target count that can be incremented", "Timer: Task with a timer that counts down from a set duration"],
             child: Container(
               color: AppColors.transparent,
               child: Row(

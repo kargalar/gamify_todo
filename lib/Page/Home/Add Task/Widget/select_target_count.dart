@@ -33,7 +33,7 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
           padding: const EdgeInsets.only(bottom: 12),
           child: ClickableTooltip(
             title: "Target Count",
-            bulletPoints: const ["Set how many times this task needs to be completed", "Tap +/- to change by 1", "Long press +/- to change by 20", "Counter will track your progress"],
+            bulletPoints: const ["Set how many times this task needs to be done", "Tap +/- to change by 1", "Long press +/- to change by 20", "Counter will track your progress"],
             child: Row(
               children: [
                 Icon(

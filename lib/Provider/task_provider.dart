@@ -410,7 +410,7 @@ class TaskProvider with ChangeNotifier {
           }
 
           // Update task status to in progress if not completed
-          if (existingTask.status != TaskStatusEnum.COMPLETED) {
+          if (existingTask.status != TaskStatusEnum.DONE) {
             debugPrint('Resetting task status to null due to dateless change: ID=${existingTask.id}, Title=${existingTask.title}');
             existingTask.status = null;
 
@@ -431,7 +431,7 @@ class TaskProvider with ChangeNotifier {
 
           if (taskDateTime.isBefore(now)) {
             // Task date is in the past, mark as overdue if not already completed
-            if (existingTask.status != TaskStatusEnum.COMPLETED) {
+            if (existingTask.status != TaskStatusEnum.DONE) {
               debugPrint('Setting task status to overdue due to past date: ID=${existingTask.id}, Title=${existingTask.title}');
               existingTask.status = TaskStatusEnum.OVERDUE;
 
@@ -443,7 +443,7 @@ class TaskProvider with ChangeNotifier {
             }
           } else {
             // Task date is in the future or today, reset status to null (in progress) if not completed
-            if (existingTask.status != TaskStatusEnum.COMPLETED && existingTask.status != null) {
+            if (existingTask.status != TaskStatusEnum.DONE && existingTask.status != null) {
               debugPrint('Resetting task status to null due to date change: ID=${existingTask.id}, Title=${existingTask.title}');
               existingTask.status = null;
 
@@ -729,7 +729,7 @@ class TaskProvider with ChangeNotifier {
   // Task durumu değiştiğinde bildirimleri kontrol et
   void checkTaskStatusForNotifications(TaskModel taskModel) {
     // Eğer task tamamlandıysa, iptal edildiyse, başarısız olduysa veya tarihi geçmişse bildirimleri iptal et
-    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
+    if (taskModel.status == TaskStatusEnum.DONE || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
       // Task bildirimi iptal et
       NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
@@ -761,8 +761,8 @@ class TaskProvider with ChangeNotifier {
     NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
     // Eğer task tamamlandıysa, iptal edildiyse, başarısız olduysa veya tarihi geçmişse bildirim oluşturma
-    if (taskModel.status == TaskStatusEnum.COMPLETED || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
-      debugPrint('Task has completed/cancelled/failed/overdue status, not scheduling notification');
+    if (taskModel.status == TaskStatusEnum.DONE || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
+      debugPrint('Task has done/cancelled/failed/overdue status, not scheduling notification');
       return;
     }
 
@@ -845,7 +845,7 @@ class TaskProvider with ChangeNotifier {
       }
     } else {
       // Check if task was previously completed and subtract credit
-      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+      if (taskModel.status == TaskStatusEnum.DONE && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
       }
 
@@ -929,7 +929,7 @@ class TaskProvider with ChangeNotifier {
       }
     } else {
       // Check if task was previously completed and subtract credit
-      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+      if (taskModel.status == TaskStatusEnum.DONE && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
       }
 
@@ -1108,8 +1108,8 @@ class TaskProvider with ChangeNotifier {
   completeRoutine(TaskModel taskModel) {
     debugPrint('Completing routine task: ID=${taskModel.id}, Title=${taskModel.title}');
 
-    // Clear any existing status before setting to COMPLETED
-    taskModel.status = TaskStatusEnum.COMPLETED;
+    // Clear any existing status before setting to DONE
+    taskModel.status = TaskStatusEnum.DONE;
 
     // Save the task to ensure changes are persisted
     try {
@@ -1125,10 +1125,10 @@ class TaskProvider with ChangeNotifier {
     // Bildirim durumunu kontrol et
     checkTaskStatusForNotifications(taskModel);
 
-    // Create a log entry for the completed task
+    // Create a log entry for the done task
     TaskLogProvider().addTaskLog(
       taskModel,
-      customStatus: TaskStatusEnum.COMPLETED,
+      customStatus: TaskStatusEnum.DONE,
     );
 
     // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
@@ -1378,18 +1378,18 @@ class TaskProvider with ChangeNotifier {
           // Alt görev tamamlandı
           TaskLogProvider().addTaskLog(
             taskModel,
-            customStatus: TaskStatusEnum.COMPLETED,
+            customStatus: TaskStatusEnum.DONE,
           );
 
           // Show undo message for subtask completion
           if (showUndo) {
             Helper().getUndoMessage(
               // TODO: localization
-              message: "Subtask marked as completed",
+              message: "Subtask marked as done",
               onUndo: () => toggleSubtaskCompletion(taskModel, subtask, showUndo: false),
               statusColor: AppColors.green,
               // TODO: localization
-              statusWord: "completed",
+              statusWord: "done",
               taskName: subtask.title,
               taskModel: taskModel, // Ana task'ı göster
             );
@@ -1463,7 +1463,7 @@ class TaskProvider with ChangeNotifier {
     final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
 
     if (isToday && !showCompleted) {
-      // For today: filter out completed tasks if showCompleted is false
+      // For today: filter out done tasks if showCompleted is false
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: true)).toList();
     } else {
       // For historical dates or when showCompleted is true: show all tasks
@@ -1674,7 +1674,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     // Mark task as completed
-    taskModel.status = TaskStatusEnum.COMPLETED;
+    taskModel.status = TaskStatusEnum.DONE;
 
     // Award credits for completing the task
     if (taskModel.remainingDuration != null) {
@@ -1684,7 +1684,7 @@ class TaskProvider with ChangeNotifier {
     // Create log for completed checkbox task
     TaskLogProvider().addTaskLog(
       taskModel,
-      customStatus: TaskStatusEnum.COMPLETED,
+      customStatus: TaskStatusEnum.DONE,
     );
 
     // Save the task to ensure changes are persisted
@@ -1710,10 +1710,10 @@ class TaskProvider with ChangeNotifier {
     if (showUndo) {
       // Show undo snackbar
       Helper().getUndoMessage(
-        message: "Task marked as completed",
+        message: "Task marked as done",
         onUndo: () => _undoTaskCompletion(taskModel.id),
         statusColor: AppColors.green,
-        statusWord: "completed",
+        statusWord: "done",
         taskName: taskModel.title,
         taskModel: taskModel, // Task'ı göster
       );

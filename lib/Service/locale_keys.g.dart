@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
   static const Store = 'Store';
   static const Settings = 'Settings';
   static const SelectLanguage = 'SelectLanguage';
@@ -198,10 +198,6 @@ abstract class LocaleKeys {
   static const Turkish = 'Turkish';
   static const NextLevel = 'NextLevel';
   static const Started = 'Started';
-  static const OfflineMode = 'OfflineMode';
-  static const OfflineModeSubtitle = 'OfflineModeSubtitle';
-  static const OfflineModeEnabled = 'OfflineModeEnabled';
-  static const OfflineModeDisabled = 'OfflineModeDisabled';
   static const Stopped = 'Stopped';
   static const Done = 'Done';
   static const NotSpecified = 'NotSpecified';
@@ -286,4 +282,15 @@ abstract class LocaleKeys {
   static const Dateless = 'Dateless';
   static const Deleted = 'Deleted';
   static const NoDate = 'NoDate';
+  static const InvalidFormat = 'InvalidFormat';
+  static const Schedule = 'Schedule';
+  static const ChooseColorTheme = 'ChooseColorTheme';
+  static const TestNotificationMessage = 'TestNotificationMessage';
+  static const ScheduledTestNotificationTitle = 'ScheduledTestNotificationTitle';
+  static const ScheduledTestNotificationMessage = 'ScheduledTestNotificationMessage';
+  static const OfflineMode = 'OfflineMode';
+  static const OfflineModeSubtitle = 'OfflineModeSubtitle';
+  static const OfflineModeEnabled = 'OfflineModeEnabled';
+  static const OfflineModeDisabled = 'OfflineModeDisabled';
+
 }

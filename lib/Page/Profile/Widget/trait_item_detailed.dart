@@ -33,7 +33,7 @@ class _TraitItemDetailedState extends State<TraitItemDetailed> {
       Duration.zero,
       (previousValue, element) {
         if (((element.skillIDList != null && element.skillIDList!.contains(widget.trait.id)) || (element.attributeIDList != null && element.attributeIDList!.contains(widget.trait.id))) && element.remainingDuration != null) {
-          if (element.type == TaskTypeEnum.CHECKBOX && element.status != TaskStatusEnum.COMPLETED) {
+          if (element.type == TaskTypeEnum.CHECKBOX && element.status != TaskStatusEnum.DONE) {
             return previousValue;
           }
           return previousValue +

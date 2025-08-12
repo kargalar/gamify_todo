@@ -87,7 +87,7 @@ class DebugHelper {
     // Force recreation of tasks from routines
     try {
       await HiveService().createTasksFromRoutines();
-      debugPrint('✓ createTasksFromRoutines completed');
+      debugPrint('✓ createTasksFromRoutines done');
     } catch (e) {
       debugPrint('✗ Error in createTasksFromRoutines: $e');
     }
@@ -112,6 +112,6 @@ class DebugHelper {
     await debugNotificationSetup();
     // await debugTaskCreationFromRoutines();
 
-    debugPrint('\n✅ FULL DEBUG SESSION COMPLETED ✅\n');
+    debugPrint('\n✅ FULL DEBUG SESSION DONE ✅\n');
   }
 }

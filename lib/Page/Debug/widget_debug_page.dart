@@ -17,7 +17,7 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
 
   Future<void> _performAction(String actionName, Future<void> Function() action) async {
     if (!kDebugMode) return;
-    
+
     setState(() {
       _isLoading = true;
       _lastAction = 'Performing: $actionName...';
@@ -26,7 +26,7 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
     try {
       await action();
       setState(() {
-        _lastAction = 'Completed: $actionName ✅';
+        _lastAction = 'Done: $actionName ✅';
       });
     } catch (e) {
       setState(() {
@@ -92,9 +92,9 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Debug Actions
             Text(
               'Widget Debug Actions:',
@@ -104,15 +104,17 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 color: AppColors.text,
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Debug Widget Data
             ElevatedButton.icon(
-              onPressed: _isLoading ? null : () => _performAction(
-                'Debug Widget Data',
-                () async => WidgetDebugService.debugWidgetData(),
-              ),
+              onPressed: _isLoading
+                  ? null
+                  : () => _performAction(
+                        'Debug Widget Data',
+                        () async => WidgetDebugService.debugWidgetData(),
+                      ),
               icon: const Icon(Icons.bug_report),
               label: const Text('Debug Widget Data'),
               style: ElevatedButton.styleFrom(
@@ -120,15 +122,17 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Force Widget Update
             ElevatedButton.icon(
-              onPressed: _isLoading ? null : () => _performAction(
-                'Force Widget Update',
-                () async => WidgetDebugService.forceWidgetUpdate(),
-              ),
+              onPressed: _isLoading
+                  ? null
+                  : () => _performAction(
+                        'Force Widget Update',
+                        () async => WidgetDebugService.forceWidgetUpdate(),
+                      ),
               icon: const Icon(Icons.refresh),
               label: const Text('Force Widget Update'),
               style: ElevatedButton.styleFrom(
@@ -136,15 +140,17 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Create Test Tasks
             ElevatedButton.icon(
-              onPressed: _isLoading ? null : () => _performAction(
-                'Create Test Tasks',
-                () async => WidgetDebugService.createTestTasksForWidget(),
-              ),
+              onPressed: _isLoading
+                  ? null
+                  : () => _performAction(
+                        'Create Test Tasks',
+                        () async => WidgetDebugService.createTestTasksForWidget(),
+                      ),
               icon: const Icon(Icons.add_task),
               label: const Text('Create Test Tasks'),
               style: ElevatedButton.styleFrom(
@@ -152,15 +158,17 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Test Widget with Sample Data
             ElevatedButton.icon(
-              onPressed: _isLoading ? null : () => _performAction(
-                'Test Widget with Sample Data',
-                () async => WidgetDebugService.testWidgetWithSampleData(),
-              ),
+              onPressed: _isLoading
+                  ? null
+                  : () => _performAction(
+                        'Test Widget with Sample Data',
+                        () async => WidgetDebugService.testWidgetWithSampleData(),
+                      ),
               icon: const Icon(Icons.science),
               label: const Text('Test Widget with Sample Data'),
               style: ElevatedButton.styleFrom(
@@ -168,15 +176,17 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Remove Test Tasks
             ElevatedButton.icon(
-              onPressed: _isLoading ? null : () => _performAction(
-                'Remove Test Tasks',
-                () async => WidgetDebugService.removeTestTasksForWidget(),
-              ),
+              onPressed: _isLoading
+                  ? null
+                  : () => _performAction(
+                        'Remove Test Tasks',
+                        () async => WidgetDebugService.removeTestTasksForWidget(),
+                      ),
               icon: const Icon(Icons.delete_sweep),
               label: const Text('Remove Test Tasks'),
               style: ElevatedButton.styleFrom(
@@ -184,15 +194,17 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Reset Widget
             ElevatedButton.icon(
-              onPressed: _isLoading ? null : () => _performAction(
-                'Reset Widget',
-                () async => HomeWidgetService.resetHomeWidget(),
-              ),
+              onPressed: _isLoading
+                  ? null
+                  : () => _performAction(
+                        'Reset Widget',
+                        () async => HomeWidgetService.resetHomeWidget(),
+                      ),
               icon: const Icon(Icons.restore),
               label: const Text('Reset Widget'),
               style: ElevatedButton.styleFrom(
@@ -200,9 +212,9 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
-            
+
             const Spacer(),
-            
+
             // Instructions
             Card(
               color: AppColors.panelBackground2,

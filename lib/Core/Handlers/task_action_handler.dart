@@ -23,7 +23,7 @@ class TaskActionHandler {
 
   /// Handles the primary action for a task based on its type
   static void handleTaskAction(TaskModel taskModel, {Function? onStateChanged, bool skipLogging = false, int? batchChange}) {
-    final bool wasCompleted = taskModel.status == TaskStatusEnum.COMPLETED;
+    final bool wasCompleted = taskModel.status == TaskStatusEnum.DONE;
 
     // Handle batch change for counter tasks
     if (batchChange != null && taskModel.type == TaskTypeEnum.COUNTER) {
@@ -42,12 +42,12 @@ class TaskActionHandler {
 
       if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
         // Clear any existing status before setting to COMPLETED
-        taskModel.status = TaskStatusEnum.COMPLETED;
+        taskModel.status = TaskStatusEnum.DONE;
 
         // Create log for completed counter task
         TaskLogProvider().addTaskLog(
           taskModel,
-          customStatus: TaskStatusEnum.COMPLETED,
+          customStatus: TaskStatusEnum.DONE,
         );
 
         HomeWidgetService.updateAllWidgets();
@@ -63,7 +63,7 @@ class TaskActionHandler {
     }
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
-      if (taskModel.status == TaskStatusEnum.COMPLETED) {
+      if (taskModel.status == TaskStatusEnum.DONE) {
         // When uncompleting a task, check if it should be overdue based on date
         if (taskModel.taskDate != null) {
           final now = DateTime.now();
@@ -139,13 +139,13 @@ class TaskActionHandler {
 
       if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
         // Clear any existing status before setting to COMPLETED
-        taskModel.status = TaskStatusEnum.COMPLETED;
+        taskModel.status = TaskStatusEnum.DONE;
 
         // Create log for completed counter task (unless logging is skipped)
         if (!skipLogging) {
           TaskLogProvider().addTaskLog(
             taskModel,
-            customStatus: TaskStatusEnum.COMPLETED,
+            customStatus: TaskStatusEnum.DONE,
           );
         }
 
@@ -250,7 +250,7 @@ class TaskActionHandler {
       TaskStatusEnum? previousStatus = taskModel.status;
 
       // Check if task was previously completed and subtract credit
-      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+      if (taskModel.status == TaskStatusEnum.DONE && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
       }
 
@@ -326,7 +326,7 @@ class TaskActionHandler {
       TaskStatusEnum? previousStatus = taskModel.status;
 
       // Check if task was previously completed and subtract credit
-      if (taskModel.status == TaskStatusEnum.COMPLETED && taskModel.remainingDuration != null) {
+      if (taskModel.status == TaskStatusEnum.DONE && taskModel.remainingDuration != null) {
         AppHelper().addCreditByProgress(-taskModel.remainingDuration!);
       }
 

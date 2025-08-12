@@ -94,7 +94,7 @@ class _InboxPageState extends State<InboxPage> {
 
       // Clear and rebuild the status set based on saved preferences
       _selectedStatuses.clear();
-      if (hasCompleted) _selectedStatuses.add(TaskStatusEnum.COMPLETED);
+      if (hasCompleted) _selectedStatuses.add(TaskStatusEnum.DONE);
       if (hasFailed) _selectedStatuses.add(TaskStatusEnum.FAILED);
       if (hasCancel) _selectedStatuses.add(TaskStatusEnum.CANCEL);
       if (hasArchived) _selectedStatuses.add(TaskStatusEnum.ARCHIVED);
@@ -140,7 +140,7 @@ class _InboxPageState extends State<InboxPage> {
     await prefs.setBool('categories_show_timer', _selectedTaskTypes.contains(TaskTypeEnum.TIMER));
 
     // Save status filter preferences
-    await prefs.setBool('categories_show_completed', _selectedStatuses.contains(TaskStatusEnum.COMPLETED));
+    await prefs.setBool('categories_show_completed', _selectedStatuses.contains(TaskStatusEnum.DONE));
     await prefs.setBool('categories_show_failed', _selectedStatuses.contains(TaskStatusEnum.FAILED));
     await prefs.setBool('categories_show_cancel', _selectedStatuses.contains(TaskStatusEnum.CANCEL));
     await prefs.setBool('categories_show_archived', _selectedStatuses.contains(TaskStatusEnum.ARCHIVED));

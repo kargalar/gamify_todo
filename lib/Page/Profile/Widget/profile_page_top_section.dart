@@ -31,7 +31,7 @@ class _ProfilePageTopSectionState extends State<ProfilePageTopSection> {
       Duration.zero,
       (previousValue, element) {
         if (element.remainingDuration != null) {
-          if (element.type == TaskTypeEnum.CHECKBOX && element.status != TaskStatusEnum.COMPLETED) {
+          if (element.type == TaskTypeEnum.CHECKBOX && element.status != TaskStatusEnum.DONE) {
             return previousValue;
           }
           return previousValue +

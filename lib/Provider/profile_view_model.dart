@@ -41,7 +41,7 @@ class ProfileViewModel extends ChangeNotifier {
 
   Duration _calculateTaskDuration(task) {
     return task.type == TaskTypeEnum.CHECKBOX
-        ? (task.status == TaskStatusEnum.COMPLETED ? task.remainingDuration! : Duration.zero)
+        ? (task.status == TaskStatusEnum.DONE ? task.remainingDuration! : Duration.zero)
         : task.type == TaskTypeEnum.COUNTER
             ? task.remainingDuration! * task.currentCount!
             : task.currentDuration!;
@@ -92,7 +92,7 @@ class ProfileViewModel extends ChangeNotifier {
     tasksWithDates.sort((a, b) => b.taskDate!.compareTo(a.taskDate!));
 
     for (var task in tasksWithDates) {
-      if (task.status == TaskStatusEnum.COMPLETED) {
+      if (task.status == TaskStatusEnum.DONE) {
         if (lastDate == null || task.taskDate!.difference(lastDate).inDays == 1) {
           tempStreak++;
         } else {
@@ -170,7 +170,7 @@ class ProfileViewModel extends ChangeNotifier {
         } catch (e) {
           // Task might have been deleted, skip
         }
-      } else if (log.status == TaskStatusEnum.COMPLETED) {
+      } else if (log.status == TaskStatusEnum.DONE) {
         // Checkbox task - her tamamlanan görev için bir kez süre ekle
         // Aynı görev için aynı günde birden fazla log olabilir, bu yüzden kontrol ediyoruz
         if (!processedTaskDates.contains(taskDateKey)) {

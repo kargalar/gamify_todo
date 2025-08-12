@@ -65,7 +65,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       Duration.zero,
       (previousValue, task) {
         if (task.remainingDuration != null) {
-          if (task.type == TaskTypeEnum.CHECKBOX && task.status != TaskStatusEnum.COMPLETED) {
+          if (task.type == TaskTypeEnum.CHECKBOX && task.status != TaskStatusEnum.DONE) {
             return previousValue; // Tamamlanmamış checkbox'lar sayılmaz
           }
           return previousValue +
@@ -150,7 +150,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
     if (task.remainingDuration == null) return Duration.zero;
 
     return task.type == TaskTypeEnum.CHECKBOX
-        ? (task.status == TaskStatusEnum.COMPLETED ? task.remainingDuration! : Duration.zero)
+        ? (task.status == TaskStatusEnum.DONE ? task.remainingDuration! : Duration.zero)
         : task.type == TaskTypeEnum.COUNTER
             ? task.remainingDuration! * (task.currentCount ?? 0)
             : task.currentDuration ?? Duration.zero;
@@ -159,7 +159,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   // Helper methods for status display
   Color _getStatusColor(TaskStatusEnum status) {
     switch (status) {
-      case TaskStatusEnum.COMPLETED:
+      case TaskStatusEnum.DONE:
         return AppColors.green;
       case TaskStatusEnum.FAILED:
         return AppColors.red;
@@ -174,7 +174,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
 
   String _getStatusText(TaskStatusEnum status) {
     switch (status) {
-      case TaskStatusEnum.COMPLETED:
+      case TaskStatusEnum.DONE:
         return LocaleKeys.Done.tr();
       case TaskStatusEnum.FAILED:
         return LocaleKeys.Failed.tr();

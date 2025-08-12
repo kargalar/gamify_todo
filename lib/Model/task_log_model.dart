@@ -55,7 +55,7 @@ class TaskLogModel extends HiveObject {
       taskTitle: json['task_title'],
       duration: json['duration'] != null ? stringToDuration(json['duration']) : null,
       count: json['count'],
-      status: TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == json['status']),
+      status: TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == (json['status'] == 'COMPLETED' ? 'DONE' : json['status'])),
     );
   }
 
@@ -84,8 +84,8 @@ class TaskLogModel extends HiveObject {
   // Durumu okunabilir formatta döndürür
   String getStatusText() {
     switch (status) {
-      case TaskStatusEnum.COMPLETED:
-        return 'Completed';
+      case TaskStatusEnum.DONE:
+        return 'Done';
       case TaskStatusEnum.FAILED:
         return 'Failed';
       case TaskStatusEnum.CANCEL:

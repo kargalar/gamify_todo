@@ -122,7 +122,7 @@ class AuthService {
         message: _getErrorMessage(e.toString()),
       );
     }
-    debugPrint('Registration process completed with null result');
+    debugPrint('Registration process done with null result');
     return null;
   }
 
@@ -209,7 +209,7 @@ class AuthService {
         message: _getErrorMessage(e.toString()),
       );
     }
-    debugPrint('Sign in process completed with null result');
+    debugPrint('Sign in process done with null result');
     return null;
   }
 

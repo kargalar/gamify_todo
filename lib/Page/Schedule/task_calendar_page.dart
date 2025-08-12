@@ -220,7 +220,7 @@ class TaskCalendarPage extends StatelessWidget {
                 itemCount: dayTasks.length,
                 itemBuilder: (context, taskIndex) {
                   final task = dayTasks[taskIndex];
-                  final bool isCompleted = task.status == TaskStatusEnum.COMPLETED;
+                  final bool isCompleted = task.status == TaskStatusEnum.DONE;
 
                   return InkWell(
                     onTap: () async {
