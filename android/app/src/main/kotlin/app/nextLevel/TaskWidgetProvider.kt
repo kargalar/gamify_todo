@@ -1,5 +1,6 @@
 package app.nextlevel
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -30,7 +31,7 @@ class TaskWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            val views = RemoteViews("app.nextlevel", R.layout.task_widget)
+            val views = RemoteViews(context.packageName, R.layout.task_widget)
 
             try {
                 val widgetData = HomeWidgetPlugin.getData(context)
@@ -45,16 +46,23 @@ class TaskWidgetProvider : AppWidgetProvider() {
                 val totalStr = if (totalWorkSec > 0) String.format("%d:%02d", hh, mm) else "0:00"
                 views.setTextViewText(R.id.header_text, "Today's Tasks  •  $totalStr")
                 views.setTextViewText(R.id.task_count_text, taskCount.toString())
-                // Set checkbox state
-                views.setBoolean(R.id.hide_completed_checkbox, "setChecked", hideCompleted)
+                // Set toggle icon state (use different builtin icons)
+                val toggleIcon = if (hideCompleted) android.R.drawable.checkbox_on_background else android.R.drawable.checkbox_off_background
+                views.setImageViewResource(R.id.hide_completed_checkbox, toggleIcon)
 
                 // Wire click to toggle
-                val toggleIntent = Intent(context, HomeWidgetBackgroundService::class.java)
+                val toggleIntent = Intent(context, es.antonborri.home_widget.HomeWidgetBackgroundReceiver::class.java)
                 toggleIntent.action = "es.antonborri.home_widget.action.BACKGROUND"
                 toggleIntent.putExtra("action", "toggleHideCompleted")
                 toggleIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 toggleIntent.data = Uri.parse(toggleIntent.toUri(Intent.URI_INTENT_SCHEME))
-                views.setOnClickPendingIntent(R.id.hide_completed_checkbox, es.antonborri.home_widget.HomeWidgetPlugin.getBackgroundPendingIntent(context, toggleIntent))
+                val togglePi = PendingIntent.getBroadcast(
+                    context,
+                    1001,
+                    toggleIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.hide_completed_checkbox, togglePi)
 
                 val taskTitles = JSONArray(taskTitlesJson)
 
@@ -70,6 +78,18 @@ class TaskWidgetProvider : AppWidgetProvider() {
                     svcIntent.data = Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME))
                     views.setRemoteAdapter(R.id.task_list, svcIntent)
                     views.setEmptyView(R.id.task_list, R.id.empty_state)
+
+                    // Set a PendingIntent template so each item can fill in specifics
+                    val clickIntent = Intent(context, es.antonborri.home_widget.HomeWidgetBackgroundReceiver::class.java)
+                    clickIntent.action = "es.antonborri.home_widget.action.BACKGROUND"
+                    // action and taskId will be filled per item
+                    val templatePi = PendingIntent.getBroadcast(
+                        context,
+                        1002,
+                        clickIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                    )
+                    views.setPendingIntentTemplate(R.id.task_list, templatePi)
 
                     views.setViewVisibility(R.id.task_list, View.VISIBLE)
                     views.setViewVisibility(R.id.empty_state, View.GONE)

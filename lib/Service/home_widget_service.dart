@@ -1,9 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Core/helper.dart';
 
 class HomeWidgetService {
   static const String appGroupId = 'app.nextlevel.widget';
@@ -48,6 +54,7 @@ class HomeWidgetService {
       // Build task details for progress display
       final taskDetails = allIncompleteTasks
           .map((task) => {
+                'id': task.id,
                 'title': task.title,
                 'type': task.type.toString().split('.').last,
                 'currentCount': task.currentCount ?? 0,
@@ -111,11 +118,53 @@ class HomeWidgetService {
   @pragma('vm:entry-point')
   static Future<void> backgroundCallback(Uri? uri) async {
     try {
+      // Ensure Flutter bindings and Hive adapters are initialized for background isolate
+      WidgetsFlutterBinding.ensureInitialized();
+      try {
+        await Helper().registerAdapters();
+      } catch (_) {}
+
       final action = uri?.queryParameters['action'] ?? '';
       if (action == 'toggleHideCompleted') {
         final current = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
         await HomeWidget.saveWidgetData(hideCompletedKey, !current);
         await updateAllWidgets();
+        return;
+      }
+
+      // Handle per-item actions
+      final taskIdStr = uri?.queryParameters['taskId'];
+      final taskId = taskIdStr != null ? int.tryParse(taskIdStr) : null;
+      if (taskId == null) {
+        return;
+      }
+
+      // Load the task directly from Hive
+      final tasks = await HiveService().getTasks();
+      final index = tasks.indexWhere((t) => t.id == taskId);
+      if (index == -1) {
+        return;
+      }
+      final task = tasks[index];
+
+      switch (action) {
+        case 'incrementCounter':
+          if (task.type.toString().contains('COUNTER')) {
+            task.currentCount = (task.currentCount ?? 0) + 1;
+            await ServerManager().updateTask(taskModel: task);
+            await updateAllWidgets();
+          }
+          break;
+        case 'toggleTimer':
+          if (task.type.toString().contains('TIMER')) {
+            // Initialize notifications just in case
+            try {
+              await NotificationService().init();
+            } catch (_) {}
+            GlobalTimer().startStopTimer(taskModel: task);
+            await updateAllWidgets();
+          }
+          break;
       }
     } catch (e) {
       debugPrint('HomeWidget backgroundCallback error: $e');

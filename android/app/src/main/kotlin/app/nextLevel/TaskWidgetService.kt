@@ -12,6 +12,7 @@ class TaskWidgetService : RemoteViewsService() {
 
     class TaskViewsFactory(private val context: Context) : RemoteViewsFactory {
         private data class TaskDetail(
+            val id: Int,
             val title: String,
             val type: String,
             val currentCount: Int,
@@ -34,6 +35,7 @@ class TaskWidgetService : RemoteViewsService() {
                 val o = arr.getJSONObject(i)
                 list.add(
                     TaskDetail(
+                        id = o.optInt("id"),
                         title = o.optString("title"),
                         type = o.optString("type"),
                         currentCount = o.optInt("currentCount"),
@@ -106,6 +108,18 @@ class TaskWidgetService : RemoteViewsService() {
             }
             rv.setTextViewText(R.id.task_item_sub, sub)
             rv.setProgressBar(R.id.task_item_progress, max, progress, false)
+
+            // Set fill-in intent for item click
+            val fillIn = Intent()
+            val action = when (item.type) {
+                "COUNTER" -> "incrementCounter"
+                "TIMER" -> "toggleTimer"
+                else -> "noop"
+            }
+            // Use data Uri so it becomes available as queryParameters in Dart callback
+            val dataUri = android.net.Uri.parse("homewidget://task?action=${action}&taskId=${item.id}")
+            fillIn.data = dataUri
+            rv.setOnClickFillInIntent(R.id.task_item_root, fillIn)
             return rv
         }
 

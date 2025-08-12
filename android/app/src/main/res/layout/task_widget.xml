@@ -39,11 +39,12 @@
 		android:paddingTop="2dp"
 		android:paddingBottom="2dp">
 
-		<CheckBox
-			android:id="@+id/hide_completed_checkbox"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:buttonTint="#1773DB"/>
+		<ImageView
+				android:id="@+id/hide_completed_checkbox"
+				android:layout_width="20dp"
+				android:layout_height="20dp"
+				android:contentDescription="Hide completed toggle"
+				android:src="@android:drawable/checkbox_off_background"/>
 
 		<TextView
 			android:layout_width="wrap_content"
