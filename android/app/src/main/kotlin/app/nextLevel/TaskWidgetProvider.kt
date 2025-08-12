@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetPlugin
+import es.antonborri.home_widget.HomeWidgetBackgroundService
 import org.json.JSONArray
 
 class TaskWidgetProvider : AppWidgetProvider() {
@@ -35,10 +36,25 @@ class TaskWidgetProvider : AppWidgetProvider() {
                 val widgetData = HomeWidgetPlugin.getData(context)
                 val taskCount = widgetData.getInt("taskCount", 0)
                 val taskTitlesJson = widgetData.getString("taskTitles", "[]")
+                val totalWorkSec = widgetData.getInt("totalWorkSec", 0)
+                val hideCompleted = widgetData.getBoolean("hideCompleted", false)
 
                 // Header and count
-                views.setTextViewText(R.id.header_text, "Today's Tasks")
+                val hh = totalWorkSec / 3600
+                val mm = (totalWorkSec / 60) % 60
+                val totalStr = if (totalWorkSec > 0) String.format("%d:%02d", hh, mm) else "0:00"
+                views.setTextViewText(R.id.header_text, "Today's Tasks  •  $totalStr")
                 views.setTextViewText(R.id.task_count_text, taskCount.toString())
+                // Set checkbox state
+                views.setBoolean(R.id.hide_completed_checkbox, "setChecked", hideCompleted)
+
+                // Wire click to toggle
+                val toggleIntent = Intent(context, HomeWidgetBackgroundService::class.java)
+                toggleIntent.action = "es.antonborri.home_widget.action.BACKGROUND"
+                toggleIntent.putExtra("action", "toggleHideCompleted")
+                toggleIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                toggleIntent.data = Uri.parse(toggleIntent.toUri(Intent.URI_INTENT_SCHEME))
+                views.setOnClickPendingIntent(R.id.hide_completed_checkbox, es.antonborri.home_widget.HomeWidgetPlugin.getBackgroundPendingIntent(context, toggleIntent))
 
                 val taskTitles = JSONArray(taskTitlesJson)
 

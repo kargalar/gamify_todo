@@ -28,6 +28,32 @@
 		android:gravity="center"
 		android:padding="4dp" />
 
+	<!-- Hide completed toggle -->
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:gravity="center_vertical"
+		android:paddingStart="4dp"
+		android:paddingEnd="4dp"
+		android:paddingTop="2dp"
+		android:paddingBottom="2dp">
+
+		<CheckBox
+			android:id="@+id/hide_completed_checkbox"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:buttonTint="#1773DB"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Hide done"
+			android:textColor="#B0B0B0"
+			android:textSize="11sp"
+			android:paddingStart="4dp"/>
+	</LinearLayout>
+
 	<!-- Scrollable task list via RemoteViewsService -->
 	<ListView
 		android:id="@+id/task_list"

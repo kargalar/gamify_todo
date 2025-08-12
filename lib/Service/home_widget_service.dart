@@ -3,12 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 
 class HomeWidgetService {
   static const String appGroupId = 'app.nextlevel.widget';
   static const String taskCountKey = 'taskCount';
   static const String taskTitlesKey = 'taskTitles';
   static const String taskDetailsKey = 'taskDetails';
+  static const String totalWorkSecKey = 'totalWorkSec';
+  static const String hideCompletedKey = 'hideCompleted';
 
   static Future<void> updateTaskCount() async {
     try {
@@ -24,9 +27,17 @@ class HomeWidgetService {
       final today = DateTime.now();
       debugPrint('Today date: $today');
 
-      final todayTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID == null && task.status == null).toList();
+      // Read hide flag (default false)
+      final hideCompleted = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
 
-      final routineTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID != null && task.status == null).toList();
+      bool includeByStatus(t) {
+        if (!hideCompleted) return true;
+        return t.status == null; // only in-progress when hidden
+      }
+
+      final todayTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID == null && includeByStatus(task)).toList();
+
+      final routineTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID != null && includeByStatus(task)).toList();
 
       final allIncompleteTasks = [...todayTasks, ...routineTasks];
       final incompleteTasks = allIncompleteTasks.length;
@@ -47,6 +58,10 @@ class HomeWidgetService {
               })
           .toList();
 
+      // Calculate today's total work time from TIMER tasks (sum of currentDuration)
+      final todaysAllTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true).toList();
+      final totalWorkSec = todaysAllTasks.where((t) => t.type == TaskTypeEnum.TIMER && t.currentDuration != null).fold<int>(0, (sum, t) => sum + (t.currentDuration!.inSeconds));
+
       debugPrint('=== WIDGET DATA ===');
       debugPrint('Today tasks: ${todayTasks.length}');
       debugPrint('Routine tasks: ${routineTasks.length}');
@@ -60,8 +75,11 @@ class HomeWidgetService {
 
       await HomeWidget.saveWidgetData(taskTitlesKey, jsonEncode(taskTitles));
       await HomeWidget.saveWidgetData(taskDetailsKey, jsonEncode(taskDetails));
+      await HomeWidget.saveWidgetData(totalWorkSecKey, totalWorkSec);
+      await HomeWidget.saveWidgetData(hideCompletedKey, hideCompleted);
       debugPrint('Task titles saved: ${jsonEncode(taskTitles)}');
       debugPrint('Task details saved: ${jsonEncode(taskDetails)}');
+      debugPrint('Total work seconds saved: $totalWorkSec');
 
       // Update widget
       debugPrint('Updating widget...');
@@ -89,10 +107,34 @@ class HomeWidgetService {
     await updateTaskCount();
   }
 
+  // Background callback for widget interactions
+  @pragma('vm:entry-point')
+  static Future<void> backgroundCallback(Uri? uri) async {
+    try {
+      final action = uri?.queryParameters['action'] ?? '';
+      if (action == 'toggleHideCompleted') {
+        final current = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
+        await HomeWidget.saveWidgetData(hideCompletedKey, !current);
+        await updateAllWidgets();
+      }
+    } catch (e) {
+      debugPrint('HomeWidget backgroundCallback error: $e');
+    }
+  }
+
+  static Future<void> registerBackground() async {
+    try {
+      await HomeWidget.registerBackgroundCallback(backgroundCallback);
+    } catch (e) {
+      debugPrint('HomeWidget registerBackground error: $e');
+    }
+  }
+
   static Future<void> setupHomeWidget() async {
     try {
       debugPrint('Setting up home widget with app group ID: $appGroupId');
       await HomeWidget.setAppGroupId(appGroupId);
+      await registerBackground();
       debugPrint('Home widget setup done successfully');
     } catch (e) {
       debugPrint('Error setting up home widget: $e');

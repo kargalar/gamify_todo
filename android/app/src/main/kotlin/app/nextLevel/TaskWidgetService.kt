@@ -57,6 +57,24 @@ class TaskWidgetService : RemoteViewsService() {
             val item = tasks[position]
             rv.setTextViewText(R.id.task_item_title, item.title)
 
+            // Icon per type
+            when (item.type) {
+                "CHECKBOX" -> {
+                    rv.setImageViewResource(R.id.task_item_icon, android.R.drawable.checkbox_off_background)
+                    rv.setInt(R.id.task_item_icon, "setColorFilter", 0xFFAED581.toInt())
+                }
+                "COUNTER" -> {
+                    rv.setImageViewResource(R.id.task_item_icon, android.R.drawable.ic_menu_sort_by_size)
+                    rv.setInt(R.id.task_item_icon, "setColorFilter", 0xFFFFF176.toInt())
+                }
+                "TIMER" -> {
+                    val icon = if (item.isTimerActive) android.R.drawable.ic_media_play else android.R.drawable.ic_media_pause
+                    val color = if (item.isTimerActive) 0xFF64B5F6.toInt() else 0xFF90A4AE.toInt()
+                    rv.setImageViewResource(R.id.task_item_icon, icon)
+                    rv.setInt(R.id.task_item_icon, "setColorFilter", color)
+                }
+            }
+
             // Subtitle + progress
             var sub = ""
             var progress = 0
