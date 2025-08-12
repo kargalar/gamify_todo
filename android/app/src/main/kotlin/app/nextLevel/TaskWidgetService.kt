@@ -2,6 +2,10 @@ package app.nextlevel
 
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import es.antonborri.home_widget.HomeWidgetPlugin
@@ -23,33 +27,63 @@ class TaskWidgetService : RemoteViewsService() {
         )
 
         private var tasks: List<TaskDetail> = emptyList()
+        private val handler = Handler(Looper.getMainLooper())
+        private val refresher = object : Runnable {
+            override fun run() {
+                val hasActive = tasks.any { it.type == "TIMER" && it.isTimerActive }
+                if (hasActive) {
+                    // Ask AppWidgetManager to refresh list
+                    val mgr = AppWidgetManager.getInstance(context)
+                    val cn = ComponentName(context, TaskWidgetProvider::class.java)
+                    val ids = mgr.getAppWidgetIds(cn)
+                    for (id in ids) {
+                        mgr.notifyAppWidgetViewDataChanged(id, R.id.task_list)
+                    }
+                    handler.postDelayed(this, 1000)
+                }
+            }
+        }
 
         override fun onCreate() {}
 
         override fun onDataSetChanged() {
-            val data = HomeWidgetPlugin.getData(context)
-            val detailsJson = data.getString("taskDetails", "[]")
-            val arr = JSONArray(detailsJson)
-            val list = ArrayList<TaskDetail>(arr.length())
-            for (i in 0 until arr.length()) {
-                val o = arr.getJSONObject(i)
-                list.add(
-                    TaskDetail(
-                        id = o.optInt("id"),
-                        title = o.optString("title"),
-                        type = o.optString("type"),
-                        currentCount = o.optInt("currentCount"),
-                        targetCount = o.optInt("targetCount"),
-                        currentDurationSec = o.optInt("currentDurationSec"),
-                        targetDurationSec = o.optInt("targetDurationSec"),
-                        isTimerActive = o.optBoolean("isTimerActive")
+            try {
+                val data = HomeWidgetPlugin.getData(context)
+                val detailsJson = data.getString("taskDetails", "[]")
+                val arr = JSONArray(detailsJson)
+                val list = ArrayList<TaskDetail>(arr.length())
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    list.add(
+                        TaskDetail(
+                            id = o.optInt("id"),
+                            title = o.optString("title"),
+                            type = o.optString("type"),
+                            currentCount = o.optInt("currentCount"),
+                            targetCount = o.optInt("targetCount"),
+                            currentDurationSec = o.optInt("currentDurationSec"),
+                            targetDurationSec = o.optInt("targetDurationSec"),
+                            isTimerActive = o.optBoolean("isTimerActive")
+                        )
                     )
-                )
+                }
+                tasks = list
+            } catch (e: Exception) {
+                // Keep previous list on parse/read failure to avoid flicker/empty state
+                e.printStackTrace()
+            } finally {
+                // Start/stop periodic refresh based on active timers
+                handler.removeCallbacks(refresher)
+                if (tasks.any { it.type == "TIMER" && it.isTimerActive }) {
+                    handler.post(refresher)
+                }
             }
-            tasks = list
         }
 
-        override fun onDestroy() { tasks = emptyList() }
+        override fun onDestroy() {
+            tasks = emptyList()
+            handler.removeCallbacks(refresher)
+        }
 
         override fun getCount(): Int = tasks.size
 
@@ -112,12 +146,14 @@ class TaskWidgetService : RemoteViewsService() {
             // Set fill-in intent for item click
             val fillIn = Intent()
             val action = when (item.type) {
+                "CHECKBOX" -> "toggleCheckbox"
                 "COUNTER" -> "incrementCounter"
                 "TIMER" -> "toggleTimer"
                 else -> "noop"
             }
             // Use data Uri so it becomes available as queryParameters in Dart callback
-            val dataUri = android.net.Uri.parse("homewidget://task?action=${action}&taskId=${item.id}")
+            val safeTitle = java.net.URLEncoder.encode(item.title, "UTF-8")
+            val dataUri = android.net.Uri.parse("homewidget://task?action=${action}&taskId=${item.id}&title=${safeTitle}")
             fillIn.data = dataUri
             rv.setOnClickFillInIntent(R.id.task_item_root, fillIn)
             return rv

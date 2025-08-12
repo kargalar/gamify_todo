@@ -18,6 +18,7 @@ import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -81,6 +82,21 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
         if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
           TaskProvider().checkNotification(task);
         }
+      }
+
+      // Widget üzerinden yapılan değişiklikleri anında görmek için
+      // Hive'dan görevleri ve logları yeniden yükle
+      try {
+        context.read<TaskProvider>().taskList = await ServerManager().getTasks();
+        await context.read<TaskProvider>().loadCategories();
+      } catch (_) {}
+      try {
+        await context.read<TaskLogProvider>().loadTaskLogs();
+      } catch (_) {}
+      // UI'ı tazele
+      if (mounted) {
+        context.read<TaskProvider>().updateItems();
+        setState(() {});
       }
     }
   }

@@ -53,16 +53,17 @@ class TaskWidgetProvider : AppWidgetProvider() {
                 // Wire click to toggle
                 val toggleIntent = Intent(context, es.antonborri.home_widget.HomeWidgetBackgroundReceiver::class.java)
                 toggleIntent.action = "es.antonborri.home_widget.action.BACKGROUND"
-                toggleIntent.putExtra("action", "toggleHideCompleted")
-                toggleIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                toggleIntent.data = Uri.parse(toggleIntent.toUri(Intent.URI_INTENT_SCHEME))
+                // Put action in data Uri so it's available as queryParameters in Dart
+                toggleIntent.data = Uri.parse("homewidget://action?action=toggleHideCompleted&appWidgetId=${appWidgetId}")
                 val togglePi = PendingIntent.getBroadcast(
                     context,
                     1001,
                     toggleIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
+                // Make both the icon and the row clickable
                 views.setOnClickPendingIntent(R.id.hide_completed_checkbox, togglePi)
+                views.setOnClickPendingIntent(R.id.hide_completed_row, togglePi)
 
                 val taskTitles = JSONArray(taskTitlesJson)
 

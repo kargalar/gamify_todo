@@ -5,12 +5,25 @@ import 'package:home_widget/home_widget.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:hive/hive.dart' as hive;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:next_level/Provider/task_log_provider.dart';
 
+// Top-level background entry point for AOT
+@pragma('vm:entry-point')
+Future<void> homeWidgetBackgroundCallback(Uri? uri) async {
+  await HomeWidgetService.backgroundCallback(uri);
+}
+
+@pragma('vm:entry-point')
 class HomeWidgetService {
   static const String appGroupId = 'app.nextlevel.widget';
   static const String taskCountKey = 'taskCount';
@@ -27,7 +40,17 @@ class HomeWidgetService {
       await setupHomeWidget();
 
       final taskProvider = TaskProvider();
-      debugPrint('TaskProvider initialized, taskList length: ${taskProvider.taskList.length}');
+      List<TaskModel> allTasks = taskProvider.taskList;
+      // In background isolate or early startup, provider may be empty; fall back to Hive
+      if (allTasks.isEmpty) {
+        try {
+          allTasks = await HiveService().getTasks();
+          debugPrint('Using Hive tasks for widget update, count: ${allTasks.length}');
+        } catch (e) {
+          debugPrint('Failed to load tasks from Hive for widget update: $e');
+        }
+      }
+      debugPrint('Task list length for widget: ${allTasks.length}');
 
       // Get today's tasks - we need to get incomplete tasks only
       final today = DateTime.now();
@@ -36,14 +59,17 @@ class HomeWidgetService {
       // Read hide flag (default false)
       final hideCompleted = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
 
-      bool includeByStatus(t) {
+      // When hideCompleted is true, still show TIMER tasks that are actively running
+      bool includeTask(TaskModel t) {
+        final isToday = t.taskDate?.isSameDay(today) == true;
+        if (!isToday) return false;
         if (!hideCompleted) return true;
-        return t.status == null; // only in-progress when hidden
+        final activeTimer = t.type == TaskTypeEnum.TIMER && (t.isTimerActive ?? false);
+        return t.status == null || activeTimer;
       }
 
-      final todayTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID == null && includeByStatus(task)).toList();
-
-      final routineTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID != null && includeByStatus(task)).toList();
+      final todayTasks = allTasks.where((task) => includeTask(task) && task.routineID == null).toList();
+      final routineTasks = allTasks.where((task) => includeTask(task) && task.routineID != null).toList();
 
       final allIncompleteTasks = [...todayTasks, ...routineTasks];
       final incompleteTasks = allIncompleteTasks.length;
@@ -66,7 +92,7 @@ class HomeWidgetService {
           .toList();
 
       // Calculate today's total work time from TIMER tasks (sum of currentDuration)
-      final todaysAllTasks = taskProvider.taskList.where((task) => task.taskDate?.isSameDay(today) == true).toList();
+      final todaysAllTasks = allTasks.where((task) => task.taskDate?.isSameDay(today) == true).toList();
       final totalWorkSec = todaysAllTasks.where((t) => t.type == TaskTypeEnum.TIMER && t.currentDuration != null).fold<int>(0, (sum, t) => sum + (t.currentDuration!.inSeconds));
 
       debugPrint('=== WIDGET DATA ===');
@@ -120,9 +146,40 @@ class HomeWidgetService {
     try {
       // Ensure Flutter bindings and Hive adapters are initialized for background isolate
       WidgetsFlutterBinding.ensureInitialized();
+      // Set app group for plugin in background isolate
       try {
-        await Helper().registerAdapters();
-      } catch (_) {}
+        await HomeWidget.setAppGroupId(appGroupId);
+      } catch (e) {
+        debugPrint('HomeWidget setAppGroupId failed in background: $e');
+      }
+      // Initialize Hive once for background isolate with explicit path
+      try {
+        final appDocDir = await getApplicationDocumentsDirectory();
+        final hivePath = '${appDocDir.path}/NextLevel';
+        await Directory(hivePath).create(recursive: true);
+        try {
+          hive.Hive.init(hivePath);
+        } catch (e) {
+          // Ignore if already initialized
+          debugPrint('Hive.init may already be called: $e');
+        }
+        try {
+          await Helper().registerAdapters();
+        } catch (e) {
+          // If adapters were already registered, continue
+          debugPrint('registerAdapters warning (continuing): $e');
+        }
+      } catch (e) {
+        debugPrint('Hive init failed in background: $e');
+        // Proceed anyway; boxes may still be accessible if already open
+      }
+
+      // Ensure logs are loaded in this isolate so IDs and merges are correct
+      try {
+        await TaskLogProvider().loadTaskLogs();
+      } catch (e) {
+        debugPrint('TaskLogProvider.loadTaskLogs failed in background: $e');
+      }
 
       final action = uri?.queryParameters['action'] ?? '';
       if (action == 'toggleHideCompleted') {
@@ -135,22 +192,72 @@ class HomeWidgetService {
       // Handle per-item actions
       final taskIdStr = uri?.queryParameters['taskId'];
       final taskId = taskIdStr != null ? int.tryParse(taskIdStr) : null;
-      if (taskId == null) {
-        return;
-      }
+      final titleParam = uri?.queryParameters['title'];
 
       // Load the task directly from Hive
       final tasks = await HiveService().getTasks();
-      final index = tasks.indexWhere((t) => t.id == taskId);
-      if (index == -1) {
+      TaskModel? task;
+      if (taskId != null && taskId > 0) {
+        final matches = tasks.where((t) => t.id == taskId);
+        if (matches.isNotEmpty) task = matches.first;
+      }
+      // Fallback by title for today's task if id missing or not found
+      if (task == null && titleParam != null && titleParam.isNotEmpty) {
+        final today = DateTime.now();
+        try {
+          task = tasks.firstWhere((t) => (t.title == titleParam) && (t.taskDate?.isSameDay(today) == true));
+        } catch (_) {}
+      }
+      if (task == null) {
+        debugPrint('HomeWidget background: task not found id=$taskId title=$titleParam');
         return;
       }
-      final task = tasks[index];
 
       switch (action) {
+        case 'toggleCheckbox':
+          if (task.type.toString().contains('CHECKBOX')) {
+            // Toggle completion with date-aware logic and logging similar to TaskActionHandler
+            if (task.status == TaskStatusEnum.DONE) {
+              // Uncomplete: decide between OVERDUE vs in-progress
+              if (task.taskDate != null) {
+                final now = DateTime.now();
+                final taskDateTime = task.taskDate!.copyWith(
+                  hour: task.time?.hour ?? 23,
+                  minute: task.time?.minute ?? 59,
+                  second: 59,
+                );
+                if (taskDateTime.isBefore(now)) {
+                  task.status = TaskStatusEnum.OVERDUE;
+                  await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.OVERDUE);
+                } else {
+                  task.status = null;
+                  await TaskLogProvider().addTaskLog(task, customStatus: null);
+                }
+              } else {
+                task.status = null;
+                await TaskLogProvider().addTaskLog(task, customStatus: null);
+              }
+              await ServerManager().updateTask(taskModel: task);
+            } else {
+              task.status = TaskStatusEnum.DONE;
+              await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.DONE);
+              await ServerManager().updateTask(taskModel: task);
+            }
+            await updateAllWidgets();
+          }
+          break;
         case 'incrementCounter':
           if (task.type.toString().contains('COUNTER')) {
-            task.currentCount = (task.currentCount ?? 0) + 1;
+            final prev = task.currentCount ?? 0;
+            task.currentCount = prev + 1;
+            // Log the increment
+            await TaskLogProvider().addTaskLog(task, customCount: 1);
+            // If reached target, mark as done and log completion
+            final target = task.targetCount ?? 0;
+            if (target > 0 && (task.currentCount ?? 0) >= target && task.status != TaskStatusEnum.DONE) {
+              task.status = TaskStatusEnum.DONE;
+              await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.DONE);
+            }
             await ServerManager().updateTask(taskModel: task);
             await updateAllWidgets();
           }
@@ -160,7 +267,10 @@ class HomeWidgetService {
             // Initialize notifications just in case
             try {
               await NotificationService().init();
-            } catch (_) {}
+            } catch (e) {
+              debugPrint('Notification init failed in background: $e');
+            }
+            debugPrint('Background: toggling timer for task id=${task.id} title=${task.title}');
             GlobalTimer().startStopTimer(taskModel: task);
             await updateAllWidgets();
           }
@@ -173,7 +283,8 @@ class HomeWidgetService {
 
   static Future<void> registerBackground() async {
     try {
-      await HomeWidget.registerBackgroundCallback(backgroundCallback);
+      // Register the top-level entry point to ensure availability in AOT
+      await HomeWidget.registerBackgroundCallback(homeWidgetBackgroundCallback);
     } catch (e) {
       debugPrint('HomeWidget registerBackground error: $e');
     }
