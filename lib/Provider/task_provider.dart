@@ -307,6 +307,96 @@ class TaskProvider with ChangeNotifier {
 
         // Update the existing task properties to preserve Hive object identity
         final existingTask = taskList[index];
+
+        // If user selected repeat days during edit of a standalone task, convert this task into a routine
+        if (selectedDays.isNotEmpty && existingTask.routineID == null) {
+          debugPrint('Converting standalone task to routine with days: $selectedDays');
+
+          // Validate start date
+          final startDate = taskModel.taskDate ?? DateTime.now();
+
+          // Create a routine from the task
+          final newRoutine = RoutineModel(
+            title: taskModel.title,
+            description: taskModel.description,
+            type: taskModel.type,
+            createdDate: DateTime.now(),
+            startDate: startDate,
+            time: taskModel.time,
+            isNotificationOn: taskModel.isNotificationOn,
+            isAlarmOn: taskModel.isAlarmOn,
+            remainingDuration: taskModel.remainingDuration,
+            targetCount: taskModel.targetCount,
+            repeatDays: List<int>.from(selectedDays),
+            attirbuteIDList: taskModel.attributeIDList,
+            skillIDList: taskModel.skillIDList,
+            isArchived: false,
+            priority: taskModel.priority,
+            categoryId: taskModel.categoryId,
+            earlyReminderMinutes: taskModel.earlyReminderMinutes,
+            subtasks: taskModel.subtasks
+                ?.map((s) => SubTaskModel(
+                      id: s.id,
+                      title: s.title,
+                      description: s.description,
+                      isCompleted: false,
+                    ))
+                .toList(),
+          );
+
+          await addRoutine(newRoutine);
+
+          // Replace the existing standalone task with a new TaskModel linked to the routine
+          final TaskModel convertedTask = TaskModel(
+            id: existingTask.id,
+            routineID: newRoutine.id,
+            title: taskModel.title,
+            description: taskModel.description,
+            type: taskModel.type,
+            taskDate: taskModel.taskDate ?? startDate,
+            time: taskModel.time,
+            isNotificationOn: taskModel.isNotificationOn,
+            isAlarmOn: taskModel.isAlarmOn,
+            currentDuration: taskModel.type == TaskTypeEnum.TIMER ? (existingTask.currentDuration ?? Duration.zero) : null,
+            remainingDuration: taskModel.remainingDuration,
+            currentCount: taskModel.type == TaskTypeEnum.COUNTER ? (existingTask.currentCount ?? 0) : null,
+            targetCount: taskModel.targetCount,
+            isTimerActive: taskModel.type == TaskTypeEnum.TIMER ? (existingTask.isTimerActive ?? false) : null,
+            attributeIDList: taskModel.attributeIDList,
+            skillIDList: taskModel.skillIDList,
+            status: null,
+            priority: taskModel.priority,
+            subtasks: taskModel.subtasks,
+            location: taskModel.location,
+            categoryId: taskModel.categoryId,
+            showSubtasks: existingTask.showSubtasks,
+            earlyReminderMinutes: taskModel.earlyReminderMinutes,
+            attachmentPaths: taskModel.attachmentPaths,
+          );
+
+          // Replace in list to preserve ordering
+          taskList[index] = convertedTask;
+
+          // Save and sync updated task
+          await ServerManager().updateTask(taskModel: convertedTask);
+
+          // If today matches repeat days and startDate is today or before, ensure a task instance exists for today
+          final today = DateTime.now();
+          final isActiveToday = selectedDays.contains(today.weekday - 1) && !today.isBeforeDay(startDate);
+          final hasTodayInstance = taskList.any((t) => t.routineID == newRoutine.id && t.taskDate != null && t.taskDate!.isSameDay(today));
+          if (isActiveToday && !hasTodayInstance) {
+            debugPrint('Creating today instance for converted routine');
+            await _createTaskFromRoutine(newRoutine, today);
+          }
+
+          // Update notifications
+          checkNotification(convertedTask);
+
+          // Update widgets and notify
+          await HomeWidgetService.updateAllWidgets();
+          notifyListeners();
+          return;
+        }
         existingTask.title = taskModel.title;
         existingTask.description = taskModel.description;
         existingTask.taskDate = taskModel.taskDate;

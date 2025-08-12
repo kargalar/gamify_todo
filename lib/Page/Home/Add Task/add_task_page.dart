@@ -235,7 +235,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     // File attachment widget
                     const FileAttachmentWidget(),
                     const SizedBox(height: 10),
-                    if (addTaskProvider.editTask != null ? addTaskProvider.editTask!.routineID != null : true) const SelectDays(),
+                    // Always show repeat days selector; for standalone tasks in edit, selecting days will convert to a routine
+                    const SelectDays(),
                     const SizedBox(height: 10),
 
                     // Add Recent Logs section for edit task
@@ -428,7 +429,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
       }
 
       // Rutin oluşturulurken tarih seçimi zorunlu
-      if (addTaskProvider.editTask == null && addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
+      // If converting a standalone task to a routine in edit, a start date is required
+      if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null && addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
         Helper().getMessage(
           message: "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
           status: StatusEnum.WARNING,
@@ -437,7 +439,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
       }
 
       // Rutin başlangıç tarihi geçmiş bir tarih olamaz
-      if (addTaskProvider.editTask == null && addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeDay(DateTime.now())) {
+      if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null && addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeDay(DateTime.now())) {
         Helper().getMessage(
           message: LocaleKeys.RoutineStartDateError.tr(),
           status: StatusEnum.WARNING,
