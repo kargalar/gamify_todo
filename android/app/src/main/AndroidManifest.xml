@@ -62,6 +62,12 @@
                 android:resource="@xml/task_widget_provider" />
         </receiver>
 
+        <!-- RemoteViewsService for widget ListView -->
+        <service
+            android:name="app.nextlevel.TaskWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+
 
 
         <receiver android:name="es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
