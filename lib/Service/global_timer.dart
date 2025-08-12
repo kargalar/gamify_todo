@@ -24,6 +24,7 @@ class GlobalTimer {
   void startStopTimer({
     TaskModel? taskModel,
     ItemModel? storeItemModel,
+    bool suppressStopLog = false, // when stopping due to manual log, don't create extra stop log
   }) async {
     if (taskModel != null) {
       // Timer durumunu değiştir
@@ -89,14 +90,15 @@ class GlobalTimer {
             // Timer çalışma süresini taskModel'e kaydet
             taskModel.currentDuration = timerStartDuration + timerRunDuration;
 
-            // Timer durdurulduğunda log oluştur
-            // Tam zamanı kaydet
-            final now = DateTime.now();
-            TaskLogProvider().addTaskLog(
-              taskModel,
-              customLogDate: DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second, now.millisecond),
-              customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
-            );
+            // Timer durdurulduğunda log oluştur (isteğe bağlı)
+            if (!suppressStopLog) {
+              final now = DateTime.now();
+              TaskLogProvider().addTaskLog(
+                taskModel,
+                customLogDate: DateTime(now.year, now.month, now.day, now.hour, now.minute, now.second, now.millisecond),
+                customDuration: timerRunDuration, // Sadece timer çalışma süresini logla
+              );
+            }
           }
 
           // Timer bilgilerini temizle
@@ -233,18 +235,7 @@ class GlobalTimer {
                 task.status = TaskStatusEnum.COMPLETED;
                 HomeWidgetService.updateTaskCount();
 
-                // Önce zamanlanmış bildirimleri iptal et
-                NotificationService().cancelNotificationOrAlarm(task.id + 100000); // Zamanlanmış tamamlanma bildirimi
-
-                // Timer tamamlandığında bildirim gönder
-                NotificationService().showTimerNotification(
-                  id: task.id + 200000, // Farklı bir ID kullan
-                  title: LocaleKeys.task_completed_title.tr(args: [task.title]),
-                  currentDuration: task.currentDuration!,
-                  remainingDuration: task.remainingDuration!,
-                  isCountDown: false,
-                  isCompleted: true, // Mark as completed so it can be dismissed
-                );
+                // Zamanlanmış alarmı iptal etme; yalnızca alarm çalsın istiyoruz
 
                 // Timer tamamlandığında log oluşturma - sadece timer durdurulduğunda log oluşturulacak
                 // Burada log oluşturmuyoruz, çünkü timer durdurulduğunda zaten log oluşturulacak
@@ -252,16 +243,11 @@ class GlobalTimer {
                 // Timer'ı durdurma - kullanıcı isterse durdurabilir
                 // task.isTimerActive = false;
 
-                // Tamamlanma bildirimini 10 saniye sonra otomatik olarak kaldır
-                Future.delayed(const Duration(seconds: 10), () {
-                  NotificationService().cancelNotificationOrAlarm(task.id + 200000); // Tamamlanma bildirimi
-                });
-
                 // Veritabanını güncelle
                 ServerManager().updateTask(taskModel: task);
 
-                // Task Provider'a bildir
-                TaskProvider().checkTaskStatusForNotifications(task);
+                // Task Provider'a otomatik bildirim kontrolü çağırma
+                // (Tamamlandı durumunda planlı alarmın iptal edilmesini istemiyoruz)
               }
 
               if (task.currentDuration!.inSeconds % 60 == 0) {

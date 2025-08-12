@@ -5,6 +5,7 @@ import 'package:next_level/Model/task_log_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/sync_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +33,11 @@ class TaskLogProvider with ChangeNotifier {
     int? customCount,
     TaskStatusEnum? customStatus,
   }) async {
+    // If a timer is active for this task, stop it before recording the log
+    // to prevent overlapping timer state with manual logs. Avoid creating an
+    // additional stop log by suppressing it.
+    // (import at top ensures availability)
+    // Now proceed with normal log creation
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final int lastLogId = prefs.getInt("last_task_log_id") ?? 0;
 
@@ -99,6 +105,12 @@ class TaskLogProvider with ChangeNotifier {
       // Ancak UI'da bu, hiçbir durumun seçili olmadığını gösterecek
       status: customStatus ?? taskModel.status,
     );
+
+    // Before saving the log, ensure timer is stopped (if still active)
+    if (taskModel.type == TaskTypeEnum.TIMER && (taskModel.isTimerActive ?? false)) {
+      // Stop timer without generating an automatic stop log
+      GlobalTimer().startStopTimer(taskModel: taskModel, suppressStopLog: true);
+    }
 
     await HiveService().addTaskLog(taskLog);
     taskLogList.add(taskLog);
