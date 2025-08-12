@@ -8,6 +8,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/notification_helper.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/server_manager.dart';
@@ -25,12 +26,14 @@ class TaskProgressViewModel extends ChangeNotifier {
     required String action,
     required dynamic value,
     required TaskTypeEnum type,
+    bool affectsProgress = false,
   }) {
     _addStoreItemLog(
       itemId: itemId,
       action: action,
       value: value,
       type: type,
+      affectsProgress: affectsProgress,
     );
   }
 
@@ -40,19 +43,40 @@ class TaskProgressViewModel extends ChangeNotifier {
     required String action,
     required dynamic value,
     required TaskTypeEnum type,
-  }) {
+    bool affectsProgress = false,
+  }) async {
     final log = StoreItemLog(
       itemId: itemId,
       logDate: DateTime.now(),
       action: action,
       value: value,
       type: type,
+      affectsProgress: affectsProgress,
     );
     _storeItemLogs.add(log);
 
     // En fazla 50 log tut (memory management için)
     if (_storeItemLogs.length > 50) {
       _storeItemLogs.removeRange(0, _storeItemLogs.length - 50);
+    }
+
+    // If this manual log should affect item's progress, update and persist the item
+    if (affectsProgress) {
+      try {
+        // Load item and mutate
+        final item = StoreProvider().storeItemList.firstWhere((e) => e.id == itemId);
+        if (type == TaskTypeEnum.COUNTER) {
+          final delta = (value as int);
+          item.currentCount = (item.currentCount ?? 0) + delta;
+        } else if (type == TaskTypeEnum.TIMER) {
+          final delta = (value as Duration);
+          item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
+        }
+        await ServerManager().updateItem(itemModel: item);
+        StoreProvider().setStateItems();
+      } catch (_) {
+        // no-op: if item not found, just keep the log in memory
+      }
     }
   }
 
@@ -63,26 +87,62 @@ class TaskProgressViewModel extends ChangeNotifier {
   }
 
   // Store item log düzenleme metodu
-  static void editStoreItemLog(int index, dynamic newValue) {
+  static void editStoreItemLog(int index, dynamic newValue) async {
     if (index >= 0 && index < _storeItemLogs.length) {
       // Ters çevrilmiş listede index'i düzelt
       int actualIndex = _storeItemLogs.length - 1 - index;
+      final oldLog = _storeItemLogs[actualIndex];
       _storeItemLogs[actualIndex] = StoreItemLog(
         itemId: _storeItemLogs[actualIndex].itemId,
         logDate: _storeItemLogs[actualIndex].logDate,
         action: _storeItemLogs[actualIndex].action,
         value: newValue,
         type: _storeItemLogs[actualIndex].type,
+        affectsProgress: _storeItemLogs[actualIndex].affectsProgress,
       );
+
+      // If this log affects progress, adjust the item by the delta between new and old
+      if (oldLog.affectsProgress) {
+        try {
+          final item = StoreProvider().storeItemList.firstWhere((e) => e.id == oldLog.itemId);
+          if (oldLog.type == TaskTypeEnum.COUNTER) {
+            final oldVal = oldLog.value as int;
+            final newVal = newValue as int;
+            final delta = newVal - oldVal;
+            item.currentCount = (item.currentCount ?? 0) + delta;
+          } else {
+            final oldVal = oldLog.value as Duration;
+            final newVal = newValue as Duration;
+            final delta = newVal - oldVal;
+            item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
+          }
+          await ServerManager().updateItem(itemModel: item);
+          StoreProvider().setStateItems();
+        } catch (_) {}
+      }
     }
   }
 
   // Store item log silme metodu
-  static void deleteStoreItemLog(int index) {
+  static void deleteStoreItemLog(int index) async {
     if (index >= 0 && index < _storeItemLogs.length) {
       // Ters çevrilmiş listede index'i düzelt
       int actualIndex = _storeItemLogs.length - 1 - index;
-      _storeItemLogs.removeAt(actualIndex);
+      final removed = _storeItemLogs.removeAt(actualIndex);
+
+      // If log affected progress, roll it back from the item
+      if (removed.affectsProgress) {
+        try {
+          final item = StoreProvider().storeItemList.firstWhere((e) => e.id == removed.itemId);
+          if (removed.type == TaskTypeEnum.COUNTER) {
+            item.currentCount = (item.currentCount ?? 0) - (removed.value as int);
+          } else {
+            item.currentDuration = (item.currentDuration ?? Duration.zero) - (removed.value as Duration);
+          }
+          await ServerManager().updateItem(itemModel: item);
+          StoreProvider().setStateItems();
+        } catch (_) {}
+      }
     }
   }
 

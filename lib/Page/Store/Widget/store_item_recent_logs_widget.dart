@@ -312,11 +312,13 @@ class _StoreItemRecentLogsWidgetState extends State<StoreItemRecentLogsWidget> {
         value = _parseDuration(valueText);
       }
 
+      // Manual logs should affect the item's progress
       TaskProgressViewModel.addStoreItemLog(
         itemId: widget.itemId,
         action: "Manual Entry",
         value: value,
         type: widget.itemType,
+        affectsProgress: true,
       );
 
       if (widget.onLogUpdated != null) {

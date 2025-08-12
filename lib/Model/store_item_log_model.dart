@@ -6,6 +6,8 @@ class StoreItemLog {
   final String action;
   final dynamic value; // int for counter, Duration for timer
   final TaskTypeEnum type;
+  // Whether this log should affect the item's persisted progress (manual logs)
+  final bool affectsProgress;
 
   StoreItemLog({
     required this.itemId,
@@ -13,6 +15,7 @@ class StoreItemLog {
     required this.action,
     required this.value,
     required this.type,
+    this.affectsProgress = false,
   });
   String get formattedValue {
     if (type == TaskTypeEnum.COUNTER) {
