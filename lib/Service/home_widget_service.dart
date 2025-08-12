@@ -8,6 +8,7 @@ class HomeWidgetService {
   static const String appGroupId = 'app.nextlevel.widget';
   static const String taskCountKey = 'taskCount';
   static const String taskTitlesKey = 'taskTitles';
+  static const String taskDetailsKey = 'taskDetails';
 
   static Future<void> updateTaskCount() async {
     try {
@@ -33,6 +34,19 @@ class HomeWidgetService {
       // Get all task titles for display
       final taskTitles = allIncompleteTasks.map((task) => task.title).toList();
 
+      // Build task details for progress display
+      final taskDetails = allIncompleteTasks
+          .map((task) => {
+                'title': task.title,
+                'type': task.type.toString().split('.').last,
+                'currentCount': task.currentCount ?? 0,
+                'targetCount': task.targetCount ?? 0,
+                'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
+                'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
+                'isTimerActive': task.isTimerActive ?? false,
+              })
+          .toList();
+
       debugPrint('=== WIDGET DATA ===');
       debugPrint('Today tasks: ${todayTasks.length}');
       debugPrint('Routine tasks: ${routineTasks.length}');
@@ -45,7 +59,9 @@ class HomeWidgetService {
       debugPrint('Task count saved: $incompleteTasks');
 
       await HomeWidget.saveWidgetData(taskTitlesKey, jsonEncode(taskTitles));
+      await HomeWidget.saveWidgetData(taskDetailsKey, jsonEncode(taskDetails));
       debugPrint('Task titles saved: ${jsonEncode(taskTitles)}');
+      debugPrint('Task details saved: ${jsonEncode(taskDetails)}');
 
       // Update widget
       debugPrint('Updating widget...');
