@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -178,35 +179,47 @@ class InboxTaskList extends StatelessWidget {
     final pastDates = groupedTasks.keys.where((date) => date.isBefore(todayDate) && date.year > 1970).toList()..sort((a, b) => b.compareTo(a)); // Descending order
     sortedDates.addAll(pastDates);
 
+    // Build list with year separators
+    final List<Widget> listChildren = [];
+    int? lastPrintedYear;
+    for (final date in sortedDates) {
+      final tasksForDate = groupedTasks[date]!;
+      taskProvider.sortTasksByPriorityAndTime(tasksForDate);
+
+      final bool isRealDate = date.year > 1970; // skip sentinel years 1969 (overdue) & 1970 (no date)
+      if (isRealDate && lastPrintedYear != date.year) {
+        // Insert year header
+        lastPrintedYear = date.year;
+        listChildren.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Text(
+              date.year.toString(),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: AppColors.main,
+                letterSpacing: 1.1,
+              ),
+            ),
+          ),
+        );
+      }
+
+      listChildren.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: InboxDateHeader(date: date),
+        ),
+      );
+      listChildren.addAll(tasksForDate.map((task) => TaskItem(taskModel: task)));
+    }
+
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (_, __) {
-        NavbarProvider().updateIndex(1);
-      },
-      child: ListView.builder(
-        itemCount: sortedDates.length,
-        itemBuilder: (context, index) {
-          final date = sortedDates[index];
-          final tasksForDate = groupedTasks[date]!;
-
-          // Sort tasks by priority and time
-          taskProvider.sortTasksByPriorityAndTime(tasksForDate);
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Date header
-              InboxDateHeader(date: date),
-              const SizedBox(height: 8),
-
-              // Tasks for this date
-              ...tasksForDate.map((task) => TaskItem(taskModel: task)),
-
-              // Add space between date groups
-              const SizedBox(height: 16),
-            ],
-          );
-        },
+      onPopInvokedWithResult: (_, __) => NavbarProvider().updateIndex(1),
+      child: ListView(
+        children: listChildren,
       ),
     );
   }
