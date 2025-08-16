@@ -76,13 +76,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
       // Bildirim izinlerini kontrol et
       await NotificationService().checkNotificationPermissions();
-
-      // Zamanlanmış görevleri kontrol et ve bildirimleri güncelle
-      for (var task in TaskProvider().taskList) {
-        if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
-          TaskProvider().checkNotification(task);
-        }
-      }
+      // ÖNEMLİ: Daha önce burada her resume'da tüm görevler için checkNotification çağrılıyordu.
+      // Bu çağrı önce mevcut bildirimi iptal ettiği için çalan alarm ekran açıldığında susuyordu.
+      // Sorunu gidermek için bu toplu yeniden planlama kaldırıldı.
+      // (Görev düzenlenince veya yeni oluşturulunca zaten checkNotification çağrılıyor.)
 
       // Widget üzerinden yapılan değişiklikleri anında görmek için
       // Hive'dan görevleri ve logları yeniden yükle

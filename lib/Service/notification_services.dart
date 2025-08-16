@@ -316,7 +316,8 @@ class NotificationService {
           loopAudio: true,
           vibrate: true,
           warningNotificationOnKill: true, // Uygulama öldürüldüğünde uyarı
-          androidFullScreenIntent: true, // Android'de tam ekran intent
+          // androidFullScreenIntent kapatıldı: ekran açılınca uygulamanın otomatik açılmasını engellemek için
+          androidFullScreenIntent: false,
           volumeSettings: VolumeSettings.fade(
             volume: 0.8,
             fadeDuration: const Duration(seconds: 3),
@@ -446,7 +447,8 @@ class NotificationService {
         loopAudio: true,
         vibrate: true,
         warningNotificationOnKill: true,
-        androidFullScreenIntent: true,
+        // Tam ekran intent test alarmında da kapatıldı (otomatik açılmayı engellemek için)
+        androidFullScreenIntent: false,
         volumeSettings: VolumeSettings.fade(
           fadeDuration: const Duration(seconds: 3),
         ),
@@ -525,7 +527,8 @@ class NotificationService {
         vibrationPattern: isAlarm ? Int64List.fromList([0, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800]) : null,
         ongoing: isAlarm, // Only alarms stay visible, notifications can be swiped away
         autoCancel: false, // Prevent auto-dismissal when notification panel is opened/closed
-        fullScreenIntent: isAlarm,
+        // fullScreenIntent kapatıldı: alarm çalarken ekran açıldığında uygulamanın otomatik açılmasını istemiyoruz
+        fullScreenIntent: false,
         category: isAlarm ? AndroidNotificationCategory.alarm : AndroidNotificationCategory.reminder,
         actions: isAlarm
             ? [
