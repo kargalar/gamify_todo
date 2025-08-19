@@ -127,9 +127,13 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
             (provider as AddStoreItemProvider).unfocusAll();
           }
           FocusScope.of(context).unfocus();
-          setState(() {
+          // Use provider method so external listeners rebuild
+          if (provider is AddTaskProvider) {
+            provider.updateSelectedTaskType(taskType);
+          } else {
+            // Fallback for store item provider (if it mirrors API)
             provider.selectedTaskType = taskType;
-          });
+          }
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

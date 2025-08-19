@@ -75,6 +75,13 @@ class AddTaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Task type selection now needs to notify listeners so parent pages (e.g. AddTaskPage)
+  // that conditionally render widgets like SelectTargetCount rebuild correctly.
+  void updateSelectedTaskType(TaskTypeEnum value) {
+    selectedTaskType = value;
+    notifyListeners();
+  }
+
   void updateTraitSelection() {
     notifyListeners();
   }

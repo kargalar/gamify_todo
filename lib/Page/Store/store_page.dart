@@ -193,6 +193,7 @@ class _StorePageState extends State<StorePage> {
     try {
       if (loginUser != null) {
         loginUser!.userCredit = 0;
+        loginUser!.creditProgress = Duration.zero;
         await HiveService().updateUser(loginUser!);
         setState(() {});
         Helper().getMessage(message: LocaleKeys.ResetCreditSuccess.tr());

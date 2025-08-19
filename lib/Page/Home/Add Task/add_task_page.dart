@@ -42,6 +42,7 @@ class AddTaskPage extends StatefulWidget {
 }
 
 class _AddTaskPageState extends State<AddTaskPage> {
+  // Use read for init but watch inside build for reactive UI
   late final addTaskProvider = context.read<AddTaskProvider>();
   late final taskProvider = context.read<TaskProvider>();
   TaskDetailViewModel? _taskDetailViewModel;
@@ -122,6 +123,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch provider for task type / target count reactive sections
+    final watchedAddTaskProvider = context.watch<AddTaskProvider>();
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -222,13 +225,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     ),
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask == null) const SelectTaskType(),
-                    if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
-                      Column(
-                        children: [
-                          Text(LocaleKeys.TargetCount.tr()),
-                          const SelectTargetCount(),
-                        ],
-                      ),
+                    // Show target count widget whenever selected type is COUNTER (both new and edit)
+                    if (watchedAddTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER) const SizedBox(height: 10),
+                    const SelectTargetCount(),
                     const SizedBox(height: 10),
                     const CompactTraitOptions(),
                     const SizedBox(height: 10),
