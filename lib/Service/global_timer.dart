@@ -19,6 +19,9 @@ class GlobalTimer {
   factory GlobalTimer() => _instance;
   GlobalTimer._internal();
 
+  // Bellek içi guard: Aynı oturumda (app çalışırken) aynı item için alarmı tekrar tetiklemeyi engeller
+  static final Set<int> _storeItemAlarmTriggeredMemory = <int>{};
+
   Timer? _timer;
 
   void startStopTimer({
@@ -159,13 +162,12 @@ class GlobalTimer {
         }
       } else {
         // Timer durduruluyor
-        // Timer bilgilerini temizle (hem yeni hem eski key'leri)
+        // NOT: Alarm tetiklendikten sonra (süre bittikten sonra) tekrar tekrar çalmasın diye
+        // alarm flag'ini SILMIYORUZ. Flag sadece yeni bir başlangıçta temizlenecek.
         prefs.remove('item_timer_start_time_${storeItemModel.id}');
         prefs.remove('item_timer_start_duration_${storeItemModel.id}');
         prefs.remove('item_last_update_${storeItemModel.id}');
         prefs.remove('item_last_progress_${storeItemModel.id}');
-        // Clear alarm triggered flag when timer stops
-        prefs.remove('store_item_alarm_triggered_${storeItemModel.id}');
 
         // Bildirimleri iptal et
         NotificationService().stopTimerTask(-storeItemModel.id);
@@ -271,7 +273,7 @@ class GlobalTimer {
                 String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
                 bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
 
-                if (!alarmTriggered) {
+                if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
                   // Cancel the scheduled notification first
                   NotificationService().cancelNotificationOrAlarm(storeItem.id + 100000);
 
@@ -290,7 +292,12 @@ class GlobalTimer {
                   });
 
                   // Mark alarm as triggered so it won't trigger again
-                  prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
+                  await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
+                  _storeItemAlarmTriggeredMemory.add(storeItem.id);
+
+                  // NOT: Kullanıcı isteğiyle timer süresi bittikten sonra negatifte devam etmeli.
+                  // Bu yüzden timer'ı durdurmuyor veya süreyi 0'a çekmiyoruz. Sadece flag set edilip bir kez alarm çalacak.
+                  // (İsterse kullanıcı manuel durdurabilir.)
 
                   // Update item in database
                   ServerManager().updateItem(itemModel: storeItem);
@@ -369,11 +376,13 @@ class GlobalTimer {
 
         DateTime now = DateTime.now();
         Duration? computedNewDuration;
+        Duration? originalLastProgress; // crossing zero kontrolü için
 
         if (lastUpdateStr != null && lastProgressStr != null) {
           // Normal resume path: continue from the last saved progress timestamp
           final lastUpdate = DateTime.parse(lastUpdateStr);
           final lastProgress = Duration(seconds: int.parse(lastProgressStr));
+          originalLastProgress = lastProgress;
           final difference = now.difference(lastUpdate);
           computedNewDuration = lastProgress - difference;
 
@@ -397,13 +406,13 @@ class GlobalTimer {
         }
 
         if (computedNewDuration != null) {
-          // Check if timer crossed zero while app was closed
-          if (computedNewDuration.inSeconds <= 0) {
+          // Sadece POZITIFTEN sıfır/negatife geçişte alarm çalmalı
+          if (originalLastProgress != null && originalLastProgress.inSeconds > 0 && computedNewDuration.inSeconds <= 0) {
             // Check if alarm has already been triggered
             String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
             bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
 
-            if (!alarmTriggered) {
+            if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
               // Trigger alarm for expired timer (immediately)
               NotificationService().scheduleNotification(
                 id: storeItem.id + 200000,
@@ -419,7 +428,11 @@ class GlobalTimer {
               });
 
               // Mark alarm as triggered
-              prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
+              await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
+              _storeItemAlarmTriggeredMemory.add(storeItem.id);
+
+              // Negatifte saymaya devam edilsin diye timer aktif bırakılıyor ve değer NEGATİF kalabilir.
+              // Sadece alarm flag set edildi; yeniden açılınca tekrar çalmayacak.
             }
           }
 
