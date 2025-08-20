@@ -168,6 +168,25 @@ class AddStoreItemProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Credit helpers to ensure UI updates consistently
+  void setCredit(int value) {
+    if (value < 0) value = 0;
+    credit = value;
+    notifyListeners();
+  }
+
+  void incrementCredit() {
+    credit += 1;
+    notifyListeners();
+  }
+
+  void decrementCredit() {
+    if (credit > 0) {
+      credit -= 1;
+      notifyListeners();
+    }
+  }
+
   // Method to unfocus all text fields
   void unfocusAll() {
     try {

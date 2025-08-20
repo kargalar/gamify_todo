@@ -26,11 +26,9 @@ class _SetCreditState extends State<SetCredit> {
   void _startLongPress(bool isIncrement, AddStoreItemProvider provider) {
     _isLongPressing = true; // İlk değişiklik
     if (isIncrement) {
-      provider.credit++;
+      provider.incrementCredit();
     } else {
-      if (provider.credit > 0) {
-        provider.credit--;
-      }
+      provider.decrementCredit();
     }
 
     // Timer ile sürekli artış/azalış
@@ -41,11 +39,9 @@ class _SetCreditState extends State<SetCredit> {
       }
 
       if (isIncrement) {
-        provider.credit++;
+        provider.incrementCredit();
       } else {
-        if (provider.credit > 0) {
-          provider.credit--;
-        }
+        provider.decrementCredit();
       }
     });
   }
@@ -75,9 +71,7 @@ class _SetCreditState extends State<SetCredit> {
               provider.unfocusAll();
               FocusScope.of(context).unfocus();
 
-              if (provider.credit > 0) {
-                provider.credit--;
-              }
+              provider.decrementCredit();
             },
             onLongPressStart: (_) {
               // Unfocus when long pressing
@@ -124,9 +118,7 @@ class _SetCreditState extends State<SetCredit> {
               provider.unfocusAll();
               FocusScope.of(context).unfocus();
 
-              setState(() {
-                provider.credit++;
-              });
+              provider.incrementCredit();
             },
             onLongPressStart: (_) {
               // Unfocus when long pressing
