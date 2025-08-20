@@ -18,6 +18,9 @@ abstract class  LocaleKeys {
   static const CreateSkill = 'CreateSkill';
   static const CreateAttribute = 'CreateAttribute';
   static const WeeklyProgress = 'WeeklyProgress';
+  static const WeeklyLabel = 'WeeklyLabel';
+  static const MonthlyLabel = 'MonthlyLabel';
+  static const YearlyLabel = 'YearlyLabel';
   static const WeeklyWorkHour = 'WeeklyWorkHour';
   static const Add = 'Add';
   static const Buy = 'Buy';
