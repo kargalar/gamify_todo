@@ -371,49 +371,26 @@ class GlobalTimer {
 
     for (var storeItem in StoreProvider().storeItemList) {
       if (storeItem.isTimerActive == true) {
-        final lastUpdateStr = prefs.getString('item_last_update_${storeItem.id}');
-        final lastProgressStr = prefs.getString('item_last_progress_${storeItem.id}');
+        // Always calculate kalan süre from authoritative start time to avoid drift
+        final startTimeStr = prefs.getString('item_timer_start_time_${storeItem.id}');
+        final startDurationStr = prefs.getString('item_timer_start_duration_${storeItem.id}');
+        if (startTimeStr != null && startDurationStr != null) {
+          final now = DateTime.now();
+          final startTime = DateTime.fromMillisecondsSinceEpoch(int.parse(startTimeStr));
+          // Remaining (could be negative after expiry)
+          final startRemaining = Duration(seconds: int.parse(startDurationStr));
+          final elapsed = now.difference(startTime);
 
-        DateTime now = DateTime.now();
-        Duration? computedNewDuration;
-        Duration? originalLastProgress; // crossing zero kontrolü için
+          // previous remaining from last_progress (if exists) else startRemaining
+          final lastProgressStr = prefs.getString('item_last_progress_${storeItem.id}');
+          final previousRemaining = lastProgressStr != null ? Duration(seconds: int.parse(lastProgressStr)) : startRemaining;
+          final newRemaining = startRemaining - elapsed;
 
-        if (lastUpdateStr != null && lastProgressStr != null) {
-          // Normal resume path: continue from the last saved progress timestamp
-          final lastUpdate = DateTime.parse(lastUpdateStr);
-          final lastProgress = Duration(seconds: int.parse(lastProgressStr));
-          originalLastProgress = lastProgress;
-          final difference = now.difference(lastUpdate);
-          computedNewDuration = lastProgress - difference;
-
-          // Persist the new baseline so subsequent resumes accumulate correctly
-          await prefs.setString('item_last_update_${storeItem.id}', now.toIso8601String());
-          await prefs.setString('item_last_progress_${storeItem.id}', computedNewDuration.inSeconds.toString());
-        } else {
-          // Fallback path: use start-time keys if last progress is missing (e.g., cold start)
-          final startTimeStr = prefs.getString('item_timer_start_time_${storeItem.id}');
-          final startDurationStr = prefs.getString('item_timer_start_duration_${storeItem.id}');
-          if (startTimeStr != null && startDurationStr != null) {
-            final startTime = DateTime.fromMillisecondsSinceEpoch(int.parse(startTimeStr));
-            final startRemaining = Duration(seconds: int.parse(startDurationStr));
-            final elapsed = now.difference(startTime);
-            computedNewDuration = startRemaining - elapsed;
-
-            // Seed last update/progress so future resumes work via the normal path
-            await prefs.setString('item_last_update_${storeItem.id}', now.toIso8601String());
-            await prefs.setString('item_last_progress_${storeItem.id}', computedNewDuration.inSeconds.toString());
-          }
-        }
-
-        if (computedNewDuration != null) {
-          // Sadece POZITIFTEN sıfır/negatife geçişte alarm çalmalı
-          if (originalLastProgress != null && originalLastProgress.inSeconds > 0 && computedNewDuration.inSeconds <= 0) {
-            // Check if alarm has already been triggered
+          // Alarm trigger detection (pozitiften <=0'a geçiş) using previousRemaining
+          if (previousRemaining.inSeconds > 0 && newRemaining.inSeconds <= 0) {
             String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
             bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
-
             if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
-              // Trigger alarm for expired timer (immediately)
               NotificationService().scheduleNotification(
                 id: storeItem.id + 200000,
                 title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
@@ -421,23 +398,18 @@ class GlobalTimer {
                 scheduledDate: DateTime.now(),
                 isAlarm: true,
               );
-
-              // Auto-dismiss notification after 10 seconds
               Future.delayed(const Duration(seconds: 10), () {
                 NotificationService().cancelNotificationOrAlarm(storeItem.id + 200000);
               });
-
-              // Mark alarm as triggered
               await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
               _storeItemAlarmTriggeredMemory.add(storeItem.id);
-
-              // Negatifte saymaya devam edilsin diye timer aktif bırakılıyor ve değer NEGATİF kalabilir.
-              // Sadece alarm flag set edildi; yeniden açılınca tekrar çalmayacak.
             }
           }
 
-          // Update the duration (can go negative)
-          storeItem.currentDuration = computedNewDuration;
+          storeItem.currentDuration = newRemaining;
+          // Update baseline for next resume
+          await prefs.setString('item_last_update_${storeItem.id}', now.toIso8601String());
+          await prefs.setString('item_last_progress_${storeItem.id}', newRemaining.inSeconds.toString());
           ServerManager().updateItem(itemModel: storeItem);
         }
       }

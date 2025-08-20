@@ -22,6 +22,7 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavbarPageManager extends StatefulWidget {
   const NavbarPageManager({super.key});
@@ -94,6 +95,23 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
       if (mounted) {
         context.read<TaskProvider>().updateItems();
         setState(() {});
+      }
+    } else if (state == AppLifecycleState.paused) {
+      // Aktif task ve store item timer'larının snapshot'ını kaydet
+      final prefs = await SharedPreferences.getInstance();
+      final now = DateTime.now().toIso8601String();
+      for (var task in context.read<TaskProvider>().taskList) {
+        if (task.isTimerActive == true) {
+          // task_last_update / task_last_progress zaten global timer tarafından güncelleniyor; yine de son anı zorla yaz
+          prefs.setString('task_last_update_${task.id}', now);
+          prefs.setString('task_last_progress_${task.id}', task.currentDuration!.inSeconds.toString());
+        }
+      }
+      for (var item in context.read<StoreProvider>().storeItemList) {
+        if (item.isTimerActive == true) {
+          prefs.setString('item_last_update_${item.id}', now);
+          prefs.setString('item_last_progress_${item.id}', item.currentDuration!.inSeconds.toString());
+        }
       }
     }
   }
