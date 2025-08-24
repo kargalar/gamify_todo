@@ -10,7 +10,7 @@ import 'package:next_level/Service/navigator_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz; // latest_all to cover all locales
 import 'package:timezone/timezone.dart' as tz;
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:alarm/alarm.dart';
@@ -64,7 +64,7 @@ class NotificationService {
     // Initialize time zones and set tz.local to match device time zone
     tz.initializeTimeZones();
 
-    final String deviceTimeZone = await FlutterNativeTimezone.getLocalTimezone();
+    final String deviceTimeZone = await _getLocalTimezone();
     final location = tz.getLocation(deviceTimeZone);
     tz.setLocalLocation(location);
     debugPrint('Timezone initialized. Device timezone: $deviceTimeZone');
@@ -151,6 +151,17 @@ class NotificationService {
         _handleNotificationTap(response.payload);
       },
     );
+  }
+
+  // Platform channel to get device timezone without external plugin
+  static const MethodChannel _tzChannel = MethodChannel('app.nextlevel/timezone');
+  Future<String> _getLocalTimezone() async {
+    try {
+      final tzName = await _tzChannel.invokeMethod<String>('getLocalTimezone');
+      return (tzName ?? 'UTC');
+    } catch (_) {
+      return 'UTC';
+    }
   }
 
   // Bildirime tıklandığında çağrılacak metod
