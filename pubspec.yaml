@@ -26,6 +26,8 @@ dependencies:
   flutter_local_notifications: ^19.0.0
   timezone: ^0.10.0
   alarm: ^5.1.4
+  # Device time zone (to align tz.local with the OS time zone)
+  flutter_native_timezone: ^2.0.0
 
   # Save Data
   hive_flutter: ^1.1.0

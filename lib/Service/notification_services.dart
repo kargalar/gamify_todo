@@ -8,8 +8,9 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz; // latest_all to cover all locales
 import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:alarm/alarm.dart';
@@ -60,7 +61,13 @@ class NotificationService {
   );
 
   Future<void> init() async {
+    // Initialize time zones and set tz.local to match device time zone
     tz.initializeTimeZones();
+
+    final String deviceTimeZone = await FlutterNativeTimezone.getLocalTimezone();
+    final location = tz.getLocation(deviceTimeZone);
+    tz.setLocalLocation(location);
+    debugPrint('Timezone initialized. Device timezone: $deviceTimeZone');
 
     // Initialize alarm package
     await Alarm.init();
