@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
@@ -31,6 +32,30 @@ class HomeWidgetService {
   static const String taskDetailsKey = 'taskDetails';
   static const String totalWorkSecKey = 'totalWorkSec';
   static const String hideCompletedKey = 'hideCompleted';
+  static Timer? _midnightTimer;
+
+  /// Schedule a one-shot timer to refresh the widget right after local midnight
+  static void scheduleNextMidnightRefresh() {
+    try {
+      _midnightTimer?.cancel();
+      final now = DateTime.now();
+      final nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+      final delay = nextMidnight.difference(now) + const Duration(seconds: 1);
+      debugPrint('Scheduling widget midnight refresh in ${delay.inSeconds}s (at $nextMidnight)');
+      _midnightTimer = Timer(delay, () async {
+        try {
+          // Re-schedule for the following day as well
+          scheduleNextMidnightRefresh();
+          // Simply recalc and push data; task generation is handled elsewhere on app open
+          await updateAllWidgets();
+        } catch (e) {
+          debugPrint('Midnight widget refresh failed: $e');
+        }
+      });
+    } catch (e) {
+      debugPrint('scheduleNextMidnightRefresh error: $e');
+    }
+  }
 
   static Future<void> updateTaskCount() async {
     try {
@@ -189,6 +214,12 @@ class HomeWidgetService {
         return;
       }
 
+      if (action == 'refresh') {
+        // Explicit refresh requested by native side (e.g., date/time change)
+        await updateAllWidgets();
+        return;
+      }
+
       // Handle per-item actions
       final taskIdStr = uri?.queryParameters['taskId'];
       final taskId = taskIdStr != null ? int.tryParse(taskIdStr) : null;
@@ -296,6 +327,8 @@ class HomeWidgetService {
       await HomeWidget.setAppGroupId(appGroupId);
       await registerBackground();
       debugPrint('Home widget setup done successfully');
+      // Also schedule a local midnight refresh while the app is alive
+      scheduleNextMidnightRefresh();
     } catch (e) {
       debugPrint('Error setting up home widget: $e');
       rethrow;

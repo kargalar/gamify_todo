@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
     <application android:label="NextLevel" android:name="${applicationName}" android:usesCleartextTraffic="true" android:icon="@mipmap/ic_launcher">
@@ -60,6 +61,16 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/task_widget_provider" />
+        </receiver>
+
+        <!-- Listen to date/time changes and boot to refresh widget at day change -->
+        <receiver android:name="app.nextlevel.DateChangeReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
 
         <!-- RemoteViewsService for widget ListView -->
