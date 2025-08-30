@@ -11,6 +11,7 @@ import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/offline_mode_provider.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/auth_service.dart';
@@ -165,12 +166,44 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
+            // Vacation Mode option
+            Consumer<VacationModeProvider>(
+              builder: (context, vacationModeProvider, child) {
+                return _settingsOption(
+                  title: 'Tatil Modu',
+                  subtitle: 'Tatil modunda rutinler görünmez',
+                  icon: Icons.beach_access,
+                  onTap: () {
+                    vacationModeProvider.toggleVacationMode();
+                  },
+                  trailing: Switch.adaptive(
+                    value: vacationModeProvider.isVacationModeEnabled,
+                    thumbIcon: vacationModeProvider.isVacationModeEnabled
+                        ? WidgetStateProperty.all(
+                            const Icon(
+                              Icons.beach_access,
+                              color: AppColors.white,
+                              size: 16,
+                            ),
+                          )
+                        : WidgetStateProperty.all(
+                            const Icon(
+                              Icons.work,
+                              color: AppColors.white,
+                              size: 16,
+                            ),
+                          ),
+                    trackOutlineColor: vacationModeProvider.isVacationModeEnabled ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
+                    inactiveThumbColor: AppColors.dirtyRed,
+                    inactiveTrackColor: AppColors.white,
+                    onChanged: (_) {
+                      vacationModeProvider.toggleVacationMode();
+                    },
+                  ),
+                );
+              },
+            ),
             // _settingsOption(
-            //   title: LocaleKeys.Help.tr(),
-            //   subtitle: LocaleKeys.HelpText.tr(),
-            //   onTap: () {
-            //     yardimDialog(context);
-            //   },            // ),
             _settingsOption(
               title: LocaleKeys.DataManagement.tr(),
               subtitle: LocaleKeys.DataManagementSubtitle.tr(),

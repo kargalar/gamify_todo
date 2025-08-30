@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/day_item.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Service/debug_helper.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -104,6 +105,33 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+        // Vacation mode indicator
+        Consumer<VacationModeProvider>(
+          builder: (context, vacationModeProvider, child) {
+            if (vacationModeProvider.isVacationModeEnabled) {
+              return InkWell(
+                onTap: () {
+                  _showVacationModeDialog(context);
+                },
+                borderRadius: AppColors.borderRadiusAll,
+                child: Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.main,
+                    borderRadius: AppColors.borderRadiusAll,
+                  ),
+                  child: const Icon(
+                    Icons.beach_access,
+                    size: 16,
+                    color: AppColors.white,
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
         // Filter menu
         PopupMenuButton(
           icon: Icon(
@@ -143,6 +171,37 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         const SizedBox(width: 4),
       ],
+    );
+  }
+
+  void _showVacationModeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.background,
+          title: const Text('Tatil Modu'),
+          content: const Text('Tatil modunu kapatmak istiyor musunuz?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('İptal'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Kapat',
+                style: TextStyle(color: AppColors.red),
+              ),
+              onPressed: () {
+                VacationModeProvider().toggleVacationMode();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

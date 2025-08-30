@@ -12,6 +12,7 @@ import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/offline_mode_provider.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -36,6 +37,10 @@ void main() async {
   // Get the already initialized OfflineModeProvider from initApp
   final offlineModeProvider = OfflineModeProvider();
 
+  // Initialize VacationModeProvider
+  final vacationModeProvider = VacationModeProvider();
+  await vacationModeProvider.initialize();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
@@ -44,6 +49,7 @@ void main() async {
       ChangeNotifierProvider.value(value: taskStyleProvider),
       ChangeNotifierProvider.value(value: colorProvider),
       ChangeNotifierProvider.value(value: offlineModeProvider),
+      ChangeNotifierProvider.value(value: vacationModeProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),
       ChangeNotifierProvider(create: (context) => AddStoreItemProvider()),

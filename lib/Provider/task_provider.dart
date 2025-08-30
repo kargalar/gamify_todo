@@ -19,6 +19,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/offline_mode_provider.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Helper class to store task date change data for undo functionality
@@ -1500,6 +1501,11 @@ class TaskProvider with ChangeNotifier {
   }
 
   List<TaskModel> getRoutineTasksForDate(DateTime date) {
+    // Check if vacation mode is enabled
+    if (VacationModeProvider().isVacationModeEnabled) {
+      return [];
+    }
+
     List<TaskModel> tasks;
 
     // Only apply showCompleted filter for today's date, not for historical dates
@@ -1519,6 +1525,11 @@ class TaskProvider with ChangeNotifier {
   }
 
   List<TaskModel> getGhostRoutineTasksForDate(DateTime date) {
+    // Check if vacation mode is enabled
+    if (VacationModeProvider().isVacationModeEnabled) {
+      return [];
+    }
+
     if (date.isBeforeOrSameDay(DateTime.now())) {
       return [];
     }
