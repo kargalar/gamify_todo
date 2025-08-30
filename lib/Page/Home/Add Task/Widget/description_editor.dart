@@ -34,15 +34,35 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
       _provider = context.read<AddTaskProvider>();
     }
 
+    // Focus değişikliklerini dinle
+    _provider.descriptionFocus.addListener(_onFocusChanged);
+
     // Start the timer when the page opens
     _provider.startDescriptionTimer();
   }
 
   @override
   void dispose() {
+    // Focus listener'ı kaldır
+    _provider.descriptionFocus.removeListener(_onFocusChanged);
+
     // Pause the timer when leaving the page (time is already being saved every second)
     _provider.pauseDescriptionTimer();
     super.dispose();
+  }
+
+  void _onFocusChanged() {
+    if (_provider.descriptionFocus.hasFocus) {
+      // Description alanına focus geldiğinde timer'ı başlat
+      if (!_provider.isDescriptionTimerActive) {
+        _provider.startDescriptionTimer();
+      }
+    } else {
+      // Description alanından focus çıkınca timer'ı durdur
+      if (_provider.isDescriptionTimerActive) {
+        _provider.pauseDescriptionTimer();
+      }
+    }
   }
 
   void _autoSave(String text) {

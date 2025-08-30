@@ -31,7 +31,7 @@ class AddStoreItemPage extends StatefulWidget {
   State<AddStoreItemPage> createState() => _AddStoreItemPageState();
 }
 
-class _AddStoreItemPageState extends State<AddStoreItemPage> {
+class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBindingObserver {
   late final addStoreItemProvider = context.read<AddStoreItemProvider>();
   late final storeProvider = context.read<StoreProvider>();
 
@@ -40,6 +40,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         addStoreItemProvider.setEditItem(widget.editItemModel);
@@ -56,6 +57,29 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> {
           addStoreItemProvider.setEditItem(widget.editItemModel);
         }
       });
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      // Uygulama arka plana alındığında veya inactive olduğunda timer'ı durdur
+      if (addStoreItemProvider.isDescriptionTimerActive) {
+        addStoreItemProvider.pauseDescriptionTimer();
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      // Uygulama tekrar aktif olduğunda, eğer description focus'taysa timer'ı başlat
+      if (addStoreItemProvider.descriptionFocus.hasFocus && !addStoreItemProvider.isDescriptionTimerActive) {
+        addStoreItemProvider.startDescriptionTimer();
+      }
     }
   }
 

@@ -41,7 +41,7 @@ class AddTaskPage extends StatefulWidget {
   State<AddTaskPage> createState() => _AddTaskPageState();
 }
 
-class _AddTaskPageState extends State<AddTaskPage> {
+class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
   // Use read for init but watch inside build for reactive UI
   late final addTaskProvider = context.read<AddTaskProvider>();
   late final taskProvider = context.read<TaskProvider>();
@@ -52,6 +52,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     if (widget.editTask != null) {
       RoutineModel? routine;
@@ -114,11 +115,29 @@ class _AddTaskPageState extends State<AddTaskPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     // Clean up the TaskDetailViewModel
     if (_taskDetailViewModel != null) {
       _taskDetailViewModel!.dispose();
     }
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      // Uygulama arka plana alındığında veya inactive olduğunda timer'ı durdur
+      if (addTaskProvider.isDescriptionTimerActive) {
+        addTaskProvider.pauseDescriptionTimer();
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      // Uygulama tekrar aktif olduğunda, eğer description focus'taysa timer'ı başlat
+      if (addTaskProvider.descriptionFocus.hasFocus && !addTaskProvider.isDescriptionTimerActive) {
+        addTaskProvider.startDescriptionTimer();
+      }
+    }
   }
 
   @override
