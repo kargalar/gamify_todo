@@ -1316,6 +1316,31 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
+  void clearSubtasks(TaskModel taskModel) {
+    if (taskModel.subtasks != null && taskModel.subtasks!.isNotEmpty) {
+      debugPrint('Clearing all subtasks from task: TaskID=${taskModel.id}');
+
+      // Clear the list
+      taskModel.subtasks!.clear();
+
+      // Save the task to ensure changes are persisted
+      try {
+        taskModel.save();
+        debugPrint('Task saved after clearing subtasks: ID=${taskModel.id}');
+      } catch (e) {
+        debugPrint('ERROR saving task after clearing subtasks: $e');
+      }
+      ServerManager().updateTask(taskModel: taskModel);
+
+      // If this is a routine task, propagate subtask changes to other instances
+      if (taskModel.routineID != null) {
+        _propagateSubtaskChangesToRoutineInstances(taskModel);
+      }
+
+      notifyListeners();
+    }
+  }
+
   // Permanently remove a subtask
   void _permanentlyRemoveSubtask(String undoKey) {
     _deletedSubtasks.remove(undoKey);
