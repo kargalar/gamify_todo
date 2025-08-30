@@ -5,7 +5,6 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/all_time_stats_widget.dart';
-import 'package:next_level/Page/Task%20Detail%20Page/widget/archive_button.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/trait_progress_widget.dart';
@@ -19,6 +18,7 @@ import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
@@ -101,8 +101,16 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
               if (widget.taskModel.routineID != null && widget.taskModel.status != TaskStatusEnum.ARCHIVED)
                 PopupMenuButton<String>(
                   onSelected: (value) {
-                    if (value == 'reset_routine_progress') {
-                      _showResetRoutineProgressDialog();
+                    switch (value) {
+                      case 'reset_routine_progress':
+                        _showResetRoutineProgressDialog();
+                        break;
+                      case 'delete_routine':
+                        _showDeleteRoutineDialog();
+                        break;
+                      case 'archive_routine':
+                        _showArchiveRoutineDialog();
+                        break;
                     }
                   },
                   itemBuilder: (BuildContext context) => [
@@ -113,6 +121,26 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                           Icon(Icons.refresh, color: AppColors.text),
                           const SizedBox(width: 8),
                           Text(LocaleKeys.ResetRoutineProgress.tr()),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'delete_routine',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.delete, color: AppColors.red),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.Delete.tr()),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'archive_routine',
+                      child: Row(
+                        children: [
+                          Icon(Icons.archive, color: AppColors.text),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.Archived.tr()),
                         ],
                       ),
                     ),
@@ -195,32 +223,18 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                       ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      // Archive Button
-                      if (widget.taskModel.status != TaskStatusEnum.ARCHIVED)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: ArchiveButton(
-                            routine: routine,
-                            taskModel: widget.taskModel,
-                          ),
-                        ),
 
-                      // Unarchive Button
-                      if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: UnarchiveButton(
-                            routine: routine,
-                            taskModel: widget.taskModel,
-                          ),
-                        ),
-                      const SizedBox(height: 30),
-                    ],
-                  ),
+                  // Unarchive Button
+                  if (widget.taskModel.status == TaskStatusEnum.ARCHIVED)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: UnarchiveButton(
+                        routine: routine,
+                        taskModel: widget.taskModel,
+                      ),
+                    ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
@@ -362,6 +376,118 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");
       debugPrint('Error in _resetSingleRoutineProgress: $e');
+    }
+  }
+
+  void _showDeleteRoutineDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(LocaleKeys.Delete.tr()),
+          content: Text(LocaleKeys.AreYouSureDelete.tr()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(LocaleKeys.Cancel.tr()),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _deleteRoutine();
+              },
+              child: Text(LocaleKeys.Delete.tr()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showArchiveRoutineDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(LocaleKeys.ArchiveRoutine.tr()),
+          content: Text(LocaleKeys.ArchiveRoutineConfirmation.tr()),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(LocaleKeys.Cancel.tr()),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _archiveRoutine();
+              },
+              child: Text(LocaleKeys.ArchiveRoutine.tr()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteRoutine() async {
+    try {
+      if (widget.taskModel.routineID == null) {
+        Helper().getMessage(message: "Bu görev bir rutine ait değil.");
+        return;
+      }
+
+      await TaskProvider().deleteRoutine(widget.taskModel.routineID!);
+      NavigatorService().goBackNavbar();
+      Helper().getMessage(message: "Rutin başarıyla silindi.");
+    } catch (e) {
+      Helper().getMessage(message: "Hata: $e");
+      debugPrint('Error in _deleteRoutine: $e');
+    }
+  }
+
+  Future<void> _archiveRoutine() async {
+    try {
+      if (widget.taskModel.routineID == null) {
+        Helper().getMessage(message: "Bu görev bir rutine ait değil.");
+        return;
+      }
+
+      // Mark routine as archived
+      routine.isArchived = true;
+
+      // Update the routine
+      await ServerManager().updateRoutine(routineModel: routine);
+
+      // Mark all related tasks as archived
+      final tasks = TaskProvider().taskList.where((t) => t.routineID == widget.taskModel.routineID);
+      for (var task in tasks) {
+        // Only archive tasks that are not already archived to preserve existing status
+        if (task.status != TaskStatusEnum.ARCHIVED) {
+          task.status = TaskStatusEnum.ARCHIVED;
+          await ServerManager().updateTask(taskModel: task);
+
+          // Create log for the archiving action to maintain history
+          TaskLogProvider().addTaskLog(
+            task,
+            customStatus: TaskStatusEnum.ARCHIVED,
+          );
+        }
+      }
+
+      TaskProvider().updateItems();
+      Helper().getMessage(message: "Rutin başarıyla arşivlendi.");
+
+      // Sayfayı yenile
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      Helper().getMessage(message: "Hata: $e");
+      debugPrint('Error in _archiveRoutine: $e');
     }
   }
 }

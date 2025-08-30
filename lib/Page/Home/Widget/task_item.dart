@@ -313,12 +313,10 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
 
   void taskAction({bool skipLogging = false}) {
     if (widget.taskModel.status == TaskStatusEnum.ARCHIVED) {
-      // Play fail animation for archived tasks
-      _playFailAnimation();
+      // Show warning message for archived tasks (don't play fail animation)
       return Helper().getMessage(
         status: StatusEnum.WARNING,
-        // TODO: localization
-        message: "Bu task arşivlendiği için etkileşimde bulunulamaz.",
+        message: LocaleKeys.ArchivedTaskInteractionWarning.tr(),
       );
     } else if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isBeforeOrSameDay(DateTime.now()))) {
       return Helper().getMessage(
