@@ -293,4 +293,8 @@
     "OfflineModeEnabled": "Mode hors ligne activé",
     "OfflineModeDisabled": "Mode hors ligne désactivé",
     "No": "Non"
+    ,
+    "SkipRoutine": "Passer",
+    "SkipRoutineSuccess": "Routines marquées comme passées",
+    "SkipRoutineNone": "Aucune routine à passer pour ce jour"
 }

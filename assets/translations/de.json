@@ -293,4 +293,8 @@
     "OfflineModeEnabled": "Offline-Modus aktiviert",
     "OfflineModeDisabled": "Offline-Modus deaktiviert",
     "No": "Nein"
+    ,
+    "SkipRoutine": "Überspringen",
+    "SkipRoutineSuccess": "Routinen als übersprungen markiert",
+    "SkipRoutineNone": "Keine Routinen zum Überspringen für diesen Tag"
 }

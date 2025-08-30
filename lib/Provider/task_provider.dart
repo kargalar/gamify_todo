@@ -998,6 +998,55 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Mark all routine tasks for the given date as skipped (Pas Geç).
+  /// This sets their status to CANCEL so they won't be marked as FAILED
+  /// by the daily routine processor when the next day arrives.
+  Future<void> skipRoutinesForDate(DateTime date) async {
+    try {
+      final tasksToSkip = taskList.where((task) => task.routineID != null && task.taskDate != null && task.taskDate!.isSameDay(date) && task.status == null).toList();
+      if (tasksToSkip.isEmpty) {
+        Helper().getMessage(message: LocaleKeys.SkipRoutineNone.tr());
+        return;
+      }
+
+      for (final task in tasksToSkip) {
+        // Mark as cancelled so daily processor won't mark as failed
+        task.status = TaskStatusEnum.CANCEL;
+
+        // Create log entry for cancellation
+        TaskLogProvider().addTaskLog(
+          task,
+          customStatus: TaskStatusEnum.CANCEL,
+        );
+
+        // Persist changes
+        await ServerManager().updateTask(taskModel: task);
+
+        // Cancel any scheduled notifications/alarms
+        try {
+          NotificationService().cancelNotificationOrAlarm(task.id);
+          NotificationService().cancelNotificationOrAlarm(task.id + 300000);
+          if (task.type == TaskTypeEnum.TIMER) {
+            NotificationService().cancelNotificationOrAlarm(-task.id);
+            NotificationService().cancelNotificationOrAlarm(task.id + 100000);
+            NotificationService().cancelNotificationOrAlarm(task.id + 200000);
+          }
+        } catch (e) {
+          debugPrint('Error cancelling notifications for skipped routine task: $e');
+        }
+      }
+
+      // Update home widgets and notify UI
+      HomeWidgetService.updateAllWidgets();
+      notifyListeners();
+
+      Helper().getMessage(message: LocaleKeys.SkipRoutineSuccess.tr());
+    } catch (e) {
+      debugPrint('Error while skipping routines for date $date: $e');
+      Helper().getMessage(message: 'Hata: $e');
+    }
+  }
+
   // Delete a task with undo functionality
   Future<void> deleteTask(int taskID) async {
     final task = taskList.firstWhere((task) => task.id == taskID);

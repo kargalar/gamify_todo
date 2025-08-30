@@ -41,7 +41,7 @@ class SettingsPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: ListView(
           children: [
             _settingsOption(
               title: LocaleKeys.SelectLanguage.tr(),
@@ -84,16 +84,16 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
             _settingsOption(
-              title: 'Archived Routines',
-              subtitle: 'View your archived routines',
+              title: LocaleKeys.ArchivedRoutines.tr(),
+              subtitle: LocaleKeys.ArchivedRoutines.tr(),
               icon: Icons.archive,
               onTap: () {
                 NavigatorService().goTo(const ArchivedRoutinesPage());
               },
             ),
             _settingsOption(
-              title: 'Task Style',
-              subtitle: 'Change how task items are displayed',
+              title: LocaleKeys.SelectTaskStyle.tr(),
+              subtitle: LocaleKeys.SelectTaskStyle.tr(),
               icon: Icons.palette,
               onTap: () {
                 showDialog(
@@ -105,8 +105,8 @@ class SettingsPage extends StatelessWidget {
             Consumer<ColorProvider>(
               builder: (context, colorProvider, child) {
                 return _settingsOption(
-                  title: 'App Color Theme',
-                  subtitle: 'Choose your preferred color: ${colorProvider.getColorName(colorProvider.currentColor)}',
+                  title: LocaleKeys.SelectMainColor.tr(),
+                  subtitle: "${LocaleKeys.ChooseColorTheme.tr()} ${colorProvider.getColorName(colorProvider.currentColor)}",
                   icon: Icons.color_lens,
                   onTap: () {
                     showDialog(

@@ -293,4 +293,8 @@
     "OfflineModeEnabled": "Автономный режим включен",
     "OfflineModeDisabled": "Автономный режим отключен",
     "No": "Нет"
+    ,
+    "SkipRoutine": "Пропустить",
+    "SkipRoutineSuccess": "Рутины помечены как пропущенные",
+    "SkipRoutineNone": "Нет рутин для пропуска на этот день"
 }

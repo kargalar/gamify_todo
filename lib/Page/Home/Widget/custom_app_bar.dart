@@ -166,6 +166,22 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ],
                 ),
               ),
+              PopupMenuItem(
+                onTap: () {
+                  // Defer action to after menu closes
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+                    taskProvider.skipRoutinesForDate(taskProvider.selectedDate);
+                  });
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.skip_next, size: 18),
+                    const SizedBox(width: 8),
+                    Text(LocaleKeys.SkipRoutine.tr()),
+                  ],
+                ),
+              ),
             ];
           },
         ),

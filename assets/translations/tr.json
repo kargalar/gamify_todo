@@ -293,4 +293,17 @@
     "OfflineModeEnabled": "Çevrimdışı mod etkinleştirildi",
     "OfflineModeDisabled": "Çevrimdışı mod devre dışı bırakıldı",
     "No": "Hayır"
+    ,
+    "SkipRoutine": "Pas Geç",
+    "SkipRoutineSuccess": "Rutinler pas olarak işaretlendi",
+    "VacationMode": "Tatil Modu",
+    "VacationModeSubtitle": "Tatil modunda rutinler görünmez",
+    "DataSyncTitle": "Veri Senkronizasyonu",
+    "DataSyncDescription": "Verilerinizi Firebase bulut veritabanı ile senkronize edin.",
+    "Logout": "Çıkış Yap",
+    "LogoutConfirmation": "Hesabınızdan çıkış yapmak istediğinizden emin misiniz?",
+    "SyncInProgress": "Senkronize ediliyor...",
+    "SyncNow": "Verileri Senkronize Et",
+    "OfflineModeSyncDisabled": "Çevrimdışı mod etkinken senkronizasyon yapılamaz.",
+    "SkipRoutineNone": "Bu güne ait pas alınacak rutin bulunamadı"
 }

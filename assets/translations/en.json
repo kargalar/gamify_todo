@@ -294,4 +294,8 @@
     "OfflineModeEnabled": "Offline mode enabled",
     "OfflineModeDisabled": "Offline mode disabled",
     "No" : "No"
+    ,
+    "SkipRoutine": "Skip",
+    "SkipRoutineSuccess": "Routines marked as skipped",
+    "SkipRoutineNone": "No routines to skip for this day"
 }
