@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
-import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Trait%20Detail%20Page/trait_detail_page.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -22,14 +21,15 @@ class TraitItemDetailed extends StatefulWidget {
 }
 
 class _TraitItemDetailedState extends State<TraitItemDetailed> {
-  late Duration totalDuration;
-
   @override
   void initState() {
     super.initState();
+  }
 
-    // related tasks
-    totalDuration = TaskProvider().taskList.fold(
+  @override
+  Widget build(BuildContext context) {
+    // compute duration fresh
+    final Duration totalDuration = TaskProvider().taskList.fold(
       Duration.zero,
       (previousValue, element) {
         if (((element.skillIDList != null && element.skillIDList!.contains(widget.trait.id)) || (element.attributeIDList != null && element.attributeIDList!.contains(widget.trait.id))) && element.remainingDuration != null) {
@@ -46,25 +46,11 @@ class _TraitItemDetailedState extends State<TraitItemDetailed> {
         return previousValue;
       },
     );
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: InkWell(
-        borderRadius: AppColors.borderRadiusAll,
-        highlightColor: widget.trait.color,
-        splashColor: widget.trait.color,
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: GestureDetector(
         onTap: () async {
-          await NavigatorService().goTo(
-            TraitDetailPage(
-              traitModel: widget.trait,
-            ),
-            transition: Transition.rightToLeft,
-          );
-        },
-        onLongPress: () async {
           await NavigatorService().goTo(
             TraitDetailPage(
               traitModel: widget.trait,
@@ -74,48 +60,37 @@ class _TraitItemDetailedState extends State<TraitItemDetailed> {
         },
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: AppColors.borderRadiusAll,
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 6, offset: const Offset(0, 2))],
+            border: Border.all(color: widget.trait.color.withValues(alpha: 0.15)),
           ),
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(2),
-                child: Center(
-                  child: Text(
-                    widget.trait.icon,
-                    style: const TextStyle(
-                      fontSize: 25,
-                    ),
-                  ),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(color: widget.trait.color, borderRadius: BorderRadius.circular(8)),
+                child: Center(child: Text(widget.trait.icon, style: const TextStyle(fontSize: 20, color: Colors.white))),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.trait.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text(totalDuration.textShort2hour(), style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color)),
+                  ],
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    widget.trait.title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    totalDuration.textShort2hour(),
-                    style: const TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
+                  Text(totalDuration.toLevel(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
-              ),
-              const Spacer(),
-              Text(
-                totalDuration.toLevel(),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ],
           ),
