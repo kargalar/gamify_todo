@@ -291,5 +291,6 @@
     "OfflineMode": "Offline-Modus",
     "OfflineModeSubtitle": "Firebase-Synchronisation deaktivieren",
     "OfflineModeEnabled": "Offline-Modus aktiviert",
-    "OfflineModeDisabled": "Offline-Modus deaktiviert"
+    "OfflineModeDisabled": "Offline-Modus deaktiviert",
+    "No": "Nein"
 }

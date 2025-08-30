@@ -291,5 +291,6 @@
     "OfflineMode": "Автономный режим",
     "OfflineModeSubtitle": "Отключить синхронизацию Firebase",
     "OfflineModeEnabled": "Автономный режим включен",
-    "OfflineModeDisabled": "Автономный режим отключен"
+    "OfflineModeDisabled": "Автономный режим отключен",
+    "No": "Нет"
 }

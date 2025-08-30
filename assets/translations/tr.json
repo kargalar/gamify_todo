@@ -291,5 +291,6 @@
     "OfflineMode": "Çevrimdışı Mod",
     "OfflineModeSubtitle": "Firebase senkronizasyonunu devre dışı bırak",
     "OfflineModeEnabled": "Çevrimdışı mod etkinleştirildi",
-    "OfflineModeDisabled": "Çevrimdışı mod devre dışı bırakıldı"
+    "OfflineModeDisabled": "Çevrimdışı mod devre dışı bırakıldı",
+    "No": "Hayır"
 }

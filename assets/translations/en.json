@@ -292,5 +292,6 @@
     "OfflineMode": "Offline Mode",
     "OfflineModeSubtitle": "Disable Firebase synchronization",
     "OfflineModeEnabled": "Offline mode enabled",
-    "OfflineModeDisabled": "Offline mode disabled"
+    "OfflineModeDisabled": "Offline mode disabled",
+    "No" : "No"
 }

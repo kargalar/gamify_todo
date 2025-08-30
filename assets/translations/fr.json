@@ -291,5 +291,6 @@
     "OfflineMode": "Mode Hors Ligne",
     "OfflineModeSubtitle": "Désactiver la synchronisation Firebase",
     "OfflineModeEnabled": "Mode hors ligne activé",
-    "OfflineModeDisabled": "Mode hors ligne désactivé"
+    "OfflineModeDisabled": "Mode hors ligne désactivé",
+    "No": "Non"
 }
