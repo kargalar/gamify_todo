@@ -155,6 +155,19 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                             _copyAllSubtasks();
                           },
                         ),
+                        PopupMenuItem(
+                          value: 'copy incomplete subtasks',
+                          child: const Row(
+                            children: [
+                              Icon(Icons.content_copy, size: 18),
+                              SizedBox(width: 8),
+                              Text('Copy Incomplete Subtasks'),
+                            ],
+                          ),
+                          onTap: () {
+                            _copyIncompleteSubtasks();
+                          },
+                        ),
                         if (hasClipboardData)
                           PopupMenuItem(
                             value: 'paste subtasks',
@@ -331,6 +344,42 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Subtasks copied to clipboard'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.main,
+        ),
+      );
+    });
+  }
+
+  void _copyIncompleteSubtasks() {
+    final subtasks = widget.taskModel.subtasks ?? [];
+    final incomplete = subtasks.where((s) => !s.isCompleted).toList();
+    if (incomplete.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('No incomplete subtasks to copy'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.text.withValues(alpha: 0.1),
+        ),
+      );
+      return;
+    }
+
+    final bulletList = incomplete.map((subtask) {
+      String result = '○ ${subtask.title}';
+      if (subtask.description != null && subtask.description!.isNotEmpty) {
+        result += '\n    ${subtask.description}';
+      }
+      return result;
+    }).join('\n');
+
+    Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
+      setState(() {
+        hasClipboardData = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Incomplete subtasks copied to clipboard'),
           duration: const Duration(seconds: 2),
           backgroundColor: AppColors.main,
         ),
