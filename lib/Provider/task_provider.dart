@@ -297,6 +297,41 @@ class TaskProvider with ChangeNotifier {
           ServerManager().updateTask(taskModel: task);
         }
       }
+
+      // If the routine is no longer active for today, remove any task instances created for today.
+      // Previously only the first matching task was removed which could leave ghost tasks.
+      final today = DateTime.now();
+      if (!routine.isActiveForThisDate(today)) {
+        // Collect all tasks for this routine that are dated today
+        final todayTasks = taskList.where((task) => task.routineID == routine.id && task.taskDate != null && task.taskDate!.isSameDay(today)).toList();
+        if (todayTasks.isNotEmpty) {
+          for (var t in todayTasks) {
+            // Remove from in-memory list
+            taskList.removeWhere((task) => task.id == t.id);
+
+            // Cancel any scheduled notifications/alarms for the task
+            NotificationService().cancelNotificationOrAlarm(t.id);
+            NotificationService().cancelNotificationOrAlarm(t.id + 300000);
+            if (t.type == TaskTypeEnum.TIMER) {
+              NotificationService().cancelNotificationOrAlarm(-t.id);
+              NotificationService().cancelNotificationOrAlarm(t.id + 100000);
+              NotificationService().cancelNotificationOrAlarm(t.id + 200000);
+            }
+
+            // Remove from server/storage
+            ServerManager().deleteTask(id: t.id);
+
+            // Add a log entry (preserve history) for deletion if needed
+            TaskLogProvider().addTaskLog(
+              t,
+              customStatus: TaskStatusEnum.CANCEL,
+            );
+          }
+
+          // Update widgets after removals
+          HomeWidgetService.updateAllWidgets();
+        }
+      }
     } else {
       // Editing a standalone task
       debugPrint('Editing standalone task');
