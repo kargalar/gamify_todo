@@ -14,6 +14,7 @@ import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_location.da
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_time.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/title_and_decription.dart';
 import 'package:next_level/Page/Home/Widget/task_slide_actions.dart';
+import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
@@ -21,6 +22,7 @@ import 'package:next_level/Enum/task_item_style_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_style_provider.dart';
+import 'package:next_level/Service/server_manager.dart';
 import 'package:provider/provider.dart';
 
 enum AnimationType { completion, fail, cancel }
@@ -313,11 +315,9 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
 
   void taskAction({bool skipLogging = false}) {
     if (widget.taskModel.status == TaskStatusEnum.ARCHIVED) {
-      // Show warning message for archived tasks (don't play fail animation)
-      return Helper().getMessage(
-        status: StatusEnum.WARNING,
-        message: LocaleKeys.ArchivedTaskInteractionWarning.tr(),
-      );
+      // Show dialog with option to unarchive for archived tasks
+      _showUnarchiveDialog();
+      return;
     } else if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isBeforeOrSameDay(DateTime.now()))) {
       return Helper().getMessage(
         status: StatusEnum.WARNING,
@@ -570,7 +570,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         .push(
       MaterialPageRoute(
         builder: (context) {
-          final provider = AddTaskProvider();
+          final provider = Provider.of<AddTaskProvider>(context, listen: false);
           provider.editTask = widget.taskModel;
           // Description controller'ı manuel olarak doldur
           provider.descriptionController.text = widget.taskModel.description ?? '';
@@ -587,5 +587,51 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       // Description editor'dan geri geldiğinde state'i güncelle
       setState(() {});
     });
+  }
+
+  void _showUnarchiveDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(LocaleKeys.ArchivedTaskInteractionWarning.tr()),
+          content: const Text("Bu görevi arşivden çıkarmak istiyor musunuz?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(LocaleKeys.Cancel.tr()),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _unarchiveTask();
+              },
+              child: const Text("Arşivden Çıkar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _unarchiveTask() async {
+    try {
+      if (widget.taskModel.routineID != null) {
+        // If it's a routine task, unarchive the entire routine
+        await Provider.of<TaskProvider>(context, listen: false).unarchiveRoutine(widget.taskModel.routineID!);
+        Helper().getMessage(message: "Rutin başarıyla arşivden çıkarıldı.");
+      } else {
+        // If it's a regular task, just change its status
+        widget.taskModel.status = null;
+        await ServerManager().updateTask(taskModel: widget.taskModel);
+        Provider.of<TaskProvider>(context, listen: false).updateItems();
+        Helper().getMessage(message: "Görev başarıyla arşivden çıkarıldı.");
+      }
+      setState(() {});
+    } catch (e) {
+      Helper().getMessage(message: "Hata: $e");
+    }
   }
 }
