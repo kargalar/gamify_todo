@@ -19,14 +19,14 @@ class SuccessMetricsWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.check_circle, color: Colors.green),
-            Text(" ${viewModel.completedTaskCount} ${LocaleKeys.Times.tr()}"),
+            Text("${viewModel.completedTaskCount} ${LocaleKeys.Times.tr()}"),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.close, color: Colors.red),
-            Text(" ${viewModel.failedTaskCount} ${LocaleKeys.Times.tr()}"),
+            Text("${viewModel.failedTaskCount} ${LocaleKeys.Times.tr()}"),
           ],
         ),
         Text(

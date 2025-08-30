@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:get/route_manager.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 
 class CustomDialogWidget extends StatefulWidget {
   final String? title;
@@ -24,9 +26,9 @@ class CustomDialogWidget extends StatefulWidget {
 
 class _CustomDialogWidgetState extends State<CustomDialogWidget> {
   // Texts
-  final String _acceptButton = "Okey";
-  final String _title = "Warning";
-  final String _declineButton = "No";
+  final String _acceptButton = LocaleKeys.Okay.tr();
+  final String _title = LocaleKeys.Warning.tr();
+  final String _declineButton = LocaleKeys.No.tr();
 
   int count = 3;
   late bool withTimer = widget.withTimer;
@@ -89,7 +91,7 @@ class _CustomDialogWidgetState extends State<CustomDialogWidget> {
       onPressed: () {
         Get.back();
       },
-      child: const Text("Okay"),
+      child: Text(LocaleKeys.Okay.tr()),
     );
   }
 

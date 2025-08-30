@@ -595,7 +595,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(LocaleKeys.ArchivedTaskInteractionWarning.tr()),
-          content: const Text("Bu görevi arşivden çıkarmak istiyor musunuz?"),
+          content: Text(LocaleKeys.UnarchiveTaskConfirmation.tr()),
           actions: [
             TextButton(
               onPressed: () {
@@ -608,7 +608,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                 Navigator.of(context).pop();
                 await _unarchiveTask();
               },
-              child: const Text("Arşivden Çıkar"),
+              child: Text(LocaleKeys.UnarchiveTask.tr()),
             ),
           ],
         );
@@ -621,13 +621,13 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       if (widget.taskModel.routineID != null) {
         // If it's a routine task, unarchive the entire routine
         await Provider.of<TaskProvider>(context, listen: false).unarchiveRoutine(widget.taskModel.routineID!);
-        Helper().getMessage(message: "Rutin başarıyla arşivden çıkarıldı.");
+        Helper().getMessage(message: LocaleKeys.UnarchiveRoutineSuccess.tr());
       } else {
         // If it's a regular task, just change its status
         widget.taskModel.status = null;
         await ServerManager().updateTask(taskModel: widget.taskModel);
         Provider.of<TaskProvider>(context, listen: false).updateItems();
-        Helper().getMessage(message: "Görev başarıyla arşivden çıkarıldı.");
+        Helper().getMessage(message: LocaleKeys.UnarchiveTaskSuccess.tr());
       }
       setState(() {});
     } catch (e) {

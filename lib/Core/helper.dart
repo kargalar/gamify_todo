@@ -114,8 +114,7 @@ class Helper {
                 Get.back();
               },
               child: Text(
-                // TODO: localization
-                mainButtonText ?? "Okay",
+                mainButtonText ?? LocaleKeys.Okay.tr(),
                 style: const TextStyle(color: AppColors.white),
               ),
             )
@@ -172,8 +171,7 @@ class Helper {
           Get.back();
         },
         child: Text(
-          // TODO: localization
-          "UNDO",
+          LocaleKeys.Undo.tr(),
           style: TextStyle(
             color: AppColors.main,
             fontWeight: FontWeight.bold,
