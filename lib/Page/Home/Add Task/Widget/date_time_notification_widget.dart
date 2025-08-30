@@ -21,10 +21,26 @@ class DateTimeNotificationWidget extends StatefulWidget {
 }
 
 class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget> {
-  late final addTaskProvider = context.watch<AddTaskProvider>();
+  late DateTime _focusedDay = DateTime.now();
+  bool _didInit = false;
+
+  AddTaskProvider get addTaskProvider => Provider.of<AddTaskProvider>(context, listen: false);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInit) {
+      final provider = Provider.of<AddTaskProvider>(context, listen: false);
+      _focusedDay = provider.selectedDate ?? _focusedDay;
+      _didInit = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Ensure the widget rebuilds when provider changes
+    context.watch<AddTaskProvider>();
+
     // Notification status colors and icons
     final Color activeColor = addTaskProvider.isNotificationOn
         ? AppColors.main
@@ -301,14 +317,16 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
               rowHeight: 36,
               firstDay: DateTime(1950),
               lastDay: DateTime(2100),
-              focusedDay: addTaskProvider.selectedDate ?? DateTime.now(),
-              selectedDayPredicate: (day) => addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, day),
-              calendarFormat: CalendarFormat.month,
-              startingDayOfWeek: StartingDayOfWeek.monday,
-              availableGestures: AvailableGestures.horizontalSwipe,
+              focusedDay: _focusedDay,
+              onPageChanged: (focusedDay) {
+                setState(() {
+                  _focusedDay = focusedDay;
+                });
+              },
               calendarBuilders: CalendarBuilders(
                 headerTitleBuilder: (context, day) {
                   final selectedDate = addTaskProvider.selectedDate;
+                  final visibleMonth = DateFormat('MMMM yyyy', context.locale.toLanguageTag()).format(_focusedDay);
 
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -319,19 +337,17 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                     child: Center(
                       child: Column(
                         children: [
-                          // Show selected date with day number, month and year
                           Text(
-                            selectedDate != null ? DateFormat('d MMMM yyyy', context.locale.toLanguageTag()).format(selectedDate) : DateFormat('MMMM yyyy', context.locale.toLanguageTag()).format(day),
+                            visibleMonth,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: AppColors.main,
                             ),
                           ),
-                          // Show day of week for selected date
                           if (selectedDate != null)
                             Text(
-                              DateFormat('EEEE', context.locale.toLanguageTag()).format(selectedDate),
+                              DateFormat('d MMMM yyyy', context.locale.toLanguageTag()).format(selectedDate),
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -344,6 +360,10 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                   );
                 },
               ),
+              selectedDayPredicate: (day) => addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, day),
+              calendarFormat: CalendarFormat.month,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              availableGestures: AvailableGestures.horizontalSwipe,
               headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
@@ -396,6 +416,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                 addTaskProvider.unfocusAll();
                 setState(() {
                   addTaskProvider.selectedDate = selectedDay;
+                  _focusedDay = DateTime(focusedDay.year, focusedDay.month, focusedDay.day);
                 });
               },
             ),
@@ -414,8 +435,10 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
                   onTap: () {
+                    final now = DateTime.now();
                     setState(() {
-                      addTaskProvider.selectedDate = DateTime.now();
+                      addTaskProvider.selectedDate = now;
+                      _focusedDay = DateTime(now.year, now.month, now.day);
                     });
                   },
                   child: Container(
@@ -465,8 +488,10 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
                   onTap: () {
+                    final t = DateTime.now().add(const Duration(days: 1));
                     setState(() {
-                      addTaskProvider.selectedDate = DateTime.now().add(const Duration(days: 1));
+                      addTaskProvider.selectedDate = t;
+                      _focusedDay = DateTime(t.year, t.month, t.day);
                     });
                   },
                   child: Container(

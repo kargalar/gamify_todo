@@ -6,6 +6,7 @@ import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
 
 class SelectDate extends StatefulWidget {
   const SelectDate({
@@ -17,12 +18,23 @@ class SelectDate extends StatefulWidget {
 }
 
 class _SelectDateState extends State<SelectDate> {
-  late final addTaskProvider = context.read<AddTaskProvider>();
+  late DateTime _focusedDay = DateTime.now();
+  bool _didInit = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInit) {
+      final provider = Provider.of<AddTaskProvider>(context, listen: false);
+      _focusedDay = provider.selectedDate ?? _focusedDay;
+      _didInit = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Listen to changes in selectedDays to rebuild the widget
-    context.watch<AddTaskProvider>();
+    // Obtain provider for reactive values
+    final addTaskProvider = context.watch<AddTaskProvider>();
 
     return Container(
       decoration: BoxDecoration(
@@ -97,7 +109,51 @@ class _SelectDateState extends State<SelectDate> {
                     rowHeight: 36,
                     firstDay: DateTime.now().subtract(const Duration(days: 365)),
                     lastDay: DateTime.now().add(const Duration(days: 365)),
-                    focusedDay: addTaskProvider.selectedDate ?? DateTime.now(),
+                    focusedDay: _focusedDay,
+                    onPageChanged: (focusedDay) {
+                      setState(() {
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    calendarBuilders: CalendarBuilders(
+                      headerTitleBuilder: (context, day) {
+                        final selectedDate = addTaskProvider.selectedDate;
+                        final visibleMonth = DateFormat('MMMM yyyy', Localizations.localeOf(context).toLanguageTag()).format(_focusedDay);
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.main.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Text(
+                                  visibleMonth,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.main,
+                                  ),
+                                ),
+                                if (selectedDate != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    DateFormat('d MMMM yyyy', Localizations.localeOf(context).toLanguageTag()).format(selectedDate),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.main.withValues(alpha: 0.8),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                     selectedDayPredicate: (day) => addTaskProvider.selectedDate != null && isSameDay(addTaskProvider.selectedDate!, day),
                     calendarFormat: CalendarFormat.month,
                     startingDayOfWeek: StartingDayOfWeek.monday,
@@ -175,8 +231,10 @@ class _SelectDateState extends State<SelectDate> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
                         onTap: () {
+                          final now = DateTime.now();
                           setState(() {
-                            addTaskProvider.selectedDate = DateTime.now();
+                            addTaskProvider.selectedDate = now;
+                            _focusedDay = DateTime(now.year, now.month, now.day);
                           });
                         },
                         child: Container(
@@ -228,8 +286,10 @@ class _SelectDateState extends State<SelectDate> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
                         onTap: () {
+                          final t = DateTime.now().add(const Duration(days: 1));
                           setState(() {
-                            addTaskProvider.selectedDate = DateTime.now().add(const Duration(days: 1));
+                            addTaskProvider.selectedDate = t;
+                            _focusedDay = DateTime(t.year, t.month, t.day);
                           });
                         },
                         child: Container(
