@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+
+class StreakSettingsProvider extends ChangeNotifier {
+  static final StreakSettingsProvider _instance = StreakSettingsProvider._internal();
+  factory StreakSettingsProvider() => _instance;
+  StreakSettingsProvider._internal();
+
+  // Streak settings keys
+  static const String _streakMinimumHoursKey = 'streak_minimum_hours';
+  static const String _vacationDaysKey = 'vacation_weekdays'; // Changed to weekdays
+
+  // Default values
+  double _streakMinimumHours = 1.0; // Default 1 hour per day
+  final Set<int> _vacationWeekdays = {}; // 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
+
+  // Getters
+  double get streakMinimumHours => _streakMinimumHours;
+  Set<int> get vacationWeekdays => Set.from(_vacationWeekdays);
+
+  /// Initialize streak settings
+  Future<void> initialize() async {
+    await _loadStreakSettings();
+  }
+
+  /// Load streak settings from SharedPreferences
+  Future<void> _loadStreakSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      _streakMinimumHours = prefs.getDouble(_streakMinimumHoursKey) ?? 1.0;
+
+      // Load vacation weekdays
+      final vacationWeekdaysString = prefs.getStringList(_vacationDaysKey) ?? [];
+      _vacationWeekdays.clear();
+      for (String weekdayStr in vacationWeekdaysString) {
+        try {
+          _vacationWeekdays.add(int.parse(weekdayStr));
+        } catch (e) {
+          debugPrint('Error parsing weekday: $weekdayStr');
+        }
+      }
+
+      debugPrint('Loaded streak settings: minHours=$_streakMinimumHours, vacationWeekdays=$_vacationWeekdays');
+    } catch (e) {
+      debugPrint('Error loading streak settings: $e');
+      // Set defaults
+      _streakMinimumHours = 1.0;
+      _vacationWeekdays.clear();
+    }
+  }
+
+  /// Save streak settings to SharedPreferences
+  Future<void> _saveStreakSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setDouble(_streakMinimumHoursKey, _streakMinimumHours);
+      await prefs.setStringList(_vacationDaysKey, _vacationWeekdays.map((e) => e.toString()).toList());
+
+      debugPrint('Saved streak settings: minHours=$_streakMinimumHours, vacationWeekdays=$_vacationWeekdays');
+    } catch (e) {
+      debugPrint('Error saving streak settings: $e');
+    }
+  }
+
+  /// Set minimum hours required for streak
+  Future<void> setStreakMinimumHours(double hours) async {
+    if (hours <= 0) return;
+
+    _streakMinimumHours = hours;
+    await _saveStreakSettings();
+    notifyListeners();
+
+    Helper().getMessage(
+      message: 'Streak minimum hours updated to ${hours.toStringAsFixed(1)} hours',
+      status: StatusEnum.SUCCESS,
+    );
+  }
+
+  /// Toggle a vacation weekday
+  Future<void> toggleVacationWeekday(int weekday) async {
+    if (weekday < 0 || weekday > 6) return;
+
+    if (_vacationWeekdays.contains(weekday)) {
+      _vacationWeekdays.remove(weekday);
+    } else {
+      _vacationWeekdays.add(weekday);
+    }
+
+    await _saveStreakSettings();
+    notifyListeners();
+
+    Helper().getMessage(
+      message: _vacationWeekdays.contains(weekday) ? 'Vacation day removed' : 'Vacation day added',
+      status: StatusEnum.SUCCESS,
+    );
+  }
+
+  /// Check if a date is a vacation day (based on weekday)
+  bool isVacationDay(DateTime date) {
+    // Convert DateTime weekday (1=Monday, 7=Sunday) to our format (0=Monday, 6=Sunday)
+    int weekday = date.weekday - 1;
+    return _vacationWeekdays.contains(weekday);
+  }
+
+  /// Clear all vacation weekdays
+  Future<void> clearVacationWeekdays() async {
+    _vacationWeekdays.clear();
+    await _saveStreakSettings();
+    notifyListeners();
+
+    Helper().getMessage(
+      message: 'All vacation days cleared',
+      status: StatusEnum.SUCCESS,
+    );
+  }
+
+  /// Get weekday name for display
+  String getWeekdayName(int weekday, {bool isEnglish = true}) {
+    if (isEnglish) {
+      const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return weekdays[weekday];
+    } else {
+      const weekdays = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+      return weekdays[weekday];
+    }
+  }
+}

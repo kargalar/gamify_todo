@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -315,6 +314,7 @@ class HomeWidgetService {
   static Future<void> registerBackground() async {
     try {
       // Register the top-level entry point to ensure availability in AOT
+      // ignore: deprecated_member_use
       await HomeWidget.registerBackgroundCallback(homeWidgetBackgroundCallback);
     } catch (e) {
       debugPrint('HomeWidget registerBackground error: $e');

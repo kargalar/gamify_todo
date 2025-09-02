@@ -8,6 +8,7 @@ import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
 import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
+import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/offline_mode_provider.dart';
@@ -201,6 +202,15 @@ class SettingsPage extends StatelessWidget {
                     },
                   ),
                 );
+              },
+            ),
+            // Streak Settings option
+            _settingsOption(
+              title: LocaleKeys.StreakSettings.tr(),
+              subtitle: LocaleKeys.StreakMinimumHoursDesc.tr(),
+              icon: Icons.local_fire_department,
+              onTap: () {
+                NavigatorService().goTo(const StreakSettingsPage());
               },
             ),
             // _settingsOption(

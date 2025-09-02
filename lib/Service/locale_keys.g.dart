@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
   static const Store = 'Store';
   static const Settings = 'Settings';
   static const SelectLanguage = 'SelectLanguage';
@@ -131,13 +131,13 @@ abstract class LocaleKeys {
   static const SubtaskEmpty = 'SubtaskEmpty';
   static const HideSubtasks = 'HideSubtasks';
   static const ShowSubtasks = 'ShowSubtasks';
-  static const Location = 'Location';
-  static const EnterLocation = 'EnterLocation';
-  static const ShowOnMap = 'ShowOnMap';
   static const Title = 'Title';
   static const Description = 'Description';
   static const EnterTitle = 'EnterTitle';
   static const EnterDescription = 'EnterDescription';
+  static const Location = 'Location';
+  static const EnterLocation = 'EnterLocation';
+  static const ShowOnMap = 'ShowOnMap';
   static const AddManualLog = 'AddManualLog';
   static const NoLogsYet = 'NoLogsYet';
   static const Date = 'Date';
@@ -305,4 +305,33 @@ abstract class LocaleKeys {
   static const SkipRoutine = 'SkipRoutine';
   static const SkipRoutineSuccess = 'SkipRoutineSuccess';
   static const SkipRoutineNone = 'SkipRoutineNone';
+  static const StreakSettings = 'StreakSettings';
+  static const StreakMinimumHours = 'StreakMinimumHours';
+  static const StreakMinimumHoursDesc = 'StreakMinimumHoursDesc';
+  static const Days = 'Days';
+  static const PassDaysPerMonth = 'PassDaysPerMonth';
+  static const PassDaysDesc = 'PassDaysDesc';
+  static const RemainingThisMonth = 'RemainingThisMonth';
+  static const UsePassDay = 'UsePassDay';
+  static const VacationDays = 'VacationDays';
+  static const VacationDaysDesc = 'VacationDaysDesc';
+  static const TotalVacationDays = 'TotalVacationDays';
+  static const PassedDays = 'PassedDays';
+  static const PassedDaysDesc = 'PassedDaysDesc';
+  static const TotalPassedDays = 'TotalPassedDays';
+  static const ClearAll = 'ClearAll';
+  static const ClearVacationDays = 'ClearVacationDays';
+  static const ClearVacationDaysConfirm = 'ClearVacationDaysConfirm';
+  static const ClearPassedDays = 'ClearPassedDays';
+  static const ClearPassedDaysConfirm = 'ClearPassedDaysConfirm';
+  static const SelectWeekdaysForVacation = 'SelectWeekdaysForVacation';
+  static const Monday = 'Monday';
+  static const Tuesday = 'Tuesday';
+  static const Wednesday = 'Wednesday';
+  static const Thursday = 'Thursday';
+  static const Friday = 'Friday';
+  static const Saturday = 'Saturday';
+  static const Sunday = 'Sunday';
+  static const MinimumHoursForStreak = 'MinimumHoursForStreak';
+
 }

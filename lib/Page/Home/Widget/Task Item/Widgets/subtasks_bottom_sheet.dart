@@ -377,6 +377,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
       setState(() {
         hasClipboardData = true;
       });
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Incomplete subtasks copied to clipboard'),
@@ -426,6 +427,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
 
     final parsedSubtasks = _parseSubtasksFromText(data.text!);
     if (parsedSubtasks.isEmpty) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No valid subtasks found in clipboard'),
@@ -435,6 +437,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
       return;
     }
 
+    // ignore: use_build_context_synchronously
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
     for (final parsed in parsedSubtasks) {
       taskProvider.addSubtask(widget.taskModel, parsed.title, parsed.description ?? '');
@@ -448,6 +451,8 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
 
     _checkClipboard(); // Re-check clipboard after paste
 
+    // !!!! ScaffoldMessengerları helper de kullandığımıxa benzer bir mesaj  şeyiyle değiştir
+    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${parsedSubtasks.length} subtasks pasted'),

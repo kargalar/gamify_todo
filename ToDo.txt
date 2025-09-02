@@ -1,0 +1,13 @@
+botomsheet tam ekran olabilsin
+
+firebase düzelt
+
+mvvm
+
+subtaskları birleştir
+
+realeted tasklardaki task asınca taskın sayfasine gidlisin. skill ve routşne için
+
+timer aktifken loglamak fix
+
+timer task hedeflenen süre 0 iken taskı sıfıdan başlatırsam task tamamalandı diyor. öyle olmasın

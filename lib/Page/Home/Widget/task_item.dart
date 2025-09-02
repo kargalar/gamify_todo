@@ -626,6 +626,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         // If it's a regular task, just change its status
         widget.taskModel.status = null;
         await ServerManager().updateTask(taskModel: widget.taskModel);
+        // ignore: use_build_context_synchronously
         Provider.of<TaskProvider>(context, listen: false).updateItems();
         Helper().getMessage(message: LocaleKeys.UnarchiveTaskSuccess.tr());
       }

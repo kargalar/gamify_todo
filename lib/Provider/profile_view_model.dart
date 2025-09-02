@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/streak_settings_provider.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/trait_model.dart';
@@ -82,28 +84,81 @@ class ProfileViewModel extends ChangeNotifier {
 
   // Streak Analysis Data
   Map<String, int> getStreakAnalysis() {
+    final streakSettings = StreakSettingsProvider();
+    final vacationMode = VacationModeProvider();
+
     int currentStreak = 0;
     int longestStreak = 0;
     int tempStreak = 0;
-    DateTime? lastDate;
+    DateTime? lastProcessedDate;
 
-    // Filter out tasks without dates and sort the rest
-    var tasksWithDates = TaskProvider().taskList.where((task) => task.taskDate != null).toList();
-    tasksWithDates.sort((a, b) => b.taskDate!.compareTo(a.taskDate!));
+    // Get all task logs and calculate daily durations
+    Map<DateTime, Duration> dailyDurations = _calculateDailyDurations();
 
-    for (var task in tasksWithDates) {
-      if (task.status == TaskStatusEnum.DONE) {
-        if (lastDate == null || task.taskDate!.difference(lastDate).inDays == 1) {
+    // Sort dates in descending order (newest first)
+    List<DateTime> sortedDates = dailyDurations.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    // Process each day to calculate streaks
+    for (DateTime date in sortedDates) {
+      final dateOnly = DateTime(date.year, date.month, date.day);
+      final dayDuration = dailyDurations[dateOnly] ?? Duration.zero;
+      final minimumHours = streakSettings.streakMinimumHours;
+
+      // Check if this day counts for streak
+      bool dayCountsForStreak = false;
+
+      if (streakSettings.isVacationDay(dateOnly)) {
+        // Vacation days always count for streak
+        dayCountsForStreak = true;
+      } else if (vacationMode.isVacationModeEnabled) {
+        // If vacation mode is active, all days count for streak
+        dayCountsForStreak = true;
+      } else {
+        // Normal day - check if minimum hours requirement is met
+        final hoursWorked = dayDuration.inMinutes / 60.0;
+        dayCountsForStreak = hoursWorked >= minimumHours;
+      }
+
+      if (dayCountsForStreak) {
+        if (lastProcessedDate == null || dateOnly.difference(lastProcessedDate).inDays.abs() == 1) {
+          // Consecutive day
           tempStreak++;
-        } else {
+        } else if (dateOnly.difference(lastProcessedDate).inDays.abs() > 1) {
+          // Gap in streak, reset
           tempStreak = 1;
         }
-        lastDate = task.taskDate;
+        lastProcessedDate = dateOnly;
 
-        longestStreak = tempStreak > longestStreak ? tempStreak : longestStreak;
+        // Update longest streak
+        if (tempStreak > longestStreak) {
+          longestStreak = tempStreak;
+        }
 
-        if (DateTime.now().difference(task.taskDate!).inDays <= 1) {
+        // Update current streak if this date is recent
+        final daysSinceDate = DateTime.now().difference(dateOnly).inDays;
+        if (daysSinceDate <= 1) {
           currentStreak = tempStreak;
+        } else if (daysSinceDate == 2) {
+          // Check if yesterday was covered by vacation/pass/holiday mode
+          final yesterday = DateTime.now().subtract(const Duration(days: 1));
+          final yesterdayOnly = DateTime(yesterday.year, yesterday.month, yesterday.day);
+
+          if (streakSettings.isVacationDay(yesterdayOnly) || vacationMode.isVacationModeEnabled) {
+            currentStreak = tempStreak;
+          }
+        }
+      } else {
+        // Day doesn't count for streak
+        if (lastProcessedDate != null && dateOnly.difference(lastProcessedDate).inDays.abs() == 1) {
+          // Reset streak if this was supposed to be a consecutive day
+          tempStreak = 0;
+        }
+
+        // Check if this affects current streak
+        final daysSinceDate = DateTime.now().difference(dateOnly).inDays;
+        if (daysSinceDate == 1) {
+          // Yesterday didn't meet requirements, current streak is broken
+          currentStreak = 0;
         }
       }
     }
@@ -112,6 +167,41 @@ class ProfileViewModel extends ChangeNotifier {
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
     };
+  }
+
+  /// Calculate daily work durations based on task logs
+  Map<DateTime, Duration> _calculateDailyDurations() {
+    Map<DateTime, Duration> dailyDurations = {};
+    List<TaskLogModel> allLogs = TaskLogProvider().taskLogList;
+
+    for (var log in allLogs) {
+      DateTime dateKey = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+      dailyDurations[dateKey] ??= Duration.zero;
+
+      if (log.duration != null) {
+        // Timer tasks
+        dailyDurations[dateKey] = dailyDurations[dateKey]! + log.duration!;
+      } else if (log.count != null && log.count! > 0) {
+        // Counter tasks
+        try {
+          var task = TaskProvider().taskList.firstWhere((t) => t.id == log.taskId);
+          if (task.remainingDuration != null) {
+            Duration countDuration = task.remainingDuration! * log.count!;
+            dailyDurations[dateKey] = dailyDurations[dateKey]! + countDuration;
+          }
+        } catch (_) {}
+      } else if (log.status == TaskStatusEnum.DONE) {
+        // Checkbox tasks
+        try {
+          var task = TaskProvider().taskList.firstWhere((t) => t.id == log.taskId);
+          if (task.remainingDuration != null) {
+            dailyDurations[dateKey] = dailyDurations[dateKey]! + task.remainingDuration!;
+          }
+        } catch (_) {}
+      }
+    }
+
+    return dailyDurations;
   }
 
   // Get total durations for all tasks based on logs for the current week
