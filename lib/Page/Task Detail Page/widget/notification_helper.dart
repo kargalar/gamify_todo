@@ -9,6 +9,12 @@ class NotificationHelper {
     final currentDuration = task.currentDuration!;
     final isTimerActive = task.isTimerActive ?? false;
 
+    // Hedef 0 veya null ise tamamlanma bildirimi planlama
+    if (remainingDuration.inSeconds <= 0) {
+      NotificationService().cancelNotificationOrAlarm(task.id);
+      return;
+    }
+
     if (currentDuration < remainingDuration && isTimerActive) {
       // Zamanlanmış bildirimi yeniden hesapla
       final int secondsUntilCompletion = remainingDuration.inSeconds - currentDuration.inSeconds;

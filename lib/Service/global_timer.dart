@@ -49,6 +49,10 @@ class GlobalTimer {
           isCountDown: false,
         );
 
+        // Eski tamamlanma/alarm bildirimlerini temizle (stale kalmasın)
+        NotificationService().cancelNotificationOrAlarm(taskModel.id + 100000);
+        NotificationService().cancelNotificationOrAlarm(taskModel.id + 200000);
+
         // Timer başlangıç zamanını kaydet
         prefs.setString('timer_start_time_${taskModel.id}', DateTime.now().millisecondsSinceEpoch.toString());
         prefs.setString('timer_start_duration_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
@@ -57,17 +61,22 @@ class GlobalTimer {
         prefs.setString('task_last_update_${taskModel.id}', DateTime.now().toIso8601String());
         prefs.setString('task_last_progress_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
 
-        // Bildirim ayarla
+        // Bildirim ayarla (hedef > 0 ve henüz ulaşılmamışsa)
         if (taskModel.status != TaskStatusEnum.DONE) {
-          // Tamamlanma zamanı için bildirim planla
-          final scheduledDate = DateTime.now().add(taskModel.remainingDuration! - taskModel.currentDuration!);
-          NotificationService().scheduleNotification(
-            id: taskModel.id + 100000,
-            title: LocaleKeys.task_completed_title.tr(args: [taskModel.title]),
-            desc: LocaleKeys.task_completed_desc.tr(args: [taskModel.remainingDuration!.textLongDynamicWithoutZero()]),
-            scheduledDate: scheduledDate,
-            isAlarm: true,
-          );
+          final Duration target = taskModel.remainingDuration ?? Duration.zero;
+          final Duration progress = taskModel.currentDuration ?? Duration.zero;
+          final Duration delta = target - progress;
+          if (target.inSeconds > 0 && delta.inSeconds > 0) {
+            // Tamamlanma zamanı için bildirim planla
+            final scheduledDate = DateTime.now().add(delta);
+            NotificationService().scheduleNotification(
+              id: taskModel.id + 100000,
+              title: LocaleKeys.task_completed_title.tr(args: [taskModel.title]),
+              desc: LocaleKeys.task_completed_desc.tr(args: [target.textLongDynamicWithoutZero()]),
+              scheduledDate: scheduledDate,
+              isAlarm: true,
+            );
+          }
         } else {
           // Task zaten tamamlanmış, ancak timer hala çalışabilir
           // Bildirim gösterme, sadece timer'ı çalıştır
@@ -231,8 +240,8 @@ class GlobalTimer {
                 task.currentDuration = task.currentDuration! + const Duration(seconds: 1);
               }
 
-              // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma
-              if (task.status != TaskStatusEnum.DONE && task.currentDuration! >= task.remainingDuration!) {
+              // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma (hedef > 0 ise)
+              if (task.status != TaskStatusEnum.DONE && task.remainingDuration != null && task.remainingDuration!.inSeconds > 0 && task.currentDuration! >= task.remainingDuration!) {
                 // Clear any existing status before setting to COMPLETED
                 task.status = TaskStatusEnum.DONE;
                 HomeWidgetService.updateTaskCount();

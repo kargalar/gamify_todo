@@ -7,5 +7,3 @@ mvvm
 subtaskları birleştir
 
 timer aktifken loglamak fix
-
-timer task hedeflenen süre 0 iken taskı sıfıdan başlatırsam task tamamalandı diyor. öyle olmasın
