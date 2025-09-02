@@ -7,11 +7,10 @@ import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Enum/trait_type_enum.dart';
-import 'package:next_level/Provider/task_provider.dart';
-import 'package:next_level/Enum/task_type_enum.dart';
-import 'package:next_level/Enum/task_status_enum.dart';
+// Removed direct task imports; totals are now computed via ProfileViewModel task logs
 import 'package:next_level/Core/extensions.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Provider/profile_view_model.dart';
 
 class TraitList extends StatefulWidget {
   const TraitList({
@@ -68,6 +67,9 @@ class _TraitListState extends State<TraitList> {
           final attributes = traitProvider.traitList.where((t) => t.type == TraitTypeEnum.ATTRIBUTE && !t.isArchived).toList();
 
           if (widget.isSkill) {
+            // Use combined totals to include TIMER, COUNTER, and CHECKBOX (reactive)
+            final viewModel = context.watch<ProfileViewModel>();
+            final traitTotals = viewModel.getTraitTotalsCombined(isSkill: true);
             // Single preferred design: gradient-tinted 2-column grid
             return GridView.count(
               crossAxisCount: 2,
@@ -77,21 +79,7 @@ class _TraitListState extends State<TraitList> {
               crossAxisSpacing: 10,
               childAspectRatio: 1.6,
               children: skills.map((skill) {
-                final Duration totalDuration = TaskProvider().taskList.fold(
-                  Duration.zero,
-                  (prev, element) {
-                    if (element.remainingDuration != null && element.skillIDList != null && element.skillIDList!.contains(skill.id)) {
-                      if (element.type == TaskTypeEnum.CHECKBOX && element.status != TaskStatusEnum.DONE) return prev;
-                      return prev +
-                          (element.type == TaskTypeEnum.CHECKBOX
-                              ? element.remainingDuration!
-                              : element.type == TaskTypeEnum.COUNTER
-                                  ? element.remainingDuration! * element.currentCount!
-                                  : element.currentDuration!);
-                    }
-                    return prev;
-                  },
-                );
+                final Duration totalDuration = traitTotals[skill.id] ?? Duration.zero;
 
                 final decoration = BoxDecoration(
                   gradient: LinearGradient(colors: [skill.color.withValues(alpha: 0.5), Theme.of(context).cardColor]),
@@ -121,6 +109,7 @@ class _TraitListState extends State<TraitList> {
           }
 
           // Attributes: show compact 2-column grid
+          final viewModel = context.watch<ProfileViewModel>();
           return GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
@@ -129,21 +118,8 @@ class _TraitListState extends State<TraitList> {
             crossAxisSpacing: 8,
             childAspectRatio: 3.8,
             children: attributes.map((attribute) {
-              final Duration totalDuration = TaskProvider().taskList.fold(
-                Duration.zero,
-                (prev, element) {
-                  if (element.remainingDuration != null && element.attributeIDList != null && element.attributeIDList!.contains(attribute.id)) {
-                    if (element.type == TaskTypeEnum.CHECKBOX && element.status != TaskStatusEnum.DONE) return prev;
-                    return prev +
-                        (element.type == TaskTypeEnum.CHECKBOX
-                            ? element.remainingDuration!
-                            : element.type == TaskTypeEnum.COUNTER
-                                ? element.remainingDuration! * element.currentCount!
-                                : element.currentDuration!);
-                  }
-                  return prev;
-                },
-              );
+              final traitTotals = viewModel.getTraitTotalsCombined(isSkill: false);
+              final Duration totalDuration = traitTotals[attribute.id] ?? Duration.zero;
 
               return GestureDetector(
                 onTap: () async {

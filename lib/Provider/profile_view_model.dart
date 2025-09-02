@@ -30,6 +30,117 @@ class ProfileViewModel extends ChangeNotifier {
     return skillDurations;
   }
 
+  /// Returns total durations per trait (skill or attribute) for the last [daysBack] days
+  /// using task logs. This includes:
+  /// - TIMER: adds logged duration
+  /// - COUNTER: adds remainingDuration * count
+  /// - CHECKBOX: adds remainingDuration when DONE
+  Map<int, Duration> getTraitTotals({required bool isSkill, int daysBack = 7}) {
+    final Map<int, Duration> totals = {};
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day).subtract(Duration(days: daysBack - 1));
+
+    final logs = TaskLogProvider().taskLogList.where((log) => !log.logDate.isBefore(start)).toList();
+
+    for (final log in logs) {
+      // Find the source task for trait mapping and per-unit duration
+      dynamic task;
+      try {
+        task = TaskProvider().taskList.cast<dynamic>().firstWhere((t) => t.id == log.taskId);
+      } catch (_) {
+        task = null;
+      }
+      if (task == null) continue;
+
+      final List<int>? traitIds = isSkill ? (task.skillIDList as List<int>?) : (task.attributeIDList as List<int>?);
+      if (traitIds == null || traitIds.isEmpty) continue;
+
+      // Compute contributed duration for this log
+      Duration add;
+      if (log.duration != null) {
+        add = log.duration!;
+      } else if (log.count != null && log.count! > 0) {
+        final perCount = task.remainingDuration as Duration? ?? Duration.zero;
+        // Cap extreme counts defensively similar to charts
+        final int count = log.count! <= 100 ? log.count! : 5;
+        add = perCount * count;
+      } else if (log.status == TaskStatusEnum.DONE) {
+        add = (task.remainingDuration as Duration?) ?? Duration.zero;
+      } else {
+        add = Duration.zero;
+      }
+
+      if (add <= Duration.zero) continue;
+
+      for (final id in traitIds) {
+        totals[id] = (totals[id] ?? Duration.zero) + add;
+      }
+    }
+
+    return totals;
+  }
+
+  /// Combined totals using logs when present; falls back to current task state otherwise.
+  /// Prevents double counting (e.g., CHECKBOX DONE both in state and logs the same day).
+  Map<int, Duration> getTraitTotalsCombined({required bool isSkill, int? daysBack}) {
+    final Map<int, Duration> totals = {};
+
+    DateTime? start;
+    if (daysBack != null) {
+      final now = DateTime.now();
+      start = DateTime(now.year, now.month, now.day).subtract(Duration(days: daysBack - 1));
+    }
+
+    // Pre-index logs by taskId and date (day granularity)
+    final Map<int, List<TaskLogModel>> logsByTask = {};
+    for (final log in TaskLogProvider().taskLogList) {
+      if (start != null && log.logDate.isBefore(start)) continue;
+      logsByTask.putIfAbsent(log.taskId, () => []).add(log);
+    }
+
+    // Iterate tasks and compute contribution per task per trait
+    for (final t in TaskProvider().taskList) {
+      final List<int>? traitIds = isSkill ? t.skillIDList : t.attributeIDList;
+      if (traitIds == null || traitIds.isEmpty) continue;
+
+      // Window filter by task date when available
+      if (start != null && t.taskDate != null) {
+        final day = DateTime(t.taskDate!.year, t.taskDate!.month, t.taskDate!.day);
+        if (day.isBefore(start)) continue;
+      }
+
+      final logs = logsByTask[t.id] ?? const <TaskLogModel>[];
+
+      Duration add = Duration.zero;
+      if (t.type == TaskTypeEnum.TIMER) {
+        // Prefer logs if any duration exists; else use currentDuration
+        final dur = logs.fold<Duration>(Duration.zero, (p, l) => p + (l.duration ?? Duration.zero));
+        add = dur > Duration.zero ? dur : (t.currentDuration ?? Duration.zero);
+      } else if (t.type == TaskTypeEnum.COUNTER) {
+        // Prefer logs counts; else use currentCount (no global cap for totals)
+        final totalCount = logs.fold<int>(0, (p, l) => p + (l.count ?? 0));
+        final per = t.remainingDuration ?? Duration.zero;
+        add = totalCount > 0 ? per * totalCount : per * (t.currentCount ?? 0);
+      } else if (t.type == TaskTypeEnum.CHECKBOX) {
+        // Count DONE logs; if none, but task is DONE, include once
+        final int doneCount = logs.where((l) => l.status == TaskStatusEnum.DONE).length;
+        final per = t.remainingDuration ?? Duration.zero;
+        if (doneCount > 0) {
+          add = per * doneCount;
+        } else if (t.status == TaskStatusEnum.DONE) {
+          add = per;
+        }
+      }
+
+      if (add <= Duration.zero) continue;
+      for (final id in traitIds) {
+        totals[id] = (totals[id] ?? Duration.zero) + add;
+      }
+    }
+
+    return totals;
+  }
+
   List<TraitModel> getTopSkills(BuildContext context, Map<int, Map<DateTime, Duration>> skillDurations) {
     List<TraitModel> topSkillsList = [];
     var sortedSkills = skillDurations.entries.toList()..sort((a, b) => b.value.values.fold<Duration>(Duration.zero, (p, c) => p + c).compareTo(a.value.values.fold<Duration>(Duration.zero, (p, c) => p + c)));

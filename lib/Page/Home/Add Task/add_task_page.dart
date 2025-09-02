@@ -244,9 +244,11 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     ),
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask == null) const SelectTaskType(),
-                    // Show target count widget whenever selected type is COUNTER (both new and edit)
-                    if (watchedAddTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER) const SizedBox(height: 10),
-                    const SelectTargetCount(),
+                    // Show target count only when task type is COUNTER (new or edit)
+                    if (watchedAddTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER) ...[
+                      const SizedBox(height: 10),
+                      const SelectTargetCount(),
+                    ],
                     const SizedBox(height: 10),
                     const CompactTraitOptions(),
                     const SizedBox(height: 10),
