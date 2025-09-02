@@ -7,7 +7,7 @@ import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Page/Home/Widget/overdue_tasks_header.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
-import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/home_view_model.dart';
 import 'package:provider/provider.dart';
 
 class TaskList extends StatefulWidget {
@@ -38,8 +38,8 @@ class _TaskListState extends State<TaskList> {
 
     // Listen for changes to the TaskProvider's selectedDate
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-      _lastSelectedDate = taskProvider.selectedDate;
+      final vm = Provider.of<HomeViewModel>(context, listen: false);
+      _lastSelectedDate = vm.selectedDate;
     });
   }
 
@@ -84,19 +84,19 @@ class _TaskListState extends State<TaskList> {
 
   @override
   Widget build(BuildContext context) {
-    final taskProvider = context.watch<TaskProvider>();
+    final vm = context.watch<HomeViewModel>();
     context.watch<AddTaskProvider>();
 
     // Check if the selected date has changed from outside (e.g., from AppBar)
-    if (_lastSelectedDate != null && !_lastSelectedDate!.isSameDay(taskProvider.selectedDate) && !_isHandlingPageChange) {
+    if (_lastSelectedDate != null && !_lastSelectedDate!.isSameDay(vm.selectedDate) && !_isHandlingPageChange) {
       // Jump to the new date
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _jumpToDate(taskProvider.selectedDate);
+        _jumpToDate(vm.selectedDate);
       });
     }
 
     // Update the last known selected date
-    _lastSelectedDate = taskProvider.selectedDate;
+    _lastSelectedDate = vm.selectedDate;
 
     return PageView.builder(
       controller: _pageController,
@@ -107,24 +107,17 @@ class _TaskListState extends State<TaskList> {
       onPageChanged: (index) {
         if (_isHandlingPageChange) return;
 
-        // Calculate the date difference from the reference page
-        final int diff = index - _referencePage;
-
-        // Get the date for this page based on the base date
-        final DateTime newDate = _baseDate.add(Duration(days: diff));
-
-        // Update the selected date in the provider
-        taskProvider.changeSelectedDate(newDate);
+        // Delegate to ViewModel
+        vm.onPageChanged(pageIndex: index, baseDate: _baseDate, referencePage: _referencePage);
       },
       itemBuilder: (context, index) {
-        // Calculate the date for this page based on the reference page
-        final int diff = index - _referencePage;
-        final DateTime pageDate = _baseDate.add(Duration(days: diff));
+        // Calculate the date for this page via ViewModel helper
+        final DateTime pageDate = vm.dateForPage(baseDate: _baseDate, pageIndex: index, referencePage: _referencePage);
 
         // Get tasks for this date
-        final selectedDateTaskList = taskProvider.getTasksForDate(pageDate);
-        final selectedDateRutinTaskList = taskProvider.getRoutineTasksForDate(pageDate);
-        final selectedDateGhostRutinTaskList = taskProvider.getGhostRoutineTasksForDate(pageDate); // Build the content for this page
+        final selectedDateTaskList = vm.getTasksForDate(pageDate);
+        final selectedDateRutinTaskList = vm.getRoutineTasksForDate(pageDate);
+        final selectedDateGhostRutinTaskList = vm.getGhostRoutineTasksForDate(pageDate); // Build the content for this page
         return _buildPageContent(
           pageDate,
           selectedDateTaskList,
@@ -141,11 +134,10 @@ class _TaskListState extends State<TaskList> {
     List<dynamic> selectedDateRutinTaskList,
     List<dynamic> selectedDateGhostRutinTaskList,
   ) {
-    final taskProvider = context.read<TaskProvider>();
-    final today = DateTime.now();
-    final isToday = pageDate.year == today.year && pageDate.month == today.month && pageDate.day == today.day;
+    final vm = context.read<HomeViewModel>();
+    final isToday = vm.isToday(pageDate);
     // Get overdue tasks only for today's view
-    final List<TaskModel> overdueTasks = isToday ? taskProvider.getOverdueTasks() : <TaskModel>[];
+    final List<TaskModel> overdueTasks = isToday ? vm.getOverdueTasks() : <TaskModel>[];
 
     // Check if there are any tasks to display
     final hasAnyTasks = selectedDateTaskList.isNotEmpty || selectedDateGhostRutinTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty || overdueTasks.isNotEmpty;

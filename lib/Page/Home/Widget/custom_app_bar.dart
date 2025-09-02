@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/day_item.dart';
-import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Service/debug_helper.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -19,7 +19,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedDate = context.watch<TaskProvider>().selectedDate;
+    final selectedDate = context.watch<HomeViewModel>().selectedDate;
 
     return AppBar(
       titleSpacing: 0,
@@ -56,8 +56,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       borderRadius: AppColors.borderRadiusAll,
                       onTap: () {
                         // Provider üzerinden erişim sağlayarak bugüne dön
-                        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-                        taskProvider.changeSelectedDate(DateTime.now());
+                        context.read<HomeViewModel>().goToday();
                       },
                       child: Container(
                         height: 40,
@@ -149,18 +148,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             return [
               PopupMenuItem(
                 onTap: () async {
-                  await TaskProvider().changeShowCompleted();
+                  await context.read<HomeViewModel>().toggleShowCompleted();
                 },
                 child: Row(
                   children: [
                     Icon(
-                      TaskProvider().showCompleted ? Icons.visibility_off : Icons.visibility,
+                      context.read<HomeViewModel>().showCompleted ? Icons.visibility_off : Icons.visibility,
                       size: 18,
                       color: AppColors.text,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "${TaskProvider().showCompleted ? LocaleKeys.Hide.tr() : LocaleKeys.Show.tr()} ${LocaleKeys.Done.tr()}",
+                      "${context.read<HomeViewModel>().showCompleted ? LocaleKeys.Hide.tr() : LocaleKeys.Show.tr()} ${LocaleKeys.Done.tr()}",
                       style: const TextStyle(fontSize: 14),
                     ),
                   ],
@@ -170,8 +169,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onTap: () {
                   // Defer action to after menu closes
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-                    taskProvider.skipRoutinesForDate(taskProvider.selectedDate);
+                    context.read<HomeViewModel>().skipRoutinesForSelectedDate();
                   });
                 },
                 child: Row(

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/home_view_model.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -26,14 +26,14 @@ class _DayItemState extends State<DayItem> {
     return InkWell(
       borderRadius: AppColors.borderRadiusAll,
       onTap: () {
-        // Provider üzerinden erişim sağlayarak tarihi değiştir
-        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-        taskProvider.changeSelectedDate(widget.date);
+        // ViewModel üzerinden tarihi değiştir
+        final vm = Provider.of<HomeViewModel>(context, listen: false);
+        vm.changeSelectedDate(widget.date);
       },
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: context.watch<TaskProvider>().selectedDate.isSameDay(widget.date) ? AppColors.main : AppColors.transparantBlack,
+          color: context.watch<HomeViewModel>().selectedDate.isSameDay(widget.date) ? AppColors.main : AppColors.transparantBlack,
           borderRadius: AppColors.borderRadiusAll,
         ),
         child: Column(

@@ -141,7 +141,7 @@ class ProfileViewModel extends ChangeNotifier {
     return totals;
   }
 
-  List<TraitModel> getTopSkills(BuildContext context, Map<int, Map<DateTime, Duration>> skillDurations) {
+  List<TraitModel> getTopSkills(Map<int, Map<DateTime, Duration>> skillDurations) {
     List<TraitModel> topSkillsList = [];
     var sortedSkills = skillDurations.entries.toList()..sort((a, b) => b.value.values.fold<Duration>(Duration.zero, (p, c) => p + c).compareTo(a.value.values.fold<Duration>(Duration.zero, (p, c) => p + c)));
 
