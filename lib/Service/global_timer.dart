@@ -240,8 +240,8 @@ class GlobalTimer {
                 task.currentDuration = task.currentDuration! + const Duration(seconds: 1);
               }
 
-              // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma (hedef > 0 ise)
-              if (task.status != TaskStatusEnum.DONE && task.remainingDuration != null && task.remainingDuration!.inSeconds > 0 && task.currentDuration! >= task.remainingDuration!) {
+              // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma (hedef >= 0 ise)
+              if (task.status != TaskStatusEnum.DONE && task.remainingDuration != null && task.remainingDuration!.inSeconds >= 0 && task.currentDuration! >= task.remainingDuration!) {
                 // Clear any existing status before setting to COMPLETED
                 task.status = TaskStatusEnum.DONE;
                 HomeWidgetService.updateTaskCount();

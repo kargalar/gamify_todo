@@ -354,7 +354,7 @@ class HiveService {
     }
 
     if (TaskProvider().taskList.isNotEmpty) {
-      // Mark past tasks as overdue and past routines as failed
+      // Mark past tasks as overdue and past routines as failed (only if they are not already completed)
       for (TaskModel task in TaskProvider().taskList) {
         if (task.status == null && task.taskDate != null && task.taskDate!.isBeforeDay(today)) {
           if (task.routineID != null) {

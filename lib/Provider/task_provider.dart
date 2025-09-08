@@ -126,8 +126,8 @@ class TaskProvider with ChangeNotifier {
         second: 59,
       );
 
-      if (taskDateTime.isBefore(now)) {
-        // Task date is in the past, mark as overdue
+      if (taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
+        // Task date is in the past, mark as overdue only if not already completed
         debugPrint('Setting newly created task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
         taskModel.status = TaskStatusEnum.OVERDUE;
 
@@ -847,8 +847,8 @@ class TaskProvider with ChangeNotifier {
         debugPrint('Task DateTime: $taskDateTime');
         debugPrint('Is task date before now: ${taskDateTime.isBefore(now)}');
 
-        if (taskDateTime.isBefore(now)) {
-          // Task date is in the past, mark as overdue
+        if (taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
+          // Task date is in the past, mark as overdue only if not already completed
           debugPrint('Task was canceled but date is past, setting to overdue: ID=${taskModel.id}');
           taskModel.status = TaskStatusEnum.OVERDUE;
 
@@ -931,8 +931,8 @@ class TaskProvider with ChangeNotifier {
         debugPrint('Task DateTime: $taskDateTime');
         debugPrint('Is task date before now: ${taskDateTime.isBefore(now)}');
 
-        if (taskDateTime.isBefore(now)) {
-          // Task date is in the past, mark as overdue
+        if (taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
+          // Task date is in the past, mark as overdue only if not already completed
           debugPrint('Task was failed but date is past, setting to overdue: ID=${taskModel.id}');
           taskModel.status = TaskStatusEnum.OVERDUE;
 

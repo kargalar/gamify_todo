@@ -187,7 +187,15 @@ extension TaskModelExtension on TaskModel {
     }
 
     bool isCompletedCheck() {
-      return isCompleted ? status == null || (type == TaskTypeEnum.TIMER && (isTimerActive ?? false) && isRoutineCheck()) : true;
+      if (!isCompleted) return true; // showCompleted = true ise tüm taskları göster
+
+      // showCompleted = false ise:
+      // 1. Explicit status null olan taskları göster (in progress)
+      // 2. Timer tipinde aktif olan taskları göster (hedef süre 0 olsa bile)
+      // 3. DONE, FAILED, CANCEL, OVERDUE status'u olan taskları gizle
+      if (status == null) return true; // In progress tasks always show
+      if (type == TaskTypeEnum.TIMER && (isTimerActive ?? false)) return true; // Active timers always show
+      return false; // Hide completed, failed, cancelled, overdue tasks
     }
 
     return taskDate?.isSameDay(date) == true && isRoutineCheck() && isCompletedCheck();

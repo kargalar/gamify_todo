@@ -129,7 +129,7 @@ class TaskStatus extends StatelessWidget {
       }
     } else {
       // If no explicit status, check if task should be marked as completed based on progress
-      if ((taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) || (taskModel.type == TaskTypeEnum.TIMER && taskModel.currentDuration! >= taskModel.remainingDuration!)) {
+      if ((taskModel.type == TaskTypeEnum.COUNTER && taskModel.currentCount! >= taskModel.targetCount!) || (taskModel.type == TaskTypeEnum.TIMER && taskModel.remainingDuration != null && taskModel.remainingDuration!.inSeconds > 0 && taskModel.currentDuration! >= taskModel.remainingDuration!)) {
         statusWidgets.add(
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
