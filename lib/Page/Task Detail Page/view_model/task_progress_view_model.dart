@@ -184,6 +184,10 @@ class TaskProgressViewModel extends ChangeNotifier {
   Future<void> updateProgressFromLogs() async {
     if (!isTask) return;
 
+    // Önceki progress değerlerini kaydet
+    int previousCount = taskModel!.currentCount ?? 0;
+    Duration previousDuration = taskModel!.currentDuration ?? Duration.zero;
+
     // Task için logları al
     List<TaskLogModel> logs = taskLogProvider.getLogsByTaskId(taskModel!.id);
 
@@ -249,6 +253,22 @@ class TaskProgressViewModel extends ChangeNotifier {
       taskModel!.currentDuration = totalDuration;
     } else if (taskModel!.type == TaskTypeEnum.COUNTER) {
       taskModel!.currentCount = totalCount;
+    }
+
+    // Progress farkını hesapla ve kredi ekle
+    late Duration progressDifference;
+    if (taskModel!.type == TaskTypeEnum.COUNTER) {
+      int newCount = taskModel!.currentCount ?? 0;
+      int difference = newCount - previousCount;
+      progressDifference = taskModel!.remainingDuration! * difference ~/ taskModel!.targetCount!;
+    } else {
+      Duration newDuration = taskModel!.currentDuration ?? Duration.zero;
+      progressDifference = newDuration - previousDuration;
+    }
+
+    // Kredi ekle (eğer progress değiştiyse)
+    if (progressDifference != Duration.zero) {
+      AppHelper().addCreditByProgress(progressDifference);
     }
 
     // Sunucuya güncelleme gönder
