@@ -7,3 +7,11 @@ mvvm
 subtaskları birleştir
 
 timer aktifken loglamak fix
+
+tasklar manuel loglayınca credi hesabı yapılmıyor.
+
+geçimş rutinler slidable fix
+
+bildirimler +3 geliyor
+
+manuel log ile tammaalnırsa done oluyor ama hide de sayılmıyor

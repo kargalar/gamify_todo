@@ -110,7 +110,7 @@ class TaskModel extends HiveObject {
       title: json['title'],
       description: json['description'],
       type: type,
-      taskDate: json['task_date'] != null ? DateTime.parse(json['task_date']) : null,
+      taskDate: json['task_date'] != null ? DateTime.parse(json['task_date']).toLocal() : null,
       time: json['time'] != null ? TimeOfDay.fromDateTime(DateTime.parse("1970-01-01 ${json['time']}")) : null,
       isNotificationOn: json['is_notification_on'],
       isAlarmOn: json['is_alarm_on'],
