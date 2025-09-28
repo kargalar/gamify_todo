@@ -271,8 +271,31 @@ class TaskProgressViewModel extends ChangeNotifier {
       AppHelper().addCreditByProgress(progressDifference);
     }
 
+    // Status kontrolü
+    if (taskModel!.type == TaskTypeEnum.TIMER) {
+      if (taskModel!.currentDuration! >= taskModel!.remainingDuration! && taskModel!.status != TaskStatusEnum.DONE) {
+        taskModel!.status = TaskStatusEnum.DONE;
+      } else if (taskModel!.currentDuration! < taskModel!.remainingDuration! && taskModel!.status == TaskStatusEnum.DONE) {
+        taskModel!.status = null;
+      }
+    } else if (taskModel!.type == TaskTypeEnum.COUNTER) {
+      if (taskModel!.currentCount! >= taskModel!.targetCount! && taskModel!.status != TaskStatusEnum.DONE) {
+        taskModel!.status = TaskStatusEnum.DONE;
+      } else if (taskModel!.currentCount! < taskModel!.targetCount! && taskModel!.status == TaskStatusEnum.DONE) {
+        taskModel!.status = null;
+      }
+    }
+
     // Sunucuya güncelleme gönder
     ServerManager().updateTask(taskModel: taskModel!);
+
+    // TaskProvider'daki task listesini güncelle
+    try {
+      final providerTask = TaskProvider().taskList.firstWhere((t) => t.id == taskModel!.id);
+      providerTask.status = taskModel!.status;
+      providerTask.currentCount = taskModel!.currentCount;
+      providerTask.currentDuration = taskModel!.currentDuration;
+    } catch (_) {}
 
     // TaskProvider'ı güncelle (ana sayfadaki görev ilerlemesini güncellemek için)
     TaskProvider().updateItems();
