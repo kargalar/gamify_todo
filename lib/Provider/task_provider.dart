@@ -1574,14 +1574,31 @@ class TaskProvider with ChangeNotifier {
 
     if (isToday && !showCompleted) {
       // For today: filter out done tasks if showCompleted is false
-      tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: true)).toList();
+      // Also exclude pinned tasks as they will be shown separately
+      tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: true) && !task.isPinned).toList();
     } else {
       // For historical dates or when showCompleted is true: show all tasks
+      // For non-today dates, don't separate pinned tasks
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: false)).toList();
     }
 
     sortTasksByPriorityAndTime(tasks);
     return tasks;
+  }
+
+  /// Get all pinned tasks (past, present, dateless) to show on today's view
+  List<TaskModel> getPinnedTasksForToday() {
+    // Get all pinned non-routine tasks regardless of date
+    // Include: today's tasks, past tasks, future tasks, and dateless tasks
+    final pinnedTasks = taskList.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.DONE && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED).toList();
+
+    debugPrint('Found ${pinnedTasks.length} pinned tasks (all dates)');
+    for (var task in pinnedTasks) {
+      debugPrint('  - Pinned task: ${task.title} (Date: ${task.taskDate})');
+    }
+
+    sortTasksByPriorityAndTime(pinnedTasks);
+    return pinnedTasks;
   }
 
   List<TaskModel> getRoutineTasksForDate(DateTime date) {

@@ -46,6 +46,7 @@ class AddTaskProvider with ChangeNotifier {
   List<SubTaskModel> subtasks = [];
   int? categoryId;
   int? earlyReminderMinutes; // Erken hatırlatma süresi (dakika cinsinden)
+  bool isPinned = false; // Pin durumu
 
   // File attachments
   List<String> attachmentPaths = [];
@@ -66,6 +67,12 @@ class AddTaskProvider with ChangeNotifier {
   void updatePriority(int value) {
     priority = value;
 
+    notifyListeners();
+  }
+
+  void updateIsPinned(bool value) {
+    isPinned = value;
+    debugPrint('Task pin status updated: ${isPinned ? "pinned" : "unpinned"}');
     notifyListeners();
   }
 

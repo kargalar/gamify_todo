@@ -2,27 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 
-class OverdueTasksHeader extends StatefulWidget {
-  final List<TaskModel> overdueTasks;
+class NormalTasksHeader extends StatefulWidget {
+  final List<dynamic> tasks;
 
-  const OverdueTasksHeader({
+  const NormalTasksHeader({
     super.key,
-    required this.overdueTasks,
+    required this.tasks,
   });
 
   @override
-  State<OverdueTasksHeader> createState() => _OverdueTasksHeaderState();
+  State<NormalTasksHeader> createState() => _NormalTasksHeaderState();
 }
 
-class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTickerProviderStateMixin {
-  bool _isExpanded = false;
+class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTickerProviderStateMixin {
+  bool _isExpanded = true; // Default to expanded
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
-  static const String _prefsKey = 'overdue_tasks_expanded';
+  static const String _prefsKey = 'normal_tasks_expanded';
 
   @override
   void initState() {
@@ -40,7 +39,7 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
 
   Future<void> _loadExpandedState() async {
     final prefs = await SharedPreferences.getInstance();
-    final isExpanded = prefs.getBool(_prefsKey) ?? false;
+    final isExpanded = prefs.getBool(_prefsKey) ?? true; // Default to expanded
 
     if (mounted) {
       setState(() {
@@ -78,20 +77,20 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    if (widget.overdueTasks.isEmpty) {
+    if (widget.tasks.isEmpty) {
       return const SizedBox.shrink();
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.orange.withValues(alpha: 0.08), // Light orange background
+        color: AppColors.main.withValues(alpha: 0.03), // Very light background
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with count and expand/collapse button - Minimalist design
+          // Header with count and expand/collapse button
           InkWell(
             onTap: _toggleExpanded,
             borderRadius: BorderRadius.circular(8),
@@ -99,58 +98,71 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
-                  // Small dot indicator
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: AppColors.orange,
-                      shape: BoxShape.circle,
+                  // Task icon
+                  Icon(
+                    Icons.task_alt,
+                    size: 16,
+                    color: AppColors.main.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Title
+                  Text(
+                    LocaleKeys.Tasks.tr(),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.text,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 6),
 
-                  // Count text - simplified
-                  Expanded(
+                  // Count badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.main.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Text(
-                      widget.overdueTasks.length == 1 ? LocaleKeys.OverdueTaskCount.tr(namedArgs: {'count': widget.overdueTasks.length.toString()}) : LocaleKeys.OverdueTaskCountPlural.tr(namedArgs: {'count': widget.overdueTasks.length.toString()}),
+                      '${widget.tasks.length}',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.orange.withValues(alpha: 0.9),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.main,
                       ),
                     ),
                   ),
 
-                  // Simple expand/collapse icon
+                  const Spacer(),
+
+                  // Expand/collapse icon
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 300),
                     child: Icon(
                       Icons.keyboard_arrow_down,
-                      color: AppColors.orange.withValues(alpha: 0.7),
+                      color: AppColors.text.withValues(alpha: 0.5),
                       size: 20,
                     ),
                   ),
                 ],
               ),
             ),
-          ), // Expandable content - simplified
+          ),
+
+          // Expandable task list
           SizeTransition(
             sizeFactor: _expandAnimation,
-            child: Column(
-              children: [
-                // Overdue tasks list with minimal spacing
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.overdueTasks.length,
-                  padding: const EdgeInsets.only(bottom: 8),
-                  itemBuilder: (context, index) {
-                    return TaskItem(taskModel: widget.overdueTasks[index]);
-                  },
-                ),
-              ],
+            axisAlignment: -1.0,
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: widget.tasks.length,
+              padding: const EdgeInsets.only(bottom: 8),
+              itemBuilder: (context, index) {
+                return TaskItem(taskModel: widget.tasks[index]);
+              },
             ),
           ),
         ],

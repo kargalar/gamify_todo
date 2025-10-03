@@ -63,6 +63,14 @@ class TaskModel extends HiveObject {
   int? earlyReminderMinutes; // erken hatırlatma süresi (dakika cinsinden)
   @HiveField(23)
   List<String>? attachmentPaths; // dosya ekleri yolları
+  @HiveField(24)
+  bool? _isPinned; // task pinlenmiş mi (nullable for backward compatibility)
+
+  // Getter for isPinned with default value
+  bool get isPinned => _isPinned ?? false;
+
+  // Setter for isPinned
+  set isPinned(bool value) => _isPinned = value;
 
   TaskModel({
     this.id = 0,
@@ -89,7 +97,9 @@ class TaskModel extends HiveObject {
     bool? showSubtasks,
     this.earlyReminderMinutes,
     this.attachmentPaths,
+    bool? isPinned,
   })  : _showSubtasks = showSubtasks,
+        _isPinned = isPinned,
         isTimerActive = type == TaskTypeEnum.TIMER ? (isTimerActive ?? false) : isTimerActive,
         currentDuration = type == TaskTypeEnum.TIMER ? (currentDuration ?? Duration.zero) : currentDuration,
         remainingDuration = type == TaskTypeEnum.TIMER ? (remainingDuration ?? const Duration(minutes: 30)) : remainingDuration,
@@ -129,6 +139,7 @@ class TaskModel extends HiveObject {
       showSubtasks: json['show_subtasks'],
       earlyReminderMinutes: json['early_reminder_minutes'],
       attachmentPaths: json['attachment_paths'] != null ? (json['attachment_paths'] as List).map((i) => i as String).toList() : null,
+      isPinned: json['is_pinned'] ?? false,
     );
 
     return taskModel;
@@ -172,6 +183,7 @@ class TaskModel extends HiveObject {
       'show_subtasks': _showSubtasks,
       'early_reminder_minutes': earlyReminderMinutes,
       'attachment_paths': attachmentPaths,
+      'is_pinned': isPinned,
     };
   }
 }

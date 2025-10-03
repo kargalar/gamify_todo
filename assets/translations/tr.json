@@ -332,5 +332,11 @@
     "Friday": "Cuma",
     "Saturday": "Cumartesi",
     "Sunday": "Pazar",
-    "MinimumHoursForStreak": "Streak için Minimum Saat"
+    "MinimumHoursForStreak": "Streak için Minimum Saat",
+    "Pin": "Sabitle",
+    "Pinned": "Sabitlenmiş",
+    "PinnedTasks": "Sabitlenmiş Görevler",
+    "PinTask": "Görevi Sabitle",
+    "UnpinTask": "Sabitlemeyi Kaldır",
+    "PinTaskTooltip": "Görevi ana sayfada bugün bölümünün en üstüne sabitle"
 }

@@ -44,6 +44,8 @@ class HomeViewModel extends ChangeNotifier {
 
   List<dynamic> getTasksForDate(DateTime date) => TaskProvider().getTasksForDate(date);
 
+  List<TaskModel> getPinnedTasksForToday() => TaskProvider().getPinnedTasksForToday();
+
   List<dynamic> getRoutineTasksForDate(DateTime date) => TaskProvider().getRoutineTasksForDate(date);
 
   List<dynamic> getGhostRoutineTasksForDate(DateTime date) => TaskProvider().getGhostRoutineTasksForDate(date);

@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
-import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
-import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Page/Home/Widget/overdue_tasks_header.dart';
+import 'package:next_level/Page/Home/Widget/pinned_tasks_header.dart';
+import 'package:next_level/Page/Home/Widget/normal_tasks_header.dart';
+import 'package:next_level/Page/Home/Widget/routine_tasks_header.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/home_view_model.dart';
@@ -117,12 +118,19 @@ class _TaskListState extends State<TaskList> {
         // Get tasks for this date
         final selectedDateTaskList = vm.getTasksForDate(pageDate);
         final selectedDateRutinTaskList = vm.getRoutineTasksForDate(pageDate);
-        final selectedDateGhostRutinTaskList = vm.getGhostRoutineTasksForDate(pageDate); // Build the content for this page
+        final selectedDateGhostRutinTaskList = vm.getGhostRoutineTasksForDate(pageDate);
+
+        // Get pinned tasks only for today
+        final isToday = vm.isToday(pageDate);
+        final pinnedTasks = isToday ? vm.getPinnedTasksForToday() : <TaskModel>[];
+
+        // Build the content for this page
         return _buildPageContent(
           pageDate,
           selectedDateTaskList,
           selectedDateRutinTaskList,
           selectedDateGhostRutinTaskList,
+          pinnedTasks,
         );
       },
     );
@@ -133,6 +141,7 @@ class _TaskListState extends State<TaskList> {
     List<dynamic> selectedDateTaskList,
     List<dynamic> selectedDateRutinTaskList,
     List<dynamic> selectedDateGhostRutinTaskList,
+    List<TaskModel> pinnedTasks,
   ) {
     final vm = context.read<HomeViewModel>();
     final isToday = vm.isToday(pageDate);
@@ -140,7 +149,7 @@ class _TaskListState extends State<TaskList> {
     final List<TaskModel> overdueTasks = isToday ? vm.getOverdueTasks() : <TaskModel>[];
 
     // Check if there are any tasks to display
-    final hasAnyTasks = selectedDateTaskList.isNotEmpty || selectedDateGhostRutinTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty || overdueTasks.isNotEmpty;
+    final hasAnyTasks = selectedDateTaskList.isNotEmpty || selectedDateGhostRutinTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty || overdueTasks.isNotEmpty || pinnedTasks.isNotEmpty;
     return !hasAnyTasks
         ? Center(
             child: Text(
@@ -159,61 +168,22 @@ class _TaskListState extends State<TaskList> {
                 if (isToday && overdueTasks.isNotEmpty) ...[
                   OverdueTasksHeader(overdueTasks: overdueTasks),
                 ],
-                // Normal tasks
-                if (selectedDateTaskList.isNotEmpty)
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: selectedDateTaskList.length,
-                    padding: const EdgeInsets.all(0),
-                    itemBuilder: (context, index) {
-                      return TaskItem(taskModel: selectedDateTaskList[index]);
-                    },
-                  ),
 
-                // Routine Tasks
-                if (selectedDateRutinTaskList.isNotEmpty) ...[
-                  if (selectedDateTaskList.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: AppColors.text.withAlpha(100),
-                    ),
-                    const SizedBox(height: 2),
-                  ],
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: selectedDateRutinTaskList.length,
-                    padding: const EdgeInsets.all(0),
-                    itemBuilder: (context, index) {
-                      return TaskItem(
-                        taskModel: selectedDateRutinTaskList[index],
-                        isRoutine: true,
-                      );
-                    },
-                  ),
+                // Pinned tasks section (only on today's view) - collapsible like overdue
+                if (isToday && pinnedTasks.isNotEmpty) ...[
+                  PinnedTasksHeader(pinnedTasks: pinnedTasks),
                 ],
 
-                // Future routines ghosts
-                if (selectedDateGhostRutinTaskList.isNotEmpty) ...[
-                  if (selectedDateTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty) ...[
-                    const SizedBox(height: 15),
-                    const Divider(height: 1, thickness: 1),
-                    const SizedBox(height: 15),
-                  ],
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: selectedDateGhostRutinTaskList.length,
-                    padding: const EdgeInsets.all(0),
-                    itemBuilder: (context, index) {
-                      return TaskItem(
-                        taskModel: selectedDateGhostRutinTaskList[index],
-                        isRoutine: true,
-                      );
-                    },
+                // Normal tasks - now collapsible
+                if (selectedDateTaskList.isNotEmpty) ...[
+                  NormalTasksHeader(tasks: selectedDateTaskList),
+                ],
+
+                // Routine Tasks - now collapsible (includes both regular and ghost routines)
+                if (selectedDateRutinTaskList.isNotEmpty || selectedDateGhostRutinTaskList.isNotEmpty) ...[
+                  RoutineTasksHeader(
+                    routineTasks: selectedDateRutinTaskList,
+                    ghostRoutineTasks: selectedDateGhostRutinTaskList,
                   ),
                 ],
 

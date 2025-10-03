@@ -333,5 +333,11 @@ abstract class  LocaleKeys {
   static const Saturday = 'Saturday';
   static const Sunday = 'Sunday';
   static const MinimumHoursForStreak = 'MinimumHoursForStreak';
+  static const Pin = 'Pin';
+  static const Pinned = 'Pinned';
+  static const PinnedTasks = 'PinnedTasks';
+  static const PinTask = 'PinTask';
+  static const UnpinTask = 'UnpinTask';
+  static const PinTaskTooltip = 'PinTaskTooltip';
 
 }

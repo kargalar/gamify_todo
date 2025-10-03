@@ -324,5 +324,11 @@
     "Friday": "Friday",
     "Saturday": "Saturday",
     "Sunday": "Sunday",
-    "MinimumHoursForStreak": "Minimum Hours for Streak"
+    "MinimumHoursForStreak": "Minimum Hours for Streak",
+    "Pin": "Pin",
+    "Pinned": "Pinned",
+    "PinnedTasks": "Pinned Tasks",
+    "PinTask": "Pin Task",
+    "UnpinTask": "Unpin Task",
+    "PinTaskTooltip": "Pin task to the top of today's section on home page"
 }
