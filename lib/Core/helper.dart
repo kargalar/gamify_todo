@@ -14,6 +14,8 @@ import 'package:next_level/General/Adapter/trait_type_enum_adapter.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_log_model.dart';
+import 'package:next_level/Model/note_model.dart';
+import 'package:next_level/Model/note_category_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
@@ -49,6 +51,8 @@ class Helper {
     Hive.registerAdapter(TraitModelAdapter());
     Hive.registerAdapter(SubTaskModelAdapter());
     Hive.registerAdapter(CategoryModelAdapter());
+    Hive.registerAdapter(NoteModelAdapter());
+    Hive.registerAdapter(NoteCategoryModelAdapter());
     Hive.registerAdapter(TaskTypeEnumAdapter());
     Hive.registerAdapter(TraitTypeEnumAdapter());
     Hive.registerAdapter(TaskStatusEnumAdapter());

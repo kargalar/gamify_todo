@@ -14,3 +14,18 @@ rutinin veya taskın type değiştirilebilsin.
 rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nıasl olur. o da ilerlemeyi fıtrılayarak çok güzel olur.
 
 not sekmesi. yapıalcakalr gibi değil notlar kısmı. başlık metin, alt başlıklar gibi bir şekilde olabilir. tam bilmiyorum. amaç not almak. mesla şu film şu dakikası çok iyiydi gibi. unutmak istemediğim ama todo olmayan şeyler için. bazı başlıklar, düzünceler, kelimeler, gözüne çarpan güzel cümleler için falan. yapıyı ve tasarımını sen kur.
+
+kullanıcı not kategorilerini kendisi oluştursun. 
+etikletler kısmına gerek yok
+başlık ve içerik kısmı taskalrdaki gibi olsun. yani aynı contanierde gibi. ayrıca içerik mısını doldurmak zorunlu olmasın
+not eklerken kategori seçimi altta ve daha kompakt bir halde olsun
+
+overdure başlıpı da diğerlerinide olduğ gib oslun
+
+
+task ekleme sayfası daha compact ersiyonunu oluştur mesela takvim direkt gelmesin. tarihe basınca takvim açılsın gibi. çok çok daha compact
+
+notların arama kısmı inbozdaki gibi olsun.
+notların kategorilerini kullanıcı kendi oluşturacalk şekildegüncelle sonra inboz a da aynısnıı uygula. 
+
+pinlemeyi slide kısmına ekle. ayrıca task ekleme sayfasında da çok daha compact olsun.

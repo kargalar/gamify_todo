@@ -1,0 +1,342 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:next_level/Model/note_model.dart';
+import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Provider/notes_provider.dart';
+import 'package:next_level/General/app_colors.dart';
+
+/// Not ekleme ve düzenleme sayfası
+class AddEditNotePage extends StatefulWidget {
+  final NoteModel? note;
+
+  const AddEditNotePage({super.key, this.note});
+
+  @override
+  State<AddEditNotePage> createState() => _AddEditNotePageState();
+}
+
+class _AddEditNotePageState extends State<AddEditNotePage> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _titleController;
+  late final TextEditingController _contentController;
+
+  NoteCategoryModel? _selectedCategory;
+  late bool _isPinned;
+  bool _isSaving = false;
+
+  bool get isEditing => widget.note != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize controllers
+    _titleController = TextEditingController(text: widget.note?.title ?? '');
+    _contentController = TextEditingController(text: widget.note?.content ?? '');
+
+    // Initialize state
+    _isPinned = widget.note?.isPinned ?? false;
+
+    // Kategoriyi yükle
+    if (widget.note?.categoryId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final provider = Provider.of<NotesProvider>(context, listen: false);
+        _selectedCategory = provider.getCategoryById(widget.note!.categoryId);
+        if (mounted) setState(() {});
+      });
+    }
+
+    debugPrint('🔧 AddEditNotePage: Initialized ${isEditing ? "edit" : "add"} mode');
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(
+          isEditing ? 'Notu Düzenle' : 'Yeni Not',
+          style: TextStyle(color: AppColors.text),
+        ),
+        backgroundColor: AppColors.background,
+        iconTheme: IconThemeData(color: AppColors.text),
+        actions: [
+          if (isEditing)
+            IconButton(
+              icon: Icon(
+                _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                color: _isPinned ? AppColors.yellow : AppColors.text,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPinned = !_isPinned;
+                });
+              },
+              tooltip: _isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+            ),
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Başlık ve İçerik (tek container'da)
+            _buildNoteFields(),
+            const SizedBox(height: 20),
+
+            // Kategori seçimi (altta, kompakt)
+            _buildCategorySelector(),
+            const SizedBox(height: 24),
+
+            // Kaydet butonu
+            _buildSaveButton(),
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Başlık ve içerik alanları (tek container'da - task'lardaki gibi)
+  Widget _buildNoteFields() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.panelBackground,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.panelBackground2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Başlık
+          TextFormField(
+            controller: _titleController,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.text,
+            ),
+            decoration: const InputDecoration(
+              hintText: 'Başlık',
+              hintStyle: TextStyle(color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Başlık boş olamaz';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+          Divider(color: AppColors.panelBackground2, height: 1),
+          const SizedBox(height: 12),
+          // İçerik (opsiyonel)
+          TextFormField(
+            controller: _contentController,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.text,
+            ),
+            decoration: const InputDecoration(
+              hintText: 'İçerik (opsiyonel)',
+              hintStyle: TextStyle(color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
+            maxLines: 10,
+            minLines: 5,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Kategori seçici (altta, kompakt)
+  Widget _buildCategorySelector() {
+    return Consumer<NotesProvider>(
+      builder: (context, provider, child) {
+        if (provider.categories.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Kategori (Opsiyonel)',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                // "Kategorisiz" chip
+                _buildCategoryChip(null, 'Kategorisiz'),
+                // Kategori chip'leri
+                ...provider.categories.map((category) {
+                  return _buildCategoryChip(category, category.name);
+                }),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Kategori chip widget
+  Widget _buildCategoryChip(NoteCategoryModel? category, String label) {
+    final isSelected = (_selectedCategory?.id == category?.id) || (_selectedCategory == null && category == null);
+
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) {
+        setState(() {
+          _selectedCategory = category;
+        });
+      },
+      backgroundColor: AppColors.panelBackground,
+      selectedColor: category != null ? Color(category.colorValue).withValues(alpha: 0.3) : AppColors.panelBackground2,
+      labelStyle: TextStyle(
+        color: AppColors.text,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      checkmarkColor: AppColors.text,
+      side: BorderSide(
+        color: isSelected ? (category != null ? Color(category.colorValue) : AppColors.panelBackground2) : AppColors.panelBackground2,
+      ),
+    );
+  }
+
+  /// Kaydet butonu
+  Widget _buildSaveButton() {
+    return SizedBox(
+      height: 54,
+      child: ElevatedButton.icon(
+        onPressed: _isSaving ? null : _saveNote,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _selectedCategory != null ? Color(_selectedCategory!.colorValue) : AppColors.blue,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
+        ),
+        icon: _isSaving
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Icon(Icons.save),
+        label: Text(
+          _isSaving
+              ? 'Kaydediliyor...'
+              : isEditing
+                  ? 'Güncelle'
+                  : 'Kaydet',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveNote() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final provider = context.read<NotesProvider>();
+
+      bool success;
+
+      if (isEditing) {
+        // Mevcut notu güncelle
+        debugPrint('📝 AddEditNotePage: Updating note ${widget.note!.id}');
+        final updatedNote = widget.note!.copyWith(
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+          categoryId: _selectedCategory?.id,
+          isPinned: _isPinned,
+          updatedAt: DateTime.now(),
+        );
+        success = await provider.updateNote(updatedNote);
+      } else {
+        // Yeni not ekle
+        debugPrint('➕ AddEditNotePage: Adding new note');
+        success = await provider.addNote(
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+          categoryId: _selectedCategory?.id,
+        );
+      }
+
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+
+        if (success) {
+          debugPrint('✅ AddEditNotePage: Note saved successfully');
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                isEditing ? 'Not güncellendi' : 'Not eklendi',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          debugPrint('❌ AddEditNotePage: Failed to save note');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                isEditing ? 'Not güncellenemedi' : 'Not kaydedilemedi',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ AddEditNotePage: Error saving note: $e');
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata oluştu: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+}

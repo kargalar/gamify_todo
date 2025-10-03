@@ -1,0 +1,367 @@
+import 'package:flutter/material.dart';
+import 'package:next_level/Model/note_model.dart';
+import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Service/notes_service.dart';
+import 'package:next_level/Service/note_category_service.dart';
+
+/// Notları ve kategorileri yöneten Provider
+class NotesProvider with ChangeNotifier {
+  static final NotesProvider _instance = NotesProvider._internal();
+
+  factory NotesProvider() {
+    return _instance;
+  }
+
+  NotesProvider._internal() {
+    loadData();
+  }
+
+  final NotesService _notesService = NotesService();
+
+  // State
+  List<NoteModel> _notes = [];
+  List<NoteCategoryModel> _categories = [];
+  String? _selectedCategoryId;
+  String _searchQuery = '';
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  // Getters
+  List<NoteModel> get notes => _notes;
+  List<NoteCategoryModel> get categories => _categories;
+  String? get selectedCategoryId => _selectedCategoryId;
+  NoteCategoryModel? get selectedCategory {
+    if (_selectedCategoryId == null) return null;
+    try {
+      return _categories.firstWhere((cat) => cat.id == _selectedCategoryId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String get searchQuery => _searchQuery;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  /// Filtrelenmiş notlar
+  List<NoteModel> get filteredNotes {
+    var filtered = _notes;
+
+    // Kategori filtreleme
+    if (_selectedCategoryId != null) {
+      filtered = filtered.where((note) => note.categoryId == _selectedCategoryId).toList();
+    }
+
+    // Arama filtreleme
+    if (_searchQuery.isNotEmpty) {
+      final queryLower = _searchQuery.toLowerCase();
+      filtered = filtered.where((note) {
+        return note.title.toLowerCase().contains(queryLower) || note.content.toLowerCase().contains(queryLower);
+      }).toList();
+    }
+
+    return filtered;
+  }
+
+  /// Sabitlenmiş notlar
+  List<NoteModel> get pinnedNotes {
+    return filteredNotes.where((note) => note.isPinned).toList();
+  }
+
+  /// Sabitlenmemiş notlar
+  List<NoteModel> get unpinnedNotes {
+    return filteredNotes.where((note) => !note.isPinned).toList();
+  }
+
+  /// Kategoriye göre not sayıları
+  Map<String, int> get noteCounts {
+    final counts = <String, int>{};
+    for (var category in _categories) {
+      counts[category.id] = _notes.where((note) => note.categoryId == category.id).length;
+    }
+    return counts;
+  }
+
+  /// Verileri yükle (notlar ve kategoriler)
+  Future<void> loadData() async {
+    try {
+      debugPrint('📡 NotesProvider: Loading data from Hive');
+      _setLoading(true);
+      _setError(null);
+
+      await _notesService.initialize();
+      await NoteCategoryService.initialize();
+
+      _notes = await _notesService.getNotes();
+      _categories = NoteCategoryService.getCategories();
+
+      debugPrint('✅ NotesProvider: Loaded ${_notes.length} notes and ${_categories.length} categories');
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error loading data: $e');
+      _setError('Veriler yüklenirken hata oluştu: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Notları yükle
+  Future<void> loadNotes() async {
+    try {
+      debugPrint('📡 NotesProvider: Loading notes from Hive');
+      _setLoading(true);
+      _setError(null);
+
+      await _notesService.initialize();
+      _notes = await _notesService.getNotes();
+
+      debugPrint('✅ NotesProvider: Loaded ${_notes.length} notes');
+      _setLoading(false);
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error loading notes: $e');
+      _setError('Notlar yüklenirken hata oluştu: $e');
+      _setLoading(false);
+    }
+  }
+
+  /// Kategori seç
+  void selectCategory(String? categoryId) {
+    debugPrint('🔖 NotesProvider: Category selected: $categoryId');
+    _selectedCategoryId = categoryId;
+    notifyListeners();
+  }
+
+  /// Arama sorgusu güncelle
+  void updateSearchQuery(String query) {
+    debugPrint('🔍 NotesProvider: Search query updated: $query');
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  /// Arama sorgusunu temizle
+  void clearSearchQuery() {
+    debugPrint('🧹 NotesProvider: Search query cleared');
+    _searchQuery = '';
+    notifyListeners();
+  }
+
+  /// Yeni not ekle
+  Future<bool> addNote({
+    required String title,
+    String content = '',
+    String? categoryId,
+    int colorIndex = 0,
+  }) async {
+    try {
+      debugPrint('➕ NotesProvider: Adding new note: $title');
+      _setError(null);
+
+      final now = DateTime.now();
+      final note = NoteModel(
+        title: title,
+        content: content,
+        categoryId: categoryId,
+        colorIndex: colorIndex,
+        createdAt: now,
+        updatedAt: now,
+        isPinned: false,
+      );
+
+      final success = await _notesService.addNote(note);
+
+      if (success) {
+        await loadData(); // Listeyi yenile
+        debugPrint('✅ NotesProvider: Note added successfully');
+      } else {
+        debugPrint('❌ NotesProvider: Failed to add note');
+        _setError('Not eklenemedi');
+      }
+
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error adding note: $e');
+      _setError('Not eklenirken hata oluştu: $e');
+      return false;
+    }
+  }
+
+  /// Notu güncelle
+  Future<bool> updateNote(NoteModel note) async {
+    try {
+      debugPrint('🔄 NotesProvider: Updating note: ${note.id}');
+      _setError(null);
+
+      final success = await _notesService.updateNote(note);
+
+      if (success) {
+        await loadData(); // Listeyi yenile
+        debugPrint('✅ NotesProvider: Note updated successfully');
+      } else {
+        debugPrint('❌ NotesProvider: Failed to update note');
+        _setError('Not güncellenemedi');
+      }
+
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error updating note: $e');
+      _setError('Not güncellenirken hata oluştu: $e');
+      return false;
+    }
+  }
+
+  /// Notu sil
+  Future<bool> deleteNote(int noteId) async {
+    try {
+      debugPrint('🗑️ NotesProvider: Deleting note: $noteId');
+      _setError(null);
+
+      final success = await _notesService.deleteNote(noteId);
+
+      if (success) {
+        await loadData(); // Listeyi yenile
+        debugPrint('✅ NotesProvider: Note deleted successfully');
+      } else {
+        debugPrint('❌ NotesProvider: Failed to delete note');
+        _setError('Not silinemedi');
+      }
+
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error deleting note: $e');
+      _setError('Not silinirken hata oluştu: $e');
+      return false;
+    }
+  }
+
+  /// Notu sabitle/sabitliği kaldır
+  Future<bool> togglePinNote(int noteId, bool isPinned) async {
+    try {
+      debugPrint('📌 NotesProvider: Toggling pin for note: $noteId to $isPinned');
+      _setError(null);
+
+      final success = await _notesService.togglePinNote(noteId, isPinned);
+
+      if (success) {
+        await loadData(); // Listeyi yenile
+        debugPrint('✅ NotesProvider: Note pin toggled successfully');
+      } else {
+        debugPrint('❌ NotesProvider: Failed to toggle note pin');
+        _setError('Not sabitleme durumu değiştirilemedi');
+      }
+
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error toggling note pin: $e');
+      _setError('Not sabitleme durumu değiştirilirken hata oluştu: $e');
+      return false;
+    }
+  }
+
+  /// Tek bir notu getir
+  Future<NoteModel?> getNote(int noteId) async {
+    try {
+      debugPrint('📖 NotesProvider: Getting note: $noteId');
+      _setError(null);
+
+      final note = await _notesService.getNote(noteId);
+
+      if (note != null) {
+        debugPrint('✅ NotesProvider: Note retrieved successfully');
+      } else {
+        debugPrint('⚠️ NotesProvider: Note not found');
+        _setError('Not bulunamadı');
+      }
+
+      return note;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error getting note: $e');
+      _setError('Not getirilirken hata oluştu: $e');
+      return null;
+    }
+  }
+
+  /// Kategori ekle
+  Future<bool> addCategory(NoteCategoryModel category) async {
+    try {
+      debugPrint('➕ NotesProvider: Adding category: ${category.name}');
+      final success = await NoteCategoryService.addCategory(category);
+      if (success) {
+        await loadData();
+        debugPrint('✅ NotesProvider: Category added successfully');
+      }
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error adding category: $e');
+      _setError('Kategori eklenirken hata oluştu: $e');
+      return false;
+    }
+  }
+
+  /// Kategori güncelle
+  Future<bool> updateCategory(NoteCategoryModel category) async {
+    try {
+      debugPrint('🔄 NotesProvider: Updating category: ${category.id}');
+      final success = await NoteCategoryService.updateCategory(category);
+      if (success) {
+        await loadData();
+        debugPrint('✅ NotesProvider: Category updated successfully');
+      }
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error updating category: $e');
+      _setError('Kategori güncellenirken hata oluştu: $e');
+      return false;
+    }
+  }
+
+  /// Kategori sil
+  Future<bool> deleteCategory(String categoryId) async {
+    try {
+      debugPrint('🗑️ NotesProvider: Deleting category: $categoryId');
+
+      // Bu kategoriye ait notları kontrol et
+      final notesInCategory = _notes.where((note) => note.categoryId == categoryId).toList();
+      if (notesInCategory.isNotEmpty) {
+        debugPrint('⚠️ NotesProvider: Category has ${notesInCategory.length} notes');
+        _setError('Bu kategoride ${notesInCategory.length} not var. Önce notları silin.');
+        return false;
+      }
+
+      final success = await NoteCategoryService.deleteCategory(categoryId);
+      if (success) {
+        if (_selectedCategoryId == categoryId) {
+          _selectedCategoryId = null;
+        }
+        await loadData();
+        debugPrint('✅ NotesProvider: Category deleted successfully');
+      }
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error deleting category: $e');
+      _setError('Kategori silinirken hata oluştu: $e');
+      return false;
+    }
+  }
+
+  /// Kategoriye göre not al
+  NoteCategoryModel? getCategoryById(String? categoryId) {
+    if (categoryId == null) return null;
+    try {
+      return _categories.firstWhere((cat) => cat.id == categoryId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Helper methods
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  void _setError(String? error) {
+    _errorMessage = error;
+    if (error != null) {
+      notifyListeners();
+    }
+  }
+}

@@ -9,6 +9,8 @@ import 'package:next_level/Page/Home/home_page.dart';
 import 'package:next_level/Page/Profile/profile_page.dart';
 import 'package:next_level/Page/Store/add_store_item_page.dart';
 import 'package:next_level/Page/Store/store_page.dart';
+import 'package:next_level/Page/Notes/notes_page.dart';
+import 'package:next_level/Page/Notes/add_edit_note_page.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -46,6 +48,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     const BottomNavigationBarItem(
       icon: Icon(Icons.tag),
       label: 'Categories',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.note),
+      label: 'Notes',
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.person_rounded),
@@ -137,6 +143,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                     StorePage(),
                     HomePage(),
                     InboxPage(),
+                    NotesPage(),
                     ProfilePage(),
                   ],
                 ),
@@ -196,21 +203,15 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     context.read<NavbarProvider>().updateIndex(index);
   }
 
-  /// Floating Action Button for quick task/item creation
-  /// Positioned in bottom-right corner following Material Design guidelines
-  /// - Store tab (index 0): Navigate to AddStoreItemPage
-  /// - Home tab (index 1): Navigate to AddTaskPage
-  /// - Inbox tab (index 2): Navigate to AddTaskPage
-  /// - Profile tab (index 3): Hidden
   Widget floatingActionButtons() {
     final currentIndex = context.read<NavbarProvider>().currentIndex;
 
-    // Show FAB for Store, Home, and Inbox tabs
-    if (currentIndex == 0 || currentIndex == 1 || currentIndex == 2) {
+    // Show FAB for Store, Home, Inbox, and Notes tabs
+    if (currentIndex == 0 || currentIndex == 1 || currentIndex == 2 || currentIndex == 3) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (currentIndex == 1) // Show quick add FAB only for Home and Inbox tabs
+          if (currentIndex == 1) // Show quick add FAB only for Home tab
             SizedBox(
               width: 48,
               height: 48,
@@ -233,7 +234,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                 ),
               ),
             ),
-          const SizedBox(width: 10), // Spacing between FABs
+          if (currentIndex == 1) const SizedBox(width: 10), // Spacing between FABs
           FloatingActionButton(
             backgroundColor: AppColors.text, // Use app's primary blue color (#1773DB)
             foregroundColor: AppColors.background, // White icon color
@@ -252,6 +253,12 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                 // Home tab or Inbox tab - add task
                 await NavigatorService().goTo(
                   const AddTaskPage(),
+                  transition: Transition.downToUp,
+                );
+              } else if (currentIndex == 3) {
+                // Notes tab - add note
+                await NavigatorService().goTo(
+                  const AddEditNotePage(),
                   transition: Transition.downToUp,
                 );
               }
