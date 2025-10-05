@@ -86,6 +86,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     if (result == true) {
       // Refresh project data
+      // ignore: use_build_context_synchronously
       final provider = context.read<ProjectsProvider>();
       final projects = provider.projects;
       final updated = projects.firstWhere((p) => p.id == _currentProject.id);
