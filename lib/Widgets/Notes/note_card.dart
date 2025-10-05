@@ -4,7 +4,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:intl/intl.dart';
 
 /// Kompakt ve sade not kartı widget'ı (Slidable actions ile)
 class NoteCard extends StatelessWidget {
@@ -30,7 +29,6 @@ class NoteCard extends StatelessWidget {
         // Kategori bilgisini Provider'dan al
         final category = provider.getCategoryById(note.categoryId);
         final categoryColor = category != null ? Color(category.colorValue) : AppColors.grey;
-        final formattedDate = DateFormat('dd MMM, HH:mm').format(note.updatedAt);
 
         return Slidable(
           key: ValueKey(note.id),
@@ -147,16 +145,6 @@ class NoteCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
-
-                          // Tarih
-                          const SizedBox(height: 4),
-                          Text(
-                            formattedDate,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.grey,
-                            ),
-                          ),
                         ],
                       ),
                     ),

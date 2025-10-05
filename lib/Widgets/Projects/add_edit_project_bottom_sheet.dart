@@ -303,11 +303,12 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
       ),
     );
 
-    if (selected != null && mounted) {
+    // Allow both category selection and null (Kategorisiz) selection
+    if (mounted) {
       setState(() {
         _selectedCategory = selected;
       });
-      debugPrint('✅ AddEditProjectBottomSheet: Category selected: ${selected.name}');
+      debugPrint('✅ AddEditProjectBottomSheet: Category selected: ${selected?.name ?? "Kategorisiz"}');
     }
   }
 

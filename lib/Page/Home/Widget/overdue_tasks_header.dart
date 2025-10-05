@@ -84,14 +84,14 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.orange.withValues(alpha: 0.08), // Light orange background
+        color: AppColors.orange.withValues(alpha: 0.06), // Light orange background - matching pinned style
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with count and expand/collapse button - Minimalist design
+          // Header with count and expand/collapse button - Minimalist design matching pinned
           InkWell(
             onTap: _toggleExpanded,
             borderRadius: BorderRadius.circular(8),
@@ -99,33 +99,48 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
-                  // Small dot indicator
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
+                  // Icon indicator - matching pinned style
+                  const Icon(
+                    Icons.warning_rounded,
+                    size: 16,
+                    color: AppColors.orange,
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Title - matching pinned style
+                  Text(
+                    LocaleKeys.OverdueTasks.tr(),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.orange,
-                      shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 6),
 
-                  // Count text - simplified
-                  Expanded(
+                  // Count badge - matching pinned style
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.orange.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Text(
-                      widget.overdueTasks.length == 1 ? LocaleKeys.OverdueTaskCount.tr(namedArgs: {'count': widget.overdueTasks.length.toString()}) : LocaleKeys.OverdueTaskCountPlural.tr(namedArgs: {'count': widget.overdueTasks.length.toString()}),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.orange.withValues(alpha: 0.9),
+                      '${widget.overdueTasks.length}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.orange,
                       ),
                     ),
                   ),
 
-                  // Simple expand/collapse icon
+                  const Spacer(),
+
+                  // Expand/collapse icon - matching pinned style
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 300),
                     child: Icon(
                       Icons.keyboard_arrow_down,
                       color: AppColors.orange.withValues(alpha: 0.7),

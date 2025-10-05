@@ -12,6 +12,7 @@ import 'package:next_level/Page/Store/store_page.dart';
 import 'package:next_level/Page/Notes/notes_page.dart';
 import 'package:next_level/Page/Projects/projects_page.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
+import 'package:next_level/Widgets/Projects/add_edit_project_bottom_sheet.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -23,8 +24,6 @@ import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
-import 'package:next_level/Provider/projects_provider.dart';
-import 'package:next_level/Model/project_model.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -272,8 +271,13 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   builder: (context) => const AddEditNoteBottomSheet(),
                 );
               } else if (currentIndex == 4) {
-                // Projects tab - add project
-                _showAddProjectDialog();
+                // Projects tab - add project with bottom sheet
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const AddEditProjectBottomSheet(),
+                );
               }
             },
             child: const Icon(
@@ -286,79 +290,5 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     } else {
       return const SizedBox();
     }
-  }
-
-  void _showAddProjectDialog() {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Yeni Proje'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Başlık *',
-                  hintText: 'Proje başlığı',
-                ),
-                autofocus: true,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Açıklama',
-                  hintText: 'Proje açıklaması (opsiyonel)',
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('İptal'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (titleController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Lütfen bir başlık girin')),
-                  );
-                  return;
-                }
-
-                final project = ProjectModel(
-                  id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
-                  title: titleController.text.trim(),
-                  description: descriptionController.text.trim(),
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                );
-
-                final provider = context.read<ProjectsProvider>();
-                final success = await provider.addProject(project);
-
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Proje oluşturuldu')),
-                    );
-                    debugPrint('✅ Project created: ${project.id}');
-                  }
-                }
-              },
-              child: const Text('Oluştur'),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

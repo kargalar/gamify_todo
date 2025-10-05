@@ -1601,6 +1601,55 @@ class TaskProvider with ChangeNotifier {
     return pinnedTasks;
   }
 
+  /// Toggle pin status for a task
+  Future<void> toggleTaskPin(int taskId) async {
+    try {
+      final taskIndex = taskList.indexWhere((task) => task.id == taskId);
+      if (taskIndex == -1) {
+        debugPrint('❌ Task not found: ID=$taskId');
+        return;
+      }
+
+      final task = taskList[taskIndex];
+
+      // Only allow pinning for non-routine tasks
+      if (task.routineID != null) {
+        debugPrint('⚠️ Cannot pin routine tasks: ID=$taskId');
+        Helper().getMessage(message: 'Rutin görevler sabitlenemez');
+        return;
+      }
+
+      // Toggle pin status
+      task.isPinned = !task.isPinned;
+      debugPrint('📌 Task pin toggled: ID=$taskId, isPinned=${task.isPinned}');
+
+      // Save the task
+      try {
+        task.save();
+        debugPrint('✅ Task saved after pin toggle: ID=$taskId');
+      } catch (e) {
+        debugPrint('❌ ERROR saving task after pin toggle: $e');
+      }
+
+      // Update in storage
+      await ServerManager().updateTask(taskModel: task);
+
+      // Sync to Firebase
+      SyncManager().syncTask(task);
+
+      // Update UI
+      notifyListeners();
+
+      // Show message
+      Helper().getMessage(
+        message: task.isPinned ? 'Görev sabitlendi' : 'Görev sabitleme kaldırıldı',
+      );
+    } catch (e) {
+      debugPrint('❌ Error toggling task pin: $e');
+      Helper().getMessage(message: 'Hata: $e');
+    }
+  }
+
   List<TaskModel> getRoutineTasksForDate(DateTime date) {
     // Check if vacation mode is enabled
     if (VacationModeProvider().isVacationModeEnabled) {
@@ -2111,7 +2160,9 @@ class TaskProvider with ChangeNotifier {
 
   // Get overdue tasks (only for display purposes, not filtered by date)
   List<TaskModel> getOverdueTasks() {
-    List<TaskModel> overdueTasks = taskList.where((task) => task.status == TaskStatusEnum.OVERDUE && task.routineID == null).toList();
+    List<TaskModel> overdueTasks = taskList
+        .where((task) => task.status == TaskStatusEnum.OVERDUE && task.routineID == null && !task.isPinned) // Exclude pinned tasks from overdue section
+        .toList();
 
     sortTasksByPriorityAndTime(overdueTasks);
     return overdueTasks;

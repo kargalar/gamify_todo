@@ -12,7 +12,7 @@ class AddProjectNoteBottomSheet extends StatefulWidget {
   final String? initialContent;
 
   /// Callback when save button is pressed
-  final Function(String? title, String content) onSave;
+  final Function(String? title, String? content) onSave;
 
   const AddProjectNoteBottomSheet({
     super.key,
@@ -62,15 +62,19 @@ class _AddProjectNoteBottomSheetState extends State<AddProjectNoteBottomSheet> {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
 
-    if (content.isEmpty) {
+    // Title veya content'ten en az biri dolu olmalı
+    if (title.isEmpty && content.isEmpty) {
       Helper().getMessage(
-        message: "Note content cannot be empty",
+        message: "Başlık veya içerik alanlarından en az biri dolu olmalı",
         status: StatusEnum.WARNING,
       );
       return;
     }
 
-    widget.onSave(title.isEmpty ? null : title, content);
+    widget.onSave(
+      title.isEmpty ? null : title,
+      content.isEmpty ? null : content,
+    );
 
     // If adding new note, clear and keep sheet open
     // If editing, close the sheet (handled by parent)

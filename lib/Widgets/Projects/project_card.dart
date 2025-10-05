@@ -4,7 +4,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:intl/intl.dart';
 
 /// Renkli ve kategorili proje kartı widget'ı
 class ProjectCard extends StatelessWidget {
@@ -25,7 +24,6 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd MMM, HH:mm').format(project.updatedAt);
     final provider = context.watch<ProjectsProvider>();
     final category = project.categoryId != null ? provider.getCategoryById(project.categoryId) : null;
 
@@ -263,23 +261,6 @@ class ProjectCard extends StatelessWidget {
                         ),
 
                       const Spacer(),
-
-                      // Date
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.panelBackground2,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          formattedDate,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.text.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ],

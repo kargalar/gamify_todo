@@ -225,14 +225,24 @@ class _NotesPageState extends State<NotesPage> {
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.all_inclusive, size: 16),
+                    Icon(
+                      Icons.all_inclusive,
+                      size: 16,
+                      color: provider.selectedCategory == null ? Colors.white : AppColors.text,
+                    ),
                     const SizedBox(width: 6),
-                    const Text('Tümü'),
+                    Text(
+                      'Tümü',
+                      style: TextStyle(
+                        color: provider.selectedCategory == null ? Colors.white : AppColors.text,
+                        fontWeight: provider.selectedCategory == null ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.panelBackground2,
+                        color: provider.selectedCategory == null ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
@@ -240,7 +250,7 @@ class _NotesPageState extends State<NotesPage> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.text,
+                          color: provider.selectedCategory == null ? Colors.white : AppColors.text,
                         ),
                       ),
                     ),
@@ -250,10 +260,6 @@ class _NotesPageState extends State<NotesPage> {
                 backgroundColor: AppColors.panelBackground,
                 checkmarkColor: Colors.white,
                 onSelected: (_) => provider.selectCategory(null),
-                labelStyle: TextStyle(
-                  color: AppColors.text,
-                  fontWeight: provider.selectedCategory == null ? FontWeight.bold : FontWeight.normal,
-                ),
               ),
             ),
 

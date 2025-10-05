@@ -68,9 +68,12 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
   }
 
   ActionPane? endPane() {
+    // Sadece non-routine tasklar için pin action göster
+    final bool canPin = widget.taskModel.routineID == null;
+
     return ActionPane(
       motion: const ScrollMotion(),
-      extentRatio: 0.5,
+      extentRatio: canPin ? 0.65 : 0.5,
       closeThreshold: 0.1,
       openThreshold: 0.1,
       dismissible: DismissiblePane(
@@ -89,6 +92,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         onDismissed: () {},
       ),
       children: [
+        if (canPin) pinAction(),
         deleteAction(),
         if (widget.taskModel.routineID == null) changeDateAction(),
       ],
@@ -174,6 +178,22 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       backgroundColor: AppColors.red,
       icon: Icons.delete,
       label: LocaleKeys.Delete.tr(),
+      padding: actionItemPadding,
+    );
+  }
+
+  SlidableAction pinAction() {
+    final bool isPinned = widget.taskModel.isPinned;
+
+    return SlidableAction(
+      onPressed: (context) async {
+        // Toggle pin status
+        debugPrint('📌 Task ${widget.taskModel.id} - Pin toggle: $isPinned -> ${!isPinned}');
+        await taskProvider.toggleTaskPin(widget.taskModel.id);
+      },
+      backgroundColor: isPinned ? AppColors.grey : AppColors.main,
+      icon: isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+      label: isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.PinTask.tr(),
       padding: actionItemPadding,
     );
   }

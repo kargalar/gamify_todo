@@ -189,6 +189,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             content: content,
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
+            orderIndex: _notes.length,
           );
 
           await provider.addProjectNote(note);
@@ -275,46 +276,243 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Açıklama alanı
-                  _buildDescriptionSection(),
+          : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.background,
+                    AppColors.background.withValues(alpha: 0.8),
+                  ],
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
 
-                  const SizedBox(height: 16),
+                    // Proje Bilgileri Kartı (Yeni!)
+                    _buildProjectInfoCard(),
 
-                  // Görevler bölümü
-                  _buildSubtasksSection(),
+                    const SizedBox(height: 20),
 
-                  const SizedBox(height: 16),
+                    // Açıklama alanı
+                    _buildDescriptionSection(),
 
-                  // Notlar bölümü
-                  _buildNotesSection(),
+                    const SizedBox(height: 20),
 
-                  const SizedBox(height: 80), // FAB için boşluk
-                ],
+                    // Görevler bölümü
+                    _buildSubtasksSection(),
+
+                    const SizedBox(height: 20),
+
+                    // Notlar bölümü
+                    _buildNotesSection(),
+
+                    const SizedBox(height: 80), // FAB için boşluk
+                  ],
+                ),
               ),
             ),
     );
   }
 
-  Widget _buildDescriptionSection() {
+  Widget _buildProjectInfoCard() {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.panelBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.panelBackground2),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.main.withValues(alpha: 0.1),
+            AppColors.main.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.main.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.main.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.description_outlined, size: 20, color: AppColors.text.withValues(alpha: 0.7)),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.main.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.folder_rounded,
+                  color: AppColors.main,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _currentProject.title,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: AppColors.text.withValues(alpha: 0.5),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Oluşturuldu: ${_formatDate(_currentProject.createdAt)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.text.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _buildStatChip(
+                Icons.check_box,
+                '${_subtasks.where((s) => s.isCompleted).length}/${_subtasks.length}',
+                'Görevler',
+                AppColors.green,
+              ),
+              const SizedBox(width: 12),
+              _buildStatChip(
+                Icons.note,
+                '${_notes.length}',
+                'Notlar',
+                AppColors.blue,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatChip(IconData icon, String value, String label, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: color.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inDays == 0) {
+      return 'Bugün';
+    } else if (diff.inDays == 1) {
+      return 'Dün';
+    } else if (diff.inDays < 7) {
+      return '${diff.inDays} gün önce';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
+  }
+
+  Widget _buildDescriptionSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.panelBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.panelBackground2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.description_outlined,
+                  size: 18,
+                  color: AppColors.blue,
+                ),
+              ),
+              const SizedBox(width: 12),
               Text(
                 'Açıklama',
                 style: TextStyle(
@@ -325,17 +523,18 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               ),
               const Spacer(),
               IconButton(
-                icon: const Icon(Icons.edit, size: 20),
+                icon: Icon(Icons.edit, size: 18, color: AppColors.main),
                 onPressed: _openDescriptionEditor,
                 tooltip: 'Açıklamayı Düzenle',
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             _currentProject.description.isEmpty ? 'Açıklama eklenmedi. Düzenle butonuna tıklayın.' : _currentProject.description,
             style: TextStyle(
               fontSize: 14,
+              height: 1.5,
               color: _currentProject.description.isEmpty ? AppColors.grey : AppColors.text.withValues(alpha: 0.8),
               fontStyle: _currentProject.description.isEmpty ? FontStyle.italic : FontStyle.normal,
             ),
@@ -348,30 +547,64 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   Widget _buildSubtasksSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.panelBackground2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.check_box_outlined, size: 20, color: AppColors.text.withValues(alpha: 0.7)),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.green.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.check_box_outlined,
+                  size: 18,
+                  color: AppColors.green,
+                ),
+              ),
+              const SizedBox(width: 12),
               Text(
-                'Görevler (${_subtasks.length})',
+                'Görevler',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.text,
                 ),
               ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.green.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${_subtasks.where((s) => s.isCompleted).length}/${_subtasks.length}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.green,
+                  ),
+                ),
+              ),
               const Spacer(),
               IconButton(
-                icon: const Icon(Icons.add, size: 20),
+                icon: Icon(Icons.add, size: 18, color: AppColors.main),
                 onPressed: _addSubtask,
                 tooltip: 'Görev Ekle',
               ),
@@ -379,15 +612,25 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           ),
           if (_subtasks.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: Center(
-                child: Text(
-                  'Henüz görev eklenmedi',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                    fontStyle: FontStyle.italic,
-                  ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.task_alt,
+                      size: 48,
+                      color: AppColors.text.withValues(alpha: 0.3),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Henüz görev eklenmedi',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.text.withValues(alpha: 0.5),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -446,10 +689,21 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       ),
       child: Container(
         key: ValueKey(subtask.id),
-        margin: const EdgeInsets.only(top: 8),
+        margin: const EdgeInsets.only(top: 10),
         decoration: BoxDecoration(
-          color: AppColors.panelBackground2,
-          borderRadius: BorderRadius.circular(8),
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              subtask.isCompleted ? AppColors.green.withValues(alpha: 0.05) : AppColors.panelBackground2,
+              AppColors.panelBackground2.withValues(alpha: 0.7),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: subtask.isCompleted ? AppColors.green.withValues(alpha: 0.2) : AppColors.panelBackground2,
+            width: 1.5,
+          ),
         ),
         child: InkWell(
           onTap: () async {
@@ -458,61 +712,81 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             await provider.toggleSubtaskCompleted(subtask.id);
             await _loadProjectData();
           },
-          borderRadius: BorderRadius.circular(8),
+          onLongPress: () async {
+            // Long press to edit subtask
+            await showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) => AddSubtaskBottomSheet(
+                initialTitle: subtask.title,
+                initialDescription: subtask.description,
+                onSave: (title, description) async {
+                  final provider = context.read<ProjectsProvider>();
+                  subtask.title = title;
+                  subtask.description = description;
+                  await provider.updateSubtask(subtask);
+                  await _loadProjectData();
+                  debugPrint('✅ ProjectDetailPage: Subtask updated');
+                },
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.all(12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Checkbox (non-interactive, just visual)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: subtask.isCompleted ? AppColors.green.withValues(alpha: 0.1) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                   child: Icon(
                     subtask.isCompleted ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                    color: subtask.isCompleted ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
+                    color: subtask.isCompleted ? AppColors.green : AppColors.text.withValues(alpha: 0.4),
+                    size: 22,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 12),
                       Text(
                         subtask.title,
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
+                          decorationColor: AppColors.text.withValues(alpha: 0.3),
                           color: subtask.isCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text,
                         ),
                       ),
                       if (subtask.description != null && subtask.description!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           subtask.description!,
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.text.withValues(alpha: 0.6),
+                            height: 1.4,
+                            color: AppColors.text.withValues(alpha: 0.5),
                             decoration: subtask.isCompleted ? TextDecoration.lineThrough : null,
+                            decorationColor: AppColors.text.withValues(alpha: 0.3),
                           ),
                         ),
                       ],
-                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
                 // Drag handle for reordering
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: ReorderableDragStartListener(
-                    index: index,
-                    child: Icon(
-                      Icons.drag_handle_rounded,
-                      color: AppColors.text.withValues(alpha: 0.4),
-                      size: 20,
-                    ),
-                  ),
+                Icon(
+                  Icons.drag_handle_rounded,
+                  color: AppColors.text.withValues(alpha: 0.3),
+                  size: 18,
                 ),
               ],
             ),
@@ -525,30 +799,64 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   Widget _buildNotesSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.panelBackground2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.note_outlined, size: 20, color: AppColors.text.withValues(alpha: 0.7)),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.yellow.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.note_outlined,
+                  size: 18,
+                  color: AppColors.yellow,
+                ),
+              ),
+              const SizedBox(width: 12),
               Text(
-                'Notlar (${_notes.length})',
+                'Notlar',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.text,
                 ),
               ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.yellow.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${_notes.length}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.yellow,
+                  ),
+                ),
+              ),
               const Spacer(),
               IconButton(
-                icon: const Icon(Icons.add, size: 20),
+                icon: Icon(Icons.add, size: 18, color: AppColors.main),
                 onPressed: _addNote,
                 tooltip: 'Not Ekle',
               ),
@@ -556,71 +864,184 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           ),
           if (_notes.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: Center(
-                child: Text(
-                  'Henüz not eklenmedi',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                    fontStyle: FontStyle.italic,
-                  ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.sticky_note_2_outlined,
+                      size: 48,
+                      color: AppColors.text.withValues(alpha: 0.3),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Henüz not eklenmedi',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.text.withValues(alpha: 0.5),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
           else
-            ..._notes.map((note) => _buildNoteItem(note)),
+            ReorderableListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              onReorder: (oldIndex, newIndex) async {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+
+                setState(() {
+                  final note = _notes.removeAt(oldIndex);
+                  _notes.insert(newIndex, note);
+                });
+
+                // Update order indices and save
+                final provider = context.read<ProjectsProvider>();
+                for (int i = 0; i < _notes.length; i++) {
+                  _notes[i].orderIndex = i;
+                  await provider.updateProjectNote(_notes[i]);
+                }
+
+                setState(() {});
+                debugPrint('✅ Notes reordered');
+              },
+              children: _notes.map((note) => _buildNoteItem(note)).toList(),
+            ),
         ],
       ),
     );
   }
 
   Widget _buildNoteItem(ProjectNoteModel note) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground2,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Slidable(
+      key: ValueKey(note.id),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (note.title != null && note.title!.isNotEmpty) ...[
-                  Text(
-                    note.title!,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.text,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                ],
-                Text(
-                  note.content,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.text.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-            onPressed: () async {
+          SlidableAction(
+            onPressed: (context) async {
               final provider = context.read<ProjectsProvider>();
               await provider.deleteProjectNote(note.id);
               await _loadProjectData();
+              debugPrint('🗑️ Note deleted via slidable');
             },
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: 'Sil',
           ),
         ],
+      ),
+      child: GestureDetector(
+        onLongPress: () async {
+          // Long press to edit note
+          await showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => AddProjectNoteBottomSheet(
+              initialTitle: note.title,
+              initialContent: note.content,
+              onSave: (title, content) async {
+                final provider = context.read<ProjectsProvider>();
+                note.title = title;
+                note.content = content;
+                note.updatedAt = DateTime.now();
+                await provider.updateProjectNote(note);
+                await _loadProjectData();
+                debugPrint('✅ ProjectDetailPage: Note updated with title: $title');
+              },
+            ),
+          );
+        },
+        child: Container(
+          key: ValueKey(note.id),
+          margin: const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.panelBackground2,
+                AppColors.panelBackground2.withValues(alpha: 0.7),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.yellow.withValues(alpha: 0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Note icon
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.yellow.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Icon(
+                  Icons.sticky_note_2,
+                  size: 14,
+                  color: AppColors.yellow,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (note.title != null && note.title!.isNotEmpty) ...[
+                      Text(
+                        note.title!,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.text,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
+                    if (note.content != null && note.content!.isNotEmpty)
+                      Text(
+                        note.content!,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.text.withValues(alpha: 0.7),
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Drag handle for reordering
+              Icon(
+                Icons.drag_handle_rounded,
+                color: AppColors.text.withValues(alpha: 0.3),
+                size: 18,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

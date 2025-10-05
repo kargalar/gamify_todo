@@ -11,7 +11,7 @@ class ProjectNoteModel extends HiveObject {
   String projectId;
 
   @HiveField(2)
-  String content;
+  String? content;
 
   @HiveField(3)
   DateTime createdAt;
@@ -22,13 +22,17 @@ class ProjectNoteModel extends HiveObject {
   @HiveField(5)
   String? title;
 
+  @HiveField(6)
+  int orderIndex;
+
   ProjectNoteModel({
     required this.id,
     required this.projectId,
-    required this.content,
+    this.content,
     required this.createdAt,
     required this.updatedAt,
     this.title,
+    this.orderIndex = 0,
   });
 
   /// Copy with method
@@ -39,6 +43,7 @@ class ProjectNoteModel extends HiveObject {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? title,
+    int? orderIndex,
   }) {
     return ProjectNoteModel(
       id: id ?? this.id,
@@ -47,11 +52,12 @@ class ProjectNoteModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       title: title ?? this.title,
+      orderIndex: orderIndex ?? this.orderIndex,
     );
   }
 
   @override
   String toString() {
-    return 'ProjectNoteModel(id: $id, projectId: $projectId, content: ${content.length} chars)';
+    return 'ProjectNoteModel(id: $id, projectId: $projectId, content: ${content?.length ?? 0} chars)';
   }
 }
