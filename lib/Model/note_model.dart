@@ -28,6 +28,9 @@ class NoteModel extends HiveObject {
   @HiveField(7)
   bool isPinned;
 
+  @HiveField(8)
+  bool isArchived;
+
   NoteModel({
     this.id = 0,
     required this.title,
@@ -37,6 +40,7 @@ class NoteModel extends HiveObject {
     required this.createdAt,
     required this.updatedAt,
     this.isPinned = false,
+    this.isArchived = false,
   });
 
   /// Copy with method
@@ -49,6 +53,7 @@ class NoteModel extends HiveObject {
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isPinned,
+    bool? isArchived,
   }) {
     return NoteModel(
       id: id ?? this.id,
@@ -59,11 +64,12 @@ class NoteModel extends HiveObject {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isPinned: isPinned ?? this.isPinned,
+      isArchived: isArchived ?? this.isArchived,
     );
   }
 
   @override
   String toString() {
-    return 'NoteModel(id: $id, title: $title, categoryId: $categoryId, isPinned: $isPinned)';
+    return 'NoteModel(id: $id, title: $title, categoryId: $categoryId, isPinned: $isPinned, isArchived: $isArchived)';
   }
 }

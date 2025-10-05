@@ -10,7 +10,7 @@ import 'package:next_level/Page/Profile/profile_page.dart';
 import 'package:next_level/Page/Store/add_store_item_page.dart';
 import 'package:next_level/Page/Store/store_page.dart';
 import 'package:next_level/Page/Notes/notes_page.dart';
-import 'package:next_level/Page/Notes/add_edit_note_page.dart';
+import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -256,10 +256,12 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   transition: Transition.downToUp,
                 );
               } else if (currentIndex == 3) {
-                // Notes tab - add note
-                await NavigatorService().goTo(
-                  const AddEditNotePage(),
-                  transition: Transition.downToUp,
+                // Notes tab - add note with bottom sheet
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const AddEditNoteBottomSheet(),
                 );
               }
             },

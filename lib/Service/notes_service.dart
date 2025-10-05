@@ -182,6 +182,35 @@ class NotesService {
     }
   }
 
+  /// Notu arşivle/arşivden çıkar
+  Future<bool> toggleArchiveNote(int noteId) async {
+    try {
+      await initialize();
+      if (_notesBox == null) {
+        debugPrint('❌ NotesService: Cannot toggle archive - box is null');
+        return false;
+      }
+
+      debugPrint('📦 NotesService: Toggling archive for note: $noteId');
+
+      final note = _notesBox!.get(noteId);
+      if (note == null) {
+        debugPrint('❌ NotesService: Note not found: $noteId');
+        return false;
+      }
+
+      note.isArchived = !note.isArchived;
+      note.updatedAt = DateTime.now();
+      await note.save();
+
+      debugPrint('✅ NotesService: Note archive toggled successfully: $noteId - isArchived: ${note.isArchived}');
+      return true;
+    } catch (e) {
+      debugPrint('❌ NotesService: Error toggling archive: $e');
+      return false;
+    }
+  }
+
   /// Tek bir notu getir
   Future<NoteModel?> getNote(int noteId) async {
     try {

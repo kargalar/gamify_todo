@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:intl/intl.dart';
 
-/// Not kartı widget'ı (tags yok, kategori Provider'dan alınıyor)
+/// Kompakt ve sade not kartı widget'ı (Slidable actions ile)
 class NoteCard extends StatelessWidget {
   final NoteModel note;
   final VoidCallback onTap;
@@ -29,140 +30,160 @@ class NoteCard extends StatelessWidget {
         // Kategori bilgisini Provider'dan al
         final category = provider.getCategoryById(note.categoryId);
         final categoryColor = category != null ? Color(category.colorValue) : AppColors.grey;
-        final formattedDate = DateFormat('dd MMM yyyy, HH:mm').format(note.updatedAt);
+        final formattedDate = DateFormat('dd MMM, HH:mm').format(note.updatedAt);
 
-        return Card(
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            onLongPress: onLongPress,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: LinearGradient(
-                  colors: [
-                    categoryColor.withValues(alpha: 0.05),
-                    AppColors.panelBackground,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+        return Slidable(
+          key: ValueKey(note.id),
+          endActionPane: ActionPane(
+            motion: const ScrollMotion(),
+            extentRatio: 0.4,
+            children: [
+              SlidableAction(
+                onPressed: (context) async {
+                  debugPrint('📦 Note ${note.id} - Archive toggle başladı');
+                  final success = await provider.toggleArchiveNote(note.id);
+                  if (success) {
+                    debugPrint('✅ Note ${note.id} - Archive durumu değiştirildi');
+                  } else {
+                    debugPrint('❌ Note ${note.id} - Archive işlemi başarısız');
+                  }
+                },
+                backgroundColor: AppColors.orange,
+                icon: note.isArchived ? Icons.unarchive : Icons.archive,
+                label: note.isArchived ? 'Geri Al' : 'Arşivle',
+                padding: const EdgeInsets.symmetric(horizontal: 5),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header (Kategori + Pin)
-                  if (category != null || note.isPinned)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: categoryColor.withValues(alpha: 0.1),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
+              SlidableAction(
+                onPressed: (context) async {
+                  debugPrint('🗑️ Note ${note.id} - Silme işlemi başladı');
+                  if (onDelete != null) {
+                    onDelete!();
+                    debugPrint('✅ Note ${note.id} - Silindi');
+                  } else {
+                    debugPrint('⚠️ Note ${note.id} - onDelete callback null');
+                  }
+                },
+                backgroundColor: AppColors.red,
+                icon: Icons.delete,
+                label: 'Sil',
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+              ),
+            ],
+          ),
+          child: Card(
+            elevation: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: InkWell(
+              onTap: onTap,
+              onLongPress: onLongPress,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    // Sol taraf: Kategori ikonu
+                    if (category != null)
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: categoryColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Icon(
+                          IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          size: 18,
+                          color: categoryColor,
                         ),
                       ),
-                      child: Row(
+
+                    const SizedBox(width: 12),
+
+                    // Orta: Başlık ve tarih
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Kategori bilgisi
-                          if (category != null) ...[
-                            Icon(
-                              IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
-                              size: 16,
-                              color: categoryColor,
-                            ),
-                            const SizedBox(width: 6),
+                          // Başlık satırı
+                          Row(
+                            children: [
+                              if (note.isPinned)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 4),
+                                  child: Icon(
+                                    Icons.push_pin,
+                                    size: 12,
+                                    color: AppColors.yellow,
+                                  ),
+                                ),
+                              Expanded(
+                                child: Text(
+                                  note.title,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.text,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // İçerik önizlemesi (varsa)
+                          if (note.content.isNotEmpty) ...[
+                            const SizedBox(height: 2),
                             Text(
-                              category.name,
+                              note.content,
                               style: TextStyle(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: categoryColor,
+                                color: AppColors.text.withValues(alpha: 0.6),
+                                height: 1.3,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
-                          const Spacer(),
-                          // Pin ikonu
-                          if (note.isPinned)
-                            const Icon(
-                              Icons.push_pin,
-                              size: 14,
-                              color: AppColors.yellow,
-                            ),
-                        ],
-                      ),
-                    ),
 
-                  // İçerik
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Başlık
-                        Text(
-                          note.title,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.text,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        // İçerik (varsa)
-                        if (note.content.isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                          // Tarih
+                          const SizedBox(height: 4),
                           Text(
-                            note.content,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.text,
-                              height: 1.4,
+                            formattedDate,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.grey,
                             ),
-                            maxLines: 4,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                      ],
-                    ),
-                  ),
-
-                  // Footer (Tarih)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.panelBackground2,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time,
-                          size: 12,
-                          color: AppColors.grey,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          formattedDate,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.grey,
+
+                    // Sağ taraf: Kategori adı (küçük badge)
+                    if (category != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: categoryColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: categoryColor.withValues(alpha: 0.3),
+                            width: 0.5,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
+                        child: Text(
+                          category.name,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: categoryColor,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

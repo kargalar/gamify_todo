@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Widgets/Notes/note_card.dart';
-import 'package:next_level/Page/Notes/add_edit_note_page.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
+import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {
@@ -15,6 +17,7 @@ class NotesPage extends StatefulWidget {
 
 class _NotesPageState extends State<NotesPage> {
   final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -43,19 +46,32 @@ class _NotesPageState extends State<NotesPage> {
         elevation: 0,
         actions: [
           // Arama butonu
+          IconButton(
+            icon: Icon(
+              _isSearching ? Icons.search_off : Icons.search,
+            ),
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                if (!_isSearching) {
+                  _searchController.clear();
+                  context.read<NotesProvider>().clearSearchQuery();
+                }
+              });
+              debugPrint('🔍 Search toggled: $_isSearching');
+            },
+          ),
+          // Arşiv butonu
           Consumer<NotesProvider>(
             builder: (context, provider, _) {
               return IconButton(
                 icon: Icon(
-                  provider.searchQuery.isEmpty ? Icons.search : Icons.search_off,
+                  provider.showArchivedOnly ? Icons.unarchive : Icons.archive,
+                  color: provider.showArchivedOnly ? AppColors.orange : null,
                 ),
                 onPressed: () {
-                  if (provider.searchQuery.isEmpty) {
-                    _showSearchDialog(context, provider);
-                  } else {
-                    provider.clearSearchQuery();
-                    _searchController.clear();
-                  }
+                  provider.toggleArchivedFilter();
+                  debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
                 },
               );
             },
@@ -127,6 +143,56 @@ class _NotesPageState extends State<NotesPage> {
 
           return Column(
             children: [
+              // Inline arama barı (arama aktifse göster)
+              if (_isSearching)
+                Container(
+                  height: 40,
+                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.panelBackground,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    onChanged: (value) {
+                      provider.updateSearchQuery(value);
+                      debugPrint('🔍 Search query: $value');
+                    },
+                    style: const TextStyle(fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Başlık veya içerik ara...',
+                      hintStyle: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.text.withValues(alpha: 0.5),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: 18,
+                        color: AppColors.text.withValues(alpha: 0.5),
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                size: 18,
+                                color: AppColors.text.withValues(alpha: 0.5),
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                provider.clearSearchQuery();
+                                debugPrint('🔍 Search cleared');
+                              },
+                            )
+                          : null,
+                      filled: false,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+
               // Kategori filtreleme
               _buildCategoryFilter(context, provider),
 
@@ -242,10 +308,73 @@ class _NotesPageState extends State<NotesPage> {
                 ),
               );
             }),
+
+            // Yeni Kategori Ekle butonu
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildAddCategoryButton(context, provider),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  /// Yeni kategori ekleme butonu
+  Widget _buildAddCategoryButton(BuildContext context, NotesProvider provider) {
+    return ActionChip(
+      label: Icon(
+        Icons.add_circle_outline,
+        size: 20,
+        color: AppColors.main,
+      ),
+      onPressed: () => _showAddCategoryDialog(context, provider),
+      backgroundColor: AppColors.panelBackground,
+      side: BorderSide(
+        color: AppColors.main,
+        width: 1.5,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+    );
+  }
+
+  /// Kategori ekleme dialogunu göster
+  Future<void> _showAddCategoryDialog(BuildContext context, NotesProvider provider) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => const AddCategoryDialog(),
+    );
+
+    if (result != null) {
+      debugPrint('✅ NotesPage: Category data received from dialog');
+
+      // Yeni kategori oluştur
+      final newCategory = NoteCategoryModel(
+        id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
+        name: result['name'] as String,
+        iconCodePoint: result['iconCodePoint'] as int,
+        colorValue: result['colorValue'] as int,
+        createdAt: DateTime.now(),
+      );
+
+      await provider.addCategory(newCategory);
+
+      debugPrint('✅ NotesPage: New category created - ${newCategory.name}');
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${newCategory.name} kategorisi oluşturuldu'),
+          backgroundColor: Color(newCategory.colorValue),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      debugPrint('❌ NotesPage: Category creation cancelled');
+    }
   }
 
   Widget _buildNotesList(BuildContext context, NotesProvider provider) {
@@ -324,6 +453,7 @@ class _NotesPageState extends State<NotesPage> {
       note: note,
       onTap: () => _navigateToEditNote(context, note),
       onLongPress: () => _showNoteOptions(context, provider, note),
+      onDelete: () => _confirmDelete(context, provider, note),
     );
   }
 
@@ -401,6 +531,7 @@ class _NotesPageState extends State<NotesPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Not silindi')),
                 );
+                debugPrint('✅ Note ${note.id} deleted');
               },
               child: const Text('Sil', style: TextStyle(color: Colors.red)),
             ),
@@ -410,48 +541,12 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void _showSearchDialog(BuildContext context, NotesProvider provider) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Not Ara'),
-          content: TextField(
-            controller: _searchController,
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: 'Başlık, içerik veya etiket...',
-              prefixIcon: Icon(Icons.search),
-            ),
-            onChanged: (value) {
-              provider.updateSearchQuery(value);
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                provider.clearSearchQuery();
-                _searchController.clear();
-                Navigator.pop(context);
-              },
-              child: const Text('Temizle'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Kapat'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _navigateToEditNote(BuildContext context, note) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddEditNotePage(note: note),
-      ),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddEditNoteBottomSheet(note: note),
     );
   }
 }

@@ -25,11 +25,13 @@ class NotesProvider with ChangeNotifier {
   String _searchQuery = '';
   bool _isLoading = false;
   String? _errorMessage;
+  bool _showArchivedOnly = false;
 
   // Getters
   List<NoteModel> get notes => _notes;
   List<NoteCategoryModel> get categories => _categories;
   String? get selectedCategoryId => _selectedCategoryId;
+  bool get showArchivedOnly => _showArchivedOnly;
   NoteCategoryModel? get selectedCategory {
     if (_selectedCategoryId == null) return null;
     try {
@@ -46,6 +48,13 @@ class NotesProvider with ChangeNotifier {
   /// Filtrelenmiş notlar
   List<NoteModel> get filteredNotes {
     var filtered = _notes;
+
+    // Arşiv filtreleme
+    if (_showArchivedOnly) {
+      filtered = filtered.where((note) => note.isArchived).toList();
+    } else {
+      filtered = filtered.where((note) => !note.isArchived).toList();
+    }
 
     // Kategori filtreleme
     if (_selectedCategoryId != null) {
@@ -349,6 +358,38 @@ class NotesProvider with ChangeNotifier {
       return _categories.firstWhere((cat) => cat.id == categoryId);
     } catch (e) {
       return null;
+    }
+  }
+
+  /// Arşiv filtresini değiştir
+  void toggleArchivedFilter() {
+    debugPrint('📦 NotesProvider: Toggling archived filter - current: $_showArchivedOnly');
+    _showArchivedOnly = !_showArchivedOnly;
+    notifyListeners();
+    debugPrint('✅ NotesProvider: Archived filter toggled - new: $_showArchivedOnly');
+  }
+
+  /// Notu arşivle/arşivden çıkar
+  Future<bool> toggleArchiveNote(int noteId) async {
+    try {
+      debugPrint('📦 NotesProvider: Toggling archive for noteId: $noteId');
+      _setError(null);
+
+      final success = await _notesService.toggleArchiveNote(noteId);
+
+      if (success) {
+        await loadData();
+        debugPrint('✅ NotesProvider: Note archive toggled successfully');
+      } else {
+        debugPrint('❌ NotesProvider: Failed to toggle archive note');
+        _setError('Not arşivlenemedi');
+      }
+
+      return success;
+    } catch (e) {
+      debugPrint('❌ NotesProvider: Error toggling archive note - $e');
+      _setError('Not arşivlenirken hata oluştu: $e');
+      return false;
     }
   }
 
