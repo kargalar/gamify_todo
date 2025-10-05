@@ -12,16 +12,16 @@ class AppTheme {
       backgroundColor: AppColors.panelBackground6,
       elevation: 0,
       unselectedIconTheme: IconThemeData(
-        color: AppColors.text.withValues(alpha: 0.7),
-        size: 27,
+        color: AppColors.text.withValues(alpha: 0.5),
+        size: 26,
       ),
       unselectedLabelStyle: const TextStyle(
         fontSize: 12,
       ),
-      selectedItemColor: AppColors.text,
+      selectedItemColor: AppColors.main,
       selectedIconTheme: IconThemeData(
-        color: AppColors.text,
-        size: 30,
+        color: AppColors.main,
+        size: 32,
       ),
       selectedLabelStyle: const TextStyle(
         fontSize: 12,

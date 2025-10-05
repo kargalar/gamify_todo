@@ -83,32 +83,107 @@ class _StorePageState extends State<StorePage> {
   }
 
   Widget _buildCreditDisplay() {
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground2,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.main.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            loginUser!.userCredit.toString(),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.text,
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.help_outline, color: AppColors.main),
+                const SizedBox(width: 8),
+                const Text('Nasıl Para Kazanılır?'),
+              ],
             ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildEarnCreditItem(Icons.task_alt, 'Görevleri Tamamla', 'Her tamamlanan görev için para kazan'),
+                const SizedBox(height: 12),
+                _buildEarnCreditItem(Icons.repeat, 'Rutinleri Yap', 'Rutin görevleri düzenli olarak tamamla'),
+                const SizedBox(height: 12),
+                _buildEarnCreditItem(Icons.emoji_events, 'Özellikleri Geliştir', 'Özellik seviyelerini yükselterek bonus kazan'),
+                const SizedBox(height: 12),
+                _buildEarnCreditItem(Icons.trending_up, 'Süreklilik Bonusu', 'Ardışık günlerde görev tamamla'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Anladım'),
+              ),
+            ],
           ),
-          const SizedBox(width: 4),
-          const Icon(
-            Icons.monetization_on,
-            size: 20,
-            color: Colors.amber,
-          ),
-        ],
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.panelBackground2,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.main.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Text(
+              loginUser!.userCredit.toString(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.monetization_on,
+              size: 20,
+              color: Colors.amber,
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildEarnCreditItem(IconData icon, String title, String description) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.main.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: AppColors.main),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.text.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

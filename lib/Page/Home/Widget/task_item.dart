@@ -510,6 +510,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   Widget _buildSubtasksButton() {
     final subtaskCount = widget.taskModel.subtasks?.length ?? 0;
     final completedCount = widget.taskModel.subtasks?.where((subtask) => subtask.isCompleted).length ?? 0;
+    final incompleteCount = subtaskCount - completedCount;
 
     return Padding(
       padding: const EdgeInsets.only(left: 32, top: 4, bottom: 4),
@@ -541,7 +542,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                "$completedCount/$subtaskCount",
+                "$incompleteCount",
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,

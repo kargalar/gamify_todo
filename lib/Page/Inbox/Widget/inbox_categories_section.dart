@@ -17,6 +17,7 @@ class InboxCategoriesSection extends StatelessWidget {
   final String searchQuery;
   final bool showRoutines;
   final bool showTasks;
+  final bool showPinned;
   final DateFilterState dateFilterState;
   final Set<TaskTypeEnum> selectedTaskTypes;
   final Set<TaskStatusEnum> selectedStatuses;
@@ -29,6 +30,7 @@ class InboxCategoriesSection extends StatelessWidget {
     required this.searchQuery,
     required this.showRoutines,
     required this.showTasks,
+    required this.showPinned,
     required this.dateFilterState,
     required this.selectedTaskTypes,
     required this.selectedStatuses,
@@ -177,6 +179,11 @@ class InboxCategoriesSection extends StatelessWidget {
       bool isRoutine = task.routineID != null;
       return (isRoutine && showRoutines) || (!isRoutine && showTasks);
     }).toList();
+
+    // Apply pinned filter
+    if (showPinned) {
+      tasks = tasks.where((task) => task.isPinned).toList();
+    }
 
     // Apply task type filter
     tasks = tasks.where((task) => selectedTaskTypes.contains(task.type)).toList();

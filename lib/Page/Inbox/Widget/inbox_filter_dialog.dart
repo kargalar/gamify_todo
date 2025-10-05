@@ -10,16 +10,18 @@ import 'package:next_level/Service/locale_keys.g.dart';
 class InboxFilterDialog extends StatefulWidget {
   final bool showRoutines;
   final bool showTasks;
+  final bool showPinned;
   final DateFilterState dateFilterState;
   final Set<TaskTypeEnum> selectedTaskTypes;
   final Set<TaskStatusEnum> selectedStatuses;
   final bool showEmptyStatus;
-  final Function(bool, bool, DateFilterState, Set<TaskTypeEnum>, Set<TaskStatusEnum>, bool) onFiltersChanged;
+  final Function(bool, bool, bool, DateFilterState, Set<TaskTypeEnum>, Set<TaskStatusEnum>, bool) onFiltersChanged;
 
   const InboxFilterDialog({
     super.key,
     required this.showRoutines,
     required this.showTasks,
+    required this.showPinned,
     required this.dateFilterState,
     required this.selectedTaskTypes,
     required this.selectedStatuses,
@@ -34,6 +36,7 @@ class InboxFilterDialog extends StatefulWidget {
 class _InboxFilterDialogState extends State<InboxFilterDialog> {
   late bool _showRoutines;
   late bool _showTasks;
+  late bool _showPinned;
   late DateFilterState _dateFilterState;
   late Set<TaskTypeEnum> _selectedTaskTypes;
   late Set<TaskStatusEnum> _selectedStatuses;
@@ -44,6 +47,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
     super.initState();
     _showRoutines = widget.showRoutines;
     _showTasks = widget.showTasks;
+    _showPinned = widget.showPinned;
     _dateFilterState = widget.dateFilterState;
     _selectedTaskTypes = Set.from(widget.selectedTaskTypes);
     _selectedStatuses = Set.from(widget.selectedStatuses);
@@ -102,6 +106,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
     widget.onFiltersChanged(
       _showRoutines,
       _showTasks,
+      _showPinned,
       _dateFilterState,
       _selectedTaskTypes,
       _selectedStatuses,
@@ -216,6 +221,17 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
                     _showRoutines = !_showRoutines;
                     if (!_showRoutines && !_showTasks) _showTasks = true;
                   });
+                  _updateFilters();
+                },
+              ),
+              const SizedBox(width: 8),
+              FilterChipWidget(
+                label: "Pinned",
+                icon: Icons.push_pin,
+                isSelected: _showPinned,
+                selectedColor: AppColors.orange,
+                onTap: () {
+                  setState(() => _showPinned = !_showPinned);
                   _updateFilters();
                 },
               ),

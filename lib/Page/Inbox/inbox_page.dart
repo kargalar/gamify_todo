@@ -31,6 +31,7 @@ class _InboxPageState extends State<InboxPage> {
   // Filter states
   bool _showRoutines = true;
   bool _showTasks = true;
+  bool _showPinned = false; // Show only pinned tasks when enabled
   DateFilterState _dateFilterState = DateFilterState.withoutDate;
   final Set<TaskTypeEnum> _selectedTaskTypes = {
     TaskTypeEnum.CHECKBOX,
@@ -60,6 +61,7 @@ class _InboxPageState extends State<InboxPage> {
       // Load task/routine filter preferences
       _showTasks = prefs.getBool('categories_show_tasks') ?? true;
       _showRoutines = prefs.getBool('categories_show_routines') ?? true;
+      _showPinned = prefs.getBool('categories_show_pinned') ?? false;
 
       // Load date filter preference
       final dateFilterIndex = prefs.getInt('categories_date_filter');
@@ -129,6 +131,7 @@ class _InboxPageState extends State<InboxPage> {
     // Save task/routine filter preferences
     await prefs.setBool('categories_show_tasks', _showTasks);
     await prefs.setBool('categories_show_routines', _showRoutines);
+    await prefs.setBool('categories_show_pinned', _showPinned);
 
     // Save date filter preference
     await prefs.setInt('categories_date_filter', _dateFilterState.index);
@@ -225,6 +228,7 @@ class _InboxPageState extends State<InboxPage> {
               searchQuery: _searchController.text,
               showRoutines: _showRoutines,
               showTasks: _showTasks,
+              showPinned: _showPinned,
               dateFilterState: _dateFilterState,
               selectedTaskTypes: _selectedTaskTypes,
               selectedStatuses: _selectedStatuses,
@@ -241,6 +245,7 @@ class _InboxPageState extends State<InboxPage> {
               searchQuery: _searchController.text,
               showRoutines: _showRoutines,
               showTasks: _showTasks,
+              showPinned: _showPinned,
               dateFilterState: _dateFilterState,
               selectedTaskTypes: _selectedTaskTypes,
               selectedStatuses: _selectedStatuses,
@@ -261,14 +266,16 @@ class _InboxPageState extends State<InboxPage> {
       builder: (context) => InboxFilterDialog(
         showRoutines: _showRoutines,
         showTasks: _showTasks,
+        showPinned: _showPinned,
         dateFilterState: _dateFilterState,
         selectedTaskTypes: _selectedTaskTypes,
         selectedStatuses: _selectedStatuses,
         showEmptyStatus: _showEmptyStatus,
-        onFiltersChanged: (showRoutines, showTasks, dateFilterState, taskTypes, statuses, showEmpty) {
+        onFiltersChanged: (showRoutines, showTasks, showPinned, dateFilterState, taskTypes, statuses, showEmpty) {
           setState(() {
             _showRoutines = showRoutines;
             _showTasks = showTasks;
+            _showPinned = showPinned;
             _dateFilterState = dateFilterState;
             _selectedTaskTypes.clear();
             _selectedTaskTypes.addAll(taskTypes);
