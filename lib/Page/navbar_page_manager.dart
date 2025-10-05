@@ -10,6 +10,7 @@ import 'package:next_level/Page/Profile/profile_page.dart';
 import 'package:next_level/Page/Store/add_store_item_page.dart';
 import 'package:next_level/Page/Store/store_page.dart';
 import 'package:next_level/Page/Notes/notes_page.dart';
+import 'package:next_level/Page/Projects/projects_page.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/hive_service.dart';
@@ -22,6 +23,8 @@ import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Model/project_model.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +55,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     const BottomNavigationBarItem(
       icon: Icon(Icons.note),
       label: 'Notes',
+    ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.folder_outlined),
+      label: 'Projects',
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.person_rounded),
@@ -144,6 +151,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                     HomePage(),
                     InboxPage(),
                     NotesPage(),
+                    ProjectsPage(),
                     ProfilePage(),
                   ],
                 ),
@@ -206,8 +214,8 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
   Widget floatingActionButtons() {
     final currentIndex = context.read<NavbarProvider>().currentIndex;
 
-    // Show FAB for Store, Home, Inbox, and Notes tabs
-    if (currentIndex == 0 || currentIndex == 1 || currentIndex == 2 || currentIndex == 3) {
+    // Show FAB for Store, Home, Inbox, Notes, and Projects tabs
+    if (currentIndex == 0 || currentIndex == 1 || currentIndex == 2 || currentIndex == 3 || currentIndex == 4) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -263,6 +271,9 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   backgroundColor: Colors.transparent,
                   builder: (context) => const AddEditNoteBottomSheet(),
                 );
+              } else if (currentIndex == 4) {
+                // Projects tab - add project
+                _showAddProjectDialog();
               }
             },
             child: const Icon(
@@ -275,5 +286,79 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     } else {
       return const SizedBox();
     }
+  }
+
+  void _showAddProjectDialog() {
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Yeni Proje'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Başlık *',
+                  hintText: 'Proje başlığı',
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Açıklama',
+                  hintText: 'Proje açıklaması (opsiyonel)',
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (titleController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Lütfen bir başlık girin')),
+                  );
+                  return;
+                }
+
+                final project = ProjectModel(
+                  id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
+                  title: titleController.text.trim(),
+                  description: descriptionController.text.trim(),
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                );
+
+                final provider = context.read<ProjectsProvider>();
+                final success = await provider.addProject(project);
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Proje oluşturuldu')),
+                    );
+                    debugPrint('✅ Project created: ${project.id}');
+                  }
+                }
+              },
+              child: const Text('Oluştur'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

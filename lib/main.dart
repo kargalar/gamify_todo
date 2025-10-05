@@ -22,6 +22,7 @@ import 'package:next_level/Provider/theme_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
+import 'package:next_level/Provider/projects_provider.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -64,6 +65,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => TaskLogProvider()),
       ChangeNotifierProvider(create: (context) => CategoryProvider()),
       ChangeNotifierProvider(create: (context) => NotesProvider()),
+      ChangeNotifierProvider(create: (context) => ProjectsProvider()),
     ],
     child: ProductLocalization(child: const Main()),
   ));

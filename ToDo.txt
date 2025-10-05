@@ -28,3 +28,6 @@ notların arama kısmı inbox gibi olsun.
 notların kategorilerini kullanıcı kendi oluşturacalk şekildegüncelle sonra inboz a da aynısnıı uygula. 
 
 pinlemeyi slide kısmına ekle. ayrıca task ekleme sayfasında da çok daha compact olsun.
+
+not item da tarih yazmasın
+notlar sayfasında tümü kategorisi seçiliyken tümü yazsıı da beyaz olduğu için görünmüyor.

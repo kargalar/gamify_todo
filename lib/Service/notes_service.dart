@@ -23,6 +23,24 @@ class NotesService {
       }
     } catch (e) {
       debugPrint('❌ NotesService: Error opening Hive box: $e');
+      debugPrint('🔄 NotesService: Attempting to delete corrupted box and recreate...');
+
+      try {
+        // Eğer box açıksa önce kapat
+        if (Hive.isBoxOpen(_boxName)) {
+          await Hive.box<NoteModel>(_boxName).close();
+        }
+
+        // Bozuk box'ı sil
+        await Hive.deleteBoxFromDisk(_boxName);
+        debugPrint('🗑️ NotesService: Corrupted box deleted');
+
+        // Yeni box oluştur
+        _notesBox = await Hive.openBox<NoteModel>(_boxName);
+        debugPrint('✅ NotesService: New box created successfully');
+      } catch (e2) {
+        debugPrint('❌ NotesService: Failed to recreate box: $e2');
+      }
     }
   }
 
