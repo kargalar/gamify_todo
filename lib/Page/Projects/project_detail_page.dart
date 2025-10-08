@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/project_model.dart';
@@ -30,6 +31,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   List<ProjectNoteModel> _notes = [];
   bool _isLoading = true;
   late ProjectModel _currentProject;
+  bool hasClipboardData = false;
 
   @override
   void initState() {
@@ -47,6 +49,28 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     setState(() => _isLoading = false);
     debugPrint('📂 ProjectDetailPage: Loaded ${_subtasks.length} subtasks, ${_notes.length} notes');
+
+    // Check clipboard after loading data
+    _checkClipboard();
+  }
+
+  Future<void> _checkClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data?.text != null && data!.text!.isNotEmpty) {
+      // Try to parse
+      final parsed = _parseSubtasksFromText(data.text!);
+      if (mounted) {
+        setState(() {
+          hasClipboardData = parsed.isNotEmpty;
+        });
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          hasClipboardData = false;
+        });
+      }
+    }
   }
 
   void _openDescriptionEditor() {
@@ -603,6 +627,83 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 ),
               ),
               const Spacer(),
+              // Three dot menu
+              PopupMenuButton(
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'copy all',
+                    child: Row(
+                      children: [
+                        Icon(Icons.content_copy, size: 18),
+                        SizedBox(width: 8),
+                        Text('Hepsini Kopyala'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'copy incomplete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.content_copy, size: 18),
+                        SizedBox(width: 8),
+                        Text('Tamamlanmayanları Kopyala'),
+                      ],
+                    ),
+                  ),
+                  if (hasClipboardData)
+                    const PopupMenuItem(
+                      value: 'paste',
+                      child: Row(
+                        children: [
+                          Icon(Icons.content_paste, size: 18),
+                          SizedBox(width: 8),
+                          Text('Yapıştır'),
+                        ],
+                      ),
+                    ),
+                  if (_subtasks.isNotEmpty)
+                    const PopupMenuItem(
+                      value: 'complete all',
+                      child: Row(
+                        children: [
+                          Icon(Icons.done_all, size: 18),
+                          SizedBox(width: 8),
+                          Text('Hepsini Tamamla'),
+                        ],
+                      ),
+                    ),
+                  if (_subtasks.isNotEmpty)
+                    const PopupMenuItem(
+                      value: 'clear all',
+                      child: Row(
+                        children: [
+                          Icon(Icons.clear_all, size: 18, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Hepsini Sil', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                ],
+                onSelected: (value) {
+                  switch (value) {
+                    case 'copy all':
+                      _copyAllSubtasks();
+                      break;
+                    case 'copy incomplete':
+                      _copyIncompleteSubtasks();
+                      break;
+                    case 'paste':
+                      _pasteSubtasks();
+                      break;
+                    case 'complete all':
+                      _completeAllSubtasks();
+                      break;
+                    case 'clear all':
+                      _clearAllSubtasks();
+                      break;
+                  }
+                },
+              ),
               IconButton(
                 icon: Icon(Icons.add, size: 18, color: AppColors.main),
                 onPressed: _addSubtask,
@@ -1044,5 +1145,230 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         ),
       ),
     );
+  }
+
+  // ============ SUBTASK CLIPBOARD OPERATIONS ============
+
+  void _copyAllSubtasks() {
+    if (_subtasks.isEmpty) {
+      debugPrint('⚠️ ProjectDetailPage: No subtasks to copy');
+      return;
+    }
+
+    // Create bullet list with completed/incomplete status and descriptions
+    final bulletList = _subtasks.map((subtask) {
+      final status = subtask.isCompleted ? '✓' : '○';
+      String result = '$status ${subtask.title}';
+
+      // Add description if it exists and is not empty
+      if (subtask.description != null && subtask.description!.isNotEmpty) {
+        result += '\n    ${subtask.description}';
+      }
+
+      return result;
+    }).join('\n');
+
+    // Copy to clipboard
+    Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
+      // Update UI to show paste button
+      setState(() {
+        hasClipboardData = true;
+      });
+      // Show confirmation snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${_subtasks.length} görev kopyalandı'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.main,
+        ),
+      );
+      debugPrint('✅ ProjectDetailPage: ${_subtasks.length} subtasks copied to clipboard');
+    });
+  }
+
+  void _copyIncompleteSubtasks() {
+    final incomplete = _subtasks.where((s) => !s.isCompleted).toList();
+    if (incomplete.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Tamamlanmamış görev yok'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.text.withValues(alpha: 0.7),
+        ),
+      );
+      debugPrint('⚠️ ProjectDetailPage: No incomplete subtasks to copy');
+      return;
+    }
+
+    final bulletList = incomplete.map((subtask) {
+      String result = '○ ${subtask.title}';
+      if (subtask.description != null && subtask.description!.isNotEmpty) {
+        result += '\n    ${subtask.description}';
+      }
+      return result;
+    }).join('\n');
+
+    Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
+      setState(() {
+        hasClipboardData = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${incomplete.length} tamamlanmamış görev kopyalandı'),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.main,
+        ),
+      );
+      debugPrint('✅ ProjectDetailPage: ${incomplete.length} incomplete subtasks copied');
+    });
+  }
+
+  List<ProjectSubtaskModel> _parseSubtasksFromText(String text) {
+    final lines = text.split('\n');
+    final List<ProjectSubtaskModel> parsedSubtasks = [];
+
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i].trim();
+      if (line.isEmpty) continue;
+
+      // Check if line starts with status
+      if (line.startsWith('✓ ') || line.startsWith('○ ')) {
+        final isCompleted = line.startsWith('✓ ');
+        final title = line.substring(2).trim();
+        String? description;
+
+        // Check next line for description
+        if (i + 1 < lines.length && lines[i + 1].startsWith('    ')) {
+          description = lines[i + 1].substring(4).trim();
+          i++; // Skip description line
+        }
+
+        parsedSubtasks.add(ProjectSubtaskModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString() + parsedSubtasks.length.toString(),
+          projectId: _currentProject.id,
+          title: title,
+          description: description ?? '',
+          isCompleted: isCompleted,
+          orderIndex: parsedSubtasks.length,
+          createdAt: DateTime.now(),
+        ));
+      }
+    }
+
+    return parsedSubtasks;
+  }
+
+  Future<void> _pasteSubtasks() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data?.text == null || data!.text!.isEmpty) {
+      debugPrint('⚠️ ProjectDetailPage: Clipboard is empty');
+      return;
+    }
+
+    final parsedSubtasks = _parseSubtasksFromText(data.text!);
+    if (parsedSubtasks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Panoda geçerli görev bulunamadı'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      debugPrint('⚠️ ProjectDetailPage: No valid subtasks in clipboard');
+      return;
+    }
+
+    // Add all parsed subtasks
+    final provider = context.read<ProjectsProvider>();
+    for (final parsed in parsedSubtasks) {
+      await provider.addSubtask(parsed);
+    }
+
+    await _loadProjectData(); // Refresh data
+    _checkClipboard(); // Re-check clipboard after paste
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${parsedSubtasks.length} görev yapıştırıldı'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.main,
+      ),
+    );
+    debugPrint('✅ ProjectDetailPage: ${parsedSubtasks.length} subtasks pasted');
+  }
+
+  Future<void> _completeAllSubtasks() async {
+    if (_subtasks.isEmpty) {
+      debugPrint('⚠️ ProjectDetailPage: No subtasks to complete');
+      return;
+    }
+
+    final provider = context.read<ProjectsProvider>();
+    int completedCount = 0;
+
+    for (final subtask in _subtasks) {
+      if (!subtask.isCompleted) {
+        subtask.isCompleted = true;
+        await provider.updateSubtask(subtask);
+        completedCount++;
+      }
+    }
+
+    await _loadProjectData(); // Refresh data
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$completedCount görev tamamlandı'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.green,
+      ),
+    );
+    debugPrint('✅ ProjectDetailPage: $completedCount subtasks completed');
+  }
+
+  Future<void> _clearAllSubtasks() async {
+    if (_subtasks.isEmpty) {
+      debugPrint('⚠️ ProjectDetailPage: No subtasks to clear');
+      return;
+    }
+
+    // Show confirmation dialog
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Tüm Görevleri Sil'),
+        content: Text('${_subtasks.length} görevi silmek istediğinizden emin misiniz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('İptal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final provider = context.read<ProjectsProvider>();
+    final count = _subtasks.length;
+
+    for (final subtask in _subtasks) {
+      await provider.deleteSubtask(subtask.id);
+    }
+
+    await _loadProjectData(); // Refresh data
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$count görev silindi'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.red,
+      ),
+    );
+    debugPrint('✅ ProjectDetailPage: $count subtasks cleared');
   }
 }
