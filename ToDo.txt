@@ -55,25 +55,12 @@ Ayrıca gelecekte olsa bile eşit progressden yapılan değişiklik 28 Mayıs ol
 
 ○ Siralamda pinnedler en üstte olsun
 ○ projelerin üzerine quick add too butonunejke
-○ project ve not kat3firiler wilinebilsin. taskin kategorisi de tıpkı diğerleri gibi olsun
 ○ taşlı düzenledikten sonra güncelle hutinuna basmaya gerek yok
 ○ projelerin subtaskalari için sadece tamamlanmayanlari göster seçeneği ejle
-○ not ekleme bittim sheet auto ficus başlık
-○ not İtem çok belirsin. kendi containeri gibi alanı olsun
-○ proje gorev siralama çalışmıyor.
 ○ proje gorev ekleme bittim sheet başlık ve açıklama aynı contanierda olsun. not daki gibi
     aynı şekilde niye ekleme de böyle olacak
-○ projenin görevler kısmında hide show conpleted filtresi ve copy all paste all seçenekleri ekle
-○ proje detaylar sayfainda açıklama kısmını üste ekle
-○ task actionlar sadece icondan olsun.
-○ görev sabitleme butonuna basınca için anında degissin
-○ notlar kısmında basılı tutunca açılan bittom sheet hatali
-○ not ejlmee bottomsheet pin çalışmıyor
+○ görev sabitleme butonuna basınca icon anında degissin
 ○ recent log da tarihler ile ilgi bir sıkıntı var
-○ arsivlene tasklar ayarlardan değil home page 3 nokta menüden olsun
-○ tasklar notlar ve projeler appar aynı osun
-○ duzenleyince not en üste çıkıyor olueuturma tarigime göre wiralansin
-○ task subtask bottomsheet sürükle erek tam ekram
 ○ tarih seçme kısmında sonraki hafta sonraki ay senecekleri?
 ○ projeler sayfasindayken detaylara girmeden not ve task ejlenebilecek. belki icon ile iyi olabilir
 ○ tasklari üst üste işaretleyin ve sorun olabiliyor

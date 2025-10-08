@@ -4,6 +4,7 @@ import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Widgets/Notes/note_card.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
 
@@ -272,44 +273,47 @@ class _NotesPageState extends State<NotesPage> {
               }
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  selected: provider.selectedCategoryId == category.id,
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(category.name),
-                      const SizedBox(width: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.panelBackground2,
-                          borderRadius: BorderRadius.circular(10),
+                child: GestureDetector(
+                  onLongPress: () => _showDeleteCategoryDialog(context, provider, category),
+                  child: FilterChip(
+                    selected: provider.selectedCategoryId == category.id,
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          size: 16,
                         ),
-                        child: Text(
-                          '$count',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.text,
+                        const SizedBox(width: 6),
+                        Text(category.name),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.panelBackground2,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$count',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  selectedColor: Color(category.colorValue).withValues(alpha: 0.3),
-                  backgroundColor: AppColors.panelBackground,
-                  checkmarkColor: Color(category.colorValue),
-                  onSelected: (_) => provider.selectCategory(
-                    provider.selectedCategoryId == category.id ? null : category.id,
-                  ),
-                  labelStyle: TextStyle(
-                    color: AppColors.text,
-                    fontWeight: provider.selectedCategoryId == category.id ? FontWeight.bold : FontWeight.normal,
+                      ],
+                    ),
+                    selectedColor: Color(category.colorValue).withValues(alpha: 0.3),
+                    backgroundColor: AppColors.panelBackground,
+                    checkmarkColor: Color(category.colorValue),
+                    onSelected: (_) => provider.selectCategory(
+                      provider.selectedCategoryId == category.id ? null : category.id,
+                    ),
+                    labelStyle: TextStyle(
+                      color: AppColors.text,
+                      fontWeight: provider.selectedCategoryId == category.id ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                 ),
               );
@@ -454,7 +458,7 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  Widget _buildNoteCard(BuildContext context, NotesProvider provider, note) {
+  Widget _buildNoteCard(BuildContext context, NotesProvider provider, NoteModel note) {
     return NoteCard(
       note: note,
       onTap: () => _navigateToEditNote(context, note),
@@ -463,7 +467,13 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void _showNoteOptions(BuildContext context, NotesProvider provider, note) {
+  void _showNoteOptions(BuildContext context, NotesProvider provider, NoteModel note) {
+    final category = provider.categories.firstWhere(
+      (cat) => cat.id == note.categoryId,
+      orElse: () => provider.categories.first,
+    );
+    final categoryColor = Color(category.colorValue);
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -486,16 +496,17 @@ class _NotesPageState extends State<NotesPage> {
               ListTile(
                 leading: Icon(
                   note.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-                  color: note.categoryEnum.color,
+                  color: categoryColor,
                 ),
                 title: Text(note.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle'),
                 onTap: () {
                   Navigator.pop(context);
                   provider.togglePinNote(note.id, !note.isPinned);
+                  debugPrint('📌 Note pin toggled: ${note.isPinned}');
                 },
               ),
               ListTile(
-                leading: Icon(Icons.edit, color: note.categoryEnum.color),
+                leading: Icon(Icons.edit, color: categoryColor),
                 title: const Text('Düzenle'),
                 onTap: () {
                   Navigator.pop(context);
@@ -518,7 +529,7 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void _confirmDelete(BuildContext context, NotesProvider provider, note) {
+  void _confirmDelete(BuildContext context, NotesProvider provider, NoteModel note) {
     showDialog(
       context: context,
       builder: (context) {
@@ -547,12 +558,57 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void _navigateToEditNote(BuildContext context, note) {
+  void _navigateToEditNote(BuildContext context, NoteModel note) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddEditNoteBottomSheet(note: note),
+    );
+  }
+
+  void _showDeleteCategoryDialog(BuildContext context, NotesProvider provider, NoteCategoryModel category) {
+    final count = provider.noteCounts[category.id] ?? 0;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Kategoriyi Sil'),
+          content: Text(
+            count > 0 ? 'Bu kategoriye ait $count not var. Kategori silinirse bu notlar kategorisiz kalacak. Devam etmek istiyor musunuz?' : 'Bu kategoriyi silmek istediğinizden emin misiniz?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                final success = await provider.deleteCategory(category.id);
+                if (success) {
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Kategori silindi')),
+                  );
+                  debugPrint('✅ Category ${category.id} deleted');
+                } else {
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Kategori silinemedi'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  debugPrint('❌ Category ${category.id} deletion failed');
+                }
+              },
+              child: const Text('Sil', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

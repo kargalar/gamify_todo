@@ -74,12 +74,18 @@ class NotesProvider with ChangeNotifier {
 
   /// Sabitlenmiş notlar
   List<NoteModel> get pinnedNotes {
-    return filteredNotes.where((note) => note.isPinned).toList();
+    final pinned = filteredNotes.where((note) => note.isPinned).toList();
+    // Oluşturma tarihine göre sırala (yeniden eskiye)
+    pinned.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return pinned;
   }
 
   /// Sabitlenmemiş notlar
   List<NoteModel> get unpinnedNotes {
-    return filteredNotes.where((note) => !note.isPinned).toList();
+    final unpinned = filteredNotes.where((note) => !note.isPinned).toList();
+    // Oluşturma tarihine göre sırala (yeniden eskiye)
+    unpinned.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return unpinned;
   }
 
   /// Kategoriye göre not sayıları

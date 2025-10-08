@@ -187,8 +187,12 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                         // eğer description varsa description editor aç
                         else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
                           _showDescriptionEditor();
+                        }
+                        // Rutin ise detay sayfasına, task ise edit sayfasına git
+                        else if (widget.taskModel.routineID != null) {
+                          taskLongPressAction(); // Rutinlerde detay sayfası
                         } else {
-                          taskAction();
+                          taskLongPressAction(); // Tasklarda edit sayfası
                         }
                       },
                       onLongPress: () async {

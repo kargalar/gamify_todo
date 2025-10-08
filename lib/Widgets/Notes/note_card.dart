@@ -68,36 +68,47 @@ class NoteCard extends StatelessWidget {
               ),
             ],
           ),
-          child: Card(
-            elevation: 1,
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.panelBackground,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: categoryColor.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: categoryColor.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: InkWell(
               onTap: onTap,
               onLongPress: onLongPress,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [
                     // Sol taraf: Kategori ikonu
                     if (category != null)
                       Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: categoryColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          color: categoryColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
                           IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
-                          size: 18,
+                          size: 20,
                           color: categoryColor,
                         ),
                       ),
 
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
 
                     // Orta: Başlık ve tarih
                     Expanded(
@@ -108,19 +119,19 @@ class NoteCard extends StatelessWidget {
                           Row(
                             children: [
                               if (note.isPinned)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 4),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
                                   child: Icon(
                                     Icons.push_pin,
-                                    size: 12,
-                                    color: AppColors.yellow,
+                                    size: 14,
+                                    color: categoryColor,
                                   ),
                                 ),
                               Expanded(
                                 child: Text(
                                   note.title,
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.text,
                                   ),
@@ -133,13 +144,13 @@ class NoteCard extends StatelessWidget {
 
                           // İçerik önizlemesi (varsa)
                           if (note.content.isNotEmpty) ...[
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 4),
                             Text(
                               note.content,
                               style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.text.withValues(alpha: 0.6),
-                                height: 1.3,
+                                fontSize: 13,
+                                color: AppColors.text.withValues(alpha: 0.65),
+                                height: 1.4,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

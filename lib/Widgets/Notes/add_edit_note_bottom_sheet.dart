@@ -20,6 +20,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
+  final FocusNode _titleFocusNode = FocusNode();
 
   NoteCategoryModel? _selectedCategory;
   late bool _isPinned;
@@ -47,6 +48,13 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
       });
     }
 
+    // Otomatik focus için (yeni not eklerken)
+    if (!isEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _titleFocusNode.requestFocus();
+      });
+    }
+
     debugPrint('🔧 AddEditNoteBottomSheet: Initialized ${isEditing ? "edit" : "add"} mode');
   }
 
@@ -54,6 +62,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
+    _titleFocusNode.dispose();
     super.dispose();
   }
 
@@ -112,10 +121,14 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                             _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                             color: _isPinned ? AppColors.yellow : AppColors.text,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             setState(() {
                               _isPinned = !_isPinned;
                             });
+                            // Pin değişikliğini hemen kaydet
+                            final provider = context.read<NotesProvider>();
+                            await provider.togglePinNote(widget.note!.id, _isPinned);
+                            debugPrint('📌 Note pin toggled to: $_isPinned');
                           },
                           tooltip: _isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
                         ),
@@ -175,6 +188,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
           // Başlık
           TextFormField(
             controller: _titleController,
+            focusNode: _titleFocusNode,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
