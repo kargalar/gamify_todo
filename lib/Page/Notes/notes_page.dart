@@ -7,6 +7,7 @@ import 'package:next_level/Model/note_category_model.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
+import 'package:next_level/Widgets/Common/standard_app_bar.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {
@@ -37,47 +38,28 @@ class _NotesPageState extends State<NotesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<NotesProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'Notlarım',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
-        actions: [
-          // Arama butonu
-          IconButton(
-            icon: Icon(
-              _isSearching ? Icons.search_off : Icons.search,
-            ),
-            onPressed: () {
-              setState(() {
-                _isSearching = !_isSearching;
-                if (!_isSearching) {
-                  _searchController.clear();
-                  context.read<NotesProvider>().clearSearchQuery();
-                }
-              });
-              debugPrint('🔍 Search toggled: $_isSearching');
-            },
-          ),
-          // Arşiv butonu
-          Consumer<NotesProvider>(
-            builder: (context, provider, _) {
-              return IconButton(
-                icon: Icon(
-                  provider.showArchivedOnly ? Icons.unarchive : Icons.archive,
-                  color: provider.showArchivedOnly ? AppColors.orange : null,
-                ),
-                onPressed: () {
-                  provider.toggleArchivedFilter();
-                  debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
-                },
-              );
-            },
-          ),
-        ],
+      appBar: StandardAppBar(
+        title: 'Notlarım',
+        isSearching: _isSearching,
+        onSearchToggle: () {
+          setState(() {
+            _isSearching = !_isSearching;
+            if (!_isSearching) {
+              _searchController.clear();
+              provider.clearSearchQuery();
+            }
+          });
+          debugPrint('🔍 Search toggled: $_isSearching');
+        },
+        showArchivedOnly: provider.showArchivedOnly,
+        onArchiveToggle: () {
+          provider.toggleArchivedFilter();
+          debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
+        },
       ),
       body: Consumer<NotesProvider>(
         builder: (context, provider, _) {
@@ -354,7 +336,12 @@ class _NotesPageState extends State<NotesPage> {
   Future<void> _showAddCategoryDialog(BuildContext context, NotesProvider provider) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => const AddCategoryDialog(),
+      builder: (context) => AddCategoryDialog(
+        existingCategories: provider.categories,
+        onDeleteCategory: (category) {
+          _showDeleteCategoryDialog(context, provider, category);
+        },
+      ),
     );
 
     if (result != null) {

@@ -115,6 +115,14 @@ class _TaskListState extends State<TaskList> {
         // Calculate the date for this page via ViewModel helper
         final DateTime pageDate = vm.dateForPage(baseDate: _baseDate, pageIndex: index, referencePage: _referencePage);
 
+        // If showing archived, show archived tasks and routines
+        if (vm.showArchived) {
+          final archivedTasks = vm.getArchivedTasks();
+          final archivedRoutines = vm.getArchivedRoutines();
+
+          return _buildArchivedContent(archivedTasks, archivedRoutines);
+        }
+
         // Get tasks for this date
         final selectedDateTaskList = vm.getTasksForDate(pageDate);
         final selectedDateRutinTaskList = vm.getRoutineTasksForDate(pageDate);
@@ -185,6 +193,43 @@ class _TaskListState extends State<TaskList> {
                     routineTasks: selectedDateRutinTaskList,
                     ghostRoutineTasks: selectedDateGhostRutinTaskList,
                   ),
+                ],
+
+                // navbar space
+                const SizedBox(height: 100),
+              ],
+            ),
+          );
+  }
+
+  Widget _buildArchivedContent(List<TaskModel> archivedTasks, List<dynamic> archivedRoutines) {
+    final hasAnyArchivedItems = archivedTasks.isNotEmpty || archivedRoutines.isNotEmpty;
+
+    return !hasAnyArchivedItems
+        ? const Center(
+            child: Text(
+              'Arşivlenmiş görev veya rutin yok',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
+        : SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              children: [
+                // Archived routines section - routines first since they are recurring
+                if (archivedRoutines.isNotEmpty) ...[
+                  RoutineTasksHeader(
+                    routineTasks: archivedRoutines,
+                    ghostRoutineTasks: const [],
+                  ),
+                ],
+
+                // Archived tasks section
+                if (archivedTasks.isNotEmpty) ...[
+                  NormalTasksHeader(tasks: archivedTasks),
                 ],
 
                 // navbar space

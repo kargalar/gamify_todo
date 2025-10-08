@@ -99,13 +99,72 @@ class _StorePageState extends State<StorePage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildEarnCreditItem(Icons.task_alt, 'Görevleri Tamamla', 'Her tamamlanan görev için para kazan'),
+                Text(
+                  'Görevlerdeki süre (duration) üzerinden para kazanırsınız:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.text,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildEarnCreditItem(
+                  Icons.check_box_rounded,
+                  'Checkbox Görevler',
+                  'Tamamlandığında belirtilen süre kadar para kazanırsınız',
+                ),
                 const SizedBox(height: 12),
-                _buildEarnCreditItem(Icons.repeat, 'Rutinleri Yap', 'Rutin görevleri düzenli olarak tamamla'),
+                _buildEarnCreditItem(
+                  Icons.add_circle_outline,
+                  'Counter Görevler',
+                  'Her sayaç artırımında belirtilen süre kadar para eklenir',
+                ),
                 const SizedBox(height: 12),
-                _buildEarnCreditItem(Icons.emoji_events, 'Özellikleri Geliştir', 'Özellik seviyelerini yükselterek bonus kazan'),
-                const SizedBox(height: 12),
-                _buildEarnCreditItem(Icons.trending_up, 'Süreklilik Bonusu', 'Ardışık günlerde görev tamamla'),
+                _buildEarnCreditItem(
+                  Icons.timer_outlined,
+                  'Timer Görevler',
+                  'Çalıştırdığınız süre kadar para kazanırsınız',
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.main.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.main.withValues(alpha: 0.3),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.schedule, color: AppColors.main, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.text,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: '1 saat = 1 kredi\n',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.main,
+                                ),
+                              ),
+                              const TextSpan(
+                                text: 'Örnek: 30 dakika = 0.5 kredi',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             actions: [

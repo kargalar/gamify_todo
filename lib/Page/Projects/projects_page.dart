@@ -4,7 +4,12 @@ import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Widgets/Projects/project_card.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/project_model.dart';
+import 'package:next_level/Model/project_subtask_model.dart';
+import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Page/Projects/project_detail_page.dart';
+import 'package:next_level/Widgets/Common/standard_app_bar.dart';
+import 'package:next_level/Widgets/Common/add_subtask_bottom_sheet.dart';
+import 'package:next_level/Widgets/Projects/add_project_note_bottom_sheet.dart';
 
 /// Projeler ana sayfası
 class ProjectsPage extends StatefulWidget {
@@ -40,47 +45,28 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ProjectsProvider>();
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'Projelerim',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
-        actions: [
-          // Arama butonu
-          IconButton(
-            icon: Icon(
-              _isSearching ? Icons.search_off : Icons.search,
-            ),
-            onPressed: () {
-              setState(() {
-                _isSearching = !_isSearching;
-                if (!_isSearching) {
-                  _searchController.clear();
-                  context.read<ProjectsProvider>().clearSearchQuery();
-                }
-              });
-              debugPrint('🔍 Search toggled: $_isSearching');
-            },
-          ),
-          // Arşiv butonu
-          Consumer<ProjectsProvider>(
-            builder: (context, provider, _) {
-              return IconButton(
-                icon: Icon(
-                  provider.showArchivedOnly ? Icons.unarchive : Icons.archive,
-                  color: provider.showArchivedOnly ? AppColors.orange : null,
-                ),
-                onPressed: () {
-                  provider.toggleArchivedFilter();
-                  debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
-                },
-              );
-            },
-          ),
-        ],
+      appBar: StandardAppBar(
+        title: 'Projelerim',
+        isSearching: _isSearching,
+        onSearchToggle: () {
+          setState(() {
+            _isSearching = !_isSearching;
+            if (!_isSearching) {
+              _searchController.clear();
+              provider.clearSearchQuery();
+            }
+          });
+          debugPrint('🔍 Search toggled: $_isSearching');
+        },
+        showArchivedOnly: provider.showArchivedOnly,
+        onArchiveToggle: () {
+          provider.toggleArchivedFilter();
+          debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
+        },
       ),
       body: Consumer<ProjectsProvider>(
         builder: (context, provider, _) {
@@ -300,6 +286,104 @@ class _ProjectsPageState extends State<ProjectsPage> {
         final notes = await provider.getProjectNotes(project.id);
         return notes.length;
       },
+      onAddTask: () {
+        debugPrint('➕ Quick add task to project: ${project.id}');
+        _showQuickAddTaskDialog(context, provider, project);
+      },
+      onAddNote: () {
+        debugPrint('📝 Quick add note to project: ${project.id}');
+        _showQuickAddNoteDialog(context, provider, project);
+      },
+    );
+  }
+
+  void _showQuickAddTaskDialog(BuildContext context, ProjectsProvider provider, ProjectModel project) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddSubtaskBottomSheet(
+        customTitle: 'Hızlı Görev Ekle',
+        onSave: (title, description) async {
+          debugPrint('➕ Quick add task to project: ${project.id}');
+          final subtask = ProjectSubtaskModel(
+            id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
+            projectId: project.id,
+            title: title,
+            description: description,
+            isCompleted: false,
+            createdAt: DateTime.now(),
+            orderIndex: 0,
+          );
+
+          final success = await provider.addSubtask(subtask);
+
+          if (success) {
+            debugPrint('✅ Subtask added successfully');
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Görev eklendi'),
+                backgroundColor: AppColors.green,
+              ),
+            );
+          } else {
+            debugPrint('❌ Failed to add subtask');
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Görev eklenirken hata oluştu'),
+                backgroundColor: AppColors.red,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _showQuickAddNoteDialog(BuildContext context, ProjectsProvider provider, ProjectModel project) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddProjectNoteBottomSheet(
+        onSave: (title, content) async {
+          debugPrint('📝 Quick add note to project: ${project.id}');
+          final now = DateTime.now();
+          final note = ProjectNoteModel(
+            id: 'note_${now.millisecondsSinceEpoch}',
+            projectId: project.id,
+            title: title,
+            content: content,
+            createdAt: now,
+            updatedAt: now,
+            orderIndex: 0,
+          );
+
+          final success = await provider.addProjectNote(note);
+
+          if (success) {
+            debugPrint('✅ Note added successfully');
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Not eklendi'),
+                backgroundColor: AppColors.blue,
+              ),
+            );
+          } else {
+            debugPrint('❌ Failed to add note');
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Not eklenirken hata oluştu'),
+                backgroundColor: AppColors.red,
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 

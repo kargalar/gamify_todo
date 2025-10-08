@@ -34,8 +34,23 @@ class NoteCard extends StatelessWidget {
           key: ValueKey(note.id),
           endActionPane: ActionPane(
             motion: const ScrollMotion(),
-            extentRatio: 0.4,
+            extentRatio: 0.6,
             children: [
+              SlidableAction(
+                onPressed: (context) async {
+                  debugPrint('📌 Note ${note.id} - Pin toggle: ${note.isPinned} -> ${!note.isPinned}');
+                  final success = await provider.togglePinNote(note.id, !note.isPinned);
+                  if (success) {
+                    debugPrint('✅ Note ${note.id} - Pin durumu değiştirildi');
+                  } else {
+                    debugPrint('❌ Note ${note.id} - Pin işlemi başarısız');
+                  }
+                },
+                backgroundColor: note.isPinned ? AppColors.grey : categoryColor,
+                icon: note.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+                label: note.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+              ),
               SlidableAction(
                 onPressed: (context) async {
                   debugPrint('📦 Note ${note.id} - Archive toggle başladı');

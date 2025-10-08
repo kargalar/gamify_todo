@@ -104,11 +104,13 @@ class TaskProvider with ChangeNotifier {
   // TODO: saat 00:00:00 geçtikten sonra hala dünü gösterecek muhtemelen her ana sayfaya gidişte. bunu düzelt. yani değişken uygulama açıldığında belirlendiği için 12 den sonra değişmeyecek.
   DateTime selectedDate = DateTime.now();
   bool showCompleted = false;
+  bool showArchived = false;
 
   // Uygulama başladığında showCompleted durumunu SharedPreferences'dan yükle
   Future<void> loadShowCompletedState() async {
     final prefs = await SharedPreferences.getInstance();
     showCompleted = prefs.getBool('show_completed') ?? false;
+    showArchived = prefs.getBool('show_archived') ?? false;
     notifyListeners();
   }
 
@@ -1231,6 +1233,18 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> toggleShowArchived() async {
+    debugPrint('📦 TaskProvider: Toggling archived filter - Current: $showArchived');
+    showArchived = !showArchived;
+
+    // Değişikliği SharedPreferences'a kaydet
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('show_archived', showArchived);
+
+    debugPrint('✅ TaskProvider: Archived filter toggled - New: $showArchived');
+    notifyListeners();
+  }
+
   // Toggle subtask visibility for a specific task
   void toggleTaskSubtaskVisibility(TaskModel taskModel) {
     taskModel.showSubtasks = !taskModel.showSubtasks;
@@ -2171,7 +2185,14 @@ class TaskProvider with ChangeNotifier {
   // Get archived routines
   List<RoutineModel> getArchivedRoutines() {
     return routineList.where((routine) => routine.isArchived).toList();
-  } // Show undo message for task failure
+  }
+
+  // Get archived tasks
+  List<TaskModel> getArchivedTasks() {
+    return taskList.where((task) => task.status == TaskStatusEnum.ARCHIVED).toList();
+  }
+
+  // Show undo message for task failure
 
   void showTaskFailureUndo(TaskModel taskModel) {
     showTaskFailureUndoWithPreviousStatus(taskModel, taskModel.status);

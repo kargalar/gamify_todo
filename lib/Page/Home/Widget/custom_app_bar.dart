@@ -145,6 +145,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             borderRadius: AppColors.borderRadiusAll,
           ),
           itemBuilder: (context) {
+            final homeViewModel = context.read<HomeViewModel>();
             return [
               PopupMenuItem(
                 onTap: () async {
@@ -153,13 +154,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: Row(
                   children: [
                     Icon(
-                      context.read<HomeViewModel>().showCompleted ? Icons.visibility_off : Icons.visibility,
+                      homeViewModel.showCompleted ? Icons.visibility_off : Icons.visibility,
                       size: 18,
                       color: AppColors.text,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "${context.read<HomeViewModel>().showCompleted ? LocaleKeys.Hide.tr() : LocaleKeys.Show.tr()} ${LocaleKeys.Done.tr()}",
+                      "${homeViewModel.showCompleted ? LocaleKeys.Hide.tr() : LocaleKeys.Show.tr()} ${LocaleKeys.Done.tr()}",
                       style: const TextStyle(fontSize: 14),
                     ),
                   ],

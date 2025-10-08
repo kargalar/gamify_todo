@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_provider.dart';
 
@@ -24,6 +25,8 @@ class HomeViewModel extends ChangeNotifier {
 
   bool get showCompleted => TaskProvider().showCompleted;
 
+  bool get showArchived => TaskProvider().showArchived;
+
   // Commands
   void changeSelectedDate(DateTime date) {
     TaskProvider().changeSelectedDate(date);
@@ -31,6 +34,10 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> toggleShowCompleted() async {
     await TaskProvider().changeShowCompleted();
+  }
+
+  Future<void> toggleShowArchived() async {
+    await TaskProvider().toggleShowArchived();
   }
 
   void skipRoutinesForSelectedDate() {
@@ -49,6 +56,10 @@ class HomeViewModel extends ChangeNotifier {
   List<dynamic> getRoutineTasksForDate(DateTime date) => TaskProvider().getRoutineTasksForDate(date);
 
   List<dynamic> getGhostRoutineTasksForDate(DateTime date) => TaskProvider().getGhostRoutineTasksForDate(date);
+
+  List<RoutineModel> getArchivedRoutines() => TaskProvider().getArchivedRoutines();
+
+  List<TaskModel> getArchivedTasks() => TaskProvider().getArchivedTasks();
 
   // Paging helpers (kept UI-agnostic)
   int daysBetween(DateTime from, DateTime to) {

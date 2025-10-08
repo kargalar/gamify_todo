@@ -8,12 +8,14 @@ class CategorySelectorBottomSheet extends StatelessWidget {
   final NoteCategoryModel? selectedCategory;
   final List<NoteCategoryModel> categories;
   final Future<void> Function(NoteCategoryModel) onCategoryAdded;
+  final Future<void> Function(NoteCategoryModel)? onCategoryDeleted;
 
   const CategorySelectorBottomSheet({
     super.key,
     required this.selectedCategory,
     required this.categories,
     required this.onCategoryAdded,
+    this.onCategoryDeleted,
   });
 
   @override
@@ -105,9 +107,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
     required bool isSelected,
   }) {
     final color = category != null ? Color(category.colorValue) : AppColors.grey;
-    final icon = category != null
-        ? IconData(category.iconCodePoint, fontFamily: 'MaterialIcons')
-        : Icons.category_outlined;
+    final icon = category != null ? IconData(category.iconCodePoint, fontFamily: 'MaterialIcons') : Icons.category_outlined;
     final name = category?.name ?? 'Kategorisiz';
 
     return InkWell(
@@ -201,7 +201,15 @@ class CategorySelectorBottomSheet extends StatelessWidget {
   Future<void> _showAddCategoryDialog(BuildContext context) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => const AddCategoryDialog(),
+      builder: (context) => AddCategoryDialog(
+        existingCategories: categories,
+        onDeleteCategory: (category) async {
+          debugPrint('🗑️ CategorySelectorBottomSheet: Deleting category ${category.name}');
+          if (onCategoryDeleted != null) {
+            await onCategoryDeleted!(category);
+          }
+        },
+      ),
     );
 
     if (result != null) {

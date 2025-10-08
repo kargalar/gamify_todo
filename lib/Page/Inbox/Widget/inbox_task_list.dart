@@ -49,10 +49,23 @@ class InboxTaskList extends StatelessWidget {
       tasks = taskProvider.getAllTasks();
     }
 
-    // Apply routine/task filter
+    // Apply routine/task filter and exclude archived routines
     tasks = tasks.where((task) {
       bool isRoutine = task.routineID != null;
-      return (isRoutine && showRoutines) || (!isRoutine && showTasks);
+      bool isArchived = task.status == TaskStatusEnum.ARCHIVED;
+
+      // If it's a routine
+      if (isRoutine) {
+        // Never show archived routines in inbox (they have their own page)
+        if (isArchived) {
+          return false;
+        }
+        // Show non-archived routines based on showRoutines flag
+        return showRoutines;
+      }
+
+      // For non-routine tasks, use the showTasks flag
+      return showTasks;
     }).toList();
 
     // Apply pinned filter

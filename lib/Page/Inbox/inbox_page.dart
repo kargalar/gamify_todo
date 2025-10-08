@@ -5,6 +5,7 @@ import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
+import 'package:next_level/Page/Inbox/archived_routines_page.dart';
 import 'package:next_level/Page/Inbox/Widget/inbox_search_bar.dart';
 import 'package:next_level/Page/Inbox/Widget/inbox_categories_section.dart';
 import 'package:next_level/Page/Inbox/Widget/inbox_filter_dialog.dart';
@@ -86,11 +87,12 @@ class _InboxPageState extends State<InboxPage> {
       // Ensure at least one task type is selected
       if (_selectedTaskTypes.isEmpty) {
         _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
-      } // Load status filter preferences
+      }
+
+      // Load status filter preferences
       final hasCompleted = prefs.getBool('categories_show_completed') ?? true;
       final hasFailed = prefs.getBool('categories_show_failed') ?? true;
       final hasCancel = prefs.getBool('categories_show_cancel') ?? true;
-      final hasArchived = prefs.getBool('categories_show_archived') ?? false;
       final hasOverdue = prefs.getBool('categories_show_overdue') ?? true;
       _showEmptyStatus = prefs.getBool('categories_show_empty_status') ?? true;
 
@@ -99,7 +101,6 @@ class _InboxPageState extends State<InboxPage> {
       if (hasCompleted) _selectedStatuses.add(TaskStatusEnum.DONE);
       if (hasFailed) _selectedStatuses.add(TaskStatusEnum.FAILED);
       if (hasCancel) _selectedStatuses.add(TaskStatusEnum.CANCEL);
-      if (hasArchived) _selectedStatuses.add(TaskStatusEnum.ARCHIVED);
       if (hasOverdue) _selectedStatuses.add(TaskStatusEnum.OVERDUE);
 
       // Load selected category
@@ -146,7 +147,6 @@ class _InboxPageState extends State<InboxPage> {
     await prefs.setBool('categories_show_completed', _selectedStatuses.contains(TaskStatusEnum.DONE));
     await prefs.setBool('categories_show_failed', _selectedStatuses.contains(TaskStatusEnum.FAILED));
     await prefs.setBool('categories_show_cancel', _selectedStatuses.contains(TaskStatusEnum.CANCEL));
-    await prefs.setBool('categories_show_archived', _selectedStatuses.contains(TaskStatusEnum.ARCHIVED));
     await prefs.setBool('categories_show_overdue', _selectedStatuses.contains(TaskStatusEnum.OVERDUE));
     await prefs.setBool('categories_show_empty_status', _showEmptyStatus);
 
@@ -166,23 +166,42 @@ class _InboxPageState extends State<InboxPage> {
         title: Text(
           LocaleKeys.Tasks.tr(),
         ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.search,
-            size: 20,
-            color: _isSearchActive ? AppColors.main : AppColors.text,
-          ),
-          tooltip: LocaleKeys.Search.tr(),
-          onPressed: () {
-            setState(() {
-              _isSearchActive = !_isSearchActive;
-              if (!_isSearchActive) {
-                _searchController.clear();
-              }
-            });
-          },
-        ),
         actions: [
+          // Arama icon
+          IconButton(
+            icon: Icon(
+              _isSearchActive ? Icons.search_off : Icons.search,
+              size: 20,
+            ),
+            tooltip: LocaleKeys.Search.tr(),
+            onPressed: () {
+              setState(() {
+                _isSearchActive = !_isSearchActive;
+                if (!_isSearchActive) {
+                  _searchController.clear();
+                }
+              });
+              debugPrint('🔍 Inbox search toggled: $_isSearchActive');
+            },
+          ),
+          // Arşiv icon - Arşivlenmiş rutinler sayfasına git
+          IconButton(
+            icon: const Icon(
+              Icons.archive,
+              size: 20,
+            ),
+            tooltip: 'Arşivlenmiş Rutinler',
+            onPressed: () {
+              debugPrint('📦 Navigating to archived routines page');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ArchivedRoutinesPage(),
+                ),
+              );
+            },
+          ),
+          // Kategori ekle icon
           IconButton(
             icon: Icon(
               Icons.add_rounded,

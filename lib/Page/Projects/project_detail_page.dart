@@ -322,11 +322,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
                     const SizedBox(height: 20),
 
-                    // Açıklama alanı
-                    _buildDescriptionSection(),
-
-                    const SizedBox(height: 20),
-
                     // Görevler bölümü
                     _buildSubtasksSection(),
 
@@ -344,103 +339,198 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
 
   Widget _buildProjectInfoCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.main.withValues(alpha: 0.1),
-            AppColors.main.withValues(alpha: 0.05),
+    return InkWell(
+      onTap: () {
+        // Proje adı ve bilgilerini düzenle
+        _showEditProjectBottomSheet();
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.main.withValues(alpha: 0.1),
+              AppColors.main.withValues(alpha: 0.05),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.main.withValues(alpha: 0.2),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.main.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.main.withValues(alpha: 0.2),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.main.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.main.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.main.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.folder_rounded,
+                    color: AppColors.main,
+                    size: 24,
+                  ),
                 ),
-                child: Icon(
-                  Icons.folder_rounded,
-                  color: AppColors.main,
-                  size: 24,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _currentProject.title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 14,
+                            color: AppColors.text.withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Oluşturuldu: ${_formatDate(_currentProject.createdAt)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.text.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Açıklama (eğer varsa)
+            if (_currentProject.description.isNotEmpty) ...[
+              Divider(color: AppColors.main.withValues(alpha: 0.2), height: 24),
+              GestureDetector(
+                onTap: () {
+                  // Açıklama alanına tıklanınca description editor'ı aç
+                  _openDescriptionEditor();
+                },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _currentProject.title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.text,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
                     Row(
                       children: [
                         Icon(
-                          Icons.calendar_today,
-                          size: 14,
-                          color: AppColors.text.withValues(alpha: 0.5),
+                          Icons.description_outlined,
+                          size: 16,
+                          color: AppColors.text.withValues(alpha: 0.7),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Text(
-                          'Oluşturuldu: ${_formatDate(_currentProject.createdAt)}',
+                          'Açıklama',
                           style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.text.withValues(alpha: 0.5),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.text.withValues(alpha: 0.7),
                           ),
                         ),
+                        const Spacer(),
+                        Icon(
+                          Icons.edit,
+                          size: 16,
+                          color: AppColors.main,
+                        ),
                       ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _currentProject.description,
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.5,
+                        color: AppColors.text.withValues(alpha: 0.8),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatChip(
-                Icons.check_box,
-                '${_subtasks.where((s) => s.isCompleted).length}/${_subtasks.length}',
-                'Görevler',
-                AppColors.green,
+            ] else ...[
+              Divider(color: AppColors.main.withValues(alpha: 0.2), height: 24),
+              GestureDetector(
+                onTap: () {
+                  // Açıklama ekle butonuna tıklanınca description editor'ı aç
+                  _openDescriptionEditor();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.main.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.main.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.add,
+                        size: 16,
+                        color: AppColors.main.withValues(alpha: 0.7),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Açıklama ekle',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.main.withValues(alpha: 0.7),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(width: 12),
-              _buildStatChip(
-                Icons.note,
-                '${_notes.length}',
-                'Notlar',
-                AppColors.blue,
-              ),
             ],
-          ),
-        ],
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                _buildStatChip(
+                  Icons.check_box,
+                  '${_subtasks.where((s) => s.isCompleted).length}/${_subtasks.length}',
+                  'Görevler',
+                  AppColors.green,
+                ),
+                const SizedBox(width: 12),
+                _buildStatChip(
+                  Icons.note,
+                  '${_notes.length}',
+                  'Notlar',
+                  AppColors.blue,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -501,71 +591,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }
-  }
-
-  Widget _buildDescriptionSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.panelBackground2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.description_outlined,
-                  size: 18,
-                  color: AppColors.blue,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Açıklama',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text,
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                icon: Icon(Icons.edit, size: 18, color: AppColors.main),
-                onPressed: _openDescriptionEditor,
-                tooltip: 'Açıklamayı Düzenle',
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _currentProject.description.isEmpty ? 'Açıklama eklenmedi. Düzenle butonuna tıklayın.' : _currentProject.description,
-            style: TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: _currentProject.description.isEmpty ? AppColors.grey : AppColors.text.withValues(alpha: 0.8),
-              fontStyle: _currentProject.description.isEmpty ? FontStyle.italic : FontStyle.normal,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildSubtasksSection() {
@@ -884,10 +909,13 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   ),
                 ),
                 // Drag handle for reordering
-                Icon(
-                  Icons.drag_handle_rounded,
-                  color: AppColors.text.withValues(alpha: 0.3),
-                  size: 18,
+                ReorderableDragStartListener(
+                  index: index,
+                  child: Icon(
+                    Icons.drag_handle_rounded,
+                    color: AppColors.text.withValues(alpha: 0.3),
+                    size: 18,
+                  ),
                 ),
               ],
             ),

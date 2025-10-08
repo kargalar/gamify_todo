@@ -315,7 +315,12 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
         selectedCategory: _selectedCategory,
         categories: provider.categories,
         onCategoryAdded: (category) async {
+          debugPrint('➕ AddEditNoteBottomSheet: Adding new category ${category.name}');
           await provider.addCategory(category);
+        },
+        onCategoryDeleted: (category) async {
+          debugPrint('🗑️ AddEditNoteBottomSheet: Deleting category ${category.name}');
+          await provider.deleteCategory(category.id);
         },
       ),
     );

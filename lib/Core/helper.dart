@@ -530,7 +530,7 @@ class Helper {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Quick action buttons
+                // Quick action buttons - First Row
                 Row(
                   children: [
                     // Today button
@@ -539,13 +539,13 @@ class Helper {
                         onPressed: () {
                           Navigator.of(context).pop(DateTime.now());
                         },
-                        icon: const Icon(Icons.today_rounded),
-                        // TODO: localization
-                        label: const Text('Bugün'),
+                        icon: const Icon(Icons.today_rounded, size: 18),
+                        label: const Text('Bugün', style: TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.main.withValues(alpha: 0.1),
                           foregroundColor: AppColors.main,
                           elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                       ),
                     ),
@@ -556,13 +556,54 @@ class Helper {
                         onPressed: () {
                           Navigator.of(context).pop(DateTime.now().add(const Duration(days: 1)));
                         },
-                        icon: const Icon(Icons.event_rounded),
-                        // TODO: localization
-                        label: const Text('Yarın'),
+                        icon: const Icon(Icons.event_rounded, size: 18),
+                        label: const Text('Yarın', style: TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.green.withValues(alpha: 0.1),
                           foregroundColor: AppColors.green,
                           elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Next Week button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop(DateTime.now().add(const Duration(days: 7)));
+                        },
+                        icon: const Icon(Icons.date_range_rounded, size: 18),
+                        label: const Text('S. Hafta', style: TextStyle(fontSize: 13)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.blue.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.blue,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Quick action buttons - Second Row
+                Row(
+                  children: [
+                    // Next Month button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          final now = DateTime.now();
+                          final nextMonth = DateTime(now.year, now.month + 1, now.day);
+                          Navigator.of(context).pop(nextMonth);
+                        },
+                        icon: const Icon(Icons.calendar_month_rounded, size: 18),
+                        label: const Text('S. Ay', style: TextStyle(fontSize: 13)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.purple.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.purple,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                       ),
                     ),
@@ -574,13 +615,13 @@ class Helper {
                           // Use epoch time as marker for dateless selection
                           Navigator.of(context).pop(DateTime.fromMillisecondsSinceEpoch(0));
                         },
-                        icon: const Icon(Icons.clear_rounded),
-                        // TODO: localization
-                        label: const Text('Tarihsiz'),
+                        icon: const Icon(Icons.clear_rounded, size: 18),
+                        label: const Text('Tarihsiz', style: TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.red.withValues(alpha: 0.1),
                           foregroundColor: AppColors.red,
                           elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                       ),
                     ),

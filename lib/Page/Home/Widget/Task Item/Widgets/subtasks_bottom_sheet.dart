@@ -62,228 +62,237 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
 
     final displayedSubtasks = widget.taskModel.showSubtasks ? sortedSubtasks : sortedSubtasks.where((subtask) => !subtask.isCompleted).toList();
     final completedCount = subtasks.where((subtask) => subtask.isCompleted).length;
-    return Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.only(bottom: 16), // Remove excessive bottom padding
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            border: const Border(
-              top: BorderSide(color: AppColors.dirtyWhite),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Handle bar
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.text.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                border: const Border(
+                  top: BorderSide(color: AppColors.dirtyWhite),
                 ),
               ),
-
-              // Header with title and toggle button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.checklist_rounded,
-                          color: AppColors.main,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 10),
-                        ClickableTooltip(
-                          title: LocaleKeys.Subtasks.tr(),
-                          // TODO: localization
-                          bulletPoints: const ["Tap checkbox to mark subtask as done", "Long press to edit a subtask", "Swipe left to delete a subtask"],
-                          child: Text(
-                            LocaleKeys.Subtasks.tr(),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Subtask count badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.main.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            "$completedCount/${subtasks.length}",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.main,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    // three dot menu
-                    PopupMenuButton(
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'copy all subtasks',
-                          child: const Row(
-                            children: [
-                              Icon(Icons.content_copy, size: 18),
-                              SizedBox(width: 8),
-                              Text('Copy All Subtasks'),
-                            ],
-                          ),
-                          onTap: () {
-                            _copyAllSubtasks();
-                          },
-                        ),
-                        PopupMenuItem(
-                          value: 'copy incomplete subtasks',
-                          child: const Row(
-                            children: [
-                              Icon(Icons.content_copy, size: 18),
-                              SizedBox(width: 8),
-                              Text('Copy Incomplete Subtasks'),
-                            ],
-                          ),
-                          onTap: () {
-                            _copyIncompleteSubtasks();
-                          },
-                        ),
-                        if (hasClipboardData)
-                          PopupMenuItem(
-                            value: 'paste subtasks',
-                            child: const Row(
-                              children: [
-                                Icon(Icons.content_paste, size: 18),
-                                SizedBox(width: 8),
-                                Text('Paste Subtasks'),
-                              ],
-                            ),
-                            onTap: () {
-                              _pasteSubtasks();
-                            },
-                          ),
-                        if (subtasks.isNotEmpty)
-                          PopupMenuItem(
-                            value: 'clear all subtasks',
-                            child: const Row(
-                              children: [
-                                Icon(Icons.clear_all, size: 18),
-                                SizedBox(width: 8),
-                                Text('Clear All Subtasks'),
-                              ],
-                            ),
-                            onTap: () {
-                              _clearAllSubtasks();
-                            },
-                          ),
-                      ],
-                    ),
-                    // Show/Hide completed subtasks toggle
-                    if (completedCount > 0)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: InkWell(
-                          onTap: () {
-                            taskProvider.toggleTaskSubtaskVisibility(widget.taskModel);
-                          },
-                          child: Icon(
-                            widget.taskModel.showSubtasks ? Icons.visibility_off : Icons.visibility,
-                            size: 18,
-                            color: AppColors.text.withValues(alpha: 0.6),
-                          ),
-                        ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(top: 12, bottom: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.text.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                  ],
-                ),
-              ),
+                    ),
+                  ),
 
-              const SizedBox(height: 16),
-
-              // Subtasks list or empty state
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: subtasks.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.check_box_outline_blank_rounded,
-                                color: AppColors.text.withValues(alpha: 0.3),
-                                size: 48,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "No subtasks",
-                                style: TextStyle(
-                                  color: AppColors.text.withValues(alpha: 0.5),
-                                  fontSize: 16,
+                  // Header with title and toggle button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.checklist_rounded,
+                              color: AppColors.main,
+                              size: 22,
+                            ),
+                            const SizedBox(width: 10),
+                            ClickableTooltip(
+                              title: LocaleKeys.Subtasks.tr(),
+                              // TODO: localization
+                              bulletPoints: const ["Tap checkbox to mark subtask as done", "Long press to edit a subtask", "Swipe left to delete a subtask"],
+                              child: Text(
+                                LocaleKeys.Subtasks.tr(),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ],
+                            ),
+                            const SizedBox(width: 8),
+                            // Subtask count badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppColors.main.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                "$completedCount/${subtasks.length}",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.main,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        // three dot menu
+                        PopupMenuButton(
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'copy all subtasks',
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.content_copy, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Copy All Subtasks'),
+                                ],
+                              ),
+                              onTap: () {
+                                _copyAllSubtasks();
+                              },
+                            ),
+                            PopupMenuItem(
+                              value: 'copy incomplete subtasks',
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.content_copy, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Copy Incomplete Subtasks'),
+                                ],
+                              ),
+                              onTap: () {
+                                _copyIncompleteSubtasks();
+                              },
+                            ),
+                            if (hasClipboardData)
+                              PopupMenuItem(
+                                value: 'paste subtasks',
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.content_paste, size: 18),
+                                    SizedBox(width: 8),
+                                    Text('Paste Subtasks'),
+                                  ],
+                                ),
+                                onTap: () {
+                                  _pasteSubtasks();
+                                },
+                              ),
+                            if (subtasks.isNotEmpty)
+                              PopupMenuItem(
+                                value: 'clear all subtasks',
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.clear_all, size: 18),
+                                    SizedBox(width: 8),
+                                    Text('Clear All Subtasks'),
+                                  ],
+                                ),
+                                onTap: () {
+                                  _clearAllSubtasks();
+                                },
+                              ),
+                          ],
+                        ),
+                        // Show/Hide completed subtasks toggle
+                        if (completedCount > 0)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            child: InkWell(
+                              onTap: () {
+                                taskProvider.toggleTaskSubtaskVisibility(widget.taskModel);
+                              },
+                              child: Icon(
+                                widget.taskModel.showSubtasks ? Icons.visibility_off : Icons.visibility,
+                                size: 18,
+                                color: AppColors.text.withValues(alpha: 0.6),
+                              ),
+                            ),
                           ),
-                        ),
-                      )
-                    : Container(
-                        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: displayedSubtasks.length,
-                          itemBuilder: (context, index) {
-                            final subtask = displayedSubtasks[index];
-                            return SubtaskItem(
-                              subtask: subtask,
-                              taskModel: widget.taskModel,
-                              onEdit: () => _showSubtaskDialog(subtask),
-                              onDelete: () => _removeSubtask(subtask),
-                            );
-                          },
-                        ),
-                      ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Subtasks list or empty state
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: subtasks.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.check_box_outline_blank_rounded,
+                                      color: AppColors.text.withValues(alpha: 0.3),
+                                      size: 48,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "No subtasks",
+                                      style: TextStyle(
+                                        color: AppColors.text.withValues(alpha: 0.5),
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              controller: scrollController,
+                              itemCount: displayedSubtasks.length,
+                              itemBuilder: (context, index) {
+                                final subtask = displayedSubtasks[index];
+                                return SubtaskItem(
+                                  subtask: subtask,
+                                  taskModel: widget.taskModel,
+                                  onEdit: () => _showSubtaskDialog(subtask),
+                                  onDelete: () => _removeSubtask(subtask),
+                                );
+                              },
+                            ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ), // Floating Add Button - positioned to stay on top
-        Positioned(
-          bottom: 20,
-          right: 20,
-          child: FloatingActionButton(
-            onPressed: () {
-              _showSubtaskDialog(null);
-            },
-            backgroundColor: AppColors.main,
-            foregroundColor: Colors.white,
-            elevation: 8,
-            heroTag: "add_subtask_fab", // Unique hero tag to avoid conflicts
-            child: const Icon(
-              Icons.add_rounded,
-              size: 28,
             ),
-          ),
-        ),
-      ],
+            // Floating Add Button - positioned to stay on top
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: FloatingActionButton(
+                onPressed: () {
+                  _showSubtaskDialog(null);
+                },
+                backgroundColor: AppColors.main,
+                foregroundColor: Colors.white,
+                elevation: 8,
+                heroTag: "add_subtask_fab",
+                child: const Icon(
+                  Icons.add_rounded,
+                  size: 28,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -99,73 +99,101 @@ class InboxCategoriesSection extends StatelessWidget {
 
     final int taskCount = tasks.length;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => onCategorySelected(category),
-        onLongPress: category != null
-            ? () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  barrierColor: Colors.transparent,
-                  builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
-                );
-              }
-            : null,
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.15) : AppColors.panelBackground.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
+    // "Tümü" chip'i için
+    if (category == null) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: FilterChip(
+          selected: isSelected,
+          label: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Color indicator
-              if (category != null) ...[
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: category.color,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-
-              // Category name
-              Text(
-                category?.title ?? LocaleKeys.AllTasks.tr(),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected ? color : AppColors.text.withValues(alpha: 0.7),
-                ),
-              ),
-
-              // Task count
+              const Icon(Icons.inbox, size: 16),
               const SizedBox(width: 6),
+              Text(LocaleKeys.AllTasks.tr()),
+              const SizedBox(width: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isSelected ? color.withValues(alpha: 0.2) : AppColors.text.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: isSelected ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   taskCount.toString(),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? color : AppColors.text.withValues(alpha: 0.6),
+                    color: isSelected ? Colors.white : AppColors.text,
                   ),
                 ),
               ),
             ],
+          ),
+          selectedColor: AppColors.main,
+          backgroundColor: AppColors.panelBackground,
+          checkmarkColor: Colors.white,
+          onSelected: (_) => onCategorySelected(null),
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : AppColors.text,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      );
+    }
+
+    // Kategori chip'leri
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onLongPress: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            barrierColor: Colors.transparent,
+            builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+          );
+        },
+        child: FilterChip(
+          selected: isSelected,
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(category.title),
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground2,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  taskCount.toString(),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.text,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          selectedColor: color.withValues(alpha: 0.3),
+          backgroundColor: AppColors.panelBackground,
+          checkmarkColor: color,
+          onSelected: (_) => onCategorySelected(isSelected ? null : category),
+          labelStyle: TextStyle(
+            color: AppColors.text,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),

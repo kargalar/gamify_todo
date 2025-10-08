@@ -12,6 +12,8 @@ class ProjectCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final Future<int> Function()? getSubtaskCount;
   final Future<int> Function()? getNoteCount;
+  final VoidCallback? onAddTask;
+  final VoidCallback? onAddNote;
 
   const ProjectCard({
     super.key,
@@ -20,6 +22,8 @@ class ProjectCard extends StatelessWidget {
     this.onDelete,
     this.getSubtaskCount,
     this.getNoteCount,
+    this.onAddTask,
+    this.onAddNote,
   });
 
   @override
@@ -36,8 +40,18 @@ class ProjectCard extends StatelessWidget {
       key: ValueKey(project.id),
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: 0.4,
+        extentRatio: 0.6,
         children: [
+          SlidableAction(
+            onPressed: (context) async {
+              final slidableProvider = Provider.of<ProjectsProvider>(context, listen: false);
+              await slidableProvider.togglePinProject(project.id);
+              debugPrint('📌 Project ${project.id} - Pin toggle: ${project.isPinned} -> ${!project.isPinned}');
+            },
+            backgroundColor: project.isPinned ? AppColors.grey : categoryColor,
+            icon: project.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
+            label: project.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+          ),
           SlidableAction(
             onPressed: (context) async {
               final slidableProvider = Provider.of<ProjectsProvider>(context, listen: false);
@@ -155,6 +169,33 @@ class ProjectCard extends StatelessWidget {
                           ],
                         ),
                       ),
+                      // Hızlı eylem iconları
+                      if (onAddTask != null)
+                        InkWell(
+                          onTap: onAddTask,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(
+                              Icons.add_task_rounded,
+                              size: 22,
+                              color: categoryColor,
+                            ),
+                          ),
+                        ),
+                      if (onAddNote != null)
+                        InkWell(
+                          onTap: onAddNote,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(
+                              Icons.note_add_rounded,
+                              size: 22,
+                              color: categoryColor,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
 

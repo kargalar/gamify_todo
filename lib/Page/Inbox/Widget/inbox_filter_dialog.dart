@@ -287,8 +287,8 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
                   _updateFilters();
                 },
               ),
-              // Status chips with colors and icons
-              ...TaskStatusEnum.values.map((status) {
+              // Status chips with colors and icons (excluding ARCHIVED)
+              ...TaskStatusEnum.values.where((status) => status != TaskStatusEnum.ARCHIVED).map((status) {
                 return FilterChipWidget(
                   label: _getStatusLabel(status),
                   icon: _getStatusIcon(status),
