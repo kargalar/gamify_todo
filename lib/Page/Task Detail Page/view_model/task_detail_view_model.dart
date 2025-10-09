@@ -202,17 +202,16 @@ class TaskDetailViewModel with ChangeNotifier {
   }
 
   void loadRecentLogs() {
-    // Get logs for this task or routine
+    // Get logs for this specific task only (not other routine tasks)
     List<TaskLogModel> logs = [];
 
+    // Her task (rutin olsa bile) sadece KENDİ loglarını gösterir
+    logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
+
     if (taskModel.routineID != null) {
-      // Rutin task için - routine ID'ye ait TÜM logları getir (tarihten bağımsız)
-      logs = TaskLogProvider().getLogsByRoutineId(taskModel.routineID!);
-      debugPrint('✅ Recent logs: Rutin task için ${logs.length} log bulundu (tarihten bağımsız)');
+      debugPrint('✅ Recent logs: Rutin task (ID: ${taskModel.id}) için ${logs.length} log bulundu');
     } else {
-      // Normal task için - task ID'ye ait TÜM logları getir (tarihten bağımsız)
-      logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
-      debugPrint('✅ Recent logs: Normal task için ${logs.length} log bulundu (tarihten bağımsız)');
+      debugPrint('✅ Recent logs: Normal task için ${logs.length} log bulundu');
     }
 
     // Sort logs by date (newest first) with precise timestamp comparison including seconds and milliseconds
