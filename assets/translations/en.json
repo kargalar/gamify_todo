@@ -333,5 +333,14 @@
     "PinnedTasks": "Pinned Tasks",
     "PinTask": "Pin Task",
     "UnpinTask": "Unpin Task",
-    "PinTaskTooltip": "Pin task to the top of today's section on home page"
+    "PinTaskTooltip": "Pin task to the top of today's section on home page",
+    "VacationMode": "Vacation Mode",
+    "VacationModeSubtitle": "Routines are hidden in vacation mode",
+    "DataSyncTitle": "Data Synchronization",
+    "DataSyncDescription": "Synchronize your data with Firebase cloud database.",
+    "Logout": "Logout",
+    "LogoutConfirmation": "Are you sure you want to log out of your account?",
+    "SyncInProgress": "Synchronizing...",
+    "SyncNow": "Synchronize Data",
+    "OfflineModeSyncDisabled": "Synchronization cannot be performed while offline mode is active."
 }
