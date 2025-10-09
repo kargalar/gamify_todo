@@ -188,37 +188,30 @@ class TaskProgressViewModel extends ChangeNotifier {
     int previousCount = taskModel!.currentCount ?? 0;
     Duration previousDuration = taskModel!.currentDuration ?? Duration.zero;
 
-    // Task için logları al
+    // Task için TÜMLOGS (tarihten bağımsız)
     List<TaskLogModel> logs = taskLogProvider.getLogsByTaskId(taskModel!.id);
 
-    // TaskProvider'dan seçili tarihi al
-    final selectedDate = TaskProvider().selectedDate;
-    final selectedDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-
-    // Sadece seçili tarihe ait logları filtrele
-    List<TaskLogModel> filteredLogs = logs.where((log) {
-      final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
-      return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
-    }).toList();
+    debugPrint('✅ Progress hesaplama: ${logs.length} log bulundu (tarihten bağımsız)');
 
     // Toplam ilerlemeyi hesapla
     int totalCount = 0;
     Duration totalDuration = Duration.zero;
 
-    // Checkbox için en son durumu al (en yeni log)
-    if (taskModel!.type == TaskTypeEnum.CHECKBOX && filteredLogs.isNotEmpty) {
+    // Checkbox için EN SON durumu al (tarihten bağımsız, en yeni log)
+    if (taskModel!.type == TaskTypeEnum.CHECKBOX && logs.isNotEmpty) {
       // Logları tarihe göre sırala (en yenisi en üstte)
-      filteredLogs.sort((a, b) => b.logDate.compareTo(a.logDate));
+      logs.sort((a, b) => b.logDate.compareTo(a.logDate));
 
       // En yeni log (ilk eleman)
-      TaskLogModel latestLog = filteredLogs.first;
+      TaskLogModel latestLog = logs.first;
 
       // Task durumunu güncelle
       taskModel!.status = latestLog.status;
+      debugPrint('✅ Checkbox: En son durum = ${latestLog.status}');
     }
 
-    // Tüm logları işle ve toplam değeri hesapla
-    for (var log in filteredLogs) {
+    // TÜM logları işle ve toplam değeri hesapla (tarihten bağımsız)
+    for (var log in logs) {
       if (taskModel!.type == TaskTypeEnum.TIMER && log.duration != null) {
         // Her log kendi başına bir artış olarak değerlendirilir
         totalDuration += log.duration!;
@@ -227,6 +220,8 @@ class TaskProgressViewModel extends ChangeNotifier {
         totalCount += log.count!;
       }
     }
+
+    debugPrint('✅ Progress: Toplam duration = ${totalDuration.inMinutes} dakika, count = $totalCount');
 
     // Aktif timer varsa, şu anki timer değerini de ekle
     if (taskModel!.type == TaskTypeEnum.TIMER && taskModel!.isTimerActive == true) {

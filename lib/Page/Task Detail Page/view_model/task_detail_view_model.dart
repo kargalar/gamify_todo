@@ -81,28 +81,14 @@ class TaskDetailViewModel with ChangeNotifier {
     // Log verilerine göre istatistikleri hesapla
     List<TaskLogModel> logs = [];
 
-    // TaskProvider'dan seçili tarihi al
-    final selectedDate = TaskProvider().selectedDate;
-    final selectedDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-
     if (taskModel.routineID != null) {
-      // Rutin için logları al
+      // Rutin için TÜM RUTIN TASKLAR'ın loglarını al (tarihten bağımsız)
       logs = TaskLogProvider().getLogsByRoutineId(taskModel.routineID!);
-
-      // Sadece seçili tarihe ait logları filtrele
-      logs = logs.where((log) {
-        final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
-        return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
-      }).toList();
+      debugPrint('✅ Statistics: Rutin için ${logs.length} log bulundu (tüm tasklar)');
     } else {
       // Tek task için logları al
       logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
-
-      // Sadece seçili tarihe ait logları filtrele
-      logs = logs.where((log) {
-        final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
-        return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
-      }).toList();
+      debugPrint('✅ Statistics: Task için ${logs.length} log bulundu');
     }
 
     // İstatistikleri sıfırla
@@ -219,28 +205,14 @@ class TaskDetailViewModel with ChangeNotifier {
     // Get logs for this task or routine
     List<TaskLogModel> logs = [];
 
-    // TaskProvider'dan seçili tarihi al
-    final selectedDate = TaskProvider().selectedDate;
-    final selectedDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
-
     if (taskModel.routineID != null) {
-      // Get logs for the routine
+      // Rutin task için - routine ID'ye ait TÜM logları getir (tarihten bağımsız)
       logs = TaskLogProvider().getLogsByRoutineId(taskModel.routineID!);
-
-      // Sadece seçili tarihe ait logları filtrele
-      logs = logs.where((log) {
-        final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
-        return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
-      }).toList();
+      debugPrint('✅ Recent logs: Rutin task için ${logs.length} log bulundu (tarihten bağımsız)');
     } else {
-      // Get logs for the individual task
+      // Normal task için - task ID'ye ait TÜM logları getir (tarihten bağımsız)
       logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
-
-      // Sadece seçili tarihe ait logları filtrele
-      logs = logs.where((log) {
-        final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
-        return logDate.isAtSameMomentAs(selectedDay); // Sadece seçili tarih
-      }).toList();
+      debugPrint('✅ Recent logs: Normal task için ${logs.length} log bulundu (tarihten bağımsız)');
     }
 
     // Sort logs by date (newest first) with precise timestamp comparison including seconds and milliseconds

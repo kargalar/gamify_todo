@@ -142,40 +142,8 @@ class _EditLogDialogState extends State<EditLogDialog> {
               ],
             ),
             const SizedBox(height: 16),
-            // Status
-            _CompactSection(
-              label: LocaleKeys.Status.tr(),
-              icon: Icons.flag_outlined,
-              child: DropdownButtonFormField<TaskStatusEnum?>(
-                value: selectedStatus,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                items: [
-                  DropdownMenuItem<TaskStatusEnum?>(
-                    value: null,
-                    child: Text(LocaleKeys.InProgress.tr()),
-                  ),
-                  DropdownMenuItem(
-                    value: TaskStatusEnum.DONE,
-                    child: Text(LocaleKeys.Done.tr()),
-                  ),
-                  DropdownMenuItem(
-                    value: TaskStatusEnum.FAILED,
-                    child: Text(LocaleKeys.Failed.tr()),
-                  ),
-                  DropdownMenuItem(
-                    value: TaskStatusEnum.CANCEL,
-                    child: Text(LocaleKeys.Cancelled.tr()),
-                  ),
-                ],
-                onChanged: (value) => setState(() => selectedStatus = value),
-              ),
-            ),
-            if (widget.taskModel.type != TaskTypeEnum.CHECKBOX) const SizedBox(height: 16),
+            // Status kaldırıldı - kullanıcı status'u değiştiremesin
+            if (widget.taskModel.type != TaskTypeEnum.CHECKBOX) const SizedBox(height: 0),
             if (widget.taskModel.type != TaskTypeEnum.CHECKBOX)
               _CompactSection(
                 label: LocaleKeys.Progress.tr(),

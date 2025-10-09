@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/add_manual_log_dialog.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/widget/all_routine_logs_dialog.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_log_dialog.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -68,22 +69,40 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(LocaleKeys.RecentLogs.tr(), style: const TextStyle(color: Colors.grey)),
-            // Manuel log ekleme butonu
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline, size: 20),
-              onPressed: () async {
-                // Manuel log ekleme dialogunu göster
-                final result = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AddManualLogDialog(taskModel: widget.viewModel.taskModel),
-                );
+            Row(
+              children: [
+                // Rutin görevler için "Tüm Rutin Kayıtları" butonu
+                if (widget.viewModel.taskModel.routineID != null)
+                  IconButton(
+                    icon: const Icon(Icons.format_list_bulleted, size: 20),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AllRoutineLogsDialog(
+                          taskModel: widget.viewModel.taskModel,
+                        ),
+                      );
+                    },
+                    tooltip: LocaleKeys.ShowAllRoutineLogs.tr(),
+                  ),
+                // Manuel log ekleme butonu
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline, size: 20),
+                  onPressed: () async {
+                    // Manuel log ekleme dialogunu göster
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AddManualLogDialog(taskModel: widget.viewModel.taskModel),
+                    );
 
-                // Eğer log eklendiyse, logları yeniden yükle
-                if (result == true) {
-                  widget.viewModel.loadRecentLogs();
-                }
-              },
-              tooltip: LocaleKeys.AddManualLog.tr(),
+                    // Eğer log eklendiyse, logları yeniden yükle
+                    if (result == true) {
+                      widget.viewModel.loadRecentLogs();
+                    }
+                  },
+                  tooltip: LocaleKeys.AddManualLog.tr(),
+                ),
+              ],
             ),
           ],
         ),

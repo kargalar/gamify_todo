@@ -1,7 +1,5 @@
 botomsheet tam ekran olabilsin
 
-firebase düzelt
-
 subtaskları birleştir
 
 timer aktifken loglamak fix
@@ -10,6 +8,9 @@ geçimş rutinler slidable fix
 
 rutinin veya taskın type değiştirilebilsin.
 rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nıasl olur. o da ilerlemeyi fıtrılayarak çok güzel olur.
+
+vacation dan çıkma iconu home da appara geliyor. öyle olmasın. ayarlardaki switch yeterli.
+
 
 ○ Localízationlari control et
 ○ Görev ekleme kısmı todoiwtte çok güzel
@@ -44,7 +45,6 @@ Ayrıca gelecekte olsa bile eşit progressden yapılan değişiklik 28 Mayıs ol
 ○ taşlı düzenledikten sonra güncelle hutinuna basmaya gerek yok
 ○ projelerin subtaskalari için sadece tamamlanmayanlari göster seçeneği ejle
 ○ görev sabitleme butonuna basınca icon anında degissin
-○ recent log da tarihler ile ilgi bir sıkıntı var
 ○ tasklari üst üste işaretleyin ve sorun olabiliyor
 ○ alarmı güncelle.
     telefon sessizseyken cakmasin mesela veya çalarken ekrana gelsin direkt.su şekliyle iyi olmuyir
@@ -58,9 +58,6 @@ Ayrıca gelecekte olsa bile eşit progressden yapılan değişiklik 28 Mayıs ol
 ○ Home screen add task buton
 ○ homescreen widgetta rutin ve task ayrılsın.
     Tasarım da ekstra güncellensin. Belki mevcut ilerlemeleri gösterilebilir. Mümkünse driekt oradan da etkileşimde bulunulabilsin. Tikatinca uygulama açılsın. +Butonu da eklenain
-○ Manuel log
-    Login tarhini başka bir gün secersek o güne ait rutin varsa orada gösteriliyor ama ilerleyişi etkilemiyor. Tarihi sevimi direkt klaidtilabilir belki.
-Ayrıca gelecekte olsa bile eşit progressden yapılan değişiklik 28 Mayıs olmaisna rağmen task 27 Mayıs olduğu için 27 Mayıs olarak loglaniyor
 ○ Gelecek rutinlerde desc ve subtask olanları kontrol et
     Aslında düzenlenebilir ör sadece tamamlandı olarak isaretlenmesin
 ○ Galiba category renkleri import edilinc gelmiyor
@@ -77,3 +74,4 @@ Ayrıca gelecekte olsa bile eşit progressden yapılan değişiklik 28 Mayıs ol
 ○ Template
     Mesela template oluştur ona göre add task a çift tıklayıp template kolayca tasknolsuturulur
 ○ İnbox kategori seçiminde basılı tutunca dahil değil olarak isaretlensin
+

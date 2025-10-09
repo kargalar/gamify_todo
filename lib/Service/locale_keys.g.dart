@@ -140,7 +140,10 @@ abstract class  LocaleKeys {
   static const ShowOnMap = 'ShowOnMap';
   static const AddManualLog = 'AddManualLog';
   static const NoLogsYet = 'NoLogsYet';
+  static const ShowAllRoutineLogs = 'ShowAllRoutineLogs';
+  static const AllRoutineTasksLogs = 'AllRoutineTasksLogs';
   static const Date = 'Date';
+  static const DateAndTime = 'DateAndTime';
   static const Time = 'Time';
   static const Progress = 'Progress';
   static const EnterCount = 'EnterCount';
