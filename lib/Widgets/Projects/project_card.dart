@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 
 /// Renkli ve kategorili proje kartı widget'ı
@@ -50,7 +52,7 @@ class ProjectCard extends StatelessWidget {
             },
             backgroundColor: project.isPinned ? AppColors.grey : categoryColor,
             icon: project.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-            label: project.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+            label: project.isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.Pin.tr(),
           ),
           SlidableAction(
             onPressed: (context) async {
@@ -59,7 +61,7 @@ class ProjectCard extends StatelessWidget {
             },
             backgroundColor: AppColors.orange,
             icon: project.isArchived ? Icons.unarchive : Icons.archive,
-            label: project.isArchived ? 'Geri Al' : 'Arşivle',
+            label: project.isArchived ? LocaleKeys.Unarchive.tr() : LocaleKeys.Archive.tr(),
           ),
           SlidableAction(
             onPressed: (context) async {
@@ -69,7 +71,7 @@ class ProjectCard extends StatelessWidget {
             },
             backgroundColor: AppColors.red,
             icon: Icons.delete,
-            label: 'Sil',
+            label: LocaleKeys.Delete.tr(),
           ),
         ],
       ),

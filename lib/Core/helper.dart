@@ -80,7 +80,7 @@ class Helper {
         contentText: message,
         withTimer: withTimer,
         onAccept: onAccept,
-        acceptButtonText: acceptButtonText,
+        acceptButtonText: acceptButtonText ?? LocaleKeys.Okay.tr(),
       ),
     );
   }
@@ -250,8 +250,7 @@ class Helper {
       await Permission.photos.request();
       if (await Permission.photos.isGranted == false) {
         Helper().getMessage(
-          // TODO: localization
-          message: "You must give permission to continue.",
+          message: LocaleKeys.PermissionRequired.tr(),
           status: StatusEnum.WARNING,
         );
         return false;
@@ -260,8 +259,7 @@ class Helper {
       if (await Permission.photos.isGranted == false) {
         if (await Permission.photos.isPermanentlyDenied) {
           Helper().getDialog(
-            // TODO: localization
-            message: "You must grant access to the photos to continue.",
+            message: LocaleKeys.PhotosAccessRequired.tr(),
             onAccept: () async {
               await openAppSettings();
             },
@@ -269,8 +267,7 @@ class Helper {
           return false;
         } else if (!await Permission.photos.isGranted) {
           Helper().getMessage(
-            // TODO: localization
-            message: "You must grant access to the photos to continue.",
+            message: LocaleKeys.PhotosAccessRequired.tr(),
             status: StatusEnum.WARNING,
           );
           return false;
@@ -282,8 +279,7 @@ class Helper {
       if (await Permission.storage.isGranted == false) {
         if (await Permission.storage.isPermanentlyDenied) {
           Helper().getDialog(
-            // TODO: localization
-            message: "You must grant storage access to continue.",
+            message: LocaleKeys.StorageAccessRequired.tr(),
             onAccept: () async {
               await openAppSettings();
             },
@@ -291,8 +287,7 @@ class Helper {
           return false;
         } else if (!await Permission.storage.isGranted) {
           Helper().getMessage(
-            // TODO: localization
-            message: "You must grant storage access to continue.",
+            message: LocaleKeys.StorageAccessRequired.tr(),
             status: StatusEnum.WARNING,
           );
           return false;
@@ -540,7 +535,7 @@ class Helper {
                           Navigator.of(context).pop(DateTime.now());
                         },
                         icon: const Icon(Icons.today_rounded, size: 18),
-                        label: const Text('Bugün', style: TextStyle(fontSize: 13)),
+                        label: Text(LocaleKeys.Today.tr(), style: const TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.main.withValues(alpha: 0.1),
                           foregroundColor: AppColors.main,
@@ -557,7 +552,7 @@ class Helper {
                           Navigator.of(context).pop(DateTime.now().add(const Duration(days: 1)));
                         },
                         icon: const Icon(Icons.event_rounded, size: 18),
-                        label: const Text('Yarın', style: TextStyle(fontSize: 13)),
+                        label: Text(LocaleKeys.Tomorrow.tr(), style: const TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.green.withValues(alpha: 0.1),
                           foregroundColor: AppColors.green,
@@ -574,7 +569,7 @@ class Helper {
                           Navigator.of(context).pop(DateTime.now().add(const Duration(days: 7)));
                         },
                         icon: const Icon(Icons.date_range_rounded, size: 18),
-                        label: const Text('S. Hafta', style: TextStyle(fontSize: 13)),
+                        label: Text(LocaleKeys.NextWeek.tr(), style: const TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.blue.withValues(alpha: 0.1),
                           foregroundColor: AppColors.blue,
@@ -598,7 +593,7 @@ class Helper {
                           Navigator.of(context).pop(nextMonth);
                         },
                         icon: const Icon(Icons.calendar_month_rounded, size: 18),
-                        label: const Text('S. Ay', style: TextStyle(fontSize: 13)),
+                        label: Text(LocaleKeys.NextMonth.tr(), style: const TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.purple.withValues(alpha: 0.1),
                           foregroundColor: AppColors.purple,
@@ -616,7 +611,7 @@ class Helper {
                           Navigator.of(context).pop(DateTime.fromMillisecondsSinceEpoch(0));
                         },
                         icon: const Icon(Icons.clear_rounded, size: 18),
-                        label: const Text('Tarihsiz', style: TextStyle(fontSize: 13)),
+                        label: Text(LocaleKeys.Dateless.tr(), style: const TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.red.withValues(alpha: 0.1),
                           foregroundColor: AppColors.red,

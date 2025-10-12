@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Widgets/Projects/project_card.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
@@ -110,7 +112,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   const Icon(Icons.folder_open, size: 100, color: AppColors.grey),
                   const SizedBox(height: 16),
                   Text(
-                    'Henüz proje eklemediniz',
+                    LocaleKeys.NoProjectsYet.tr(),
                     style: TextStyle(
                       fontSize: 18,
                       color: AppColors.text,
@@ -118,9 +120,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Sağ alttaki + butonuna basarak\nilk projenizi ekleyin',
-                    style: TextStyle(
+                  Text(
+                    LocaleKeys.AddFirstProject.tr(),
+                    style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.grey,
                     ),
@@ -151,7 +153,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Başlık veya açıklama ara...',
+                      hintText: LocaleKeys.SearchHint.tr(),
                       hintStyle: TextStyle(
                         fontSize: 14,
                         color: AppColors.text.withValues(alpha: 0.5),
@@ -206,7 +208,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             const Icon(Icons.search_off, size: 64, color: AppColors.grey),
             const SizedBox(height: 16),
             Text(
-              'Proje bulunamadı',
+              LocaleKeys.NoProjectsFound.tr(),
               style: TextStyle(
                 fontSize: 18,
                 color: AppColors.text,
@@ -222,15 +224,15 @@ class _ProjectsPageState extends State<ProjectsPage> {
       children: [
         // Sabitlenmiş projeler
         if (pinnedProjects.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Row(
               children: [
-                Icon(Icons.push_pin, size: 16, color: AppColors.grey),
-                SizedBox(width: 6),
+                const Icon(Icons.push_pin, size: 16, color: AppColors.grey),
+                const SizedBox(width: 6),
                 Text(
-                  'Sabitlenmiş',
-                  style: TextStyle(
+                  LocaleKeys.Pinned.tr(),
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey,
@@ -246,11 +248,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
         // Diğer projeler
         if (unpinnedProjects.isNotEmpty) ...[
           if (pinnedProjects.isNotEmpty)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Text(
-                'Diğer Projeler',
-                style: TextStyle(
+                LocaleKeys.OtherProjects.tr(),
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey,
@@ -303,7 +305,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddSubtaskBottomSheet(
-        customTitle: 'Hızlı Görev Ekle',
+        customTitle: LocaleKeys.QuickAddTask.tr(),
         onSave: (title, description) async {
           debugPrint('➕ Quick add task to project: ${project.id}');
           final subtask = ProjectSubtaskModel(
@@ -322,8 +324,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
             debugPrint('✅ Subtask added successfully');
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Görev eklendi'),
+              SnackBar(
+                content: Text(LocaleKeys.TaskAdded.tr()),
                 backgroundColor: AppColors.green,
               ),
             );
@@ -331,8 +333,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
             debugPrint('❌ Failed to add subtask');
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Görev eklenirken hata oluştu'),
+              SnackBar(
+                content: Text(LocaleKeys.TaskAddError.tr()),
                 backgroundColor: AppColors.red,
               ),
             );
@@ -376,8 +378,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
             debugPrint('❌ Failed to add note');
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Not eklenirken hata oluştu'),
+              SnackBar(
+                content: Text(LocaleKeys.NoteAddError.tr()),
                 backgroundColor: AppColors.red,
               ),
             );
@@ -392,12 +394,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Projeyi Sil'),
-          content: const Text('Bu projeyi ve tüm alt görevlerini/notlarını silmek istediğinizden emin misiniz?'),
+          title: Text(LocaleKeys.Delete.tr()),
+          content: Text(LocaleKeys.ProjectDeleteConfirmation.tr()),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('İptal'),
+              child: Text(LocaleKeys.Cancel.tr()),
             ),
             TextButton(
               onPressed: () async {
@@ -426,24 +428,24 @@ class _ProjectsPageState extends State<ProjectsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Yeni Proje'),
+          title: Text(LocaleKeys.NewProject.tr()),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Başlık *',
-                  hintText: 'Proje başlığı',
+                decoration: InputDecoration(
+                  labelText: LocaleKeys.ProjectTitleLabel.tr(),
+                  hintText: LocaleKeys.ProjectTitleHint.tr(),
                 ),
                 autofocus: true,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Açıklama',
-                  hintText: 'Proje açıklaması (opsiyonel)',
+                decoration: InputDecoration(
+                  labelText: LocaleKeys.Description.tr(),
+                  hintText: LocaleKeys.ProjectDescriptionHint.tr(),
                 ),
                 maxLines: 3,
               ),
@@ -452,13 +454,13 @@ class _ProjectsPageState extends State<ProjectsPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('İptal'),
+              child: Text(LocaleKeys.Cancel.tr()),
             ),
             TextButton(
               onPressed: () async {
                 if (titleController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Lütfen bir başlık girin')),
+                    SnackBar(content: Text(LocaleKeys.PleaseEnterTitle.tr())),
                   );
                   return;
                 }
@@ -478,13 +480,13 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   Navigator.pop(context);
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Proje oluşturuldu')),
+                      SnackBar(content: Text(LocaleKeys.ProjectCreated.tr())),
                     );
                     debugPrint('✅ Project created: ${project.id}');
                   }
                 }
               },
-              child: const Text('Oluştur'),
+              child: Text(LocaleKeys.Create.tr()),
             ),
           ],
         );

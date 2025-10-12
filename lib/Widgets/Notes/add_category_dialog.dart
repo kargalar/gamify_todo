@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/note_category_model.dart';
 
@@ -312,7 +314,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.grey,
                     ),
-                    child: const Text('İptal'),
+                    child: Text(LocaleKeys.Cancel.tr()),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
@@ -328,7 +330,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Oluştur'),
+                    child: Text(LocaleKeys.Create.tr()),
                   ),
                 ],
               ),

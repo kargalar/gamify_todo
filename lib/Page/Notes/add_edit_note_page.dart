@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/note_category_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 
 /// Not ekleme ve düzenleme sayfası
 class AddEditNotePage extends StatefulWidget {
@@ -62,7 +64,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          isEditing ? 'Notu Düzenle' : 'Yeni Not',
+          isEditing ? LocaleKeys.EditNote.tr() : LocaleKeys.NewNote.tr(),
           style: TextStyle(color: AppColors.text),
         ),
         backgroundColor: AppColors.background,
@@ -79,7 +81,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
                   _isPinned = !_isPinned;
                 });
               },
-              tooltip: _isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+              tooltip: _isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr(),
             ),
         ],
       ),
@@ -88,15 +90,10 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Başlık ve İçerik (tek container'da)
             _buildNoteFields(),
             const SizedBox(height: 20),
-
-            // Kategori seçimi (altta, kompakt)
             _buildCategorySelector(),
             const SizedBox(height: 24),
-
-            // Kaydet butonu
             _buildSaveButton(),
             const SizedBox(height: 80),
           ],
@@ -117,7 +114,6 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Başlık
           TextFormField(
             controller: _titleController,
             style: TextStyle(
@@ -125,15 +121,15 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
               fontWeight: FontWeight.bold,
               color: AppColors.text,
             ),
-            decoration: const InputDecoration(
-              hintText: 'Başlık',
-              hintStyle: TextStyle(color: AppColors.grey),
+            decoration: InputDecoration(
+              hintText: LocaleKeys.Title.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Başlık boş olamaz';
+                return LocaleKeys.TitleRequired.tr();
               }
               return null;
             },
@@ -141,16 +137,15 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           const SizedBox(height: 12),
           Divider(color: AppColors.panelBackground2, height: 1),
           const SizedBox(height: 12),
-          // İçerik (opsiyonel)
           TextFormField(
             controller: _contentController,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.text,
             ),
-            decoration: const InputDecoration(
-              hintText: 'İçerik (opsiyonel)',
-              hintStyle: TextStyle(color: AppColors.grey),
+            decoration: InputDecoration(
+              hintText: LocaleKeys.ContentOptional.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
@@ -173,9 +168,9 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Kategori (Opsiyonel)',
-              style: TextStyle(
+            Text(
+              '${LocaleKeys.Category.tr()} (${LocaleKeys.ContentOptional.tr()})',
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: AppColors.grey,
@@ -186,9 +181,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                // "Kategorisiz" chip
-                _buildCategoryChip(null, 'Kategorisiz'),
-                // Kategori chip'leri
+                _buildCategoryChip(null, LocaleKeys.NoCategory.tr()),
                 ...provider.categories.map((category) {
                   return _buildCategoryChip(category, category.name);
                 }),
@@ -251,10 +244,10 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
             : const Icon(Icons.save),
         label: Text(
           _isSaving
-              ? 'Kaydediliyor...'
+              ? LocaleKeys.Saving.tr()
               : isEditing
-                  ? 'Güncelle'
-                  : 'Kaydet',
+                  ? LocaleKeys.Update.tr()
+                  : LocaleKeys.Save.tr(),
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
@@ -307,7 +300,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                isEditing ? 'Not güncellendi' : 'Not eklendi',
+                isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr(),
               ),
               backgroundColor: Colors.green,
             ),
@@ -317,7 +310,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                isEditing ? 'Not güncellenemedi' : 'Not kaydedilemedi',
+                isEditing ? LocaleKeys.NoteUpdateFailed.tr() : LocaleKeys.NoteSaveFailed.tr(),
               ),
               backgroundColor: Colors.red,
             ),
@@ -332,7 +325,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata oluştu: $e'),
+            content: Text(LocaleKeys.ErrorOccurred.tr(args: [e.toString()])),
             backgroundColor: Colors.red,
           ),
         );

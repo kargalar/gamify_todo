@@ -92,7 +92,7 @@ class _StorePageState extends State<StorePage> {
               children: [
                 Icon(Icons.help_outline, color: AppColors.main),
                 const SizedBox(width: 8),
-                const Text('Nasıl Para Kazanılır?'),
+                Text(LocaleKeys.HowToEarnCredits.tr()),
               ],
             ),
             content: Column(
@@ -100,7 +100,7 @@ class _StorePageState extends State<StorePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Görevlerdeki süre (duration) üzerinden para kazanırsınız:',
+                  LocaleKeys.EarnCreditsDescription.tr(),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -110,20 +110,20 @@ class _StorePageState extends State<StorePage> {
                 const SizedBox(height: 16),
                 _buildEarnCreditItem(
                   Icons.check_box_rounded,
-                  'Checkbox Görevler',
-                  'Tamamlandığında belirtilen süre kadar para kazanırsınız',
+                  LocaleKeys.CheckboxTasks.tr(),
+                  LocaleKeys.CheckboxTasksDesc.tr(),
                 ),
                 const SizedBox(height: 12),
                 _buildEarnCreditItem(
                   Icons.add_circle_outline,
-                  'Counter Görevler',
-                  'Her sayaç artırımında belirtilen süre kadar para eklenir',
+                  LocaleKeys.CounterTasks.tr(),
+                  LocaleKeys.CounterTasksDesc.tr(),
                 ),
                 const SizedBox(height: 12),
                 _buildEarnCreditItem(
                   Icons.timer_outlined,
-                  'Timer Görevler',
-                  'Çalıştırdığınız süre kadar para kazanırsınız',
+                  LocaleKeys.TimerTasks.tr(),
+                  LocaleKeys.TimerTasksDesc.tr(),
                 ),
                 const SizedBox(height: 16),
                 Container(
@@ -149,14 +149,14 @@ class _StorePageState extends State<StorePage> {
                             ),
                             children: [
                               TextSpan(
-                                text: '1 saat = 1 kredi\n',
+                                text: '${LocaleKeys.CreditRate.tr()}\n',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.main,
                                 ),
                               ),
-                              const TextSpan(
-                                text: 'Örnek: 30 dakika = 0.5 kredi',
+                              TextSpan(
+                                text: LocaleKeys.CreditExample.tr(),
                               ),
                             ],
                           ),
@@ -170,7 +170,7 @@ class _StorePageState extends State<StorePage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Anladım'),
+                child: Text(LocaleKeys.Understood.tr()),
               ),
             ],
           ),

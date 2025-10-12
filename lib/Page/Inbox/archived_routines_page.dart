@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -6,6 +7,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Task Detail Page/routine_detail_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +25,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Archived Routines'),
+        title: Text(LocaleKeys.ArchivedRoutines.tr()),
         leading: InkWell(
           borderRadius: AppColors.borderRadiusAll,
           onTap: () => NavigatorService().back(),
@@ -63,7 +65,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No Archived Routines',
+            LocaleKeys.NoArchivedTasksOrRoutines.tr(),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
@@ -72,7 +74,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Archived routines will appear here',
+            LocaleKeys.ArchivedRoutines.tr(),
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],
@@ -98,7 +100,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
             backgroundColor: AppColors.green,
             foregroundColor: Colors.white,
             icon: Icons.unarchive,
-            label: 'Geri Al',
+            label: LocaleKeys.Unarchive.tr(),
           ),
           SlidableAction(
             onPressed: (context) async {
@@ -106,16 +108,16 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Rutini Sil'),
-                  content: Text('${routine.title} rutinini kalıcı olarak silmek istediğinizden emin misiniz?'),
+                  title: Text(LocaleKeys.DeleteRoutine.tr()),
+                  content: Text(LocaleKeys.DeleteRoutineConfirmation.tr(args: [routine.title])),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text('İptal'),
+                      child: Text(LocaleKeys.Cancel.tr()),
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Sil', style: TextStyle(color: Colors.red)),
+                      child: Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: Colors.red)),
                     ),
                   ],
                 ),
@@ -129,7 +131,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
             backgroundColor: AppColors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
-            label: 'Sil',
+            label: LocaleKeys.Delete.tr(),
           ),
         ],
       ),
@@ -223,9 +225,9 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
                         color: Colors.grey[600],
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        'Archived',
-                        style: TextStyle(
+                      child: Text(
+                        LocaleKeys.Archived.tr(),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -335,7 +337,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
     } else if (repeatDays.length == 2 && repeatDays.contains(5) && repeatDays.contains(6)) {
       return 'Weekends';
     } else {
-      final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      final dayNames = [LocaleKeys.Monday.tr(), LocaleKeys.Tuesday.tr(), LocaleKeys.Wednesday.tr(), LocaleKeys.Thursday.tr(), LocaleKeys.Friday.tr(), LocaleKeys.Saturday.tr(), LocaleKeys.Sunday.tr()];
       return repeatDays.map((day) => dayNames[day]).join(', ');
     }
   }
@@ -345,20 +347,20 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
     final difference = now.difference(date).inDays;
 
     if (difference == 0) {
-      return 'today';
+      return LocaleKeys.Today.tr();
     } else if (difference == 1) {
-      return 'yesterday';
+      return LocaleKeys.Yesterday.tr();
     } else if (difference < 7) {
-      return '$difference days ago';
+      return LocaleKeys.DaysAgo.tr(args: [difference.toString()]);
     } else if (difference < 30) {
       final weeks = (difference / 7).floor();
-      return weeks == 1 ? '1 week ago' : '$weeks weeks ago';
+      return weeks == 1 ? '1 ${'week'.tr()} ${'ago'.tr()}' : LocaleKeys.DaysAgo.tr(args: [(weeks * 7).toString()]);
     } else if (difference < 365) {
       final months = (difference / 30).floor();
-      return months == 1 ? '1 month ago' : '$months months ago';
+      return months == 1 ? '1 ${'month'.tr()} ${'ago'.tr()}' : LocaleKeys.DaysAgo.tr(args: [(months * 30).toString()]);
     } else {
       final years = (difference / 365).floor();
-      return years == 1 ? '1 year ago' : '$years years ago';
+      return years == 1 ? '1 ${'year'.tr()} ${'ago'.tr()}' : LocaleKeys.DaysAgo.tr(args: [(years * 365).toString()]);
     }
   }
 }

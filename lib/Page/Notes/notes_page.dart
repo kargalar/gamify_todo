@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Widgets/Notes/note_card.dart';
@@ -8,6 +9,7 @@ import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
 import 'package:next_level/Widgets/Common/standard_app_bar.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {
@@ -43,7 +45,7 @@ class _NotesPageState extends State<NotesPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: StandardAppBar(
-        title: 'Notlarım',
+        title: LocaleKeys.MyNotes.tr(),
         isSearching: _isSearching,
         onSearchToggle: () {
           setState(() {
@@ -87,7 +89,7 @@ class _NotesPageState extends State<NotesPage> {
                   ElevatedButton.icon(
                     onPressed: () => provider.loadNotes(),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Yeniden Dene'),
+                    label: Text(LocaleKeys.Retry.tr()),
                   ),
                 ],
               ),
@@ -103,7 +105,7 @@ class _NotesPageState extends State<NotesPage> {
                   const Icon(Icons.note_add, size: 100, color: AppColors.grey),
                   const SizedBox(height: 16),
                   Text(
-                    'Henüz not eklemediniz',
+                    LocaleKeys.NoNotesYet.tr(),
                     style: TextStyle(
                       fontSize: 18,
                       color: AppColors.text,
@@ -111,9 +113,9 @@ class _NotesPageState extends State<NotesPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Sağ alttaki + butonuna basarak\nilk notunuzu ekleyin',
-                    style: TextStyle(
+                  Text(
+                    LocaleKeys.AddFirstNote.tr(),
+                    style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.grey,
                     ),
@@ -144,7 +146,7 @@ class _NotesPageState extends State<NotesPage> {
                     },
                     style: const TextStyle(fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Başlık veya içerik ara...',
+                      hintText: LocaleKeys.SearchNotes.tr(),
                       hintStyle: TextStyle(
                         fontSize: 14,
                         color: AppColors.text.withValues(alpha: 0.5),
@@ -215,7 +217,7 @@ class _NotesPageState extends State<NotesPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Tümü',
+                      LocaleKeys.All.tr(),
                       style: TextStyle(
                         color: provider.selectedCategory == null ? Colors.white : AppColors.text,
                         fontWeight: provider.selectedCategory == null ? FontWeight.bold : FontWeight.normal,
@@ -364,7 +366,7 @@ class _NotesPageState extends State<NotesPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${newCategory.name} kategorisi oluşturuldu'),
+          content: Text(LocaleKeys.CategoryCreated.tr(args: [newCategory.name])),
           backgroundColor: Color(newCategory.colorValue),
           duration: const Duration(seconds: 2),
         ),
@@ -386,7 +388,7 @@ class _NotesPageState extends State<NotesPage> {
             const Icon(Icons.search_off, size: 64, color: AppColors.grey),
             const SizedBox(height: 16),
             Text(
-              'Not bulunamadı',
+              LocaleKeys.NoteNotFound.tr(),
               style: TextStyle(
                 fontSize: 18,
                 color: AppColors.text,
@@ -402,15 +404,15 @@ class _NotesPageState extends State<NotesPage> {
       children: [
         // Sabitlenmiş notlar
         if (pinnedNotes.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Row(
               children: [
-                Icon(Icons.push_pin, size: 16, color: AppColors.grey),
-                SizedBox(width: 6),
+                const Icon(Icons.push_pin, size: 16, color: AppColors.grey),
+                const SizedBox(width: 6),
                 Text(
-                  'Sabitlenmiş',
-                  style: TextStyle(
+                  LocaleKeys.Pinned.tr(),
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey,
@@ -426,11 +428,11 @@ class _NotesPageState extends State<NotesPage> {
         // Diğer notlar
         if (unpinnedNotes.isNotEmpty) ...[
           if (pinnedNotes.isNotEmpty)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Text(
-                'Diğer Notlar',
-                style: TextStyle(
+                LocaleKeys.OtherNotes.tr(),
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey,
@@ -485,7 +487,7 @@ class _NotesPageState extends State<NotesPage> {
                   note.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
                   color: categoryColor,
                 ),
-                title: Text(note.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle'),
+                title: Text(note.isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr()),
                 onTap: () {
                   Navigator.pop(context);
                   provider.togglePinNote(note.id, !note.isPinned);
@@ -494,7 +496,7 @@ class _NotesPageState extends State<NotesPage> {
               ),
               ListTile(
                 leading: Icon(Icons.edit, color: categoryColor),
-                title: const Text('Düzenle'),
+                title: Text(LocaleKeys.Edit.tr()),
                 onTap: () {
                   Navigator.pop(context);
                   _navigateToEditNote(context, note);
@@ -502,7 +504,7 @@ class _NotesPageState extends State<NotesPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Sil'),
+                title: Text(LocaleKeys.Delete.tr()),
                 onTap: () {
                   Navigator.pop(context);
                   _confirmDelete(context, provider, note);
@@ -521,23 +523,23 @@ class _NotesPageState extends State<NotesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Notu Sil'),
-          content: const Text('Bu notu silmek istediğinizden emin misiniz?'),
+          title: Text(LocaleKeys.DeleteNote.tr()),
+          content: Text(LocaleKeys.DeleteNoteConfirmation.tr()),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('İptal'),
+              child: Text(LocaleKeys.Cancel.tr()),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 provider.deleteNote(note.id);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Not silindi')),
+                  SnackBar(content: Text(LocaleKeys.NoteDeleted.tr())),
                 );
                 debugPrint('✅ Note ${note.id} deleted');
               },
-              child: const Text('Sil', style: TextStyle(color: Colors.red)),
+              child: Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -561,14 +563,14 @@ class _NotesPageState extends State<NotesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Kategoriyi Sil'),
+          title: Text(LocaleKeys.DeleteCategory.tr()),
           content: Text(
-            count > 0 ? 'Bu kategoriye ait $count not var. Kategori silinirse bu notlar kategorisiz kalacak. Devam etmek istiyor musunuz?' : 'Bu kategoriyi silmek istediğinizden emin misiniz?',
+            count > 0 ? tr(LocaleKeys.DeleteCategoryConfirmation, args: [count.toString()]) : LocaleKeys.DeleteCategoryConfirmation.tr(),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('İptal'),
+              child: Text(LocaleKeys.Cancel.tr()),
             ),
             TextButton(
               onPressed: () async {
@@ -577,21 +579,21 @@ class _NotesPageState extends State<NotesPage> {
                 if (success) {
                   // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Kategori silindi')),
+                    SnackBar(content: Text(LocaleKeys.CategoryDeleted.tr())),
                   );
                   debugPrint('✅ Category ${category.id} deleted');
                 } else {
                   // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Kategori silinemedi'),
+                    SnackBar(
+                      content: Text(LocaleKeys.CategoryDeleteFailed.tr()),
                       backgroundColor: Colors.red,
                     ),
                   );
                   debugPrint('❌ Category ${category.id} deletion failed');
                 }
               },
-              child: const Text('Sil', style: TextStyle(color: Colors.red)),
+              child: Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: Colors.red)),
             ),
           ],
         );

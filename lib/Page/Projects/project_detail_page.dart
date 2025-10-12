@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -6,6 +9,7 @@ import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
 import 'package:next_level/Widgets/Common/add_subtask_bottom_sheet.dart';
@@ -81,7 +85,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       MaterialPageRoute(
         builder: (context) => shared.DescriptionEditor(
           controller: controller,
-          title: 'Proje Açıklaması',
+          title: LocaleKeys.ProjectDescription.tr(),
           onChanged: (text) async {
             // Auto-save
             final provider = context.read<ProjectsProvider>();
@@ -110,7 +114,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     if (result == true) {
       // Refresh project data
-      // ignore: use_build_context_synchronously
       final provider = context.read<ProjectsProvider>();
       final projects = provider.projects;
       final updated = projects.firstWhere((p) => p.id == _currentProject.id);
@@ -129,7 +132,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            _currentProject.isArchived ? 'Proje arşivden çıkarıldı' : 'Proje arşivlendi',
+            _currentProject.isArchived ? LocaleKeys.ProjectUnarchived.tr() : LocaleKeys.ProjectArchived.tr(),
           ),
         ),
       );
@@ -141,19 +144,17 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Projeyi Sil'),
-        content: const Text(
-          'Bu projeyi silmek istediğinizden emin misiniz?\n\nTüm görevler ve notlar da silinecektir.',
-        ),
+        title: Text(LocaleKeys.DeleteProject.tr()),
+        content: Text(LocaleKeys.DeleteProjectConfirmation.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('İptal'),
+            child: Text(LocaleKeys.Cancel.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Sil'),
+            child: Text(LocaleKeys.Delete.tr()),
           ),
         ],
       ),
@@ -165,7 +166,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Proje silindi')),
+          SnackBar(content: Text(LocaleKeys.ProjectDeleted.tr())),
         );
       }
     }
@@ -177,7 +178,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddSubtaskBottomSheet(
-        customTitle: 'Yeni Proje Görevi',
+        customTitle: LocaleKeys.NewProjectTask.tr(),
         onSave: (title, description) async {
           final provider = context.read<ProjectsProvider>();
           final subtask = ProjectSubtaskModel(
@@ -261,13 +262,13 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit, size: 20),
-                    SizedBox(width: 8),
-                    Text('Düzenle'),
+                    const Icon(Icons.edit, size: 20),
+                    const SizedBox(width: 8),
+                    Text(LocaleKeys.Edit.tr()),
                   ],
                 ),
               ),
@@ -280,17 +281,17 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                    Text(_currentProject.isArchived ? 'Arşivden Çıkar' : 'Arşivle'),
+                    Text(_currentProject.isArchived ? LocaleKeys.Unarchive.tr() : LocaleKeys.Archive.tr()),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete, size: 20, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Sil', style: TextStyle(color: Colors.red)),
+                    const Icon(Icons.delete, size: 20, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: Colors.red)),
                   ],
                 ),
               ),
@@ -410,7 +411,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Oluşturuldu: ${_formatDate(_currentProject.createdAt)}',
+                            '${LocaleKeys.Created.tr()}: ${_formatDate(_currentProject.createdAt)}',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.text.withValues(alpha: 0.5),
@@ -445,7 +446,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Açıklama',
+                          LocaleKeys.Description.tr(),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -497,7 +498,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Açıklama ekle',
+                        LocaleKeys.AddDescription.tr(),
                         style: TextStyle(
                           fontSize: 13,
                           color: AppColors.main.withValues(alpha: 0.7),
@@ -628,7 +629,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Görevler',
+                LocaleKeys.Tasks.tr(),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -655,56 +656,56 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               // Three dot menu
               PopupMenuButton(
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'copy all',
                     child: Row(
                       children: [
-                        Icon(Icons.content_copy, size: 18),
-                        SizedBox(width: 8),
-                        Text('Hepsini Kopyala'),
+                        const Icon(Icons.content_copy, size: 18),
+                        const SizedBox(width: 8),
+                        Text(LocaleKeys.CopyAll.tr()),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'copy incomplete',
                     child: Row(
                       children: [
-                        Icon(Icons.content_copy, size: 18),
-                        SizedBox(width: 8),
-                        Text('Tamamlanmayanları Kopyala'),
+                        const Icon(Icons.content_copy, size: 18),
+                        const SizedBox(width: 8),
+                        Text(LocaleKeys.CopyIncomplete.tr()),
                       ],
                     ),
                   ),
                   if (hasClipboardData)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'paste',
                       child: Row(
                         children: [
-                          Icon(Icons.content_paste, size: 18),
-                          SizedBox(width: 8),
-                          Text('Yapıştır'),
+                          const Icon(Icons.content_paste, size: 18),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.Paste.tr()),
                         ],
                       ),
                     ),
                   if (_subtasks.isNotEmpty)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'complete all',
                       child: Row(
                         children: [
-                          Icon(Icons.done_all, size: 18),
-                          SizedBox(width: 8),
-                          Text('Hepsini Tamamla'),
+                          const Icon(Icons.done_all, size: 18),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.CompleteAll.tr()),
                         ],
                       ),
                     ),
                   if (_subtasks.isNotEmpty)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'clear all',
                       child: Row(
                         children: [
-                          Icon(Icons.clear_all, size: 18, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Hepsini Sil', style: TextStyle(color: Colors.red)),
+                          const Icon(Icons.clear_all, size: 18, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.ClearAll.tr(), style: const TextStyle(color: Colors.red)),
                         ],
                       ),
                     ),
@@ -732,7 +733,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               IconButton(
                 icon: Icon(Icons.add, size: 18, color: AppColors.main),
                 onPressed: _addSubtask,
-                tooltip: 'Görev Ekle',
+                tooltip: LocaleKeys.AddTask.tr(),
               ),
             ],
           ),
@@ -749,7 +750,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Henüz görev eklenmedi',
+                      LocaleKeys.NoTasksYet.tr(),
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.text.withValues(alpha: 0.5),
@@ -809,7 +810,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
-            label: 'Sil',
+            label: LocaleKeys.Delete.tr(),
           ),
         ],
       ),
@@ -1062,7 +1063,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
-            label: 'Sil',
+            label: LocaleKeys.Delete.tr(),
           ),
         ],
       ),
@@ -1205,7 +1206,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       // Show confirmation snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${_subtasks.length} görev kopyalandı'),
+          content: Text(LocaleKeys.SubtasksCopied.tr(args: [_subtasks.length.toString()])),
           duration: const Duration(seconds: 2),
           backgroundColor: AppColors.main,
         ),
@@ -1219,7 +1220,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     if (incomplete.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Tamamlanmamış görev yok'),
+          content: Text(LocaleKeys.NoIncompleteTasks.tr()),
           duration: const Duration(seconds: 2),
           backgroundColor: AppColors.text.withValues(alpha: 0.7),
         ),
@@ -1242,7 +1243,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${incomplete.length} tamamlanmamış görev kopyalandı'),
+          content: Text(LocaleKeys.IncompleteSubtasksCopied.tr(args: [incomplete.length.toString()])),
           duration: const Duration(seconds: 2),
           backgroundColor: AppColors.main,
         ),
@@ -1296,8 +1297,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     final parsedSubtasks = _parseSubtasksFromText(data.text!);
     if (parsedSubtasks.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Panoda geçerli görev bulunamadı'),
+        SnackBar(
+          content: Text(LocaleKeys.NoValidTasksInClipboard.tr()),
           backgroundColor: Colors.red,
         ),
       );
@@ -1316,7 +1317,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${parsedSubtasks.length} görev yapıştırıldı'),
+        content: Text(LocaleKeys.SubtasksPasted.tr(args: [parsedSubtasks.length.toString()])),
         duration: const Duration(seconds: 2),
         backgroundColor: AppColors.main,
       ),
@@ -1345,7 +1346,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$completedCount görev tamamlandı'),
+        content: Text(LocaleKeys.TasksCompleted.tr(args: [completedCount.toString()])),
         duration: const Duration(seconds: 2),
         backgroundColor: AppColors.green,
       ),
@@ -1363,12 +1364,12 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Tüm Görevleri Sil'),
-        content: Text('${_subtasks.length} görevi silmek istediğinizden emin misiniz?'),
+        title: Text(LocaleKeys.DeleteAllTasks.tr()),
+        content: Text(LocaleKeys.DeleteAllTasksConfirmation.tr(args: [_subtasks.length.toString()])),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('İptal'),
+            child: Text(LocaleKeys.Cancel.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -1392,7 +1393,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$count görev silindi'),
+        content: Text(LocaleKeys.TasksDeleted.tr(args: [count.toString()])),
         duration: const Duration(seconds: 2),
         backgroundColor: AppColors.red,
       ),

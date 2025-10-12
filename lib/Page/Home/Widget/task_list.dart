@@ -206,10 +206,10 @@ class _TaskListState extends State<TaskList> {
     final hasAnyArchivedItems = archivedTasks.isNotEmpty || archivedRoutines.isNotEmpty;
 
     return !hasAnyArchivedItems
-        ? const Center(
+        ? Center(
             child: Text(
-              'Arşivlenmiş görev veya rutin yok',
-              style: TextStyle(
+              LocaleKeys.NoArchivedTasksOrRoutines.tr(),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),

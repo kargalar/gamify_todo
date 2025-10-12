@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Model/note_category_model.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
@@ -231,7 +232,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${newCategory.name} kategorisi oluşturuldu'),
+            content: Text('CategoryCreated'.tr(args: [newCategory.name])),
             backgroundColor: Color(newCategory.colorValue),
             duration: const Duration(seconds: 2),
           ),

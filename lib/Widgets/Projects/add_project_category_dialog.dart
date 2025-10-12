@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/project_category_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
@@ -113,7 +115,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Yeni Kategori',
+                      LocaleKeys.NewCategory.tr(),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -126,7 +128,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
 
                 // Kategori Adı
                 Text(
-                  'Kategori Adı',
+                  LocaleKeys.CategoryName.tr(),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -138,7 +140,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
                   controller: _nameController,
                   style: TextStyle(color: AppColors.text),
                   decoration: InputDecoration(
-                    hintText: 'Kategori adını girin',
+                    hintText: LocaleKeys.EnterCategoryName.tr(),
                     hintStyle: const TextStyle(color: AppColors.grey),
                     filled: true,
                     fillColor: AppColors.panelBackground2,
@@ -153,7 +155,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Kategori adı boş olamaz';
+                      return LocaleKeys.CategoryNameEmpty.tr();
                     }
                     return null;
                   },
@@ -163,7 +165,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
 
                 // Renk Seçimi
                 Text(
-                  'Renk',
+                  LocaleKeys.Color.tr(),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -208,7 +210,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
 
                 // İkon Seçimi
                 Text(
-                  'İkon',
+                  LocaleKeys.Icon.tr(),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -260,7 +262,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
                         Navigator.of(context).pop();
                       },
                       child: Text(
-                        'İptal',
+                        LocaleKeys.Cancel.tr(),
                         style: TextStyle(color: AppColors.text),
                       ),
                     ),
@@ -275,7 +277,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Oluştur'),
+                      child: Text(LocaleKeys.Create.tr()),
                     ),
                   ],
                 ),

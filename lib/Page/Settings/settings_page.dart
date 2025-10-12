@@ -171,8 +171,8 @@ class SettingsPage extends StatelessWidget {
             Consumer<VacationModeProvider>(
               builder: (context, vacationModeProvider, child) {
                 return _settingsOption(
-                  title: 'Tatil Modu',
-                  subtitle: 'Tatil modunda rutinler görünmez',
+                  title: LocaleKeys.VacationMode.tr(),
+                  subtitle: LocaleKeys.VacationModeSubtitle.tr(),
                   icon: Icons.beach_access,
                   onTap: () {
                     vacationModeProvider.toggleVacationMode();
@@ -229,8 +229,8 @@ class SettingsPage extends StatelessWidget {
                   // Show sync option only if offline mode is disabled
                   if (!offlineModeProvider.isOfflineModeEnabled) {
                     return _settingsOption(
-                      title: 'Veri Senkronizasyonu',
-                      subtitle: 'Verilerinizi bulutta yedekleyin ve senkronize edin',
+                      title: LocaleKeys.DataSyncTitle.tr(),
+                      subtitle: LocaleKeys.DataSyncDescription.tr(),
                       icon: Icons.cloud_sync,
                       onTap: () {
                         _showSyncDialog(context);
@@ -268,8 +268,8 @@ class SettingsPage extends StatelessWidget {
             // Logout option - only show if user is logged in
             if (loginUser != null)
               _settingsOption(
-                title: 'Çıkış Yap',
-                subtitle: 'Hesabınızdan çıkış yapın',
+                title: LocaleKeys.Logout.tr(),
+                subtitle: LocaleKeys.LogoutConfirmation.tr(),
                 icon: Icons.logout,
                 color: AppColors.red,
                 onTap: () {
@@ -297,19 +297,19 @@ class SettingsPage extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: AppColors.background,
-          title: const Text('Çıkış Yap'),
-          content: const Text('Hesabınızdan çıkış yapmak istediğinizden emin misiniz?'),
+          title: Text(LocaleKeys.Logout.tr()),
+          content: Text(LocaleKeys.LogoutConfirmation.tr()),
           actions: <Widget>[
             TextButton(
-              child: const Text('İptal'),
+              child: Text(LocaleKeys.Cancel.tr()),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text(
-                'Çıkış Yap',
-                style: TextStyle(color: AppColors.red),
+              child: Text(
+                LocaleKeys.Logout.tr(),
+                style: const TextStyle(color: AppColors.red),
               ),
               onPressed: () async {
                 Navigator.of(context).pop(); // Close dialog
@@ -451,7 +451,7 @@ class _SyncDialogState extends State<_SyncDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Veri Senkronizasyonu'),
+      title: Text(LocaleKeys.DataSyncTitle.tr()),
       content: SizedBox(
         width: double.maxFinite,
         child: Column(
@@ -459,7 +459,7 @@ class _SyncDialogState extends State<_SyncDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Verilerinizi Firebase bulut veritabanı ile senkronize edin.',
+              LocaleKeys.DataSyncDescription.tr(),
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.text.withValues(alpha: 0.8),
@@ -472,7 +472,7 @@ class _SyncDialogState extends State<_SyncDialog> {
                   Icon(Icons.schedule, size: 16, color: AppColors.text.withValues(alpha: 0.6)),
                   const SizedBox(width: 8),
                   Text(
-                    'Son senkronizasyon: ${DateFormat('dd.MM.yyyy HH:mm').format(_lastSyncTime!)}',
+                    '${LocaleKeys.LastSync.tr()}: ${DateFormat('dd.MM.yyyy HH:mm').format(_lastSyncTime!)}',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.text.withValues(alpha: 0.6),
@@ -527,7 +527,7 @@ class _SyncDialogState extends State<_SyncDialog> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.sync),
-                label: Text(_isSyncing ? 'Senkronize ediliyor...' : 'Verileri Senkronize Et'),
+                label: Text(_isSyncing ? LocaleKeys.SyncInProgress.tr() : LocaleKeys.SyncNow.tr()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.main,
                   foregroundColor: Colors.white,
@@ -536,7 +536,7 @@ class _SyncDialogState extends State<_SyncDialog> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Not: Bu işlemler internet bağlantısı gerektirir. Veriler Firebase Firestore\'da güvenli bir şekilde saklanır.',
+              LocaleKeys.SyncNote.tr(),
               style: TextStyle(
                 fontSize: 11,
                 color: AppColors.text.withValues(alpha: 0.6),
@@ -549,7 +549,7 @@ class _SyncDialogState extends State<_SyncDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Kapat'),
+          child: Text(LocaleKeys.Close.tr()),
         ),
       ],
     );
@@ -559,14 +559,14 @@ class _SyncDialogState extends State<_SyncDialog> {
     // Check if offline mode is enabled
     if (OfflineModeProvider().shouldDisableFirebase()) {
       setState(() {
-        _statusMessage = 'Çevrimdışı mod etkinken senkronizasyon yapılamaz.';
+        _statusMessage = LocaleKeys.OfflineModeSyncDisabled.tr();
       });
       return;
     }
 
     setState(() {
       _isSyncing = true;
-      _statusMessage = 'Veriler senkronize ediliyor...';
+      _statusMessage = LocaleKeys.SyncingData.tr();
     });
 
     try {
@@ -578,7 +578,7 @@ class _SyncDialogState extends State<_SyncDialog> {
 
       setState(() {
         _isSyncing = false;
-        _statusMessage = allSuccess ? 'Tüm veriler başarıyla senkronize edildi!' : 'Senkronizasyon sırasında hata oluştu.';
+        _statusMessage = allSuccess ? LocaleKeys.SyncSuccess.tr() : LocaleKeys.SyncError.tr();
       });
 
       if (allSuccess) {
@@ -587,7 +587,7 @@ class _SyncDialogState extends State<_SyncDialog> {
     } catch (e) {
       setState(() {
         _isSyncing = false;
-        _statusMessage = 'Senkronizasyon sırasında hata: $e';
+        _statusMessage = 'SyncErrorWithMessage'.tr(args: [e.toString()]);
       });
     }
   }

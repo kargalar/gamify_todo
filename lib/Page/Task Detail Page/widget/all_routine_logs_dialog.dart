@@ -34,7 +34,7 @@ class AllRoutineLogsDialog extends StatelessWidget {
     if (taskModel.routineID == null) {
       return AlertDialog(
         title: Text(LocaleKeys.Error.tr()),
-        content: const Text('Bu görev bir rutin değil.'),
+        content: Text(LocaleKeys.TaskIsNotRoutine.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/note_category_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Notes/category_selector_bottom_sheet.dart';
 
@@ -107,7 +109,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                   child: Row(
                     children: [
                       Text(
-                        isEditing ? 'Notu Düzenle' : 'Yeni Not',
+                        isEditing ? LocaleKeys.EditNote.tr() : LocaleKeys.NewNote.tr(),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -130,7 +132,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                             await provider.togglePinNote(widget.note!.id, _isPinned);
                             debugPrint('📌 Note pin toggled to: $_isPinned');
                           },
-                          tooltip: _isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+                          tooltip: _isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr(),
                         ),
                       IconButton(
                         icon: Icon(Icons.close, color: AppColors.text),
@@ -194,15 +196,15 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
               fontWeight: FontWeight.bold,
               color: AppColors.text,
             ),
-            decoration: const InputDecoration(
-              hintText: 'Başlık',
-              hintStyle: TextStyle(color: AppColors.grey),
+            decoration: InputDecoration(
+              hintText: LocaleKeys.Title.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Başlık boş olamaz';
+                return LocaleKeys.TitleRequired.tr();
               }
               return null;
             },
@@ -217,9 +219,9 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
               fontSize: 14,
               color: AppColors.text,
             ),
-            decoration: const InputDecoration(
-              hintText: 'İçerik (opsiyonel)',
-              hintStyle: TextStyle(color: AppColors.grey),
+            decoration: InputDecoration(
+              hintText: LocaleKeys.ContentOptional.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
@@ -238,9 +240,9 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Kategori',
-              style: TextStyle(
+            Text(
+              LocaleKeys.Category.tr(),
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: AppColors.grey,
@@ -285,9 +287,9 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                     ] else ...[
                       const Icon(Icons.category_outlined, size: 20, color: AppColors.grey),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Kategorisiz',
-                        style: TextStyle(
+                      Text(
+                        LocaleKeys.NoCategory.tr(),
+                        style: const TextStyle(
                           fontSize: 16,
                           color: AppColors.grey,
                         ),
@@ -359,10 +361,10 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
             : const Icon(Icons.save),
         label: Text(
           _isSaving
-              ? 'Kaydediliyor...'
+              ? LocaleKeys.Saving.tr()
               : isEditing
-                  ? 'Güncelle'
-                  : 'Kaydet',
+                  ? LocaleKeys.Update.tr()
+                  : LocaleKeys.Save.tr(),
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
@@ -415,7 +417,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                isEditing ? 'Not güncellendi' : 'Not eklendi',
+                isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr(),
               ),
               backgroundColor: Colors.green,
             ),
@@ -425,7 +427,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                isEditing ? 'Not güncellenemedi' : 'Not kaydedilemedi',
+                isEditing ? LocaleKeys.NoteUpdateFailed.tr() : LocaleKeys.NoteSaveFailed.tr(),
               ),
               backgroundColor: Colors.red,
             ),
@@ -440,7 +442,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata oluştu: $e'),
+            content: Text('ErrorOccurred'.tr(args: [e.toString()])),
             backgroundColor: Colors.red,
           ),
         );

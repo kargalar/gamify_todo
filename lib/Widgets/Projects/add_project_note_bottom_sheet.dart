@@ -65,7 +65,7 @@ class _AddProjectNoteBottomSheetState extends State<AddProjectNoteBottomSheet> {
     // Title veya content'ten en az biri dolu olmalı
     if (title.isEmpty && content.isEmpty) {
       Helper().getMessage(
-        message: "Başlık veya içerik alanlarından en az biri dolu olmalı",
+        message: LocaleKeys.NoteValidationMessage.tr(),
         status: StatusEnum.WARNING,
       );
       return;

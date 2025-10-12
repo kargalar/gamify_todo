@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Model/project_category_model.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Projects/add_project_category_dialog.dart';
 
@@ -47,7 +49,7 @@ class ProjectCategorySelectorBottomSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Kategori Seç',
+                  LocaleKeys.SelectCategory.tr(),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

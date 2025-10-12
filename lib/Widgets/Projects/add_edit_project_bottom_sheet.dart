@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_category_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Projects/project_category_selector_bottom_sheet.dart';
 
@@ -98,7 +100,7 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
                   child: Row(
                     children: [
                       Text(
-                        isEditing ? 'Projeyi Düzenle' : 'Yeni Proje',
+                        isEditing ? LocaleKeys.EditProject.tr() : LocaleKeys.NewProject.tr(),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -117,7 +119,7 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
                               _isPinned = !_isPinned;
                             });
                           },
-                          tooltip: _isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+                          tooltip: _isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.Pin.tr(),
                         ),
                       IconButton(
                         icon: Icon(Icons.close, color: AppColors.text),
@@ -180,15 +182,15 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
               fontWeight: FontWeight.bold,
               color: AppColors.text,
             ),
-            decoration: const InputDecoration(
-              hintText: 'Proje Başlığı',
-              hintStyle: TextStyle(color: AppColors.grey),
+            decoration: InputDecoration(
+              hintText: LocaleKeys.ProjectTitle.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Başlık boş olamaz';
+                return LocaleKeys.TitleRequired.tr();
               }
               return null;
             },

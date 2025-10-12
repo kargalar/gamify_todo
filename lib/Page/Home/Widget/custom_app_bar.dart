@@ -195,19 +195,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: AppColors.background,
-          title: const Text('Tatil Modu'),
-          content: const Text('Tatil modunu kapatmak istiyor musunuz?'),
+          title: Text(LocaleKeys.VacationMode.tr()),
+          content: Text(LocaleKeys.VacationModeDisableConfirmation.tr()),
           actions: <Widget>[
             TextButton(
-              child: const Text('İptal'),
+              child: Text(LocaleKeys.Cancel.tr()),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text(
-                'Kapat',
-                style: TextStyle(color: AppColors.red),
+              child: Text(
+                LocaleKeys.Close.tr(),
+                style: const TextStyle(color: AppColors.red),
               ),
               onPressed: () {
                 VacationModeProvider().toggleVacationMode();
