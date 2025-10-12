@@ -83,7 +83,7 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.main.withValues(alpha: 0.03), // Very light background
+        color: AppColors.green.withValues(alpha: 0.01), // Light green background for normal tasks
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.only(bottom: 8),
@@ -102,17 +102,17 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
                   Icon(
                     Icons.task_alt,
                     size: 16,
-                    color: AppColors.main.withValues(alpha: 0.7),
+                    color: AppColors.deepGreen.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 8),
 
                   // Title
                   Text(
                     LocaleKeys.Tasks.tr(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.text,
+                      color: AppColors.deepGreen,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -126,10 +126,10 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
                     ),
                     child: Text(
                       '${widget.tasks.length}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.main,
+                        color: AppColors.deepGreen,
                       ),
                     ),
                   ),
@@ -142,7 +142,7 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
                     duration: const Duration(milliseconds: 300),
                     child: Icon(
                       Icons.keyboard_arrow_down,
-                      color: AppColors.text.withValues(alpha: 0.5),
+                      color: AppColors.deepGreen.withValues(alpha: 0.5),
                       size: 20,
                     ),
                   ),

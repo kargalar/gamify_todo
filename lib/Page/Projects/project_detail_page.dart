@@ -401,24 +401,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                           color: AppColors.text,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: AppColors.text.withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${LocaleKeys.Created.tr()}: ${_formatDate(_currentProject.createdAt)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.text.withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -510,88 +492,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 ),
               ),
             ],
-
-            const SizedBox(height: 16),
-
-            Row(
-              children: [
-                _buildStatChip(
-                  Icons.check_box,
-                  '${_subtasks.where((s) => s.isCompleted).length}/${_subtasks.length}',
-                  'Görevler',
-                  AppColors.green,
-                ),
-                const SizedBox(width: 12),
-                _buildStatChip(
-                  Icons.note,
-                  '${_notes.length}',
-                  'Notlar',
-                  AppColors.blue,
-                ),
-              ],
-            ),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildStatChip(IconData icon, String value, String label, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: color.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppColors.text.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays == 0) {
-      return 'Bugün';
-    } else if (diff.inDays == 1) {
-      return 'Dün';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays} gün önce';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
   }
 
   Widget _buildSubtasksSection() {

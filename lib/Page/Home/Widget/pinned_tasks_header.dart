@@ -84,7 +84,7 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.main.withValues(alpha: 0.06), // Light purple/main color background
+        color: AppColors.yellow.withValues(alpha: 0.01), // Light yellow background - matching overdue style
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.only(bottom: 8),
@@ -100,20 +100,20 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
               child: Row(
                 children: [
                   // Pin icon indicator
-                  Icon(
+                  const Icon(
                     Icons.push_pin_rounded,
                     size: 16,
-                    color: AppColors.main,
+                    color: AppColors.yellow,
                   ),
                   const SizedBox(width: 8),
 
                   // Title
                   Text(
                     LocaleKeys.PinnedTasks.tr(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.main,
+                      color: AppColors.yellow,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -122,15 +122,15 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.main.withValues(alpha: 0.15),
+                      color: AppColors.yellow.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '${widget.pinnedTasks.length}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.main,
+                        color: AppColors.yellow,
                       ),
                     ),
                   ),
@@ -143,7 +143,7 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
                     duration: const Duration(milliseconds: 300),
                     child: Icon(
                       Icons.keyboard_arrow_down,
-                      color: AppColors.main.withValues(alpha: 0.7),
+                      color: AppColors.yellow.withValues(alpha: 0.7),
                       size: 20,
                     ),
                   ),

@@ -87,7 +87,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.main.withValues(alpha: 0.05), // Slightly different from normal tasks
+        color: AppColors.blue.withValues(alpha: 0.01), // Light purple background for routine tasks
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.only(bottom: 8),
@@ -106,17 +106,17 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                   Icon(
                     Icons.repeat_rounded,
                     size: 16,
-                    color: AppColors.main.withValues(alpha: 0.7),
+                    color: AppColors.blue.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 8),
 
                   // Title
                   Text(
                     LocaleKeys.Routines.tr(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.text,
+                      color: AppColors.blue,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -130,10 +130,10 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                     ),
                     child: Text(
                       '$totalCount',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.main,
+                        color: AppColors.blue,
                       ),
                     ),
                   ),
@@ -146,7 +146,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                     duration: const Duration(milliseconds: 300),
                     child: Icon(
                       Icons.keyboard_arrow_down,
-                      color: AppColors.text.withValues(alpha: 0.5),
+                      color: AppColors.blue.withValues(alpha: 0.5),
                       size: 20,
                     ),
                   ),

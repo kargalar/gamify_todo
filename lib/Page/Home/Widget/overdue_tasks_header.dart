@@ -84,7 +84,7 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.orange.withValues(alpha: 0.06), // Light orange background - matching pinned style
+        color: AppColors.orange.withValues(alpha: 0.01), // Light orange background - matching pinned style
         borderRadius: BorderRadius.circular(8),
       ),
       margin: const EdgeInsets.only(bottom: 8),
