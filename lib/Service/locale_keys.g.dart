@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const Store = 'Store';
   static const Settings = 'Settings';
   static const SelectLanguage = 'SelectLanguage';
@@ -458,4 +458,17 @@ abstract class  LocaleKeys {
   static const CategoryDeleted = 'CategoryDeleted';
   static const CategoryDeleteFailed = 'CategoryDeleteFailed';
 
+  static const StorageSummary = 'StorageSummary';
+  static const TotalFiles = 'TotalFiles';
+  static const TotalSize = 'TotalSize';
+  static const Images = 'Images';
+  static const Documents = 'Documents';
+  static const Others = 'Others';
+  static const NoAttachmentFilesFound = 'NoAttachmentFilesFound';
+  static const ChooseTaskStyle = 'ChooseTaskStyle';
+  static const CardStyleDesc = 'CardStyleDesc';
+  static const MinimalStyleDesc = 'MinimalStyleDesc';
+  static const FlatStyleDesc = 'FlatStyleDesc';
+  static const GlassStyleDesc = 'GlassStyleDesc';
+  static const ModernStyleDesc = 'ModernStyleDesc';
 }

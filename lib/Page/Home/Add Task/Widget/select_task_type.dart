@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
@@ -42,8 +44,12 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
         children: [
           // Header with title and icon
           ClickableTooltip(
-            title: "Task Type",
-            bulletPoints: const ["Checkbox: Simple task that can be marked as done", "Counter: Task with a target count that can be incremented", "Timer: Task with a timer that counts down from a set duration"],
+            title: LocaleKeys.TaskType.tr(),
+            bulletPoints: [
+              "${LocaleKeys.Checkbox.tr()}: ${LocaleKeys.CheckboxTasksDesc.tr()}",
+              "${LocaleKeys.Counter.tr()}: ${LocaleKeys.CounterTasksDesc.tr()}",
+              "${LocaleKeys.Timer.tr()}: ${LocaleKeys.TimerTasksDesc.tr()}",
+            ],
             child: Container(
               color: AppColors.transparent,
               child: Row(
@@ -54,9 +60,9 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    "Task Type",
-                    style: TextStyle(
+                  Text(
+                    LocaleKeys.TaskType.tr(),
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -101,15 +107,15 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
 
     switch (taskType) {
       case TaskTypeEnum.CHECKBOX:
-        taskTypeName = "Checkbox";
+        taskTypeName = LocaleKeys.Checkbox.tr();
         taskTypeIcon = Icons.check_box_rounded;
         break;
       case TaskTypeEnum.COUNTER:
-        taskTypeName = "Counter";
+        taskTypeName = LocaleKeys.Counter.tr();
         taskTypeIcon = Icons.add_circle_rounded;
         break;
       case TaskTypeEnum.TIMER:
-        taskTypeName = "Timer";
+        taskTypeName = LocaleKeys.Timer.tr();
         taskTypeIcon = Icons.timer_rounded;
         break;
     }

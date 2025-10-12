@@ -21,6 +21,8 @@ import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
@@ -39,29 +41,29 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
   bool isLoading = false;
 
   final List<BottomNavigationBarItem> navbarItems = [
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.store),
-      label: 'Store',
+    BottomNavigationBarItem(
+      icon: const Icon(Icons.store),
+      label: StringTranslateExtension(LocaleKeys.Store).tr(),
     ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.list),
-      label: 'Home',
+    BottomNavigationBarItem(
+      icon: const Icon(Icons.list),
+      label: StringTranslateExtension(LocaleKeys.Inbox).tr(), // Home yok, Inbox kullanılıyor
     ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.tag),
-      label: 'Categories',
+    BottomNavigationBarItem(
+      icon: const Icon(Icons.tag),
+      label: StringTranslateExtension(LocaleKeys.Categories).tr(),
     ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.note),
-      label: 'Notes',
+    BottomNavigationBarItem(
+      icon: const Icon(Icons.note),
+      label: StringTranslateExtension(LocaleKeys.MyNotes).tr(),
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.folder_outlined),
-      label: 'Projects',
+      label: 'Projects', // Projects için uygun bir key yok, düz metin bırakıldı
     ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.person_rounded),
-      label: 'Profile',
+    BottomNavigationBarItem(
+      icon: const Icon(Icons.person_rounded),
+      label: StringTranslateExtension(LocaleKeys.Profile).tr(),
     ),
   ];
 

@@ -60,7 +60,7 @@ class CompactTaskOptionsVertical extends StatelessWidget {
           icon: Icons.location_on_rounded,
           iconColor: hasLocation ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
           label: LocaleKeys.Location.tr(),
-          value: hasLocation ? addTaskProvider.locationController.text : "Not set",
+          value: hasLocation ? addTaskProvider.locationController.text : LocaleKeys.NotSet.tr(),
           hasValue: hasLocation,
           onTap: () {
             addTaskProvider.unfocusAll();
@@ -104,7 +104,7 @@ class CompactTaskOptionsVertical extends StatelessWidget {
           icon: Icons.label_rounded,
           iconColor: selectedCategory != null ? selectedCategory.color : AppColors.text.withValues(alpha: 0.5),
           label: LocaleKeys.Category.tr(),
-          value: selectedCategory?.title ?? "Not set",
+          value: selectedCategory?.title ?? LocaleKeys.NotSet.tr(),
           hasValue: selectedCategory != null,
           onTap: () {
             addTaskProvider.unfocusAll();

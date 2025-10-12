@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
@@ -32,8 +34,12 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: ClickableTooltip(
-            title: "Target Count",
-            bulletPoints: const ["Set how many times this task needs to be done", "Tap +/- to change by 1", "Long press +/- to change by 20", "Counter will track your progress"],
+            title: LocaleKeys.TargetCount.tr(),
+            bulletPoints: [
+              LocaleKeys.SelectTaskType.tr(),
+              LocaleKeys.TapCheckboxToComplete.tr(),
+              LocaleKeys.CounterTasksDesc.tr(),
+            ],
             child: Row(
               children: [
                 Icon(
@@ -43,7 +49,7 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "Target Count",
+                  LocaleKeys.TargetCount.tr(),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,

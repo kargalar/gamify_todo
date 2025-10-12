@@ -52,7 +52,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: StandardAppBar(
-        title: 'Projelerim',
+        title: LocaleKeys.NewProject.tr(),
         isSearching: _isSearching,
         onSearchToggle: () {
           setState(() {
@@ -96,7 +96,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   ElevatedButton.icon(
                     onPressed: () => provider.loadProjects(),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Yeniden Dene'),
+                    label: Text(LocaleKeys.Retry.tr()),
                   ),
                 ],
               ),

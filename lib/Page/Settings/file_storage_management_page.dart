@@ -499,7 +499,7 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -512,7 +512,7 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
               Icon(Icons.storage_rounded, color: AppColors.main, size: 24),
               const SizedBox(width: 8),
               Text(
-                'Storage Summary',
+                LocaleKeys.StorageSummary.tr(),
                 style: TextStyle(
                   color: AppColors.text,
                   fontSize: 18,
@@ -529,8 +529,8 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Total Files',
-                    style: TextStyle(color: AppColors.text.withValues(alpha: 0.7), fontSize: 12),
+                    LocaleKeys.TotalFiles.tr(),
+                    style: TextStyle(color: AppColors.text.withAlpha(179), fontSize: 12),
                   ),
                   Text(
                     '${storageStats['totalFiles'] ?? 0}',
@@ -542,8 +542,8 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Total Size',
-                    style: TextStyle(color: AppColors.text.withValues(alpha: 0.7), fontSize: 12),
+                    LocaleKeys.TotalSize.tr(),
+                    style: TextStyle(color: AppColors.text.withAlpha(179), fontSize: 12),
                   ),
                   Text(
                     _fileStorageService.formatFileSize(storageStats['totalSize'] ?? 0),
@@ -556,9 +556,9 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildFileTypeCard('Images', storageStats['imageCount'] ?? 0, Icons.image_rounded, Colors.blue),
-              _buildFileTypeCard('Documents', storageStats['documentCount'] ?? 0, Icons.description_rounded, Colors.orange),
-              _buildFileTypeCard('Others', storageStats['otherCount'] ?? 0, Icons.insert_drive_file_rounded, Colors.purple),
+              _buildFileTypeCard(LocaleKeys.Images.tr(), storageStats['imageCount'] ?? 0, Icons.image_rounded, Colors.blue),
+              _buildFileTypeCard(LocaleKeys.Documents.tr(), storageStats['documentCount'] ?? 0, Icons.description_rounded, Colors.orange),
+              _buildFileTypeCard(LocaleKeys.Others.tr(), storageStats['otherCount'] ?? 0, Icons.insert_drive_file_rounded, Colors.purple),
             ],
           ),
         ],
@@ -571,11 +571,11 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.folder_open_rounded, size: 64, color: AppColors.text.withValues(alpha: 0.3)),
+          Icon(Icons.folder_open_rounded, size: 64, color: AppColors.text.withAlpha(77)),
           const SizedBox(height: 16),
           Text(
-            'No attachment files found',
-            style: TextStyle(color: AppColors.text.withValues(alpha: 0.6), fontSize: 16),
+            LocaleKeys.NoAttachmentFilesFound.tr(),
+            style: TextStyle(color: AppColors.text.withAlpha(153), fontSize: 16),
           ),
         ],
       ),
