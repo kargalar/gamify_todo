@@ -224,17 +224,6 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
                   _updateFilters();
                 },
               ),
-              const SizedBox(width: 8),
-              FilterChipWidget(
-                label: "Pinned",
-                icon: Icons.push_pin,
-                isSelected: _showPinned,
-                selectedColor: AppColors.orange,
-                onTap: () {
-                  setState(() => _showPinned = !_showPinned);
-                  _updateFilters();
-                },
-              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -276,6 +265,17 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
             spacing: 8,
             runSpacing: 8,
             children: [
+              // Pinned chip
+              FilterChipWidget(
+                label: "Pinned",
+                icon: Icons.push_pin,
+                isSelected: _showPinned,
+                selectedColor: AppColors.orange,
+                onTap: () {
+                  setState(() => _showPinned = !_showPinned);
+                  _updateFilters();
+                },
+              ),
               // Empty chip for tasks with null status
               FilterChipWidget(
                 label: LocaleKeys.Empty.tr(),

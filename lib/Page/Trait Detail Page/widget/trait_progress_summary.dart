@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/trait_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -23,18 +24,14 @@ class TraitProgressSummary extends StatelessWidget {
   Map<String, dynamic> _calculateStats() {
     final now = DateTime.now();
 
-    // This week
-    final monday = now.subtract(Duration(days: now.weekday - 1));
-    final weekStart = DateTime(monday.year, monday.month, monday.day);
-    final weekEnd = weekStart.add(const Duration(days: 7));
+    // This week (Monday to Sunday)
+    final weekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
 
     // This month
     final monthStart = DateTime(now.year, now.month, 1);
-    final monthEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
 
     // This year
     final yearStart = DateTime(now.year, 1, 1);
-    final yearEnd = DateTime(now.year, 12, 31, 23, 59, 59);
 
     Duration weekDuration = Duration.zero;
     Duration monthDuration = Duration.zero;
@@ -45,7 +42,7 @@ class TraitProgressSummary extends StatelessWidget {
 
     for (final log in allLogs) {
       final task = TaskProvider().taskList.firstWhere(
-            (t) => t.id == log.id,
+            (t) => t.id == log.taskId,
             orElse: () => TaskProvider().taskList.first,
           );
 
@@ -53,16 +50,32 @@ class TraitProgressSummary extends StatelessWidget {
 
       if (hasTrait) {
         totalSessions++;
-        final duration = log.duration ?? Duration.zero;
 
-        if (log.logDate.isAfter(weekStart) && log.logDate.isBefore(weekEnd)) {
-          weekDuration += duration;
+        // Calculate duration based on task type
+        Duration logDuration = Duration.zero;
+        if (log.duration != null) {
+          // Timer task
+          logDuration = log.duration!;
+        } else if (log.count != null && log.count! > 0) {
+          // Counter task
+          final perCount = task.remainingDuration ?? Duration.zero;
+          final count = log.count! <= 100 ? log.count! : 5;
+          logDuration = perCount * count;
+        } else if (log.status == TaskStatusEnum.DONE) {
+          // Checkbox task
+          logDuration = task.remainingDuration ?? Duration.zero;
         }
-        if (log.logDate.isAfter(monthStart) && log.logDate.isBefore(monthEnd)) {
-          monthDuration += duration;
+
+        final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+
+        if (logDate.isAfter(weekStart) || logDate.isAtSameMomentAs(weekStart)) {
+          weekDuration += logDuration;
         }
-        if (log.logDate.isAfter(yearStart) && log.logDate.isBefore(yearEnd)) {
-          yearDuration += duration;
+        if (logDate.isAfter(monthStart) || logDate.isAtSameMomentAs(monthStart)) {
+          monthDuration += logDuration;
+        }
+        if (logDate.isAfter(yearStart) || logDate.isAtSameMomentAs(yearStart)) {
+          yearDuration += logDuration;
         }
       }
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
+import 'package:provider/provider.dart';
 
 class TaskCategory extends StatelessWidget {
   const TaskCategory({
@@ -17,7 +18,9 @@ class TaskCategory extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final CategoryModel? category = CategoryProvider().getCategoryById(taskModel.categoryId);
+    // Watch CategoryProvider to rebuild when categories change
+    final categoryProvider = context.watch<CategoryProvider>();
+    final CategoryModel? category = categoryProvider.getCategoryById(taskModel.categoryId);
     if (category == null) {
       return const SizedBox.shrink();
     }

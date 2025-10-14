@@ -33,6 +33,12 @@ abstract class  LocaleKeys {
   static const MonthlyLabel = 'MonthlyLabel';
   static const YearlyLabel = 'YearlyLabel';
   static const WeeklyWorkHour = 'WeeklyWorkHour';
+  static const ThisWeek = 'ThisWeek';
+  static const ThisMonth = 'ThisMonth';
+  static const WeeklyTrend = 'WeeklyTrend';
+  static const WeeklyTrendMinutes = 'WeeklyTrendMinutes';
+  static const MonthlyComparison = 'MonthlyComparison';
+  static const TotalDuration = 'TotalDuration';
   static const Add = 'Add';
   static const Buy = 'Buy';
   static const OnePiece = 'OnePiece';

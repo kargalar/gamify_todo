@@ -261,7 +261,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   Widget _buildStatisticsSection() {
     // Get weekly and monthly data
     final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final weekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
     final monthStart = DateTime(now.year, now.month, 1);
 
     Duration weeklyDuration = Duration.zero;
@@ -277,11 +277,30 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
 
       bool hasTrait = (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
 
-      if (hasTrait && log.logDate.isAfter(weekStart)) {
-        weeklyDuration += log.duration ?? Duration.zero;
+      if (!hasTrait) continue;
+
+      final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+
+      // Calculate duration based on task type
+      Duration logDuration = Duration.zero;
+      if (log.duration != null) {
+        // Timer task
+        logDuration = log.duration!;
+      } else if (log.count != null && log.count! > 0) {
+        // Counter task
+        final perCount = task.remainingDuration ?? Duration.zero;
+        final count = log.count! <= 100 ? log.count! : 5; // Cap extreme counts
+        logDuration = perCount * count;
+      } else if (log.status == TaskStatusEnum.DONE) {
+        // Checkbox task
+        logDuration = task.remainingDuration ?? Duration.zero;
       }
-      if (hasTrait && log.logDate.isAfter(monthStart)) {
-        monthlyDuration += log.duration ?? Duration.zero;
+
+      if (logDate.isAfter(weekStart) || logDate.isAtSameMomentAs(weekStart)) {
+        weeklyDuration += logDuration;
+      }
+      if (logDate.isAfter(monthStart) || logDate.isAtSameMomentAs(monthStart)) {
+        monthlyDuration += logDuration;
       }
     }
 
@@ -290,7 +309,6 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
     for (int i = 6; i >= 0; i--) {
       final date = now.subtract(Duration(days: i));
       final dayStart = DateTime(date.year, date.month, date.day);
-      final dayEnd = dayStart.add(const Duration(days: 1));
 
       Duration dayDuration = Duration.zero;
       for (final log in taskLogs) {
@@ -301,8 +319,26 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
 
         bool hasTrait = (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
 
-        if (hasTrait && log.logDate.isAfter(dayStart) && log.logDate.isBefore(dayEnd)) {
-          dayDuration += log.duration ?? Duration.zero;
+        if (!hasTrait) continue;
+
+        final logDate = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+
+        if (logDate.isAtSameMomentAs(dayStart)) {
+          // Calculate duration based on task type
+          Duration logDuration = Duration.zero;
+          if (log.duration != null) {
+            // Timer task
+            logDuration = log.duration!;
+          } else if (log.count != null && log.count! > 0) {
+            // Counter task
+            final perCount = task.remainingDuration ?? Duration.zero;
+            final count = log.count! <= 100 ? log.count! : 5;
+            logDuration = perCount * count;
+          } else if (log.status == TaskStatusEnum.DONE) {
+            // Checkbox task
+            logDuration = task.remainingDuration ?? Duration.zero;
+          }
+          dayDuration += logDuration;
         }
       }
       weeklyData.add(dayDuration.inMinutes.toDouble());
@@ -337,7 +373,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'This Week',
+                  LocaleKeys.ThisWeek.tr(),
                   weeklyDuration.textShort2hour(),
                   Icons.calendar_view_week,
                   selectedColor.withValues(alpha: 0.1),
@@ -346,7 +382,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'This Month',
+                  LocaleKeys.ThisMonth.tr(),
                   monthlyDuration.textShort2hour(),
                   Icons.calendar_month,
                   selectedColor.withValues(alpha: 0.1),
@@ -356,9 +392,9 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
           ),
           const SizedBox(height: 20),
           // Weekly trend chart
-          const Text(
-            'Weekly Trend (Minutes)',
-            style: TextStyle(
+          Text(
+            LocaleKeys.WeeklyTrendMinutes.tr(),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
