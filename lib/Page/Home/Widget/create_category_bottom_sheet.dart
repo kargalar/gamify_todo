@@ -160,20 +160,6 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
 
             // Icon Picker
             _buildIconPicker(),
-            const SizedBox(height: 20),
-
-            // Category Type Selector
-            const Text(
-              'Category Type',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Category Type Picker
-            _buildCategoryTypePicker(),
             const SizedBox(height: 24),
 
             // Action Buttons
@@ -196,10 +182,12 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
                               child: Text(LocaleKeys.Cancel.tr()),
                             ),
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 Navigator.pop(context); // Close dialog
-                                context.read<CategoryProvider>().deleteCategory(widget.categoryModel!);
-                                Navigator.pop(context); // Close bottom sheet
+                                await context.read<CategoryProvider>().deleteCategory(widget.categoryModel!);
+                                if (context.mounted) {
+                                  Navigator.pop(context, true); // Close bottom sheet and return true to indicate deletion
+                                }
                               },
                               child: Text(
                                 LocaleKeys.Delete.tr(),
@@ -374,131 +362,53 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       Icons.cloud_download,
     ];
 
+    // 2 satır için GridView kullan
     return SizedBox(
-      height: 50,
-      child: ListView(
+      height: 110, // 2 satır için yeterli yükseklik
+      child: GridView.builder(
         scrollDirection: Axis.horizontal,
-        children: icons.map((icon) {
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, // 2 satır
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1, // Kare şeklinde
+        ),
+        itemCount: icons.length,
+        itemBuilder: (context, index) {
+          final icon = icons[index];
           final isSelected = selectedIcon.codePoint == icon.codePoint;
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedIcon = icon;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: isSelected ? 50 : 40,
-                height: isSelected ? 50 : 40,
-                decoration: BoxDecoration(
-                  color: isSelected ? selectedColor.withValues(alpha: 0.2) : AppColors.panelBackground,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: isSelected ? selectedColor : Colors.grey.shade300,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  boxShadow: [
-                    if (isSelected)
-                      BoxShadow(
-                        color: selectedColor.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      ),
-                  ],
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedIcon = icon;
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                color: isSelected ? selectedColor.withValues(alpha: 0.2) : AppColors.panelBackground,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isSelected ? selectedColor : Colors.grey.shade300,
+                  width: isSelected ? 2 : 1,
                 ),
-                child: Icon(
-                  icon,
-                  color: isSelected ? selectedColor : AppColors.text,
-                  size: isSelected ? 24 : 20,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildCategoryTypePicker() {
-    final List<Map<String, dynamic>> categoryTypes = [
-      {
-        'type': CategoryType.task,
-        'label': 'Task',
-        'icon': Icons.task,
-        'color': Colors.blue,
-      },
-      {
-        'type': CategoryType.note,
-        'label': 'Note',
-        'icon': Icons.note,
-        'color': Colors.green,
-      },
-      {
-        'type': CategoryType.project,
-        'label': 'Project',
-        'icon': Icons.folder,
-        'color': Colors.orange,
-      },
-    ];
-
-    // Düzenleme modundaysa tip değiştirilemez
-    final bool isEditing = widget.categoryModel != null;
-
-    return SizedBox(
-      height: 60,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: categoryTypes.map((typeData) {
-          final isSelected = selectedCategoryType == typeData['type'];
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: isEditing
-                  ? null
-                  : () {
-                      setState(() {
-                        selectedCategoryType = typeData['type'];
-                      });
-                    },
-              child: Opacity(
-                opacity: isEditing && !isSelected ? 0.3 : 1.0,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isSelected ? typeData['color'].withValues(alpha: 0.1) : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected ? typeData['color'] : Colors.grey.shade300,
-                      width: 2,
+                boxShadow: [
+                  if (isSelected)
+                    BoxShadow(
+                      color: selectedColor.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      spreadRadius: 1,
                     ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        typeData['icon'],
-                        color: isSelected ? typeData['color'] : Colors.grey.shade600,
-                        size: 20,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        typeData['label'],
-                        style: TextStyle(
-                          color: isSelected ? typeData['color'] : Colors.grey.shade600,
-                          fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? selectedColor : AppColors.text,
+                size: isSelected ? 24 : 20,
               ),
             ),
           );
-        }).toList(),
+        },
       ),
     );
   }

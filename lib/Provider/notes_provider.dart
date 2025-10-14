@@ -300,7 +300,13 @@ class NotesProvider with ChangeNotifier {
     try {
       debugPrint('➕ NotesProvider: Adding category: ${category.title}');
       CategoryProvider().addCategory(category);
-      await loadData();
+
+      // Kategoriyi listeye hemen ekle
+      _categories.add(category);
+
+      // UI'ı hemen güncelle
+      notifyListeners();
+
       debugPrint('✅ NotesProvider: Category added successfully');
       return true;
     } catch (e) {
@@ -315,7 +321,16 @@ class NotesProvider with ChangeNotifier {
     try {
       debugPrint('🔄 NotesProvider: Updating category: ${category.id}');
       CategoryProvider().updateCategory(category);
-      await loadData();
+
+      // Kategoriyi listede güncelle
+      final index = _categories.indexWhere((cat) => cat.id == category.id);
+      if (index != -1) {
+        _categories[index] = category;
+      }
+
+      // UI'ı hemen güncelle
+      notifyListeners();
+
       debugPrint('✅ NotesProvider: Category updated successfully');
       return true;
     } catch (e) {
@@ -337,16 +352,24 @@ class NotesProvider with ChangeNotifier {
         // Kategoriye ait tüm notları sil
         for (final note in notesInCategory) {
           await _notesService.deleteNote(note.id);
+          _notes.removeWhere((n) => n.id == note.id); // Listeden hemen kaldır
         }
       }
 
       final category = CategoryProvider().getCategoryById(categoryId);
       if (category != null) {
         await CategoryProvider().deleteCategory(category);
+
+        // Kategoriyi listeden hemen kaldır
+        _categories.removeWhere((cat) => cat.id == categoryId);
+
         if (_selectedCategoryId == categoryId) {
           _selectedCategoryId = null;
         }
-        await loadData();
+
+        // UI'ı hemen güncelle
+        notifyListeners();
+
         debugPrint('✅ NotesProvider: Category deleted successfully');
         return true;
       } else {

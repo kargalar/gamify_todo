@@ -79,7 +79,13 @@ class ProjectsProvider with ChangeNotifier {
     try {
       final categoryProvider = CategoryProvider();
       categoryProvider.addCategory(category);
-      await loadCategories();
+
+      // Kategoriyi listeye hemen ekle
+      _categories.add(category);
+
+      // UI'ı hemen güncelle
+      notifyListeners();
+
       debugPrint('✅ ProjectsProvider: Category added successfully');
       return true;
     } catch (e) {
@@ -93,7 +99,16 @@ class ProjectsProvider with ChangeNotifier {
     try {
       final categoryProvider = CategoryProvider();
       categoryProvider.updateCategory(category);
-      await loadCategories();
+
+      // Kategoriyi listede güncelle
+      final index = _categories.indexWhere((cat) => cat.id == category.id);
+      if (index != -1) {
+        _categories[index] = category;
+      }
+
+      // UI'ı hemen güncelle
+      notifyListeners();
+
       debugPrint('✅ ProjectsProvider: Category updated successfully');
       return true;
     } catch (e) {
@@ -106,7 +121,7 @@ class ProjectsProvider with ChangeNotifier {
   Future<bool> deleteCategory(String categoryId) async {
     try {
       debugPrint('🗑️ ProjectsProvider: Deleting category: $categoryId');
-      
+
       // Bu kategoriye ait projeleri kontrol et
       final projectsInCategory = _projects.where((project) => project.categoryId == categoryId).toList();
       if (projectsInCategory.isNotEmpty) {
@@ -116,15 +131,22 @@ class ProjectsProvider with ChangeNotifier {
           await deleteProject(project.id);
         }
       }
-      
+
       final category = getCategoryById(categoryId);
       if (category != null) {
         final categoryProvider = CategoryProvider();
         await categoryProvider.deleteCategory(category);
+
+        // Kategoriyi listeden hemen kaldır
+        _categories.removeWhere((cat) => cat.id == categoryId);
+
         if (_selectedCategoryId == categoryId) {
           _selectedCategoryId = null;
         }
-        await loadCategories();
+
+        // UI'ı hemen güncelle
+        notifyListeners();
+
         debugPrint('✅ ProjectsProvider: Category deleted successfully');
         return true;
       } else {

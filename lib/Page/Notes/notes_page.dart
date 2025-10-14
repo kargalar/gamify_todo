@@ -6,11 +6,11 @@ import 'package:next_level/Widgets/Notes/note_card.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
 import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Widgets/Common/standard_app_bar.dart';
+import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {
@@ -185,22 +185,25 @@ class _NotesPageState extends State<NotesPage> {
                 selectedCategoryId: provider.selectedCategoryId,
                 onCategorySelected: (categoryId) => provider.selectCategory(categoryId as String?),
                 itemCounts: provider.noteCounts,
-                onCategoryLongPress: (context, category) {
-                  showDialog(
+                onCategoryLongPress: (context, category) async {
+                  final result = await showModalBottomSheet<bool>(
                     context: context,
-                    builder: (context) => AddCategoryDialog(
-                      existingCategories: provider.categories,
-                      editingCategory: category,
-                      onDeleteCategory: (deletedCategory) {
-                        provider.deleteCategory(deletedCategory.id);
-                      },
-                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    barrierColor: Colors.transparent,
+                    builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
                   );
+
+                  // Eğer kategori silindiyse, provider'ı güncelle
+                  if (result == true && context.mounted) {
+                    await provider.loadData();
+                  }
                 },
                 showIcons: true,
                 showColors: true,
                 showAddButton: true,
                 categoryType: CategoryType.note,
+                showEmptyCategories: true, // Boş kategorileri de göster
               ),
 
               // Notlar listesi
@@ -212,49 +215,6 @@ class _NotesPageState extends State<NotesPage> {
         },
       ),
     );
-  }
-
-  /// Kategori ekleme dialogunu göster
-  Future<void> _showAddCategoryDialog(BuildContext context, NotesProvider provider) async {
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (context) => AddCategoryDialog(
-        existingCategories: provider.categories,
-        onDeleteCategory: (category) {
-          _showDeleteCategoryDialog(context, provider, category);
-        },
-      ),
-    );
-
-    if (result != null) {
-      debugPrint('✅ NotesPage: Category data received from dialog');
-
-      // Yeni kategori oluştur (NOTE TİPİNDE)
-      final newCategory = CategoryModel(
-        id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
-        title: result['name'] as String,
-        iconCodePoint: result['iconCodePoint'] as int,
-        color: Color(result['colorValue'] as int),
-        createdAt: DateTime.now(),
-        categoryType: CategoryType.note,
-      );
-
-      await provider.addCategory(newCategory);
-
-      debugPrint('✅ NotesPage: New category created - ${newCategory.title}');
-
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(LocaleKeys.CategoryCreated.tr(args: [newCategory.title])),
-          backgroundColor: newCategory.color,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } else {
-      debugPrint('❌ NotesPage: Category creation cancelled');
-    }
   }
 
   Widget _buildNotesList(BuildContext context, NotesProvider provider) {
@@ -434,51 +394,6 @@ class _NotesPageState extends State<NotesPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddEditNoteBottomSheet(note: note),
-    );
-  }
-
-  void _showDeleteCategoryDialog(BuildContext context, NotesProvider provider, CategoryModel category) {
-    final count = provider.noteCounts[category.id] ?? 0;
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(LocaleKeys.DeleteCategory.tr()),
-          content: Text(
-            count > 0 ? tr(LocaleKeys.DeleteCategoryConfirmation, args: [count.toString()]) : LocaleKeys.DeleteCategoryConfirmation.tr(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(LocaleKeys.Cancel.tr()),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                final success = await provider.deleteCategory(category.id);
-                if (success) {
-                  // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(LocaleKeys.CategoryDeleted.tr())),
-                  );
-                  debugPrint('✅ Category ${category.id} deleted');
-                } else {
-                  // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(LocaleKeys.CategoryDeleteFailed.tr()),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  debugPrint('❌ Category ${category.id} deletion failed');
-                }
-              },
-              child: Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
     );
   }
 }

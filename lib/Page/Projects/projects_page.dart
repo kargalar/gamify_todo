@@ -144,19 +144,25 @@ class _ProjectsPageState extends State<ProjectsPage> {
                 selectedCategoryId: provider.selectedCategoryId,
                 onCategorySelected: (categoryId) => provider.setSelectedCategory(categoryId as String?),
                 itemCounts: provider.projectCounts,
-                onCategoryLongPress: (context, category) {
-                  showModalBottomSheet(
+                onCategoryLongPress: (context, category) async {
+                  final result = await showModalBottomSheet<bool>(
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     barrierColor: Colors.transparent,
                     builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
                   );
+
+                  // Eğer kategori silindiyse, provider'ı güncelle
+                  if (result == true && context.mounted) {
+                    await provider.loadCategories();
+                  }
                 },
                 showIcons: true,
                 showColors: true,
                 showAddButton: true,
                 categoryType: CategoryType.project,
+                showEmptyCategories: true, // Boş kategorileri de göster
               ),
 
               // Inline arama barı (arama aktifse göster)

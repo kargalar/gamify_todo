@@ -90,14 +90,14 @@ class CategoryFilterWidget extends StatelessWidget {
             Icon(
               Icons.all_inclusive,
               size: 16,
-              color: isSelected ? Colors.white : AppColors.text,
+              color: isSelected ? Colors.black : AppColors.text,
             ),
             const SizedBox(width: 6),
           ],
           Text(
             LocaleKeys.All.tr(),
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.text,
+              color: isSelected ? Colors.black : AppColors.text,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -106,7 +106,7 @@ class CategoryFilterWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
+                color: isSelected ? Colors.black.withValues(alpha: 0.3) : AppColors.panelBackground2,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -123,7 +123,7 @@ class CategoryFilterWidget extends StatelessWidget {
       ),
       selectedColor: showColors ? AppColors.text : Theme.of(context).primaryColor.withValues(alpha: 0.2),
       backgroundColor: AppColors.panelBackground,
-      checkmarkColor: Colors.white,
+      checkmarkColor: Colors.black,
       onSelected: (_) => onCategorySelected(null),
     );
   }
@@ -167,6 +167,7 @@ class CategoryFilterWidget extends StatelessWidget {
 
   Widget _buildCategoryChip(BuildContext context, dynamic category, int count) {
     final isSelected = selectedCategoryId == category.id;
+    final categoryColor = showColors && category.colorValue != null ? Color(category.colorValue) : AppColors.main;
 
     final chip = FilterChip(
       selected: isSelected,
@@ -177,14 +178,15 @@ class CategoryFilterWidget extends StatelessWidget {
             Icon(
               IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
               size: 16,
-              color: isSelected ? Colors.white : (showColors && category.colorValue != null ? Color(category.colorValue) : AppColors.text),
+              color: isSelected ? Colors.white : categoryColor,
             ),
             const SizedBox(width: 6),
           ],
           Text(
             category.name ?? (category.title ?? ''),
             style: TextStyle(
-              color: isSelected ? Colors.white : AppColors.text,
+              color: isSelected ? Colors.white : categoryColor,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             ),
           ),
           if (itemCounts != null) ...[
@@ -192,7 +194,7 @@ class CategoryFilterWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
+                color: isSelected ? Colors.white.withValues(alpha: 0.3) : categoryColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -200,16 +202,20 @@ class CategoryFilterWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : AppColors.text,
+                  color: isSelected ? Colors.white : categoryColor,
                 ),
               ),
             ),
           ],
         ],
       ),
-      selectedColor: showColors && category.colorValue != null ? Color(category.colorValue) : Theme.of(context).primaryColor.withValues(alpha: 0.2),
-      backgroundColor: showColors && category.colorValue != null ? Color(category.colorValue).withValues(alpha: 0.1) : Colors.grey[200],
+      selectedColor: categoryColor,
+      backgroundColor: categoryColor.withValues(alpha: 0.15),
       checkmarkColor: Colors.white,
+      side: BorderSide(
+        color: isSelected ? categoryColor : categoryColor.withValues(alpha: 0.3),
+        width: isSelected ? 1.5 : 1,
+      ),
       onSelected: (_) => onCategorySelected(category.id),
     );
 

@@ -78,14 +78,19 @@ class InboxCategoriesSection extends StatelessWidget {
               ...itemCounts,
               null: totalTaskCount,
             },
-            onCategoryLongPress: (context, category) {
-              showModalBottomSheet(
+            onCategoryLongPress: (context, category) async {
+              final result = await showModalBottomSheet<bool>(
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 barrierColor: Colors.transparent,
                 builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
               );
+
+              // Eğer kategori silindiyse, CategoryProvider'ı yeniden yükle
+              if (result == true && context.mounted) {
+                await CategoryProvider().initialize();
+              }
             },
             showIcons: false,
             showColors: true,
