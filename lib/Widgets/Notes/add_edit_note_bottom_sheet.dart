@@ -11,8 +11,9 @@ import 'package:next_level/Widgets/Notes/category_selector_bottom_sheet.dart';
 /// Not ekleme ve düzenleme bottom sheet'i
 class AddEditNoteBottomSheet extends StatefulWidget {
   final NoteModel? note;
+  final VoidCallback? onDismiss;
 
-  const AddEditNoteBottomSheet({super.key, this.note});
+  const AddEditNoteBottomSheet({super.key, this.note, this.onDismiss});
 
   @override
   State<AddEditNoteBottomSheet> createState() => _AddEditNoteBottomSheetState();
@@ -29,6 +30,64 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
   bool _isSaving = false;
 
   bool get isEditing => widget.note != null;
+
+  /// Değişiklik olup olmadığını kontrol eder
+  bool _hasChanges() {
+    if (!isEditing) return false;
+
+    return _titleController.text.trim() != (widget.note?.title ?? '') || _contentController.text.trim() != (widget.note?.content ?? '') || _selectedCategory?.id != widget.note?.categoryId || _isPinned != (widget.note?.isPinned ?? false);
+  }
+
+  /// Otomatik kaydetme (düzenleme modunda)
+  Future<void> _autoSave() async {
+    if (!isEditing || !_hasChanges()) return;
+
+    debugPrint('💾 AddEditNoteBottomSheet: Auto-saving changes');
+
+    try {
+      final provider = context.read<NotesProvider>();
+      final updatedNote = widget.note!.copyWith(
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim(),
+        categoryId: _selectedCategory?.id,
+        isPinned: _isPinned,
+        updatedAt: DateTime.now(),
+      );
+      final success = await provider.updateNote(updatedNote);
+
+      if (success) {
+        debugPrint('✅ AddEditNoteBottomSheet: Auto-saved successfully');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(LocaleKeys.NoteUpdated.tr()),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        debugPrint('❌ AddEditNoteBottomSheet: Auto-save failed');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(LocaleKeys.NoteUpdateFailed.tr()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ AddEditNoteBottomSheet: Auto-save error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(LocaleKeys.ErrorOccurred.tr(args: [e.toString()])),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -57,11 +116,12 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
       });
     }
 
-    debugPrint('🔧 AddEditNoteBottomSheet: Initialized ${isEditing ? "edit" : "add"} mode');
+    debugPrint('🔧 AddEditNoteBottomSheet:   Initialized ${isEditing ? "edit" : "add"} mode');
   }
 
   @override
   void dispose() {
+    widget.onDismiss?.call();
     _titleController.dispose();
     _contentController.dispose();
     _titleFocusNode.dispose();
@@ -72,102 +132,114 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: bottomInset),
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) {
+        if (didPop && isEditing) {
+          Future.microtask(() => _autoSave());
+        }
+      },
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
             ),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Handle bar
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.grey,
-                      borderRadius: BorderRadius.circular(2),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.grey,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
 
-                // Header
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Text(
-                        isEditing ? LocaleKeys.EditNote.tr() : LocaleKeys.NewNote.tr(),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.text,
-                        ),
-                      ),
-                      const Spacer(),
-                      if (isEditing)
-                        IconButton(
-                          icon: Icon(
-                            _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                            color: _isPinned ? AppColors.yellow : AppColors.text,
-                          ),
-                          onPressed: () async {
-                            setState(() {
-                              _isPinned = !_isPinned;
-                            });
-                            // Pin değişikliğini hemen kaydet
-                            final provider = context.read<NotesProvider>();
-                            await provider.togglePinNote(widget.note!.id, _isPinned);
-                            debugPrint('📌 Note pin toggled to: $_isPinned');
-                          },
-                          tooltip: _isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr(),
-                        ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: AppColors.text),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Divider(height: 1),
-
-                Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
                       children: [
-                        // Başlık ve İçerik (tek container'da)
-                        _buildNoteFields(),
-                        const SizedBox(height: 20),
-
-                        // Kategori seçimi (kompakt buton)
-                        _buildCategorySelectorButton(),
-                        const SizedBox(height: 24),
-
-                        // Kaydet butonu
-                        _buildSaveButton(),
-                        const SizedBox(height: 12),
+                        Text(
+                          isEditing ? LocaleKeys.EditNote.tr() : LocaleKeys.NewNote.tr(),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.text,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isEditing)
+                          IconButton(
+                            icon: Icon(
+                              _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                              color: _isPinned ? AppColors.yellow : AppColors.text,
+                            ),
+                            onPressed: () async {
+                              setState(() {
+                                _isPinned = !_isPinned;
+                              });
+                              // Pin değişikliğini hemen kaydet
+                              final provider = context.read<NotesProvider>();
+                              await provider.togglePinNote(widget.note!.id, _isPinned);
+                              debugPrint('📌 Note pin toggled to: $_isPinned');
+                            },
+                            tooltip: _isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr(),
+                          ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: AppColors.text),
+                          onPressed: () async {
+                            if (isEditing) await _autoSave();
+                            widget.onDismiss?.call();
+                            Navigator.pop(context);
+                          },
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ],
+
+                  const Divider(height: 1),
+
+                  Form(
+                    key: _formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Başlık ve İçerik (tek container'da)
+                          _buildNoteFields(),
+                          const SizedBox(height: 20),
+
+                          // Kategori seçimi (kompakt buton)
+                          _buildCategorySelectorButton(),
+                          const SizedBox(height: 24),
+
+                          // Kaydet butonu (sadece yeni not ekleme için)
+                          if (!isEditing) _buildSaveButton(),
+                          const SizedBox(height: 12),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

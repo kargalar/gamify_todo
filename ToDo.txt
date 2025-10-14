@@ -9,7 +9,6 @@ geçimş rutinler slidable fix
 rutinin veya taskın type değiştirilebilsin.
 rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nıasl olur. o da ilerlemeyi fıtrılayarak çok güzel olur.
 
-
 ○ Görev ekleme kısmı todoiwtte çok güzel
     Çok sade ve pratik
 
@@ -36,45 +35,11 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 
 ○ Storea öğe eklerken aherhangi bir şeyi deigtirdikten sonra türü degositirkenkuro
 
-○ Notlar gibi bir de projeler sayfası olur belki. Ayarladan açıp kapanabilen.
-    Oradan da mesela benim suanki nextlecelnnotlarim gibi proje açıklama ve subtasklar ve ayrı notlar kısmı gibi bir bölüm güzel olabilir
-○ Template
-    Mesela template oluştur ona göre add task a çift tıklayıp template kolayca tasknolsuturulur
-○ Projeler sekmesi suanki koyların tasarımı gibi daha büyük ogleerolarka dustusn. Notlar taskalra daha yakın tasarimd alsun
 ○ İnbox kategori seçiminde basılı tutunca dahil değil olarak isaretlensin
 
-○ Siralamda pinnedler en üstte olsun
-○ projelerin üzerine quick add too butonunejke
-○ taşlı düzenledikten sonra güncelle hutinuna basmaya gerek yok
-○ projelerin subtaskalari için sadece tamamlanmayanlari göster seçeneği ejle
-○ görev sabitleme butonuna basınca icon anında degissin
 ○ tasklari üst üste işaretleyin ve sorun olabiliyor
 ○ alarmı güncelle.
     telefon sessizseyken cakmasin mesela veya çalarken ekrana gelsin direkt.su şekliyle iyi olmuyir
-
-
-    Localízationlari control et
-○ Görev ekleme kısmı todoiwtte çok güzel
-    Çok sade ve pratik
-○ İmbox page widgetlastir
-○ TASK ekledikten sonra geri tuşuna basınca sadece klavye kapanmasın bottom sheet de kapatilsin direkt
-○ Home screen add task buton
-○ homescreen widgetta rutin ve task ayrılsın.
-    Tasarım da ekstra güncellensin. Belki mevcut ilerlemeleri gösterilebilir. Mümkünse driekt oradan da etkileşimde bulunulabilsin. Tikatinca uygulama açılsın. +Butonu da eklenain
-○ Gelecek rutinlerde desc ve subtask olanları kontrol et
-    Aslında düzenlenebilir ör sadece tamamlandı olarak isaretlenmesin
-○ Galiba category renkleri import edilinc gelmiyor
-    Mesela okuduğun kitabin notları için aktif. Öylesine bir not için pasif
-○ Disiplin sistemi
-○ Credi - alınca statü sorun
-○ Task statistic not true. Ayrıca resetleyince progress süresi de sıfırlansın
-○ Kategoriler de extra olarak filtreleme bilsin.  Dahil/dahil değil
-○ Repeat days dal all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
-    Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. O tasklar ya en yakın diğer gund egisterilwin ya da gisterilmesin
-○ Storea öğe eklerken aherhangi bir şeyi deigtirdikten sonra türü degositirkenkuro
-○ Template
-    Mesela template oluştur ona göre add task a çift tıklayıp template kolayca tasknolsuturulur
-○ İnbox kategori seçiminde basılı tutunca dahil değil olarak isaretlensin
 
  rutin gün seçimi kısmında Repeat days ın oraya all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. ne yapılabilir
