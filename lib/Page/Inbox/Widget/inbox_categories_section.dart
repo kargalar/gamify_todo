@@ -20,6 +20,7 @@ class InboxCategoriesSection extends StatelessWidget {
   final Set<TaskTypeEnum> selectedTaskTypes;
   final Set<TaskStatusEnum> selectedStatuses;
   final bool showEmptyStatus;
+  final VoidCallback? onCategoryDeleted; // Callback for when a category is deleted
 
   const InboxCategoriesSection({
     super.key,
@@ -33,6 +34,7 @@ class InboxCategoriesSection extends StatelessWidget {
     required this.selectedTaskTypes,
     required this.selectedStatuses,
     required this.showEmptyStatus,
+    this.onCategoryDeleted,
   });
 
   @override
@@ -87,9 +89,14 @@ class InboxCategoriesSection extends StatelessWidget {
                 builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
               );
 
-              // Eğer kategori silindiyse, CategoryProvider'ı yeniden yükle
+              // Eğer kategori silindiyse, CategoryProvider'ı yeniden yükle ve parent'ı bilgilendir
               if (result == true && context.mounted) {
-                await CategoryProvider().initialize();
+                debugPrint('🔄 InboxCategoriesSection: Category deleted, reloading CategoryProvider');
+                await context.read<CategoryProvider>().initialize();
+                debugPrint('✅ InboxCategoriesSection: CategoryProvider reloaded');
+
+                // Parent widget'ı bilgilendir (setState çağırsın)
+                onCategoryDeleted?.call();
               }
             },
             showIcons: false,

@@ -184,7 +184,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
                             TextButton(
                               onPressed: () async {
                                 Navigator.pop(context); // Close dialog
+                                debugPrint('🗑️ CreateCategoryBottomSheet: Deleting category ${widget.categoryModel!.id}');
                                 await context.read<CategoryProvider>().deleteCategory(widget.categoryModel!);
+                                debugPrint('✅ CreateCategoryBottomSheet: Category deleted, closing bottom sheet');
                                 if (context.mounted) {
                                   Navigator.pop(context, true); // Close bottom sheet and return true to indicate deletion
                                 }

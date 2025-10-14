@@ -237,7 +237,7 @@ class _InboxPageState extends State<InboxPage> {
               controller: _searchController,
               onChanged: () => setState(() {}),
             ),
-          if (context.read<CategoryProvider>().getActiveCategories().isNotEmpty)
+          if (context.watch<CategoryProvider>().getActiveCategories().isNotEmpty)
             InboxCategoriesSection(
               selectedCategory: _selectedCategory,
               onCategorySelected: (category) {
@@ -252,6 +252,19 @@ class _InboxPageState extends State<InboxPage> {
               selectedTaskTypes: _selectedTaskTypes,
               selectedStatuses: _selectedStatuses,
               showEmptyStatus: _showEmptyStatus,
+              onCategoryDeleted: () {
+                // Kategori silindiğinde UI'ı güncelle
+                setState(() {
+                  // Eğer silinen kategori seçiliyse, seçimi kaldır
+                  if (_selectedCategory != null) {
+                    final categories = context.read<CategoryProvider>().getActiveCategories();
+                    final categoryExists = categories.any((cat) => cat.id == _selectedCategory!.id);
+                    if (!categoryExists) {
+                      _selectedCategory = null;
+                    }
+                  }
+                });
+              },
             ),
           Divider(
             color: AppColors.text.withValues(alpha: 0.1),
