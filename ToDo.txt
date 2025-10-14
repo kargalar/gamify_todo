@@ -9,7 +9,6 @@ geçimş rutinler slidable fix
 rutinin veya taskın type değiştirilebilsin.
 rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nıasl olur. o da ilerlemeyi fıtrılayarak çok güzel olur.
 
-vacation dan çıkma iconu home da appara geliyor. öyle olmasın. ayarlardaki switch yeterli.
 
 ○ Görev ekleme kısmı todoiwtte çok güzel
     Çok sade ve pratik

@@ -21,6 +21,14 @@ class TaskStyleSelectionDialog extends StatelessWidget {
         priority: 2,
       );
 
+  TaskModel get _sampleTask2 => TaskModel(
+        title: 'Another Sample Task',
+        type: TaskTypeEnum.CHECKBOX,
+        isNotificationOn: true,
+        isAlarmOn: false,
+        priority: 1,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskStyleProvider>(
@@ -34,11 +42,6 @@ class TaskStyleSelectionDialog extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    LocaleKeys.ChooseTaskStyle.tr(),
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: 16),
                   // Stil seçenekleri (isim + açıklama, radio button)
                   ...TaskItemStyle.values.map((style) => RadioListTile<TaskItemStyle>(
                         value: style,
@@ -56,14 +59,24 @@ class TaskStyleSelectionDialog extends StatelessWidget {
                   const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
-                    constraints: const BoxConstraints(maxHeight: 200),
+                    constraints: const BoxConstraints(maxHeight: 300),
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: AppColors.panelBackground.withAlpha(30),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: SingleChildScrollView(
-                      child: TaskItem(taskModel: _sampleTask),
+                      child: Column(
+                        children: [
+                          IgnorePointer(
+                            child: TaskItem(taskModel: _sampleTask),
+                          ),
+                          const SizedBox(height: 8),
+                          IgnorePointer(
+                            child: TaskItem(taskModel: _sampleTask2),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
