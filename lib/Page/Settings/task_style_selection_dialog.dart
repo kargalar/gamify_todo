@@ -6,9 +6,20 @@ import 'package:next_level/Provider/task_style_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Page/Home/Widget/task_item.dart';
 
 class TaskStyleSelectionDialog extends StatelessWidget {
   const TaskStyleSelectionDialog({super.key});
+
+  TaskModel get _sampleTask => TaskModel(
+        title: 'Sample Task',
+        type: TaskTypeEnum.CHECKBOX,
+        isNotificationOn: false,
+        isAlarmOn: false,
+        priority: 2,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +86,16 @@ class TaskStyleSelectionDialog extends StatelessWidget {
             ),
             child: Row(
               children: [
-                _getStyleIcon(style, isSelected),
+                // Preview
+                SizedBox(
+                  width: 120,
+                  height: 60,
+                  child: Transform.scale(
+                    scale: 0.5,
+                    alignment: Alignment.centerLeft,
+                    child: TaskItem(taskModel: _sampleTask),
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -110,33 +130,6 @@ class TaskStyleSelectionDialog extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _getStyleIcon(TaskItemStyle style, bool isSelected) {
-    IconData iconData;
-    switch (style) {
-      case TaskItemStyle.card:
-        iconData = Icons.view_comfortable;
-        break;
-      case TaskItemStyle.minimal:
-        iconData = Icons.view_list;
-        break;
-      case TaskItemStyle.flat:
-        iconData = Icons.view_stream;
-        break;
-      case TaskItemStyle.glass:
-        iconData = Icons.blur_on;
-        break;
-      case TaskItemStyle.modern:
-        iconData = Icons.view_compact;
-        break;
-    }
-
-    return Icon(
-      iconData,
-      color: isSelected ? AppColors.main : AppColors.text.withAlpha(150),
-      size: 24,
     );
   }
 

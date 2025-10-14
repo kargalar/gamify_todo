@@ -40,7 +40,7 @@ class LanguageSelectionPopupState extends State<LanguageSelectionPopup> {
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : AlertDialog(
-            title: const Text(LocaleKeys.Store).tr(),
+            title: Text(LocaleKeys.SelectLanguage.tr()),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: Locales.values

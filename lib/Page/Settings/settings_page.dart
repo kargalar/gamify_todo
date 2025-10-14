@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Core/Widgets/language_pop.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/General/accessible.dart';
-import 'package:next_level/Page/Settings/archived_routines_page.dart';
 import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
@@ -15,7 +14,6 @@ import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
-import 'package:next_level/Service/auth_service.dart';
 import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Provider/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -85,14 +83,6 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
             _settingsOption(
-              title: LocaleKeys.ArchivedRoutines.tr(),
-              subtitle: LocaleKeys.ArchivedRoutines.tr(),
-              icon: Icons.archive,
-              onTap: () {
-                NavigatorService().goTo(const ArchivedRoutinesPage());
-              },
-            ),
-            _settingsOption(
               title: LocaleKeys.SelectTaskStyle.tr(),
               subtitle: LocaleKeys.SelectTaskStyle.tr(),
               icon: Icons.palette,
@@ -126,43 +116,6 @@ class SettingsPage extends StatelessWidget {
                         width: 1,
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-            // Offline Mode option
-            Consumer<OfflineModeProvider>(
-              builder: (context, offlineModeProvider, child) {
-                return _settingsOption(
-                  title: LocaleKeys.OfflineMode.tr(),
-                  subtitle: LocaleKeys.OfflineModeSubtitle.tr(),
-                  icon: Icons.cloud_off,
-                  onTap: () {
-                    offlineModeProvider.toggleOfflineMode();
-                  },
-                  trailing: Switch.adaptive(
-                    value: offlineModeProvider.isOfflineModeEnabled,
-                    thumbIcon: offlineModeProvider.isOfflineModeEnabled
-                        ? WidgetStateProperty.all(
-                            const Icon(
-                              Icons.cloud_off,
-                              color: AppColors.white,
-                              size: 16,
-                            ),
-                          )
-                        : WidgetStateProperty.all(
-                            const Icon(
-                              Icons.cloud,
-                              color: AppColors.white,
-                              size: 16,
-                            ),
-                          ),
-                    trackOutlineColor: offlineModeProvider.isOfflineModeEnabled ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
-                    inactiveThumbColor: AppColors.dirtyRed,
-                    inactiveTrackColor: AppColors.white,
-                    onChanged: (_) {
-                      offlineModeProvider.toggleOfflineMode();
-                    },
                   ),
                 );
               },
@@ -265,17 +218,6 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
-            // Logout option - only show if user is logged in
-            if (loginUser != null)
-              _settingsOption(
-                title: LocaleKeys.Logout.tr(),
-                subtitle: LocaleKeys.LogoutConfirmation.tr(),
-                icon: Icons.logout,
-                color: AppColors.red,
-                onTap: () {
-                  _showLogoutDialog(context);
-                },
-              ),
             // TODO: for with database accounts
             // _settingsOption(
             //   title: LocaleKeys.Exit.tr(),
@@ -287,45 +229,6 @@ class SettingsPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Future<void> _showLogoutDialog(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // User must tap button
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.background,
-          title: Text(LocaleKeys.Logout.tr()),
-          content: Text(LocaleKeys.LogoutConfirmation.tr()),
-          actions: <Widget>[
-            TextButton(
-              child: Text(LocaleKeys.Cancel.tr()),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text(
-                LocaleKeys.Logout.tr(),
-                style: const TextStyle(color: AppColors.red),
-              ),
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close dialog
-                await AuthService().signOut();
-                // Navigate to login page
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login',
-                    (route) => false,
-                  );
-                }
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 

@@ -19,17 +19,18 @@ class ProjectNoteModelAdapter extends TypeAdapter<ProjectNoteModel> {
     return ProjectNoteModel(
       id: fields[0] as String,
       projectId: fields[1] as String,
-      content: fields[2] as String,
+      content: fields[2] as String?,
       createdAt: fields[3] as DateTime,
       updatedAt: fields[4] as DateTime,
       title: fields[5] as String?,
+      orderIndex: fields[6] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProjectNoteModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class ProjectNoteModelAdapter extends TypeAdapter<ProjectNoteModel> {
       ..writeByte(4)
       ..write(obj.updatedAt)
       ..writeByte(5)
-      ..write(obj.title);
+      ..write(obj.title)
+      ..writeByte(6)
+      ..write(obj.orderIndex);
   }
 
   @override
