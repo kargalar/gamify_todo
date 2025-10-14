@@ -43,8 +43,8 @@ class LevelProgressCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.main.withOpacity(0.8),
-            AppColors.main.withOpacity(0.5),
+            AppColors.main.withValues(alpha: 0.8),
+            AppColors.main.withValues(alpha: 0.5),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -52,7 +52,7 @@ class LevelProgressCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.main.withOpacity(0.3),
+            color: AppColors.main.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -69,10 +69,10 @@ class LevelProgressCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                 ),
@@ -110,7 +110,7 @@ class LevelProgressCard extends StatelessWidget {
                   Text(
                     '${TaskProvider().taskList.length} ${LocaleKeys.Tasks.tr()}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 12,
                     ),
                   ),
@@ -127,9 +127,9 @@ class LevelProgressCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${LocaleKeys.Progress.tr()}',
+                    LocaleKeys.Progress.tr(),
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -137,7 +137,7 @@ class LevelProgressCard extends StatelessWidget {
                   Text(
                     '$hoursInCurrentLevel / 20 ${LocaleKeys.Hour.tr()}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -151,7 +151,7 @@ class LevelProgressCard extends StatelessWidget {
                   Container(
                     height: 12,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
@@ -170,7 +170,7 @@ class LevelProgressCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -185,7 +185,7 @@ class LevelProgressCard extends StatelessWidget {
               Text(
                 '${20 - hoursInCurrentLevel} ${LocaleKeys.Hour.tr()} ${LocaleKeys.ToNextLevel.tr()}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 11,
                 ),
               ),
@@ -196,4 +196,3 @@ class LevelProgressCard extends StatelessWidget {
     );
   }
 }
-

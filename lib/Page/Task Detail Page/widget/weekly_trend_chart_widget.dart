@@ -112,7 +112,7 @@ class WeeklyTrendChartWidget extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.text.withOpacity(0.7),
+                              color: AppColors.text.withValues(alpha: 0.7),
                             ),
                           ),
                         );
@@ -130,7 +130,7 @@ class WeeklyTrendChartWidget extends StatelessWidget {
                         '${value.toInt()}m',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppColors.text.withOpacity(0.6),
+                          color: AppColors.text.withValues(alpha: 0.6),
                         ),
                       );
                     },
@@ -145,7 +145,7 @@ class WeeklyTrendChartWidget extends StatelessWidget {
                 horizontalInterval: maxMinutes / 4,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: AppColors.text.withOpacity(0.1),
+                    color: AppColors.text.withValues(alpha: 0.1),
                     strokeWidth: 1,
                   );
                 },
@@ -153,8 +153,8 @@ class WeeklyTrendChartWidget extends StatelessWidget {
               borderData: FlBorderData(
                 show: true,
                 border: Border(
-                  bottom: BorderSide(color: AppColors.main.withOpacity(0.3), width: 2),
-                  left: BorderSide(color: AppColors.main.withOpacity(0.3), width: 2),
+                  bottom: BorderSide(color: AppColors.main.withValues(alpha: 0.3), width: 2),
+                  left: BorderSide(color: AppColors.main.withValues(alpha: 0.3), width: 2),
                 ),
               ),
               barGroups: List.generate(orderedDates.length, (index) {
@@ -171,7 +171,7 @@ class WeeklyTrendChartWidget extends StatelessWidget {
                       width: 18,
                       borderRadius: BorderRadius.circular(4),
                       gradient: LinearGradient(
-                        colors: isToday ? [AppColors.main, AppColors.main.withOpacity(0.7)] : [AppColors.main.withOpacity(0.7), AppColors.main.withOpacity(0.5)],
+                        colors: isToday ? [AppColors.main, AppColors.main.withValues(alpha: 0.7)] : [AppColors.main.withValues(alpha: 0.7), AppColors.main.withValues(alpha: 0.5)],
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                       ),

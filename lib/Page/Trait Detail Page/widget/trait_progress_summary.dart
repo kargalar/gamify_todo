@@ -101,15 +101,15 @@ class TraitProgressSummary extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            selectedColor.withOpacity(0.2),
-            selectedColor.withOpacity(0.1),
+            selectedColor.withValues(alpha: 0.2),
+            selectedColor.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: selectedColor.withOpacity(0.3),
+          color: selectedColor.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -121,7 +121,7 @@ class TraitProgressSummary extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: selectedColor.withOpacity(0.2),
+                  color: selectedColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -146,7 +146,7 @@ class TraitProgressSummary extends StatelessWidget {
                       '$totalSessions ${LocaleKeys.Sessions.tr()}',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.text.withOpacity(0.6),
+                        color: AppColors.text.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -208,7 +208,7 @@ class TraitProgressSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.5),
+        color: Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -226,7 +226,7 @@ class TraitProgressSummary extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.text.withOpacity(0.6),
+                  color: AppColors.text.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),

@@ -116,7 +116,7 @@ class CompletionRateWidget extends StatelessWidget {
                   strokeWidth: 12,
                   backgroundColor: Colors.transparent,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.text.withOpacity(0.1),
+                    AppColors.text.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -152,7 +152,7 @@ class CompletionRateWidget extends StatelessWidget {
                     LocaleKeys.Completed.tr(),
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.text.withOpacity(0.6),
+                      color: AppColors.text.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -209,7 +209,7 @@ class CompletionRateWidget extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 11,
-            color: AppColors.text.withOpacity(0.6),
+            color: AppColors.text.withValues(alpha: 0.6),
           ),
         ),
       ],
