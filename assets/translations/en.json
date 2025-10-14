@@ -448,5 +448,6 @@
     "ColorApplied": "The color will be applied throughout the app",
     "HowItWorks": "How it works",
     "MinimumHours": "Minimum Hours",
-    "MinimumHoursDesc": "Set the minimum hours needed per day to maintain your streak"
+    "MinimumHoursDesc": "Set the minimum hours needed per day to maintain your streak",
+    "Preview": "Preview"
 }

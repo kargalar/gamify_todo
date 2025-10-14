@@ -401,5 +401,6 @@
     "ColorApplied": "Renk uygulamanın tamamında kullanılacak",
     "HowItWorks": "Nasıl Çalışır",
     "MinimumHours": "Minimum Saat",
-    "MinimumHoursDesc": "Sürekliliği korumak için günde gereken minimum saatleri ayarlayın"
+    "MinimumHoursDesc": "Sürekliliği korumak için günde gereken minimum saatleri ayarlayın",
+    "Preview": "Önizleme"
 }

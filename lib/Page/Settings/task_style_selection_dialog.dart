@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_item_style_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/task_style_provider.dart';
-import 'package:next_level/generated/lib/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
@@ -28,39 +28,47 @@ class TaskStyleSelectionDialog extends StatelessWidget {
         return AlertDialog(
           backgroundColor: AppColors.background,
           title: Text(LocaleKeys.SelectTaskStyle.tr()),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                LocaleKeys.ChooseTaskStyle.tr(),
-                style: const TextStyle(fontSize: 14),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    LocaleKeys.ChooseTaskStyle.tr(),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+                  // Stil seçenekleri (isim + açıklama, radio button)
+                  ...TaskItemStyle.values.map((style) => RadioListTile<TaskItemStyle>(
+                        value: style,
+                        groupValue: styleProvider.currentStyle,
+                        onChanged: (TaskItemStyle? value) {
+                          if (value != null) styleProvider.changeStyle(value);
+                        },
+                        title: Text(_getStyleName(style)),
+                        subtitle: Text(_getStyleDescription(style)),
+                        activeColor: AppColors.main,
+                      )),
+                  const SizedBox(height: 24),
+                  // Seçili stilin gerçek önizlemesi
+                  Text(LocaleKeys.Preview.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.panelBackground.withAlpha(30),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SingleChildScrollView(
+                      child: TaskItem(taskModel: _sampleTask),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              // Stil seçenekleri (isim + açıklama, radio button)
-              ...TaskItemStyle.values.map((style) => RadioListTile<TaskItemStyle>(
-                    value: style,
-                    groupValue: styleProvider.currentStyle,
-                    onChanged: (TaskItemStyle? value) {
-                      if (value != null) styleProvider.changeStyle(value);
-                    },
-                    title: Text(_getStyleName(style)),
-                    subtitle: Text(_getStyleDescription(style)),
-                    activeColor: AppColors.main,
-                  )),
-              const SizedBox(height: 24),
-              // Seçili stilin gerçek önizlemesi
-              Text(LocaleKeys.storage_access_error.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground.withAlpha(30),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TaskItem(taskModel: _sampleTask),
-              ),
-            ],
+            ),
           ),
           actions: [
             TextButton(

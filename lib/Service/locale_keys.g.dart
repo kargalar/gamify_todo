@@ -2,7 +2,18 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
+  static const NoArchivedRoutines = 'NoArchivedRoutines';
+  static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
+  static const Daily = 'Daily';
+  static const Weekdays = 'Weekdays';
+  static const Weekends = 'Weekends';
+  static const WeekAgo = 'WeekAgo';
+  static const WeeksAgo = 'WeeksAgo';
+  static const MonthAgo = 'MonthAgo';
+  static const MonthsAgo = 'MonthsAgo';
+  static const YearAgo = 'YearAgo';
+  static const YearsAgo = 'YearsAgo';
   static const Store = 'Store';
   static const Settings = 'Settings';
   static const SelectLanguage = 'SelectLanguage';
@@ -189,6 +200,19 @@ abstract class LocaleKeys {
   static const Okay = 'Okay';
   static const AreYouSureDelete = 'AreYouSureDelete';
   static const AreYouSureDeleteItem = 'AreYouSureDeleteItem';
+  static const StorageSummary = 'StorageSummary';
+  static const TotalFiles = 'TotalFiles';
+  static const TotalSize = 'TotalSize';
+  static const Images = 'Images';
+  static const Documents = 'Documents';
+  static const Others = 'Others';
+  static const NoAttachmentFilesFound = 'NoAttachmentFilesFound';
+  static const ChooseTaskStyle = 'ChooseTaskStyle';
+  static const CardStyleDesc = 'CardStyleDesc';
+  static const MinimalStyleDesc = 'MinimalStyleDesc';
+  static const FlatStyleDesc = 'FlatStyleDesc';
+  static const GlassStyleDesc = 'GlassStyleDesc';
+  static const ModernStyleDesc = 'ModernStyleDesc';
   static const ArchivedTaskInteractionWarning = 'ArchivedTaskInteractionWarning';
   static const Archived = 'Archived';
   static const TaskType = 'TaskType';
@@ -423,52 +447,10 @@ abstract class LocaleKeys {
   static const NoteAdded = 'NoteAdded';
   static const NoteUpdateFailed = 'NoteUpdateFailed';
   static const NoteSaveFailed = 'NoteSaveFailed';
-  static const ContentOptional = 'ContentOptional';
-  static const Unpin = 'Unpin';
-  static const NoProjectsYet = 'NoProjectsYet';
-  static const AddFirstProject = 'AddFirstProject';
-  static const SearchHint = 'SearchHint';
-  static const NoProjectsFound = 'NoProjectsFound';
-  static const OtherProjects = 'OtherProjects';
-  static const ProjectTitleLabel = 'ProjectTitleLabel';
-  static const ProjectTitleHint = 'ProjectTitleHint';
-  static const ProjectDescriptionHint = 'ProjectDescriptionHint';
-  static const SubtasksCopied = 'SubtasksCopied';
-  static const IncompleteSubtasksCopied = 'IncompleteSubtasksCopied';
-  static const SubtasksPasted = 'SubtasksPasted';
-  static const DeleteAllTasksConfirmation = 'DeleteAllTasksConfirmation';
-  static const DeleteNoteConfirmation = 'DeleteNoteConfirmation';
-  static const DeleteNote = 'DeleteNote';
-  static const DeleteRoutine = 'DeleteRoutine';
-  static const DeleteRoutineConfirmation = 'DeleteRoutineConfirmation';
-  static const OtherNotes = 'OtherNotes';
-  static const NoteDeleted = 'NoteDeleted';
-  static const MyNotes = 'MyNotes';
-  static const AddFirstNote = 'AddFirstNote';
-  static const SearchNotes = 'SearchNotes';
-  static const All = 'All';
-  static const NoteNotFound = 'NoteNotFound';
-  static const PermissionRequired = 'PermissionRequired';
-  static const PhotosAccessRequired = 'PhotosAccessRequired';
-  static const StorageAccessRequired = 'StorageAccessRequired';
-  static const NextWeek = 'NextWeek';
-  static const NextMonth = 'NextMonth';
-  static const Retry = 'Retry';
-  static const Delete = 'Delete';
-  static const CategoryDeleted = 'CategoryDeleted';
-  static const CategoryDeleteFailed = 'CategoryDeleteFailed';
+  static const ColorApplied = 'ColorApplied';
+  static const HowItWorks = 'HowItWorks';
+  static const MinimumHours = 'MinimumHours';
+  static const MinimumHoursDesc = 'MinimumHoursDesc';
+  static const Preview = 'Preview';
 
-  static const StorageSummary = 'StorageSummary';
-  static const TotalFiles = 'TotalFiles';
-  static const TotalSize = 'TotalSize';
-  static const Images = 'Images';
-  static const Documents = 'Documents';
-  static const Others = 'Others';
-  static const NoAttachmentFilesFound = 'NoAttachmentFilesFound';
-  static const ChooseTaskStyle = 'ChooseTaskStyle';
-  static const CardStyleDesc = 'CardStyleDesc';
-  static const MinimalStyleDesc = 'MinimalStyleDesc';
-  static const FlatStyleDesc = 'FlatStyleDesc';
-  static const GlassStyleDesc = 'GlassStyleDesc';
-  static const ModernStyleDesc = 'ModernStyleDesc';
 }
