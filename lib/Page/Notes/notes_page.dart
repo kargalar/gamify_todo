@@ -258,7 +258,7 @@ class _NotesPageState extends State<NotesPage> {
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: GestureDetector(
-                  onLongPress: () => _showDeleteCategoryDialog(context, provider, category),
+                  onLongPress: () => _showEditCategoryDialog(context, provider, category),
                   child: FilterChip(
                     selected: provider.selectedCategoryId == category.id,
                     label: Row(
@@ -267,14 +267,20 @@ class _NotesPageState extends State<NotesPage> {
                         Icon(
                           IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
                           size: 16,
+                          color: provider.selectedCategoryId == category.id ? Colors.white : Color(category.colorValue),
                         ),
                         const SizedBox(width: 6),
-                        Text(category.name),
+                        Text(
+                          category.name,
+                          style: TextStyle(
+                            color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
+                          ),
+                        ),
                         const SizedBox(width: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.panelBackground2,
+                            color: provider.selectedCategoryId == category.id ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
@@ -282,20 +288,20 @@ class _NotesPageState extends State<NotesPage> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.text,
+                              color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    selectedColor: Color(category.colorValue).withValues(alpha: 0.3),
-                    backgroundColor: AppColors.panelBackground,
-                    checkmarkColor: Color(category.colorValue),
+                    selectedColor: Color(category.colorValue),
+                    backgroundColor: Color(category.colorValue).withValues(alpha: 0.1),
+                    checkmarkColor: Colors.white,
                     onSelected: (_) => provider.selectCategory(
                       provider.selectedCategoryId == category.id ? null : category.id,
                     ),
                     labelStyle: TextStyle(
-                      color: AppColors.text,
+                      color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
                       fontWeight: provider.selectedCategoryId == category.id ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
@@ -599,5 +605,28 @@ class _NotesPageState extends State<NotesPage> {
         );
       },
     );
+  }
+
+  void _showEditCategoryDialog(BuildContext context, NotesProvider provider, NoteCategoryModel category) {
+    showDialog(
+      context: context,
+      builder: (context) => AddCategoryDialog(
+        existingCategories: provider.categories,
+        editingCategory: category,
+        onDeleteCategory: (category) async {
+          // This won't be called since we're editing
+        },
+      ),
+    ).then((result) {
+      if (result != null) {
+        // Update category
+        final updatedCategory = category.copyWith(
+          name: result['name'],
+          colorValue: result['colorValue'],
+          iconCodePoint: result['iconCodePoint'],
+        );
+        provider.updateCategory(updatedCategory);
+      }
+    });
   }
 }

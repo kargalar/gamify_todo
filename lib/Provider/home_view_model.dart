@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/category_provider.dart';
 
 /// HomeViewModel acts as the mediator between Home views and TaskProvider.
 /// It exposes UI-ready state and commands without requiring BuildContext.
@@ -27,6 +28,10 @@ class HomeViewModel extends ChangeNotifier {
 
   bool get showArchived => TaskProvider().showArchived;
 
+  int? get selectedCategoryId => TaskProvider().selectedCategoryId;
+
+  List<dynamic> get taskCategories => CategoryProvider().categoryList;
+
   // Commands
   void changeSelectedDate(DateTime date) {
     TaskProvider().changeSelectedDate(date);
@@ -40,6 +45,11 @@ class HomeViewModel extends ChangeNotifier {
     await TaskProvider().toggleShowArchived();
   }
 
+  void setSelectedCategory(int? categoryId) {
+    TaskProvider().setSelectedCategory(categoryId);
+    notifyListeners();
+  }
+
   void skipRoutinesForSelectedDate() {
     TaskProvider().skipRoutinesForDate(selectedDate);
   }
@@ -47,19 +57,61 @@ class HomeViewModel extends ChangeNotifier {
   void goToday() => changeSelectedDate(DateTime.now());
 
   // Queries
-  List<TaskModel> getOverdueTasks() => TaskProvider().getOverdueTasks();
+  List<TaskModel> getOverdueTasks() {
+    final overdueTasks = TaskProvider().getOverdueTasks();
+    if (selectedCategoryId == null) {
+      return overdueTasks;
+    }
+    return overdueTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+  }
 
-  List<dynamic> getTasksForDate(DateTime date) => TaskProvider().getTasksForDate(date);
+  List<dynamic> getTasksForDate(DateTime date) {
+    final tasks = TaskProvider().getTasksForDate(date);
+    if (selectedCategoryId == null) {
+      return tasks;
+    }
+    return tasks.where((task) => task.categoryId == selectedCategoryId).toList();
+  }
 
-  List<TaskModel> getPinnedTasksForToday() => TaskProvider().getPinnedTasksForToday();
+  List<TaskModel> getPinnedTasksForToday() {
+    final pinnedTasks = TaskProvider().getPinnedTasksForToday();
+    if (selectedCategoryId == null) {
+      return pinnedTasks;
+    }
+    return pinnedTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+  }
 
-  List<dynamic> getRoutineTasksForDate(DateTime date) => TaskProvider().getRoutineTasksForDate(date);
+  List<dynamic> getRoutineTasksForDate(DateTime date) {
+    final routines = TaskProvider().getRoutineTasksForDate(date);
+    if (selectedCategoryId == null) {
+      return routines;
+    }
+    return routines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+  }
 
-  List<dynamic> getGhostRoutineTasksForDate(DateTime date) => TaskProvider().getGhostRoutineTasksForDate(date);
+  List<dynamic> getGhostRoutineTasksForDate(DateTime date) {
+    final ghostRoutines = TaskProvider().getGhostRoutineTasksForDate(date);
+    if (selectedCategoryId == null) {
+      return ghostRoutines;
+    }
+    return ghostRoutines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+  }
 
-  List<RoutineModel> getArchivedRoutines() => TaskProvider().getArchivedRoutines();
+  List<TaskModel> getArchivedTasks() {
+    final archivedTasks = TaskProvider().getArchivedTasks();
+    if (selectedCategoryId == null) {
+      return archivedTasks;
+    }
+    return archivedTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+  }
 
-  List<TaskModel> getArchivedTasks() => TaskProvider().getArchivedTasks();
+  List<RoutineModel> getArchivedRoutines() {
+    final archivedRoutines = TaskProvider().getArchivedRoutines();
+    if (selectedCategoryId == null) {
+      return archivedRoutines;
+    }
+    return archivedRoutines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+  }
 
   // Paging helpers (kept UI-agnostic)
   int daysBetween(DateTime from, DateTime to) {

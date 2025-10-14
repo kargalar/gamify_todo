@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
@@ -223,6 +224,201 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
     findRelatedTasks();
   }
 
+  Widget _buildStatCard(String title, String value, IconData icon, Color bgColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: selectedColor, size: 20),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: selectedColor,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: selectedColor.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatisticsSection() {
+    // Get weekly and monthly data
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final monthStart = DateTime(now.year, now.month, 1);
+
+    Duration weeklyDuration = Duration.zero;
+    Duration monthlyDuration = Duration.zero;
+
+    // Calculate from logs
+    final taskLogs = TaskLogProvider().taskLogList;
+    for (final log in taskLogs) {
+      final task = TaskProvider().taskList.firstWhere(
+            (t) => t.id == log.taskId,
+            orElse: () => TaskModel(id: -1, title: '', description: '', taskDate: null, status: null, type: TaskTypeEnum.TIMER, attributeIDList: [], skillIDList: [], isNotificationOn: false, isAlarmOn: false),
+          );
+
+      bool hasTrait = (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
+
+      if (hasTrait && log.logDate.isAfter(weekStart)) {
+        weeklyDuration += log.duration ?? Duration.zero;
+      }
+      if (hasTrait && log.logDate.isAfter(monthStart)) {
+        monthlyDuration += log.duration ?? Duration.zero;
+      }
+    }
+
+    // Calculate weekly trend data (last 7 days)
+    final weeklyData = <double>[];
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dayStart = DateTime(date.year, date.month, date.day);
+      final dayEnd = dayStart.add(const Duration(days: 1));
+
+      Duration dayDuration = Duration.zero;
+      for (final log in taskLogs) {
+        final task = TaskProvider().taskList.firstWhere(
+              (t) => t.id == log.taskId,
+              orElse: () => TaskModel(id: -1, title: '', description: '', taskDate: null, status: null, type: TaskTypeEnum.TIMER, attributeIDList: [], skillIDList: [], isNotificationOn: false, isAlarmOn: false),
+            );
+
+        bool hasTrait = (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
+
+        if (hasTrait && log.logDate.isAfter(dayStart) && log.logDate.isBefore(dayEnd)) {
+          dayDuration += log.duration ?? Duration.zero;
+        }
+      }
+      weeklyData.add(dayDuration.inMinutes.toDouble());
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.panelBackground2,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            LocaleKeys.Statistics.tr(),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Summary cards
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'This Week',
+                  weeklyDuration.textShort2hour(),
+                  Icons.calendar_view_week,
+                  selectedColor.withValues(alpha: 0.1),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  'This Month',
+                  monthlyDuration.textShort2hour(),
+                  Icons.calendar_month,
+                  selectedColor.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Weekly trend chart
+          const Text(
+            'Weekly Trend (Minutes)',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 150,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, meta) => Text(
+                        value.toInt().toString(),
+                        style: const TextStyle(fontSize: 10),
+                      ),
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final dayIndex = value.toInt();
+                        final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                        return Text(
+                          dayNames[dayIndex % 7],
+                          style: const TextStyle(fontSize: 10),
+                        );
+                      },
+                    ),
+                  ),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: List.generate(
+                      weeklyData.length,
+                      (index) => FlSpot(index.toDouble(), weeklyData[index]),
+                    ),
+                    isCurved: true,
+                    color: selectedColor,
+                    barWidth: 3,
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: selectedColor.withValues(alpha: 0.1),
+                    ),
+                    dotData: const FlDotData(show: false),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -359,6 +555,11 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                   ],
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              // Statistics Section
+              _buildStatisticsSection(),
 
               const SizedBox(height: 24),
 

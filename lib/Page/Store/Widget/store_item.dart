@@ -92,8 +92,19 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.transparent,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.panelBackground.withValues(alpha: 0.8),
+                      AppColors.panelBackground2.withValues(alpha: 0.6),
+                    ],
+                  ),
                   borderRadius: AppColors.borderRadiusAll,
+                  border: Border.all(
+                    color: AppColors.main.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.black.withValues(alpha: 0.1),
@@ -102,41 +113,39 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                child: Row(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Type icon
-                    _buildTypeIcon(),
-                    const SizedBox(width: 12),
-
-                    // Title and progress
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.storeItemModel.title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.text,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          _buildProgressIndicator(),
-                        ],
-                      ),
+                    // Header with icon and credit
+                    Row(
+                      children: [
+                        _buildTypeIcon(),
+                        const Spacer(),
+                        _buildCreditAmount(),
+                      ],
                     ),
+                    const SizedBox(height: 12),
+
+                    // Title
+                    Text(
+                      widget.storeItemModel.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Progress
+                    _buildProgressIndicator(),
+                    const SizedBox(height: 12),
 
                     // Buy button
                     _buildBuyButton(),
-                    const SizedBox(width: 8),
-
-                    // Credit amount
-                    _buildCreditAmount(),
                   ],
                 ),
               ),
@@ -163,14 +172,28 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     }
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.panelBackground2,
-        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.main.withValues(alpha: 0.8),
+            AppColors.main.withValues(alpha: 0.6),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.main.withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Icon(
         iconData,
-        size: 18,
+        size: 24,
         color: AppColors.white,
       ),
     );
@@ -218,11 +241,18 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     if (widget.storeItemModel.credit == 0) return const SizedBox();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.amber.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -230,15 +260,15 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
           Text(
             "${widget.storeItemModel.credit}",
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.amber,
             ),
           ),
-          const SizedBox(width: 2),
+          const SizedBox(width: 4),
           const Icon(
             Icons.monetization_on,
-            size: 12,
+            size: 14,
             color: Colors.amber,
           ),
         ],
@@ -290,8 +320,8 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         StoreProvider().setStateItems();
       },
       child: Container(
-        height: 30,
-        constraints: const BoxConstraints(minWidth: 60),
+        height: 36,
+        constraints: const BoxConstraints(minWidth: 80),
         decoration: BoxDecoration(
           borderRadius: AppColors.borderRadiusAll,
           gradient: LinearGradient(
@@ -299,13 +329,20 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.main.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Center(
           child: Text(
             buttonText,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),

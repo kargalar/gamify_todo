@@ -8,7 +8,16 @@ import 'package:next_level/Provider/projects_provider.dart';
 
 /// Yeni proje kategorisi oluşturma dialog'u
 class AddProjectCategoryDialog extends StatefulWidget {
-  const AddProjectCategoryDialog({super.key});
+  final List<ProjectCategoryModel>? existingCategories;
+  final Function(ProjectCategoryModel)? onDeleteCategory;
+  final ProjectCategoryModel? editingCategory;
+
+  const AddProjectCategoryDialog({
+    super.key,
+    this.existingCategories,
+    this.onDeleteCategory,
+    this.editingCategory,
+  });
 
   @override
   State<AddProjectCategoryDialog> createState() => _AddProjectCategoryDialogState();
@@ -56,6 +65,16 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
 
   Color _selectedColor = Colors.blue;
   IconData _selectedIcon = Icons.work;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.editingCategory != null) {
+      _nameController.text = widget.editingCategory!.name;
+      _selectedColor = Color(widget.editingCategory!.colorValue);
+      _selectedIcon = IconData(widget.editingCategory!.iconCodePoint, fontFamily: 'MaterialIcons');
+    }
+  }
 
   @override
   void dispose() {
@@ -115,7 +134,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      LocaleKeys.NewCategory.tr(),
+                      widget.editingCategory != null ? 'Kategori Düzenle' : LocaleKeys.NewCategory.tr(),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -277,7 +296,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(LocaleKeys.Create.tr()),
+                      child: Text(widget.editingCategory != null ? LocaleKeys.Save.tr() : LocaleKeys.Create.tr()),
                     ),
                   ],
                 ),

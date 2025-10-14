@@ -7,8 +7,6 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Service/auth_service.dart';
-import 'package:next_level/Service/navigator_service.dart';
-import 'package:next_level/Page/Settings/settings_page.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 
 class ProfilePageTopSection extends StatefulWidget {
@@ -113,12 +111,6 @@ class _ProfilePageTopSectionState extends State<ProfilePageTopSection> {
                             loginUser?.username ?? '—',
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            await NavigatorService().goTo(const SettingsPage());
-                          },
-                          icon: const Icon(Icons.edit, color: Colors.white),
                         ),
                       ],
                     ),

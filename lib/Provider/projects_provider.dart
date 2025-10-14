@@ -114,6 +114,15 @@ class ProjectsProvider with ChangeNotifier {
     }
   }
 
+  /// Proje sayıları (kategori bazlı)
+  Map<String, int> get projectCounts {
+    final counts = <String, int>{};
+    for (var category in _categories) {
+      counts[category.id] = _projects.where((project) => project.categoryId == category.id).length;
+    }
+    return counts;
+  }
+
   /// Filtrelenmiş projeler
   List<ProjectModel> get filteredProjects {
     var filtered = _projects;

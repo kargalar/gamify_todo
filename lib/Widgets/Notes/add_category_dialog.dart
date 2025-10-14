@@ -8,11 +8,13 @@ import 'package:next_level/Model/note_category_model.dart';
 class AddCategoryDialog extends StatefulWidget {
   final List<NoteCategoryModel> existingCategories;
   final Function(NoteCategoryModel) onDeleteCategory;
+  final NoteCategoryModel? editingCategory;
 
   const AddCategoryDialog({
     super.key,
     required this.existingCategories,
     required this.onDeleteCategory,
+    this.editingCategory,
   });
 
   @override
@@ -65,6 +67,16 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
   IconData _selectedIcon = Icons.note;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.editingCategory != null) {
+      _nameController.text = widget.editingCategory!.name;
+      _selectedColor = Color(widget.editingCategory!.colorValue);
+      _selectedIcon = IconData(widget.editingCategory!.iconCodePoint, fontFamily: 'MaterialIcons');
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
@@ -110,7 +122,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Kategoriler',
+                        widget.editingCategory != null ? 'Kategori Düzenle' : 'Kategoriler',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -330,7 +342,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(LocaleKeys.Create.tr()),
+                    child: Text(widget.editingCategory != null ? LocaleKeys.Save.tr() : LocaleKeys.Create.tr()),
                   ),
                 ],
               ),

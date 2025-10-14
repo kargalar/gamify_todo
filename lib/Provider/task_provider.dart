@@ -105,12 +105,14 @@ class TaskProvider with ChangeNotifier {
   DateTime selectedDate = DateTime.now();
   bool showCompleted = false;
   bool showArchived = false;
+  int? selectedCategoryId;
 
   // Uygulama başladığında showCompleted durumunu SharedPreferences'dan yükle
   Future<void> loadShowCompletedState() async {
     final prefs = await SharedPreferences.getInstance();
     showCompleted = prefs.getBool('show_completed') ?? false;
     showArchived = prefs.getBool('show_archived') ?? false;
+    selectedCategoryId = prefs.getInt('selected_category_id');
     notifyListeners();
   }
 
@@ -1229,6 +1231,20 @@ class TaskProvider with ChangeNotifier {
     // Değişikliği SharedPreferences'a kaydet
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('show_completed', showCompleted);
+
+    notifyListeners();
+  }
+
+  Future<void> setSelectedCategory(int? categoryId) async {
+    selectedCategoryId = categoryId;
+
+    // Değişikliği SharedPreferences'a kaydet
+    final prefs = await SharedPreferences.getInstance();
+    if (categoryId != null) {
+      await prefs.setInt('selected_category_id', categoryId);
+    } else {
+      await prefs.remove('selected_category_id');
+    }
 
     notifyListeners();
   }

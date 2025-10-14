@@ -8,10 +8,12 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/project_note_model.dart';
+import 'package:next_level/Model/project_category_model.dart';
 import 'package:next_level/Page/Projects/project_detail_page.dart';
 import 'package:next_level/Widgets/Common/standard_app_bar.dart';
 import 'package:next_level/Widgets/Common/add_subtask_bottom_sheet.dart';
 import 'package:next_level/Widgets/Projects/add_project_note_bottom_sheet.dart';
+import 'package:next_level/Widgets/Projects/add_project_category_dialog.dart';
 
 /// Projeler ana sayfası
 class ProjectsPage extends StatefulWidget {
@@ -135,6 +137,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
           return Column(
             children: [
+              // Kategori filtresi
+              _buildCategoryFilter(context, provider),
+
               // Inline arama barı (arama aktifse göster)
               if (_isSearching)
                 Container(
@@ -194,6 +199,157 @@ class _ProjectsPageState extends State<ProjectsPage> {
         },
       ),
     );
+  }
+
+  Widget _buildCategoryFilter(BuildContext context, ProjectsProvider provider) {
+    final projectCounts = provider.projectCounts;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            // Tümü
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: FilterChip(
+                selected: provider.selectedCategoryId == null,
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.all_inclusive,
+                      size: 16,
+                      color: provider.selectedCategoryId == null ? Colors.white : AppColors.text,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      LocaleKeys.All.tr(),
+                      style: TextStyle(
+                        color: provider.selectedCategoryId == null ? Colors.white : AppColors.text,
+                        fontWeight: provider.selectedCategoryId == null ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: provider.selectedCategoryId == null ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${provider.projects.length}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: provider.selectedCategoryId == null ? Colors.white : AppColors.text,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                selectedColor: AppColors.text,
+                backgroundColor: AppColors.panelBackground,
+                checkmarkColor: Colors.white,
+                onSelected: (_) => provider.setSelectedCategory(null),
+              ),
+            ),
+
+            // Kategoriler
+            ...provider.categories.map((category) {
+              final count = projectCounts[category.id] ?? 0;
+              // Sadece projesi olan kategorileri göster
+              if (count == 0 && provider.selectedCategoryId != category.id) {
+                return const SizedBox.shrink();
+              }
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onLongPress: () => _showEditCategoryDialog(context, provider, category),
+                  child: FilterChip(
+                    selected: provider.selectedCategoryId == category.id,
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          size: 16,
+                          color: provider.selectedCategoryId == category.id ? Colors.white : Color(category.colorValue),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          category.name,
+                          style: TextStyle(
+                            color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: provider.selectedCategoryId == category.id ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$count',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    selectedColor: Color(category.colorValue),
+                    backgroundColor: Color(category.colorValue).withValues(alpha: 0.1),
+                    checkmarkColor: Colors.white,
+                    onSelected: (_) => provider.setSelectedCategory(
+                      provider.selectedCategoryId == category.id ? null : category.id,
+                    ),
+                    labelStyle: TextStyle(
+                      color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
+                      fontWeight: provider.selectedCategoryId == category.id ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ),
+              );
+            }),
+
+            // Yeni Kategori Ekle butonu
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildAddCategoryButton(context, provider),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditCategoryDialog(BuildContext context, ProjectsProvider provider, ProjectCategoryModel category) {
+    showDialog(
+      context: context,
+      builder: (context) => AddProjectCategoryDialog(
+        existingCategories: provider.categories,
+        editingCategory: category,
+        onDeleteCategory: (category) async {
+          // This won't be called since we're editing
+        },
+      ),
+    ).then((result) {
+      if (result != null) {
+        // Update category
+        final updatedCategory = category.copyWith(
+          name: result['name'],
+          colorValue: result['colorValue'],
+          iconCodePoint: result['iconCodePoint'],
+        );
+        provider.updateCategory(updatedCategory);
+      }
+    });
   }
 
   Widget _buildProjectsList(BuildContext context, ProjectsProvider provider) {
@@ -264,6 +420,25 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
         const SizedBox(height: 80), // FAB için boşluk
       ],
+    );
+  }
+
+  Widget _buildAddCategoryButton(BuildContext context, ProjectsProvider provider) {
+    return ActionChip(
+      label: Icon(
+        Icons.add_circle_outline,
+        size: 20,
+        color: AppColors.main,
+      ),
+      onPressed: () => _showAddProjectCategoryDialog(context, provider),
+      backgroundColor: AppColors.panelBackground,
+      side: BorderSide(
+        color: AppColors.main,
+        width: 1.5,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
     );
   }
 
@@ -491,6 +666,69 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ],
         );
       },
+    );
+  }
+
+  Future<void> _showAddProjectCategoryDialog(BuildContext context, ProjectsProvider provider) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => AddProjectCategoryDialog(
+        existingCategories: provider.categories,
+        onDeleteCategory: (category) {
+          _showDeleteProjectCategoryDialog(context, provider, category);
+        },
+      ),
+    );
+
+    if (result != null) {
+      debugPrint('✅ ProjectsPage: Category data received from dialog');
+
+      // Yeni kategori oluştur
+      final newCategory = ProjectCategoryModel(
+        id: 'proj_cat_${DateTime.now().millisecondsSinceEpoch}',
+        name: result['name'] as String,
+        iconCodePoint: result['iconCodePoint'] as int,
+        colorValue: result['colorValue'] as int,
+        createdAt: DateTime.now(),
+      );
+
+      await provider.addCategory(newCategory);
+
+      debugPrint('✅ ProjectsPage: New category created - ${newCategory.name}');
+    }
+  }
+
+  void _showDeleteProjectCategoryDialog(BuildContext context, ProjectsProvider provider, ProjectCategoryModel category) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(LocaleKeys.DeleteCategory.tr()),
+        content: Text(
+          LocaleKeys.DeleteCategoryConfirmation.tr(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(LocaleKeys.Cancel.tr()),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Dialog'u kapat
+              final success = await provider.deleteCategory(category.id);
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(LocaleKeys.CategoryDeleted.tr())),
+                );
+                debugPrint('✅ ProjectsPage: Category deleted - ${category.name}');
+              }
+            },
+            child: Text(
+              LocaleKeys.Delete.tr(),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

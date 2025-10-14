@@ -69,8 +69,14 @@ class _StorePageState extends State<StorePage> {
         ),
         body: storeItems.isEmpty
             ? _buildEmptyState()
-            : ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+            : GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.8,
+                ),
                 itemCount: storeItems.length,
                 itemBuilder: (context, index) {
                   return StoreItem(
