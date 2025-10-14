@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/day_item.dart';
 import 'package:next_level/Provider/home_view_model.dart';
-import 'package:next_level/Service/debug_helper.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
@@ -83,19 +81,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ),
                   ),
-                  // Debug button (temporary)
-                  if (kDebugMode)
-                    IconButton(
-                      icon: const Icon(
-                        Icons.bug_report,
-                        size: 20,
-                        color: AppColors.red,
-                      ),
-                      tooltip: 'Debug',
-                      onPressed: () async {
-                        await DebugHelper.runFullDebug();
-                      },
-                    ),
                 ],
               ),
             ),

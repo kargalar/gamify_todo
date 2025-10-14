@@ -10,7 +10,6 @@ import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/server_manager.dart';
-import 'package:next_level/Service/sync_manager.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 
 /// A centralized handler for task-related actions
@@ -18,7 +17,6 @@ class TaskActionHandler {
   /// Helper method to update task and sync to Firestore
   static void _updateTaskAndSync(TaskModel taskModel) {
     ServerManager().updateTask(taskModel: taskModel);
-    SyncManager().syncTask(taskModel);
   }
 
   /// Handles the primary action for a task based on its type
@@ -242,7 +240,6 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
-      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
@@ -265,7 +262,6 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
-      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 
@@ -318,7 +314,6 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
-      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
@@ -341,7 +336,6 @@ class TaskActionHandler {
 
       // Update task in provider
       ServerManager().updateTask(taskModel: taskModel);
-      SyncManager().syncTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 

@@ -97,11 +97,6 @@ dependencies:
   file_picker: ^8.1.7
   path: ^1.9.0
 
-  # Firebase
-  firebase_core: ^3.13.0
-  firebase_auth: ^5.5.2
-  cloud_firestore: ^5.6.6
-
   # URL Launcher
   url_launcher: ^6.3.1
 

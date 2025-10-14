@@ -1,0 +1,173 @@
+import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/General/app_colors.dart';
+
+/// Common category filter widget used across Tasks, Notes, and Projects pages
+class CategoryFilterWidget extends StatelessWidget {
+  final List<dynamic> categories;
+  final dynamic selectedCategoryId; // Can be int? or String?
+  final Function(dynamic) onCategorySelected;
+  final bool showAllOption;
+  final Map<dynamic, int>? itemCounts; // Optional count display
+  final Function(BuildContext, dynamic)? onCategoryLongPress; // Optional long press handler
+  final bool showIcons; // Whether to show category icons
+  final bool showColors; // Whether to show category colors
+
+  const CategoryFilterWidget({
+    super.key,
+    required this.categories,
+    required this.selectedCategoryId,
+    required this.onCategorySelected,
+    this.showAllOption = true,
+    this.itemCounts,
+    this.onCategoryLongPress,
+    this.showIcons = false,
+    this.showColors = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            // "All" option
+            if (showAllOption) ...[
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildAllChip(context),
+              ),
+            ],
+
+            // Categories
+            ...categories.map((category) {
+              final count = itemCounts?[category.id] ?? 0;
+              // Only show categories that have items (unless selected)
+              if (count == 0 && selectedCategoryId != category.id) {
+                return const SizedBox.shrink();
+              }
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildCategoryChip(context, category, count),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAllChip(BuildContext context) {
+    final isSelected = selectedCategoryId == null;
+    final totalCount = itemCounts?.values.fold(0, (sum, count) => sum + count) ?? 0;
+
+    return FilterChip(
+      selected: isSelected,
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showIcons) ...[
+            Icon(
+              Icons.all_inclusive,
+              size: 16,
+              color: isSelected ? Colors.white : AppColors.text,
+            ),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            LocaleKeys.All.tr(),
+            style: TextStyle(
+              color: isSelected ? Colors.white : AppColors.text,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          if (itemCounts != null) ...[
+            const SizedBox(width: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$totalCount',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.white : AppColors.text,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+      selectedColor: showColors ? AppColors.text : Theme.of(context).primaryColor.withValues(alpha: 0.2),
+      backgroundColor: AppColors.panelBackground,
+      checkmarkColor: Colors.white,
+      onSelected: (_) => onCategorySelected(null),
+    );
+  }
+
+  Widget _buildCategoryChip(BuildContext context, dynamic category, int count) {
+    final isSelected = selectedCategoryId == category.id;
+
+    final chip = FilterChip(
+      selected: isSelected,
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showIcons && category.iconCodePoint != null) ...[
+            Icon(
+              IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
+              size: 16,
+              color: isSelected ? Colors.white : (showColors && category.colorValue != null ? Color(category.colorValue) : AppColors.text),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            category.name ?? '',
+            style: TextStyle(
+              color: isSelected ? Colors.white : AppColors.text,
+            ),
+          ),
+          if (itemCounts != null) ...[
+            const SizedBox(width: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.white : AppColors.text,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+      selectedColor: showColors && category.colorValue != null ? Color(category.colorValue) : Theme.of(context).primaryColor.withValues(alpha: 0.2),
+      backgroundColor: showColors && category.colorValue != null ? Color(category.colorValue).withValues(alpha: 0.1) : Colors.grey[200],
+      checkmarkColor: Colors.white,
+      onSelected: (_) => onCategorySelected(category.id),
+    );
+
+    // Add long press handler if provided
+    if (onCategoryLongPress != null) {
+      return GestureDetector(
+        onLongPress: () => onCategoryLongPress!(context, category),
+        child: chip,
+      );
+    }
+
+    return chip;
+  }
+}

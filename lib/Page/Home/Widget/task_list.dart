@@ -10,6 +10,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 
 class TaskList extends StatefulWidget {
   const TaskList({super.key});
@@ -173,7 +174,11 @@ class _TaskListState extends State<TaskList> {
             child: Column(
               children: [
                 // Category filter
-                _buildCategoryFilter(),
+                CategoryFilterWidget(
+                  categories: vm.taskCategories,
+                  selectedCategoryId: vm.selectedCategoryId,
+                  onCategorySelected: (categoryId) => vm.setSelectedCategory(categoryId as int?),
+                ),
 
                 // Overdue tasks section (only on today's view) - minimalist spacing
                 if (isToday && overdueTasks.isNotEmpty) ...[
@@ -203,59 +208,6 @@ class _TaskListState extends State<TaskList> {
               ],
             ),
           );
-  }
-
-  Widget _buildCategoryFilter() {
-    final vm = context.read<HomeViewModel>();
-    final categories = vm.taskCategories;
-
-    return Container(
-      height: 50,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length + 1, // +1 for "All" option
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            // "All" option
-            final isSelected = vm.selectedCategoryId == null;
-            return Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: FilterChip(
-                label: Text(LocaleKeys.All.tr()),
-                selected: isSelected,
-                onSelected: (selected) {
-                  if (selected) {
-                    vm.setSelectedCategory(null);
-                  }
-                },
-                backgroundColor: Colors.grey[200],
-                selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                checkmarkColor: Theme.of(context).primaryColor,
-              ),
-            );
-          } else {
-            final category = categories[index - 1];
-            final isSelected = vm.selectedCategoryId == category.id;
-            return Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: FilterChip(
-                label: Text(category.name ?? ''),
-                selected: isSelected,
-                onSelected: (selected) {
-                  if (selected) {
-                    vm.setSelectedCategory(category.id);
-                  }
-                },
-                backgroundColor: Colors.grey[200],
-                selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                checkmarkColor: Theme.of(context).primaryColor,
-              ),
-            );
-          }
-        },
-      ),
-    );
   }
 
   Widget _buildArchivedContent(List<TaskModel> archivedTasks, List<dynamic> archivedRoutines) {

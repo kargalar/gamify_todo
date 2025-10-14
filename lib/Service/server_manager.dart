@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Model/category_model.dart';
-import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
-import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -17,8 +15,6 @@ class ServerManager {
   factory ServerManager() {
     return _instance;
   }
-
-  final OfflineModeProvider _offlineModeProvider = OfflineModeProvider();
 
   // static const String _baseUrl = 'http://localhost:3001';
   // static const String _baseUrl = 'http://192.168.1.21:3001';
@@ -240,19 +236,6 @@ class ServerManager {
 
     prefs.setInt("last_item_id", itemModel.id);
 
-    // Sync to Firebase immediately (only if offline mode is disabled)
-    if (!_offlineModeProvider.shouldDisableFirebase()) {
-      try {
-        await SyncManager().syncStoreItem(itemModel);
-        debugPrint('Store item synced to Firebase: ${itemModel.id}');
-      } catch (e) {
-        debugPrint('Error syncing store item to Firebase: $e');
-        // Don't throw error, item is saved locally
-      }
-    } else {
-      debugPrint('Offline mode enabled, skipping Firebase sync for item: ${itemModel.id}');
-    }
-
     return itemModel.id;
 
     // try {
@@ -287,19 +270,6 @@ class ServerManager {
     HiveService().addTrait(traitModel);
 
     prefs.setInt("last_trait_id", traitModel.id);
-
-    // Sync to Firebase immediately (only if offline mode is disabled)
-    if (!_offlineModeProvider.shouldDisableFirebase()) {
-      try {
-        await SyncManager().syncTrait(traitModel);
-        debugPrint('Trait synced to Firebase: ${traitModel.id}');
-      } catch (e) {
-        debugPrint('Error syncing trait to Firebase: $e');
-        // Don't throw error, trait is saved locally
-      }
-    } else {
-      debugPrint('Offline mode enabled, skipping Firebase sync for trait: ${traitModel.id}');
-    }
 
     return traitModel.id;
 
@@ -399,19 +369,6 @@ class ServerManager {
     // Update the last task ID in SharedPreferences
     await prefs.setInt("last_task_id", taskModel.id);
 
-    // Sync to Firebase immediately (only if offline mode is disabled)
-    if (!_offlineModeProvider.shouldDisableFirebase()) {
-      try {
-        await SyncManager().syncTask(taskModel);
-        debugPrint('Task synced to Firebase: ${taskModel.id}');
-      } catch (e) {
-        debugPrint('Error syncing task to Firebase: $e');
-        // Don't throw error, task is saved locally
-      }
-    } else {
-      debugPrint('Offline mode enabled, skipping Firebase sync for task: ${taskModel.id}');
-    }
-
     return taskModel.id;
   }
 
@@ -468,19 +425,6 @@ class ServerManager {
     // Save locally first
     HiveService().updateItem(itemModel);
 
-    // Sync to Firebase immediately (only if offline mode is disabled)
-    if (!_offlineModeProvider.shouldDisableFirebase()) {
-      try {
-        await SyncManager().syncStoreItem(itemModel);
-        debugPrint('Store item updated and synced to Firebase: ${itemModel.id}');
-      } catch (e) {
-        debugPrint('Error syncing updated store item to Firebase: $e');
-        // Don't throw error, item is saved locally
-      }
-    } else {
-      debugPrint('Offline mode enabled, skipping Firebase sync for updated item: ${itemModel.id}');
-    }
-
     // var response = await dio.put(
     //   "$_baseUrl/updateItem",
     //   data: itemModel.toJson(),
@@ -523,19 +467,6 @@ class ServerManager {
   }) async {
     // Save locally first
     HiveService().updateTask(taskModel);
-
-    // Sync to Firebase immediately (only if offline mode is disabled)
-    if (!_offlineModeProvider.shouldDisableFirebase()) {
-      try {
-        await SyncManager().syncTask(taskModel);
-        debugPrint('Task updated and synced to Firebase: ${taskModel.id}');
-      } catch (e) {
-        debugPrint('Error syncing updated task to Firebase: $e');
-        // Don't throw error, task is saved locally
-      }
-    } else {
-      debugPrint('Offline mode enabled, skipping Firebase sync for updated task: ${taskModel.id}');
-    }
 
     // var response = await dio.put(
     //   "$_baseUrl/updateTask",

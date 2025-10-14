@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
-import 'package:next_level/Service/auth_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 
 class ProfilePageTopSection extends StatefulWidget {
@@ -23,19 +21,7 @@ class _ProfilePageTopSectionState extends State<ProfilePageTopSection> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: AuthService().authStateChanges,
-      builder: (context, snapshot) {
-        // Debug loginUser
-        debugPrint('ProfilePageTopSection: StreamBuilder called');
-        debugPrint('ProfilePageTopSection: Firebase user = ${snapshot.data?.email}');
-        debugPrint('ProfilePageTopSection: loginUser = ${loginUser?.username}');
-        debugPrint('ProfilePageTopSection: loginUser email = ${loginUser?.email}');
-        debugPrint('ProfilePageTopSection: loginUser id = ${loginUser?.id}');
-
-        return _buildProfileContent();
-      },
-    );
+    return _buildProfileContent();
   }
 
   Widget _buildProfileContent() {

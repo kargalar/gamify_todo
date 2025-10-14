@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:next_level/Page/Login/modern_login_page.dart';
-import 'package:next_level/Service/hive_service.dart';
-import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:get/route_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NavigatorService {
   static final NavigatorService _instance = NavigatorService._internal();
@@ -44,24 +40,6 @@ class NavigatorService {
     if (isHome) {
       NavbarProvider().updateIndex(1);
     }
-  }
-
-  // delete mail and password on shared preferences and go to login page
-  void logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('email');
-    prefs.remove('password');
-
-    HiveService().deleteAllData(isLogout: true);
-
-    HomeWidgetService.resetHomeWidget();
-
-    Get.offUntil(
-      GetPageRoute(
-        page: () => const ModernLoginPage(),
-      ),
-      (route) => false,
-    );
   }
 }
 

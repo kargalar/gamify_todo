@@ -49,11 +49,21 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     setState(() => _isLoading = true);
     final provider = context.read<ProjectsProvider>();
 
+    // Get updated project from provider
+    final projects = provider.projects;
+    final updatedProject = projects.firstWhere(
+      (p) => p.id == _currentProject.id,
+      orElse: () => _currentProject,
+    );
+
     _subtasks = await provider.getProjectSubtasks(_currentProject.id);
     _notes = await provider.getProjectNotes(_currentProject.id);
 
-    setState(() => _isLoading = false);
-    debugPrint('📂 ProjectDetailPage: Loaded ${_subtasks.length} subtasks, ${_notes.length} notes');
+    setState(() {
+      _currentProject = updatedProject;
+      _isLoading = false;
+    });
+    debugPrint('📂 ProjectDetailPage: Loaded ${_subtasks.length} subtasks, ${_notes.length} notes for project: ${_currentProject.title}');
 
     // Check clipboard after loading data
     _checkClipboard();

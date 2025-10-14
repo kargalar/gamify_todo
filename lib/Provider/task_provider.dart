@@ -10,7 +10,6 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/home_widget_service.dart';
-import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -18,7 +17,6 @@ import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
-import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -147,9 +145,6 @@ class TaskProvider with ChangeNotifier {
     }
 
     taskList.add(taskModel);
-
-    // Sync to Firestore
-    await SyncManager().syncTask(taskModel);
 
     if (taskModel.time != null) {
       checkNotification(taskModel);
@@ -1088,13 +1083,6 @@ class TaskProvider with ChangeNotifier {
       // Delete the task from storage (this also calls HiveService().deleteTask())
       await ServerManager().deleteTask(id: taskID);
 
-      // Delete from Firestore only if offline mode is disabled
-      if (!OfflineModeProvider().shouldDisableFirebase()) {
-        SyncManager().deleteTaskFromFirestore(taskID);
-      } else {
-        debugPrint('Offline mode enabled, skipping Firestore deletion for task: $taskID');
-      }
-
       await HomeWidgetService.updateTaskCount();
 
       // Cancel any notifications for this task
@@ -1664,9 +1652,6 @@ class TaskProvider with ChangeNotifier {
       // Update in storage
       await ServerManager().updateTask(taskModel: task);
 
-      // Sync to Firebase
-      SyncManager().syncTask(task);
-
       // Update UI
       notifyListeners();
 
@@ -1913,9 +1898,6 @@ class TaskProvider with ChangeNotifier {
 
     ServerManager().updateTask(taskModel: taskModel);
 
-    // Sync to Firebase immediately
-    SyncManager().syncTask(taskModel);
-
     HomeWidgetService.updateAllWidgets();
 
     // Check task status for notifications
@@ -2025,9 +2007,6 @@ class TaskProvider with ChangeNotifier {
 
         // Update in storage
         ServerManager().updateTask(taskModel: task);
-
-        // Sync to Firebase immediately
-        SyncManager().syncTask(task);
 
         // Update notifications
         checkNotification(task);
@@ -2341,9 +2320,6 @@ class TaskProvider with ChangeNotifier {
         // Update in storage
         ServerManager().updateTask(taskModel: task);
 
-        // Sync to Firebase immediately
-        SyncManager().syncTask(task);
-
         // Update notifications
         checkNotification(task);
 
@@ -2434,9 +2410,6 @@ class TaskProvider with ChangeNotifier {
 
         // Update in storage
         ServerManager().updateTask(taskModel: task);
-
-        // Sync to Firebase immediately
-        SyncManager().syncTask(task);
 
         // Update notifications
         checkNotification(task);

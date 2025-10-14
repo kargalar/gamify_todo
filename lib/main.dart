@@ -1,17 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:next_level/Core/auth_wrapper.dart';
 import 'package:next_level/General/app_theme.dart';
 import 'package:next_level/General/init_app.dart';
-import 'package:next_level/Page/Login/modern_login_page.dart';
 import 'package:next_level/Page/navbar_page_manager.dart';
 import 'package:next_level/Service/product_localization.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
-import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
@@ -37,9 +34,6 @@ void main() async {
   final colorProvider = ColorProvider();
   await colorProvider.loadSavedColor();
 
-  // Get the already initialized OfflineModeProvider from initApp
-  final offlineModeProvider = OfflineModeProvider();
-
   // Initialize VacationModeProvider
   final vacationModeProvider = VacationModeProvider();
   await vacationModeProvider.initialize();
@@ -55,7 +49,6 @@ void main() async {
       ChangeNotifierProvider(create: (context) => TaskProvider()),
       ChangeNotifierProvider.value(value: taskStyleProvider),
       ChangeNotifierProvider.value(value: colorProvider),
-      ChangeNotifierProvider.value(value: offlineModeProvider),
       ChangeNotifierProvider.value(value: vacationModeProvider),
       ChangeNotifierProvider.value(value: streakSettingsProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
@@ -88,10 +81,9 @@ class Main extends StatelessWidget {
           theme: AppTheme().theme,
           debugShowCheckedModeBanner: false,
           showPerformanceOverlay: false,
-          home: const AuthWrapper(),
+          home: const NavbarPageManager(),
           routes: {
             '/main': (context) => const NavbarPageManager(),
-            '/login': (context) => const ModernLoginPage(),
           },
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,

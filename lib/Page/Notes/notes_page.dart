@@ -8,8 +8,9 @@ import 'package:next_level/Model/note_category_model.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
-import 'package:next_level/Widgets/Common/standard_app_bar.dart';
+import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Widgets/Common/standard_app_bar.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {
@@ -179,7 +180,25 @@ class _NotesPageState extends State<NotesPage> {
                 ),
 
               // Kategori filtreleme
-              _buildCategoryFilter(context, provider),
+              Row(
+                children: [
+                  Expanded(
+                    child: CategoryFilterWidget(
+                      categories: provider.categories,
+                      selectedCategoryId: provider.selectedCategoryId,
+                      onCategorySelected: (categoryId) => provider.selectCategory(categoryId as String?),
+                      itemCounts: provider.noteCounts,
+                      showIcons: true,
+                      showColors: true,
+                    ),
+                  ),
+                  // Yeni Kategori Ekle butonu
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: _buildAddCategoryButton(context, provider),
+                  ),
+                ],
+              ),
 
               // Notlar listesi
               Expanded(
@@ -188,134 +207,6 @@ class _NotesPageState extends State<NotesPage> {
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildCategoryFilter(BuildContext context, NotesProvider provider) {
-    final noteCounts = provider.noteCounts;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            // Tümü
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: FilterChip(
-                selected: provider.selectedCategory == null,
-                label: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.all_inclusive,
-                      size: 16,
-                      color: provider.selectedCategory == null ? Colors.white : AppColors.text,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      LocaleKeys.All.tr(),
-                      style: TextStyle(
-                        color: provider.selectedCategory == null ? Colors.white : AppColors.text,
-                        fontWeight: provider.selectedCategory == null ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: provider.selectedCategory == null ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '${provider.notes.length}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: provider.selectedCategory == null ? Colors.white : AppColors.text,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                selectedColor: AppColors.text,
-                backgroundColor: AppColors.panelBackground,
-                checkmarkColor: Colors.white,
-                onSelected: (_) => provider.selectCategory(null),
-              ),
-            ),
-
-            // Kategoriler
-            ...provider.categories.map((category) {
-              final count = noteCounts[category.id] ?? 0;
-              // Sadece notu olan kategorileri göster
-              if (count == 0 && provider.selectedCategoryId != category.id) {
-                return const SizedBox.shrink();
-              }
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
-                  onLongPress: () => _showEditCategoryDialog(context, provider, category),
-                  child: FilterChip(
-                    selected: provider.selectedCategoryId == category.id,
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
-                          size: 16,
-                          color: provider.selectedCategoryId == category.id ? Colors.white : Color(category.colorValue),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          category.name,
-                          style: TextStyle(
-                            color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: provider.selectedCategoryId == category.id ? Colors.white.withValues(alpha: 0.3) : AppColors.panelBackground2,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '$count',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    selectedColor: Color(category.colorValue),
-                    backgroundColor: Color(category.colorValue).withValues(alpha: 0.1),
-                    checkmarkColor: Colors.white,
-                    onSelected: (_) => provider.selectCategory(
-                      provider.selectedCategoryId == category.id ? null : category.id,
-                    ),
-                    labelStyle: TextStyle(
-                      color: provider.selectedCategoryId == category.id ? Colors.white : AppColors.text,
-                      fontWeight: provider.selectedCategoryId == category.id ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                ),
-              );
-            }),
-
-            // Yeni Kategori Ekle butonu
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: _buildAddCategoryButton(context, provider),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -605,28 +496,5 @@ class _NotesPageState extends State<NotesPage> {
         );
       },
     );
-  }
-
-  void _showEditCategoryDialog(BuildContext context, NotesProvider provider, NoteCategoryModel category) {
-    showDialog(
-      context: context,
-      builder: (context) => AddCategoryDialog(
-        existingCategories: provider.categories,
-        editingCategory: category,
-        onDeleteCategory: (category) async {
-          // This won't be called since we're editing
-        },
-      ),
-    ).then((result) {
-      if (result != null) {
-        // Update category
-        final updatedCategory = category.copyWith(
-          name: result['name'],
-          colorValue: result['colorValue'],
-          iconCodePoint: result['iconCodePoint'],
-        );
-        provider.updateCategory(updatedCategory);
-      }
-    });
   }
 }

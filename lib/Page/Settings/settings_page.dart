@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/Widgets/language_pop.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
@@ -10,11 +9,9 @@ import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
 import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
-import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
-import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -175,27 +172,7 @@ class SettingsPage extends StatelessWidget {
                 NavigatorService().goTo(const FileStorageManagementPage());
               },
             ),
-            // Cloud Sync section - only show if user is logged in and offline mode is disabled
-            if (loginUser != null) ...[
-              Consumer<OfflineModeProvider>(
-                builder: (context, offlineModeProvider, child) {
-                  // Show sync option only if offline mode is disabled
-                  if (!offlineModeProvider.isOfflineModeEnabled) {
-                    return _settingsOption(
-                      title: LocaleKeys.DataSyncTitle.tr(),
-                      subtitle: LocaleKeys.DataSyncDescription.tr(),
-                      icon: Icons.cloud_sync,
-                      onTap: () {
-                        _showSyncDialog(context);
-                      },
-                    );
-                  } else {
-                    // Return empty widget when offline mode is enabled
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            ],
+
             _settingsOption(
               title: LocaleKeys.ContactUs.tr(),
               subtitle: LocaleKeys.ContactUsSubtitle.tr(),
@@ -317,181 +294,5 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _showSyncDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => _SyncDialog(),
-    );
-  }
-}
-
-class _SyncDialog extends StatefulWidget {
-  @override
-  _SyncDialogState createState() => _SyncDialogState();
-}
-
-class _SyncDialogState extends State<_SyncDialog> {
-  final SyncManager _syncManager = SyncManager();
-  bool _isSyncing = false;
-  String _statusMessage = '';
-  DateTime? _lastSyncTime;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLastSyncTime();
-  }
-
-  Future<void> _loadLastSyncTime() async {
-    final lastSync = await _syncManager.getLastSyncTime();
-    setState(() {
-      _lastSyncTime = lastSync;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(LocaleKeys.DataSyncTitle.tr()),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              LocaleKeys.DataSyncDescription.tr(),
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.text.withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (_lastSyncTime != null) ...[
-              Row(
-                children: [
-                  Icon(Icons.schedule, size: 16, color: AppColors.text.withValues(alpha: 0.6)),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${LocaleKeys.LastSync.tr()}: ${DateFormat('dd.MM.yyyy HH:mm').format(_lastSyncTime!)}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.text.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-            if (_statusMessage.isNotEmpty) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    if (_isSyncing)
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else
-                      Icon(
-                        Icons.info,
-                        size: 16,
-                        color: AppColors.main,
-                      ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _statusMessage,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            // Sync Button (tek buton)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _isSyncing ? null : _syncData,
-                icon: _isSyncing
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.sync),
-                label: Text(_isSyncing ? LocaleKeys.SyncInProgress.tr() : LocaleKeys.SyncNow.tr()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.main,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              LocaleKeys.SyncNote.tr(),
-              style: TextStyle(
-                fontSize: 11,
-                color: AppColors.text.withValues(alpha: 0.6),
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(LocaleKeys.Close.tr()),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _syncData() async {
-    // Check if offline mode is enabled
-    if (OfflineModeProvider().shouldDisableFirebase()) {
-      setState(() {
-        _statusMessage = LocaleKeys.OfflineModeSyncDisabled.tr();
-      });
-      return;
-    }
-
-    setState(() {
-      _isSyncing = true;
-      _statusMessage = LocaleKeys.SyncingData.tr();
-    });
-
-    try {
-      // Önce local verileri upload et, sonra güncellemeleri download et
-      final uploadSuccess = await _syncManager.performFullUpload();
-      final downloadSuccess = await _syncManager.performFullDownload();
-
-      final allSuccess = uploadSuccess && downloadSuccess;
-
-      setState(() {
-        _isSyncing = false;
-        _statusMessage = allSuccess ? LocaleKeys.SyncSuccess.tr() : LocaleKeys.SyncError.tr();
-      });
-
-      if (allSuccess) {
-        await _loadLastSyncTime();
-      }
-    } catch (e) {
-      setState(() {
-        _isSyncing = false;
-        _statusMessage = 'SyncErrorWithMessage'.tr(args: [e.toString()]);
-      });
-    }
   }
 }
