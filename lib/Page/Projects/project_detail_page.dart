@@ -46,15 +46,23 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
 
   Future<void> _loadProjectData() async {
+    debugPrint('🔄 ProjectDetailPage: Starting to load data for project: ${_currentProject.id}');
     setState(() => _isLoading = true);
     final provider = context.read<ProjectsProvider>();
 
     // Get updated project from provider
     final projects = provider.projects;
+    debugPrint('📊 ProjectDetailPage: Provider has ${projects.length} projects');
+
     final updatedProject = projects.firstWhere(
       (p) => p.id == _currentProject.id,
-      orElse: () => _currentProject,
+      orElse: () {
+        debugPrint('❌ ProjectDetailPage: Project not found in provider, using original');
+        return _currentProject;
+      },
     );
+
+    debugPrint('📂 ProjectDetailPage: Found project: ${updatedProject.title}');
 
     _subtasks = await provider.getProjectSubtasks(_currentProject.id);
     _notes = await provider.getProjectNotes(_currentProject.id);
@@ -238,6 +246,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🏗️ ProjectDetailPage: Building UI for project: ${_currentProject.title}');
+    debugPrint('📊 ProjectDetailPage: Current project - ID: ${_currentProject.id}, Title: ${_currentProject.title}, Description: ${_currentProject.description}');
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -359,6 +370,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
 
   Widget _buildProjectInfoCard() {
+    debugPrint('🎴 ProjectDetailPage: Building project info card for: ${_currentProject.title}');
+
     return InkWell(
       onTap: () {
         // Proje adı ve bilgilerini düzenle
@@ -564,128 +577,119 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              Builder(
-                builder: (context) {
-                  return Column(
-                    children: [
-                      // Counter update
-                      if (_subtasks.isNotEmpty) ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppColors.green.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '$completedCount/$totalCount',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.green,
-                            ),
-                          ),
-                        ),
+              if (_subtasks.isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.green.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$completedCount/$totalCount',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.green,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              const Spacer(),
+              // Three dot menu
+              PopupMenuButton(
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'copy all',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.content_copy, size: 18),
                         const SizedBox(width: 8),
+                        Text(LocaleKeys.CopyAll.tr()),
                       ],
-                      const Spacer(),
-                      // Three dot menu
-                      PopupMenuButton(
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'copy all',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.content_copy, size: 18),
-                                const SizedBox(width: 8),
-                                Text(LocaleKeys.CopyAll.tr()),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'copy incomplete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.content_copy, size: 18),
-                                const SizedBox(width: 8),
-                                Text(LocaleKeys.CopyIncomplete.tr()),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'show only incomplete',
-                            child: Row(
-                              children: [
-                                Icon(_showOnlyIncomplete ? Icons.visibility_off : Icons.visibility, size: 18),
-                                const SizedBox(width: 8),
-                                Text(_showOnlyIncomplete ? 'Show All' : 'Show Incomplete Only'),
-                              ],
-                            ),
-                          ),
-                          if (hasClipboardData)
-                            PopupMenuItem(
-                              value: 'paste',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.content_paste, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(LocaleKeys.Paste.tr()),
-                                ],
-                              ),
-                            ),
-                          if (_subtasks.isNotEmpty)
-                            PopupMenuItem(
-                              value: 'complete all',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.done_all, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(LocaleKeys.CompleteAll.tr()),
-                                ],
-                              ),
-                            ),
-                          if (_subtasks.isNotEmpty)
-                            PopupMenuItem(
-                              value: 'clear all',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.clear_all, size: 18, color: Colors.red),
-                                  const SizedBox(width: 8),
-                                  Text(LocaleKeys.ClearAll.tr(), style: const TextStyle(color: Colors.red)),
-                                ],
-                              ),
-                            ),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'copy incomplete',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.content_copy, size: 18),
+                        const SizedBox(width: 8),
+                        Text(LocaleKeys.CopyIncomplete.tr()),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'show only incomplete',
+                    child: Row(
+                      children: [
+                        Icon(_showOnlyIncomplete ? Icons.visibility_off : Icons.visibility, size: 18),
+                        const SizedBox(width: 8),
+                        Text(_showOnlyIncomplete ? 'Show All' : 'Show Incomplete Only'),
+                      ],
+                    ),
+                  ),
+                  if (hasClipboardData)
+                    PopupMenuItem(
+                      value: 'paste',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.content_paste, size: 18),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.Paste.tr()),
                         ],
-                        onSelected: (value) {
-                          switch (value) {
-                            case 'copy all':
-                              _copyAllSubtasks();
-                              break;
-                            case 'copy incomplete':
-                              _copyIncompleteSubtasks();
-                              break;
-                            case 'show only incomplete':
-                              _toggleShowOnlyIncomplete();
-                              break;
-                            case 'paste':
-                              _pasteSubtasks();
-                              break;
-                            case 'complete all':
-                              _completeAllSubtasks();
-                              break;
-                            case 'clear all':
-                              _clearAllSubtasks();
-                              break;
-                          }
-                        },
                       ),
-                      IconButton(
-                        icon: Icon(Icons.add, size: 18, color: AppColors.main),
-                        onPressed: _addSubtask,
-                        tooltip: LocaleKeys.AddTask.tr(),
+                    ),
+                  if (_subtasks.isNotEmpty)
+                    PopupMenuItem(
+                      value: 'complete all',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.done_all, size: 18),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.CompleteAll.tr()),
+                        ],
                       ),
-                    ],
-                  );
+                    ),
+                  if (_subtasks.isNotEmpty)
+                    PopupMenuItem(
+                      value: 'clear all',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.clear_all, size: 18, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text(LocaleKeys.ClearAll.tr(), style: const TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                ],
+                onSelected: (value) {
+                  switch (value) {
+                    case 'copy all':
+                      _copyAllSubtasks();
+                      break;
+                    case 'copy incomplete':
+                      _copyIncompleteSubtasks();
+                      break;
+                    case 'show only incomplete':
+                      _toggleShowOnlyIncomplete();
+                      break;
+                    case 'paste':
+                      _pasteSubtasks();
+                      break;
+                    case 'complete all':
+                      _completeAllSubtasks();
+                      break;
+                    case 'clear all':
+                      _clearAllSubtasks();
+                      break;
+                  }
                 },
+              ),
+              IconButton(
+                icon: Icon(Icons.add, size: 18, color: AppColors.main),
+                onPressed: _addSubtask,
+                tooltip: LocaleKeys.AddTask.tr(),
               ),
             ],
           ),
