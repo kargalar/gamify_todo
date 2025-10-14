@@ -6,8 +6,6 @@ import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 import 'package:next_level/Page/Inbox/Widget/date_filter_state.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
-import 'package:next_level/Provider/notes_provider.dart';
-import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -41,108 +39,44 @@ class InboxCategoriesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
     final taskProvider = context.watch<TaskProvider>();
-    final notesProvider = context.watch<NotesProvider>();
-    final projectsProvider = context.watch<ProjectsProvider>();
     final categories = categoryProvider.getActiveCategories();
 
-    // Group categories by type
+    // SADECE TASK KATEGORİLERİNİ GÖSTER (Inbox sadece task'lar için)
     final taskCategories = categories.where((cat) => cat.categoryType == CategoryType.task).toList();
-    final noteCategories = categories.where((cat) => cat.categoryType == CategoryType.note).toList();
-    final projectCategories = categories.where((cat) => cat.categoryType == CategoryType.project).toList();
 
-    // Calculate counts for each category by type
+    // Calculate counts for task categories only
     final Map<dynamic, int> itemCounts = {};
-    for (final category in categories) {
-      int count = 0;
-
-      switch (category.categoryType) {
-        case CategoryType.task:
-          final tasks = taskProvider.getTasksByCategoryId(category.id);
-          final filteredTasks = _applyFilters(tasks, forCategory: category);
-          count = filteredTasks.length;
-          break;
-        case CategoryType.note:
-          final notes = notesProvider.notes.where((note) => note.categoryId == category.id).toList();
-          count = notes.length;
-          break;
-        case CategoryType.project:
-          final projects = projectsProvider.projects.where((project) => project.categoryId == category.id).toList();
-          count = projects.length;
-          break;
-      }
-
-      itemCounts[category.id] = count;
+    for (final category in taskCategories) {
+      final tasks = taskProvider.getTasksByCategoryId(category.id);
+      final filteredTasks = _applyFilters(tasks, forCategory: category);
+      itemCounts[category.id] = filteredTasks.length;
     }
 
-    // Calculate total count for "All" option
+    // Calculate total count for "All" option (only tasks)
     final allTasks = taskProvider.getAllTasks();
     final filteredAllTasks = _applyFilters(allTasks, forCategory: null);
     final totalTaskCount = filteredAllTasks.length;
 
-    final allNotes = notesProvider.notes;
-    final allProjects = projectsProvider.projects;
-
-    final totalCount = totalTaskCount + allNotes.length + allProjects.length;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Task Categories
-        if (taskCategories.isNotEmpty) ...[
-          _buildCategorySection(
-            context,
-            'Tasks',
-            taskCategories,
-            itemCounts,
-            Icons.task,
-            Colors.blue,
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Note Categories
-        if (noteCategories.isNotEmpty) ...[
-          _buildCategorySection(
-            context,
-            'Notes',
-            noteCategories,
-            itemCounts,
-            Icons.note,
-            Colors.green,
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Project Categories
-        if (projectCategories.isNotEmpty) ...[
-          _buildCategorySection(
-            context,
-            'Projects',
-            projectCategories,
-            itemCounts,
-            Icons.folder,
-            Colors.orange,
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // All Categories (fallback if no typed categories)
-        if (taskCategories.isEmpty && noteCategories.isEmpty && projectCategories.isEmpty)
+        // Only show task categories in Inbox
+        if (taskCategories.isNotEmpty)
           CategoryFilterWidget(
-            categories: categories,
+            categories: taskCategories,
             selectedCategoryId: selectedCategory?.id,
             onCategorySelected: (categoryId) {
               if (categoryId == null) {
                 onCategorySelected(null);
               } else {
-                final category = categories.firstWhere((cat) => cat.id == categoryId);
+                final category = taskCategories.firstWhere((cat) => cat.id == categoryId);
                 onCategorySelected(category);
               }
             },
             showAllOption: true,
             itemCounts: {
               ...itemCounts,
-              null: totalCount,
+              null: totalTaskCount,
             },
             onCategoryLongPress: (context, category) {
               showModalBottomSheet(
@@ -156,81 +90,9 @@ class InboxCategoriesSection extends StatelessWidget {
             showIcons: false,
             showColors: true,
             showAddButton: true,
-            onAddCategory: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                barrierColor: Colors.transparent,
-                builder: (context) => const CreateCategoryBottomSheet(
-                  initialCategoryType: CategoryType.task,
-                ),
-              );
-            },
+            categoryType: CategoryType.task,
             showEmptyCategories: true,
           ),
-      ],
-    );
-  }
-
-  Widget _buildCategorySection(
-    BuildContext context,
-    String title,
-    List<CategoryModel> categories,
-    Map<dynamic, int> itemCounts,
-    IconData icon,
-    Color color,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Categories
-        CategoryFilterWidget(
-          categories: categories,
-          selectedCategoryId: selectedCategory?.id,
-          onCategorySelected: (categoryId) {
-            if (categoryId == null) {
-              onCategorySelected(null);
-            } else {
-              final category = categories.firstWhere((cat) => cat.id == categoryId);
-              onCategorySelected(category);
-            }
-          },
-          showAllOption: false,
-          itemCounts: itemCounts,
-          onCategoryLongPress: (context, category) {
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              barrierColor: Colors.transparent,
-              builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
-            );
-          },
-          showIcons: false,
-          showColors: true,
-          showAddButton: false,
-          showEmptyCategories: true,
-        ),
       ],
     );
   }

@@ -225,12 +225,22 @@ class HiveService {
 
   Future<void> updateCategory(CategoryModel categoryModel) async {
     final box = await _categoryBox;
+    // Önce eski kaydı sil, sonra yenisini ekle (HiveObject duplicate key hatasını önlemek için)
+    await box.delete(categoryModel.id);
     await box.put(categoryModel.id, categoryModel);
   }
 
   Future<void> deleteCategory(String id) async {
     final box = await _categoryBox;
+    debugPrint('🗑️ HiveService: Deleting category with ID: $id');
     await box.delete(id);
+    
+    // Verify deletion
+    if (!box.containsKey(id)) {
+      debugPrint('✅ HiveService: Category $id successfully deleted from Hive');
+    } else {
+      debugPrint('❌ HiveService: Category $id still exists in Hive after deletion attempt');
+    }
   }
 
   Future<void> clearCategoryBox() async {

@@ -180,37 +180,27 @@ class _NotesPageState extends State<NotesPage> {
                 ),
 
               // Kategori filtreleme
-              Row(
-                children: [
-                  Expanded(
-                    child: CategoryFilterWidget(
-                      categories: provider.categories,
-                      selectedCategoryId: provider.selectedCategoryId,
-                      onCategorySelected: (categoryId) => provider.selectCategory(categoryId as String?),
-                      itemCounts: provider.noteCounts,
-                      onCategoryLongPress: (context, category) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AddCategoryDialog(
-                            existingCategories: provider.categories,
-                            editingCategory: category,
-                            onDeleteCategory: (deletedCategory) {
-                              provider.deleteCategory(deletedCategory.id);
-                            },
-                          ),
-                        );
+              CategoryFilterWidget(
+                categories: provider.categories,
+                selectedCategoryId: provider.selectedCategoryId,
+                onCategorySelected: (categoryId) => provider.selectCategory(categoryId as String?),
+                itemCounts: provider.noteCounts,
+                onCategoryLongPress: (context, category) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AddCategoryDialog(
+                      existingCategories: provider.categories,
+                      editingCategory: category,
+                      onDeleteCategory: (deletedCategory) {
+                        provider.deleteCategory(deletedCategory.id);
                       },
-                      showIcons: true,
-                      showColors: true,
-                      showAddButton: false,
                     ),
-                  ),
-                  // Yeni Kategori Ekle butonu
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: _buildAddCategoryButton(context, provider),
-                  ),
-                ],
+                  );
+                },
+                showIcons: true,
+                showColors: true,
+                showAddButton: true,
+                categoryType: CategoryType.note,
               ),
 
               // Notlar listesi
@@ -220,26 +210,6 @@ class _NotesPageState extends State<NotesPage> {
             ],
           );
         },
-      ),
-    );
-  }
-
-  /// Yeni kategori ekleme butonu
-  Widget _buildAddCategoryButton(BuildContext context, NotesProvider provider) {
-    return ActionChip(
-      label: Icon(
-        Icons.add_circle_outline,
-        size: 20,
-        color: AppColors.main,
-      ),
-      onPressed: () => _showAddCategoryDialog(context, provider),
-      backgroundColor: AppColors.panelBackground,
-      side: BorderSide(
-        color: AppColors.main,
-        width: 1.5,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
       ),
     );
   }
@@ -259,13 +229,14 @@ class _NotesPageState extends State<NotesPage> {
     if (result != null) {
       debugPrint('✅ NotesPage: Category data received from dialog');
 
-      // Yeni kategori oluştur
+      // Yeni kategori oluştur (NOTE TİPİNDE)
       final newCategory = CategoryModel(
         id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
         title: result['name'] as String,
         iconCodePoint: result['iconCodePoint'] as int,
         color: Color(result['colorValue'] as int),
         createdAt: DateTime.now(),
+        categoryType: CategoryType.note,
       );
 
       await provider.addCategory(newCategory);

@@ -222,6 +222,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
         iconCodePoint: result['iconCodePoint'] as int,
         color: Color(result['colorValue'] as int),
         createdAt: DateTime.now(),
+        categoryType: CategoryType.note,
       );
 
       await onCategoryAdded(newCategory);

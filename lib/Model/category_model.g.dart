@@ -6,6 +6,46 @@ part of 'category_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
+class CategoryTypeAdapter extends TypeAdapter<CategoryType> {
+  @override
+  final int typeId = 15;
+
+  @override
+  CategoryType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return CategoryType.task;
+      case 1:
+        return CategoryType.note;
+      case 2:
+        return CategoryType.project;
+      default:
+        return CategoryType.task;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, CategoryType obj) {
+    switch (obj) {
+      case CategoryType.task:
+        writer.writeByte(0);
+        break;
+      case CategoryType.note:
+        writer.writeByte(1);
+        break;
+      case CategoryType.project:
+        writer.writeByte(2);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is CategoryTypeAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+}
+
 class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
   @override
   final int typeId = 7;

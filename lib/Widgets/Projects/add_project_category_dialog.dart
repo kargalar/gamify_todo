@@ -96,6 +96,7 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
       color: _selectedColor,
       iconCodePoint: _selectedIcon.codePoint,
       createdAt: DateTime.now(),
+      categoryType: CategoryType.project,
     );
 
     final success = await provider.addCategory(newCategory);

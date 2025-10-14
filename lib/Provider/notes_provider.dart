@@ -108,9 +108,10 @@ class NotesProvider with ChangeNotifier {
       await CategoryProvider().initialize();
 
       _notes = await _notesService.getNotes();
-      _categories = CategoryProvider().categoryList;
+      // SADECE NOTE TİPİNDEKİ KATEGORİLERİ YÜKLEYELİM
+      _categories = CategoryProvider().categoryList.where((cat) => cat.categoryType == CategoryType.note).toList();
 
-      debugPrint('✅ NotesProvider: Loaded ${_notes.length} notes and ${_categories.length} categories');
+      debugPrint('✅ NotesProvider: Loaded ${_notes.length} notes and ${_categories.length} note categories');
     } catch (e) {
       debugPrint('❌ NotesProvider: Error loading data: $e');
       _setError('Veriler yüklenirken hata oluştu: $e');
@@ -332,14 +333,16 @@ class NotesProvider with ChangeNotifier {
       // Bu kategoriye ait notları kontrol et
       final notesInCategory = _notes.where((note) => note.categoryId == categoryId).toList();
       if (notesInCategory.isNotEmpty) {
-        debugPrint('⚠️ NotesProvider: Category has ${notesInCategory.length} notes');
-        _setError('Bu kategoride ${notesInCategory.length} not var. Önce notları silin.');
-        return false;
+        debugPrint('⚠️ NotesProvider: Category has ${notesInCategory.length} notes, deleting them first');
+        // Kategoriye ait tüm notları sil
+        for (final note in notesInCategory) {
+          await _notesService.deleteNote(note.id);
+        }
       }
 
       final category = CategoryProvider().getCategoryById(categoryId);
       if (category != null) {
-        CategoryProvider().deleteCategory(category);
+        await CategoryProvider().deleteCategory(category);
         if (_selectedCategoryId == categoryId) {
           _selectedCategoryId = null;
         }
@@ -347,6 +350,7 @@ class NotesProvider with ChangeNotifier {
         debugPrint('✅ NotesProvider: Category deleted successfully');
         return true;
       } else {
+        debugPrint('❌ NotesProvider: Category not found');
         _setError('Kategori bulunamadı');
         return false;
       }

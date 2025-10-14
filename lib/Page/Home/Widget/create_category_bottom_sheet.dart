@@ -27,6 +27,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
   final TextEditingController categoryTitleController = TextEditingController();
   Color selectedColor = AppColors.main;
   CategoryType selectedCategoryType = CategoryType.task;
+  IconData selectedIcon = Icons.category;
 
   @override
   void initState() {
@@ -35,6 +36,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       categoryTitleController.text = widget.categoryModel!.title;
       selectedColor = widget.categoryModel!.color;
       selectedCategoryType = widget.categoryModel!.categoryType;
+      if (widget.categoryModel!.iconCodePoint != null) {
+        selectedIcon = IconData(widget.categoryModel!.iconCodePoint!, fontFamily: 'MaterialIcons');
+      }
     } else if (widget.initialCategoryType != null) {
       selectedCategoryType = widget.initialCategoryType!;
     }
@@ -142,6 +146,20 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
 
             // Color Picker
             _buildColorPicker(),
+            const SizedBox(height: 20),
+
+            // Icon Picker Label
+            const Text(
+              'Select Icon',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Icon Picker
+            _buildIconPicker(),
             const SizedBox(height: 20),
 
             // Category Type Selector
@@ -302,6 +320,107 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
     );
   }
 
+  Widget _buildIconPicker() {
+    final List<IconData> icons = [
+      Icons.category,
+      Icons.work,
+      Icons.home,
+      Icons.school,
+      Icons.shopping_cart,
+      Icons.fitness_center,
+      Icons.restaurant,
+      Icons.local_cafe,
+      Icons.flight,
+      Icons.beach_access,
+      Icons.music_note,
+      Icons.movie,
+      Icons.sports_soccer,
+      Icons.pets,
+      Icons.favorite,
+      Icons.star,
+      Icons.lightbulb,
+      Icons.palette,
+      Icons.code,
+      Icons.computer,
+      Icons.phone,
+      Icons.email,
+      Icons.chat,
+      Icons.notifications,
+      Icons.calendar_today,
+      Icons.event,
+      Icons.alarm,
+      Icons.access_time,
+      Icons.attach_money,
+      Icons.account_balance,
+      Icons.credit_card,
+      Icons.local_hospital,
+      Icons.medical_services,
+      Icons.healing,
+      Icons.directions_car,
+      Icons.directions_bike,
+      Icons.directions_bus,
+      Icons.train,
+      Icons.local_shipping,
+      Icons.book,
+      Icons.menu_book,
+      Icons.library_books,
+      Icons.article,
+      Icons.description,
+      Icons.folder,
+      Icons.folder_open,
+      Icons.insert_drive_file,
+      Icons.cloud,
+      Icons.cloud_upload,
+      Icons.cloud_download,
+    ];
+
+    return SizedBox(
+      height: 50,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: icons.map((icon) {
+          final isSelected = selectedIcon.codePoint == icon.codePoint;
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedIcon = icon;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: isSelected ? 50 : 40,
+                height: isSelected ? 50 : 40,
+                decoration: BoxDecoration(
+                  color: isSelected ? selectedColor.withValues(alpha: 0.2) : AppColors.panelBackground,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isSelected ? selectedColor : Colors.grey.shade300,
+                    width: isSelected ? 2 : 1,
+                  ),
+                  boxShadow: [
+                    if (isSelected)
+                      BoxShadow(
+                        color: selectedColor.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected ? selectedColor : AppColors.text,
+                  size: isSelected ? 24 : 20,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildCategoryTypePicker() {
     final List<Map<String, dynamic>> categoryTypes = [
       {
@@ -324,6 +443,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       },
     ];
 
+    // Düzenleme modundaysa tip değiştirilemez
+    final bool isEditing = widget.categoryModel != null;
+
     return SizedBox(
       height: 60,
       child: ListView(
@@ -333,40 +455,45 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
           return Padding(
             padding: const EdgeInsets.only(right: 12),
             child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedCategoryType = typeData['type'];
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? typeData['color'].withValues(alpha: 0.1) : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? typeData['color'] : Colors.grey.shade300,
-                    width: 2,
+              onTap: isEditing
+                  ? null
+                  : () {
+                      setState(() {
+                        selectedCategoryType = typeData['type'];
+                      });
+                    },
+              child: Opacity(
+                opacity: isEditing && !isSelected ? 0.3 : 1.0,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? typeData['color'].withValues(alpha: 0.1) : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected ? typeData['color'] : Colors.grey.shade300,
+                      width: 2,
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      typeData['icon'],
-                      color: isSelected ? typeData['color'] : Colors.grey.shade600,
-                      size: 20,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      typeData['label'],
-                      style: TextStyle(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        typeData['icon'],
                         color: isSelected ? typeData['color'] : Colors.grey.shade600,
-                        fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        size: 20,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        typeData['label'],
+                        style: TextStyle(
+                          color: isSelected ? typeData['color'] : Colors.grey.shade600,
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -393,6 +520,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         id: '',
         title: categoryTitleController.text.trim(),
         color: selectedColor,
+        iconCodePoint: selectedIcon.codePoint,
         categoryType: selectedCategoryType,
       );
       categoryProvider.addCategory(newCategory);
@@ -401,10 +529,11 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
       addTaskProvider.updateCategory(newCategory.id);
     } else {
-      // Update existing category
+      // Update existing category (categoryType DEĞİŞTİRİLMEZ)
       widget.categoryModel!.title = categoryTitleController.text.trim();
       widget.categoryModel!.color = selectedColor;
-      widget.categoryModel!.categoryType = selectedCategoryType;
+      widget.categoryModel!.iconCodePoint = selectedIcon.codePoint;
+      // categoryType değiştirilmez - hangi sayfada oluşturulduysa öyle kalır
       categoryProvider.updateCategory(widget.categoryModel!);
     }
 

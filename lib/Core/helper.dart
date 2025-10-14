@@ -52,6 +52,7 @@ class Helper {
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(TraitModelAdapter());
     Hive.registerAdapter(SubTaskModelAdapter());
+    Hive.registerAdapter(CategoryTypeAdapter());
     Hive.registerAdapter(CategoryModelAdapter());
     Hive.registerAdapter(NoteModelAdapter());
     Hive.registerAdapter(ProjectModelAdapter());

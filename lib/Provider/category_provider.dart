@@ -50,10 +50,14 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteCategory(CategoryModel categoryModel) async {
+  Future<void> deleteCategory(CategoryModel categoryModel) async {
+    debugPrint('🗑️ CategoryProvider: Deleting category ${categoryModel.id}');
+    
     await ServerManager().deleteCategory(categoryModel: categoryModel);
 
     categoryList.removeWhere((category) => category.id == categoryModel.id);
+    
+    debugPrint('✅ CategoryProvider: Category deleted, remaining: ${categoryList.length}');
 
     notifyListeners();
   }

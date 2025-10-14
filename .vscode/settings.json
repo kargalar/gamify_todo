@@ -6,5 +6,6 @@
             "group": "Default"
         }
     ],
-    "favorites.sortOrder": "ASC"
+    "favorites.sortOrder": "ASC",
+    "CodeGPT.apiKey": "Gemini CLI"
 }

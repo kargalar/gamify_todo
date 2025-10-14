@@ -49,8 +49,9 @@ class ProjectsProvider with ChangeNotifier {
       debugPrint('📡 ProjectsProvider: Loading categories');
       final categoryProvider = CategoryProvider();
       await categoryProvider.initialize();
-      _categories = categoryProvider.getActiveCategories();
-      debugPrint('✅ ProjectsProvider: Loaded ${_categories.length} categories');
+      // SADECE PROJECT TİPİNDEKİ KATEGORİLERİ YÜKLEYELİM
+      _categories = categoryProvider.getActiveCategories().where((cat) => cat.categoryType == CategoryType.project).toList();
+      debugPrint('✅ ProjectsProvider: Loaded ${_categories.length} project categories');
       notifyListeners();
     } catch (e) {
       debugPrint('❌ ProjectsProvider: Error loading categories: $e');
@@ -104,14 +105,32 @@ class ProjectsProvider with ChangeNotifier {
   /// Delete category
   Future<bool> deleteCategory(String categoryId) async {
     try {
+      debugPrint('🗑️ ProjectsProvider: Deleting category: $categoryId');
+      
+      // Bu kategoriye ait projeleri kontrol et
+      final projectsInCategory = _projects.where((project) => project.categoryId == categoryId).toList();
+      if (projectsInCategory.isNotEmpty) {
+        debugPrint('⚠️ ProjectsProvider: Category has ${projectsInCategory.length} projects, deleting them first');
+        // Kategoriye ait tüm projeleri sil
+        for (final project in projectsInCategory) {
+          await deleteProject(project.id);
+        }
+      }
+      
       final category = getCategoryById(categoryId);
       if (category != null) {
         final categoryProvider = CategoryProvider();
-        categoryProvider.deleteCategory(category);
+        await categoryProvider.deleteCategory(category);
+        if (_selectedCategoryId == categoryId) {
+          _selectedCategoryId = null;
+        }
         await loadCategories();
         debugPrint('✅ ProjectsProvider: Category deleted successfully');
+        return true;
+      } else {
+        debugPrint('❌ ProjectsProvider: Category not found');
+        return false;
       }
-      return true;
     } catch (e) {
       debugPrint('❌ ProjectsProvider: Error deleting category: $e');
       return false;

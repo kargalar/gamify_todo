@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Widgets/Projects/project_card.dart';
@@ -138,34 +139,24 @@ class _ProjectsPageState extends State<ProjectsPage> {
           return Column(
             children: [
               // Kategori filtresi
-              Row(
-                children: [
-                  Expanded(
-                    child: CategoryFilterWidget(
-                      categories: provider.categories,
-                      selectedCategoryId: provider.selectedCategoryId,
-                      onCategorySelected: (categoryId) => provider.setSelectedCategory(categoryId as String?),
-                      itemCounts: provider.projectCounts,
-                      onCategoryLongPress: (context, category) {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          barrierColor: Colors.transparent,
-                          builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
-                        );
-                      },
-                      showIcons: true,
-                      showColors: true,
-                      showAddButton: false,
-                    ),
-                  ),
-                  // Yeni Kategori Ekle butonu
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: _buildAddCategoryButton(context, provider),
-                  ),
-                ],
+              CategoryFilterWidget(
+                categories: provider.categories,
+                selectedCategoryId: provider.selectedCategoryId,
+                onCategorySelected: (categoryId) => provider.setSelectedCategory(categoryId as String?),
+                itemCounts: provider.projectCounts,
+                onCategoryLongPress: (context, category) {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    barrierColor: Colors.transparent,
+                    builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+                  );
+                },
+                showIcons: true,
+                showColors: true,
+                showAddButton: true,
+                categoryType: CategoryType.project,
               ),
 
               // Inline arama barı (arama aktifse göster)
@@ -297,33 +288,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
         const SizedBox(height: 80), // FAB için boşluk
       ],
-    );
-  }
-
-  Widget _buildAddCategoryButton(BuildContext context, ProjectsProvider provider) {
-    return ActionChip(
-      label: Icon(
-        Icons.add_circle_outline,
-        size: 20,
-        color: AppColors.main,
-      ),
-      onPressed: () {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          barrierColor: Colors.transparent,
-          builder: (context) => const CreateCategoryBottomSheet(),
-        );
-      },
-      backgroundColor: AppColors.panelBackground,
-      side: BorderSide(
-        color: AppColors.main,
-        width: 1.5,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
     );
   }
 

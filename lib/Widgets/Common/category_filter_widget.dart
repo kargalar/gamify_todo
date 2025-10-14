@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 
 /// Common category filter widget used across Tasks, Notes, and Projects pages
 class CategoryFilterWidget extends StatelessWidget {
@@ -14,7 +16,7 @@ class CategoryFilterWidget extends StatelessWidget {
   final bool showIcons; // Whether to show category icons
   final bool showColors; // Whether to show category colors
   final bool showAddButton; // Whether to show add category button
-  final VoidCallback? onAddCategory; // Callback for add category button
+  final CategoryType? categoryType; // Category type for auto-detection when adding
   final bool showEmptyCategories; // Whether to show categories with 0 items
 
   const CategoryFilterWidget({
@@ -28,7 +30,7 @@ class CategoryFilterWidget extends StatelessWidget {
     this.showIcons = false,
     this.showColors = false,
     this.showAddButton = false,
-    this.onAddCategory,
+    this.categoryType,
     this.showEmptyCategories = false,
   });
 
@@ -63,7 +65,7 @@ class CategoryFilterWidget extends StatelessWidget {
             }),
 
             // Add category button
-            if (showAddButton && onAddCategory != null) ...[
+            if (showAddButton) ...[
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: _buildAddChip(context),
@@ -148,7 +150,18 @@ class CategoryFilterWidget extends StatelessWidget {
         ],
       ),
       backgroundColor: AppColors.panelBackground,
-      onSelected: (_) => onAddCategory?.call(),
+      onSelected: (_) {
+        // Otomatik olarak doğru tip ile kategori oluştur
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          barrierColor: Colors.transparent,
+          builder: (context) => CreateCategoryBottomSheet(
+            initialCategoryType: categoryType,
+          ),
+        );
+      },
     );
   }
 
