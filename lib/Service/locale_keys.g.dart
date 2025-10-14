@@ -227,6 +227,7 @@ abstract class  LocaleKeys {
   static const Russian = 'Russian';
   static const Turkish = 'Turkish';
   static const NextLevel = 'NextLevel';
+  static const ToNextLevel = 'ToNextLevel';
   static const Started = 'Started';
   static const Stopped = 'Stopped';
   static const Done = 'Done';
@@ -324,7 +325,6 @@ abstract class  LocaleKeys {
   static const ScheduledTestNotificationTitle = 'ScheduledTestNotificationTitle';
   static const ScheduledTestNotificationMessage = 'ScheduledTestNotificationMessage';
   static const OfflineMode = 'OfflineMode';
-  static const OfflineModeSubtitle = 'OfflineModeSubtitle';
   static const OfflineModeEnabled = 'OfflineModeEnabled';
   static const OfflineModeDisabled = 'OfflineModeDisabled';
   static const No = 'No';
@@ -335,6 +335,7 @@ abstract class  LocaleKeys {
   static const StreakMinimumHours = 'StreakMinimumHours';
   static const StreakMinimumHoursDesc = 'StreakMinimumHoursDesc';
   static const Days = 'Days';
+  static const Sessions = 'Sessions';
   static const PassDaysPerMonth = 'PassDaysPerMonth';
   static const PassDaysDesc = 'PassDaysDesc';
   static const RemainingThisMonth = 'RemainingThisMonth';
@@ -368,14 +369,12 @@ abstract class  LocaleKeys {
   static const VacationMode = 'VacationMode';
   static const VacationModeSubtitle = 'VacationModeSubtitle';
   static const DataSyncTitle = 'DataSyncTitle';
-  static const DataSyncDescription = 'DataSyncDescription';
   static const Logout = 'Logout';
   static const LogoutConfirmation = 'LogoutConfirmation';
   static const SyncInProgress = 'SyncInProgress';
   static const SyncNow = 'SyncNow';
   static const OfflineModeSyncDisabled = 'OfflineModeSyncDisabled';
   static const LastSync = 'LastSync';
-  static const SyncNote = 'SyncNote';
   static const SyncingData = 'SyncingData';
   static const SyncSuccess = 'SyncSuccess';
   static const SyncError = 'SyncError';
@@ -483,8 +482,10 @@ abstract class  LocaleKeys {
   static const SearchHint = 'SearchHint';
   static const NoProjectsFound = 'NoProjectsFound';
   static const OtherProjects = 'OtherProjects';
+  static const Projects = 'Projects';
   static const ProjectTitleLabel = 'ProjectTitleLabel';
   static const ProjectTitleHint = 'ProjectTitleHint';
   static const ProjectDescriptionHint = 'ProjectDescriptionHint';
+  static const Level = 'Level';
 
 }

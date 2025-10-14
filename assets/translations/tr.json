@@ -224,6 +224,7 @@
     "Russian": "Rusça",
     "Turkish": "Türkçe",
     "NextLevel": "Bir Sonraki Seviye",
+    "ToNextLevel": "sonraki seviyeye",
     "Started": "Başlatıldı",
     "Stopped": "Durduruldu",
     "Done": "Tamamlandı",
@@ -343,6 +344,7 @@
     "StreakMinimumHours": "Streak için Minimum Saat",
     "StreakMinimumHoursDesc": "Streak'i korumak için günlük minimum gerekli saat",
     "Days": "Gün",
+    "Sessions": "Oturum",
     "PassDaysPerMonth": "Aylık Pas Günü",
     "PassDaysDesc": "Streak'i bozmadan ayda kaç gün pas geçebileceğiniz",
     "RemainingThisMonth": "Bu ay kalan",
@@ -431,7 +433,9 @@
     "SearchHint": "Proje ara...",
     "NoProjectsFound": "Proje bulunamadı",
     "OtherProjects": "Diğer Projeler",
+    "Projects": "Projeler",
     "ProjectTitleLabel": "Proje Başlığı",
     "ProjectTitleHint": "Proje başlığını girin",
-    "ProjectDescriptionHint": "Proje açıklamasını girin"
+    "ProjectDescriptionHint": "Proje açıklamasını girin",
+    "Level": "Seviye"
 }

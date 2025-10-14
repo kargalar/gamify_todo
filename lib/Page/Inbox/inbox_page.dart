@@ -4,7 +4,6 @@ import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
-import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 import 'package:next_level/Page/Inbox/archived_routines_page.dart';
 import 'package:next_level/Page/Inbox/Widget/inbox_search_bar.dart';
 import 'package:next_level/Page/Inbox/Widget/inbox_categories_section.dart';
@@ -201,24 +200,6 @@ class _InboxPageState extends State<InboxPage> {
               );
             },
           ),
-          // Kategori ekle icon
-          IconButton(
-            icon: Icon(
-              Icons.add_rounded,
-              size: 20,
-              color: AppColors.text,
-            ),
-            tooltip: LocaleKeys.AddCategory.tr(),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                barrierColor: Colors.transparent,
-                builder: (context) => const CreateCategoryBottomSheet(),
-              );
-            },
-          ),
           IconButton(
             icon: Icon(
               Icons.filter_list_rounded,
@@ -237,35 +218,35 @@ class _InboxPageState extends State<InboxPage> {
               controller: _searchController,
               onChanged: () => setState(() {}),
             ),
-          if (context.watch<CategoryProvider>().getActiveCategories().isNotEmpty)
-            InboxCategoriesSection(
-              selectedCategory: _selectedCategory,
-              onCategorySelected: (category) {
-                setState(() => _selectedCategory = category);
-                _saveFilterPreferences();
-              },
-              searchQuery: _searchController.text,
-              showRoutines: _showRoutines,
-              showTasks: _showTasks,
-              showPinned: _showPinned,
-              dateFilterState: _dateFilterState,
-              selectedTaskTypes: _selectedTaskTypes,
-              selectedStatuses: _selectedStatuses,
-              showEmptyStatus: _showEmptyStatus,
-              onCategoryDeleted: () {
-                // Kategori silindiğinde UI'ı güncelle
-                setState(() {
-                  // Eğer silinen kategori seçiliyse, seçimi kaldır
-                  if (_selectedCategory != null) {
-                    final categories = context.read<CategoryProvider>().getActiveCategories();
-                    final categoryExists = categories.any((cat) => cat.id == _selectedCategory!.id);
-                    if (!categoryExists) {
-                      _selectedCategory = null;
-                    }
+          // Kategori filtresi (her zaman göster - boş olsa bile "Tümü" ve "Ekle" butonu görünsün)
+          InboxCategoriesSection(
+            selectedCategory: _selectedCategory,
+            onCategorySelected: (category) {
+              setState(() => _selectedCategory = category);
+              _saveFilterPreferences();
+            },
+            searchQuery: _searchController.text,
+            showRoutines: _showRoutines,
+            showTasks: _showTasks,
+            showPinned: _showPinned,
+            dateFilterState: _dateFilterState,
+            selectedTaskTypes: _selectedTaskTypes,
+            selectedStatuses: _selectedStatuses,
+            showEmptyStatus: _showEmptyStatus,
+            onCategoryDeleted: () {
+              // Kategori silindiğinde UI'ı güncelle
+              setState(() {
+                // Eğer silinen kategori seçiliyse, seçimi kaldır
+                if (_selectedCategory != null) {
+                  final categories = context.read<CategoryProvider>().getActiveCategories();
+                  final categoryExists = categories.any((cat) => cat.id == _selectedCategory!.id);
+                  if (!categoryExists) {
+                    _selectedCategory = null;
                   }
-                });
-              },
-            ),
+                }
+              });
+            },
+          ),
           Divider(
             color: AppColors.text.withValues(alpha: 0.1),
             height: 1,

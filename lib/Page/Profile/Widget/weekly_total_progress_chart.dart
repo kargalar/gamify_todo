@@ -137,42 +137,72 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
     String durationText = h > 0 ? "$h${LocaleKeys.h.tr()} $m${LocaleKeys.m.tr()}" : "$m${LocaleKeys.m.tr()}";
 
     return Container(
-      height: 250,
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
-        borderRadius: AppColors.borderRadiusAll,
-      ),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.main.withValues(alpha: 0.8),
+            AppColors.main.withValues(alpha: 0.5),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.main.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Text(
-                  _period == ProgressPeriod.week
-                      ? "${LocaleKeys.WeeklyLabel.tr()} ($durationText)"
-                      : _period == ProgressPeriod.month
-                          ? "${LocaleKeys.MonthlyLabel.tr()} ($durationText)"
-                          : "${LocaleKeys.YearlyLabel.tr()} ($durationText)",
-                  style: TextStyle(
-                    color: AppColors.main,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _period == ProgressPeriod.week
+                        ? LocaleKeys.WeeklyLabel.tr()
+                        : _period == ProgressPeriod.month
+                            ? LocaleKeys.MonthlyLabel.tr()
+                            : LocaleKeys.YearlyLabel.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
-                  maxLines: 2,
-                ),
+                  const SizedBox(height: 4),
+                  Text(
+                    durationText,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
-              _PeriodSwitcher(period: _period, onChanged: (p) => setState(() => _period = p)),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _PeriodSwitcher(period: _period, onChanged: (p) => setState(() => _period = p)),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16, left: 6),
-              child: _ProgressBarChart(period: _period, data: totalDurations),
-            ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 180,
+            child: _ProgressBarChart(period: _period, data: totalDurations),
           ),
         ],
       ),
@@ -193,7 +223,7 @@ class _PeriodSwitcher extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: selected ? AppColors.main : AppColors.panelBackground2,
+          color: selected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
@@ -201,7 +231,7 @@ class _PeriodSwitcher extends StatelessWidget {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.bold,
-            color: selected ? Colors.white : AppColors.text,
+            color: selected ? AppColors.main : Colors.white.withValues(alpha: 0.7),
           ),
         ),
       ),
@@ -276,7 +306,7 @@ class _ProgressBarChart extends StatelessWidget {
               width: period == ProgressPeriod.month ? dynamicMonthBarWidth : 18,
               borderRadius: BorderRadius.circular(3),
               gradient: LinearGradient(
-                colors: isToday ? [AppColors.main, AppColors.main.withValues(alpha: 180)] : [AppColors.main.withValues(alpha: 180), AppColors.main.withValues(alpha: 120)],
+                colors: isToday ? [Colors.white, Colors.white.withValues(alpha: 0.9)] : [Colors.white.withValues(alpha: 0.7), Colors.white.withValues(alpha: 0.5)],
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
               ),
@@ -319,7 +349,7 @@ class _ProgressBarChart extends StatelessWidget {
           style: TextStyle(
             fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
             fontSize: period == ProgressPeriod.year ? 10 : 11,
-            color: isToday ? AppColors.main : AppColors.text,
+            color: isToday ? Colors.white : Colors.white.withValues(alpha: 0.7),
           ),
         ),
       );
@@ -329,10 +359,10 @@ class _ProgressBarChart extends StatelessWidget {
       int hours = value.round();
       return Text(
         '$hours${LocaleKeys.h.tr()}',
-        style: TextStyle(
+        style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 12,
-          color: AppColors.text,
+          color: Colors.white,
         ),
       );
     }
@@ -385,9 +415,9 @@ class _ProgressBarChart extends StatelessWidget {
         gridData: const FlGridData(show: false),
         borderData: FlBorderData(
           show: true,
-          border: Border(
-            bottom: BorderSide(color: AppColors.main.withValues(alpha: 128), width: 2),
-            left: BorderSide(color: AppColors.main.withValues(alpha: 128), width: 2),
+          border: const Border(
+            bottom: BorderSide(color: Colors.white, width: 2),
+            left: BorderSide(color: Colors.white, width: 2),
           ),
         ),
         barGroups: groups,

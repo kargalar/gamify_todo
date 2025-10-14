@@ -62,49 +62,48 @@ class InboxCategoriesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Only show task categories in Inbox
-        if (taskCategories.isNotEmpty)
-          CategoryFilterWidget(
-            categories: taskCategories,
-            selectedCategoryId: selectedCategory?.id,
-            onCategorySelected: (categoryId) {
-              if (categoryId == null) {
-                onCategorySelected(null);
-              } else {
-                final category = taskCategories.firstWhere((cat) => cat.id == categoryId);
-                onCategorySelected(category);
-              }
-            },
-            showAllOption: true,
-            itemCounts: {
-              ...itemCounts,
-              null: totalTaskCount,
-            },
-            onCategoryLongPress: (context, category) async {
-              final result = await showModalBottomSheet<bool>(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                barrierColor: Colors.transparent,
-                builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
-              );
+        // Task kategorileri (boş olsa bile "Tümü" ve "Ekle" butonu göster)
+        CategoryFilterWidget(
+          categories: taskCategories,
+          selectedCategoryId: selectedCategory?.id,
+          onCategorySelected: (categoryId) {
+            if (categoryId == null) {
+              onCategorySelected(null);
+            } else {
+              final category = taskCategories.firstWhere((cat) => cat.id == categoryId);
+              onCategorySelected(category);
+            }
+          },
+          showAllOption: true,
+          itemCounts: {
+            ...itemCounts,
+            null: totalTaskCount,
+          },
+          onCategoryLongPress: (context, category) async {
+            final result = await showModalBottomSheet<bool>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              barrierColor: Colors.transparent,
+              builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+            );
 
-              // Eğer kategori silindiyse, CategoryProvider'ı yeniden yükle ve parent'ı bilgilendir
-              if (result == true && context.mounted) {
-                debugPrint('🔄 InboxCategoriesSection: Category deleted, reloading CategoryProvider');
-                await context.read<CategoryProvider>().initialize();
-                debugPrint('✅ InboxCategoriesSection: CategoryProvider reloaded');
+            // Eğer kategori silindiyse, CategoryProvider'ı yeniden yükle ve parent'ı bilgilendir
+            if (result == true && context.mounted) {
+              debugPrint('🔄 InboxCategoriesSection: Category deleted, reloading CategoryProvider');
+              await context.read<CategoryProvider>().initialize();
+              debugPrint('✅ InboxCategoriesSection: CategoryProvider reloaded');
 
-                // Parent widget'ı bilgilendir (setState çağırsın)
-                onCategoryDeleted?.call();
-              }
-            },
-            showIcons: false,
-            showColors: true,
-            showAddButton: true,
-            categoryType: CategoryType.task,
-            showEmptyCategories: true,
-          ),
+              // Parent widget'ı bilgilendir (setState çağırsın)
+              onCategoryDeleted?.call();
+            }
+          },
+          showIcons: false,
+          showColors: true,
+          showAddButton: true,
+          categoryType: CategoryType.task,
+          showEmptyCategories: true,
+        ),
       ],
     );
   }

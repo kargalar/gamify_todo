@@ -146,7 +146,8 @@ class CategoryBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final addTaskProvider = context.watch<AddTaskProvider>();
     final categoryProvider = context.watch<CategoryProvider>();
-    final activeCategories = categoryProvider.getActiveCategories();
+    // SADECE TASK KATEGORİLERİNİ GÖSTER
+    final activeCategories = categoryProvider.getActiveCategories().where((cat) => cat.categoryType == CategoryType.task).toList();
 
     return Container(
       padding: const EdgeInsets.only(bottom: 16),
@@ -367,7 +368,9 @@ class CategoryBottomSheet extends StatelessWidget {
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
             barrierColor: Colors.transparent,
-            builder: (context) => const CreateCategoryBottomSheet(),
+            builder: (context) => const CreateCategoryBottomSheet(
+              initialCategoryType: CategoryType.task,
+            ),
           );
         },
         borderRadius: BorderRadius.circular(16),

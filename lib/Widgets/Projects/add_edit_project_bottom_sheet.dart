@@ -205,9 +205,9 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
               fontSize: 14,
               color: AppColors.text,
             ),
-            decoration: const InputDecoration(
-              hintText: 'Açıklama (opsiyonel)',
-              hintStyle: TextStyle(color: AppColors.grey),
+            decoration: InputDecoration(
+              hintText: LocaleKeys.ProjectDescriptionHint.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),

@@ -16,6 +16,8 @@ import 'package:get/route_manager.dart';
 import 'package:next_level/Page/Task Detail Page/routine_detail_page.dart';
 import 'package:next_level/Page/Home/Add Task/add_task_page.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Page/Trait%20Detail%20Page/widget/monthly_comparison_chart.dart';
+import 'package:next_level/Page/Trait%20Detail%20Page/widget/trait_progress_summary.dart';
 
 class TraitDetailPage extends StatefulWidget {
   const TraitDetailPage({
@@ -558,8 +560,25 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
 
               const SizedBox(height: 24),
 
+              // Progress Summary
+              TraitProgressSummary(
+                traitModel: widget.traitModel,
+                selectedColor: selectedColor,
+                totalDuration: totalDuration,
+              ),
+
+              const SizedBox(height: 24),
+
               // Statistics Section
               _buildStatisticsSection(),
+
+              const SizedBox(height: 24),
+
+              // Monthly Comparison Chart
+              MonthlyComparisonChart(
+                traitModel: widget.traitModel,
+                selectedColor: selectedColor,
+              ),
 
               const SizedBox(height: 24),
 

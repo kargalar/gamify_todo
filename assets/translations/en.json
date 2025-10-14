@@ -225,6 +225,7 @@
     "Russian": "русский",
     "Turkish": "Türkçe",
     "NextLevel": "Next Level",
+    "ToNextLevel": "to next level",
     "Started": "Started",
     "Stopped": "Stopped",
     "Done": "Done",
@@ -332,6 +333,7 @@
     "StreakMinimumHours": "Minimum Hours for Streak",
     "StreakMinimumHoursDesc": "Minimum hours required per day to maintain streak",
     "Days": "Days",
+    "Sessions": "Sessions",
     "PassDaysPerMonth": "Pass Days Per Month",
     "PassDaysDesc": "Number of days you can skip per month without breaking streak",
     "RemainingThisMonth": "Remaining this month",
@@ -478,7 +480,9 @@
     "SearchHint": "Search projects...",
     "NoProjectsFound": "No projects found",
     "OtherProjects": "Other Projects",
+    "Projects": "Projects",
     "ProjectTitleLabel": "Project Title",
     "ProjectTitleHint": "Enter project title",
-    "ProjectDescriptionHint": "Enter project description"
+    "ProjectDescriptionHint": "Enter project description",
+    "Level": "Level"
 }

@@ -55,7 +55,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: StandardAppBar(
-        title: LocaleKeys.NewProject.tr(),
+        title: LocaleKeys.Projects.tr(),
         isSearching: _isSearching,
         onSearchToggle: () {
           setState(() {

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Debug/widget_debug_page.dart';
-import 'package:next_level/Page/Profile/Widget/profile_page_top_section.dart';
+import 'package:next_level/Page/Profile/Widget/level_progress_card.dart';
 import 'package:next_level/Page/Profile/Widget/trait_list.dart';
 import 'package:next_level/Page/Profile/Widget/weekly_total_progress_chart.dart';
 import 'package:next_level/Page/Settings/settings_page.dart';
@@ -105,7 +105,7 @@ class ProfilePageContent extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            ProfilePageTopSection(),
+            LevelProgressCard(),
             SizedBox(height: 20),
             WeeklyTotalProgressChart(),
             SizedBox(height: 20),

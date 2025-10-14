@@ -5,10 +5,12 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/all_time_stats_widget.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/widget/completion_rate_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/trait_progress_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/unarchive_button.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/widget/weekly_trend_chart_widget.dart';
 import 'package:next_level/Page/Task Detail Page/widget/section_panel.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -201,6 +203,22 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                             viewModel: _viewModel,
                             taskType: widget.taskModel.type,
                           ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Completion Rate
+                        SectionPanel(
+                          icon: Icons.pie_chart_rounded,
+                          title: 'Completion Rate',
+                          child: CompletionRateWidget(viewModel: _viewModel),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Weekly Trend Chart
+                        SectionPanel(
+                          icon: Icons.trending_up_rounded,
+                          title: 'Weekly Trend',
+                          child: WeeklyTrendChartWidget(viewModel: _viewModel),
                         ),
                         const SizedBox(height: 10),
 

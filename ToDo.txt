@@ -42,6 +42,3 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
  rutin gün seçimi kısmında Repeat days ın oraya all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. ne yapılabilir
 NOTE: bildirimleri de bunne göre güncellemelisin
-
-
-profildeki en üstteki profil bilgileri kısmını kaldır. onun içindeki lvl bar kısmın fakrlı bir tasarım ile profil sayfasına ekle
