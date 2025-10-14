@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_item_style_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/task_style_provider.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/generated/lib/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -23,115 +23,57 @@ class TaskStyleSelectionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: AppColors.background,
-      title: Text(LocaleKeys.SelectTaskStyle.tr()),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            LocaleKeys.ChooseTaskStyle.tr(),
-            style: const TextStyle(fontSize: 14),
+    return Consumer<TaskStyleProvider>(
+      builder: (context, styleProvider, child) {
+        return AlertDialog(
+          backgroundColor: AppColors.background,
+          title: Text(LocaleKeys.SelectTaskStyle.tr()),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                LocaleKeys.ChooseTaskStyle.tr(),
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              // Stil seçenekleri (isim + açıklama, radio button)
+              ...TaskItemStyle.values.map((style) => RadioListTile<TaskItemStyle>(
+                    value: style,
+                    groupValue: styleProvider.currentStyle,
+                    onChanged: (TaskItemStyle? value) {
+                      if (value != null) styleProvider.changeStyle(value);
+                    },
+                    title: Text(_getStyleName(style)),
+                    subtitle: Text(_getStyleDescription(style)),
+                    activeColor: AppColors.main,
+                  )),
+              const SizedBox(height: 24),
+              // Seçili stilin gerçek önizlemesi
+              Text(LocaleKeys.storage_access_error.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.panelBackground.withAlpha(30),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: TaskItem(taskModel: _sampleTask),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Consumer<TaskStyleProvider>(
-            builder: (context, styleProvider, child) {
-              return Column(
-                children: TaskItemStyle.values.map((style) {
-                  return _buildStyleOption(
-                    context,
-                    style,
-                    styleProvider.currentStyle == style,
-                    styleProvider,
-                  );
-                }).toList(),
-              );
-            },
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(LocaleKeys.Close.tr()),
-        ),
-      ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(LocaleKeys.Close.tr()),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildStyleOption(
-    BuildContext context,
-    TaskItemStyle style,
-    bool isSelected,
-    TaskStyleProvider styleProvider,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            styleProvider.changeStyle(style);
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.main.withAlpha(30) : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected ? AppColors.main : AppColors.text.withAlpha(30),
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                // Preview
-                SizedBox(
-                  width: 120,
-                  height: 60,
-                  child: Transform.scale(
-                    scale: 0.5,
-                    alignment: Alignment.centerLeft,
-                    child: TaskItem(taskModel: _sampleTask),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _getStyleName(style),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? AppColors.main : AppColors.text,
-                        ),
-                      ),
-                      Text(
-                        _getStyleDescription(style),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.text.withAlpha(150),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isSelected)
-                  Icon(
-                    Icons.check_circle,
-                    color: AppColors.main,
-                    size: 20,
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Önizleme yukarıda, seçenekler aşağıda değil; seçenekler üstte, seçili stilin TaskItem'ı altta gösteriliyor.
 
   String _getStyleName(TaskItemStyle style) {
     switch (style) {

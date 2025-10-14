@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/color_provider.dart';
+import 'package:next_level/generated/lib/Service/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 
 class ColorSelectionDialog extends StatelessWidget {
@@ -10,13 +12,13 @@ class ColorSelectionDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.background,
-      title: const Text('Select Main Color'),
+      title: Text(LocaleKeys.SelectMainColor.tr()),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Choose your preferred app color theme:',
-            style: TextStyle(fontSize: 14),
+          Text(
+            LocaleKeys.ChooseColorTheme.tr(),
+            style: const TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 20),
           Consumer<ColorProvider>(
@@ -37,9 +39,9 @@ class ColorSelectionDialog extends StatelessWidget {
             },
           ),
           const SizedBox(height: 16),
-          const Text(
-            'The color will be applied throughout the app',
-            style: TextStyle(
+          Text(
+            LocaleKeys.ColorApplied.tr(),
+            style: const TextStyle(
               fontSize: 12,
               fontStyle: FontStyle.italic,
             ),
@@ -49,7 +51,7 @@ class ColorSelectionDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: Text(LocaleKeys.Close.tr()),
         ),
       ],
     );

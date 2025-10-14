@@ -397,5 +397,9 @@
     "ProjectCreated": "Proje oluşturuldu",
     "TaskIsNotRoutine": "Bu görev bir rutin değil.",
     "ProjectDescription": "Proje Açıklaması",
-    "Created": "Oluşturuldu"
+    "Created": "Oluşturuldu",
+    "ColorApplied": "Renk uygulamanın tamamında kullanılacak",
+    "HowItWorks": "Nasıl Çalışır",
+    "MinimumHours": "Minimum Saat",
+    "MinimumHoursDesc": "Sürekliliği korumak için günde gereken minimum saatleri ayarlayın"
 }

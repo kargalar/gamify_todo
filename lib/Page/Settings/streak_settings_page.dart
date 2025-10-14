@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../General/app_colors.dart';
-import '../../Service/locale_keys.g.dart';
+import 'package:next_level/generated/lib/Service/locale_keys.g.dart';
 import 'view_model/streak_settings_view_model.dart';
 
 class StreakSettingsPage extends StatefulWidget {
@@ -451,7 +451,7 @@ class _StreakSettingsPageState extends State<StreakSettingsPage> with TickerProv
               ),
               const SizedBox(width: 8),
               Text(
-                "How it works",
+                LocaleKeys.HowItWorks.tr(),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -463,14 +463,14 @@ class _StreakSettingsPageState extends State<StreakSettingsPage> with TickerProv
           const SizedBox(height: 12),
           _buildInfoItem(
             icon: Icons.timer_outlined,
-            title: "Minimum Hours",
-            description: "Set the minimum hours needed per day to maintain your streak",
+            title: LocaleKeys.MinimumHours.tr(),
+            description: LocaleKeys.MinimumHoursDesc.tr(),
           ),
           const SizedBox(height: 12),
           _buildInfoItem(
             icon: Icons.event_busy_outlined,
-            title: "Vacation Days",
-            description: "Selected weekdays won't break your streak if you don't reach the minimum hours",
+            title: LocaleKeys.VacationDays.tr(),
+            description: LocaleKeys.VacationDaysDesc.tr(),
           ),
         ],
       ),

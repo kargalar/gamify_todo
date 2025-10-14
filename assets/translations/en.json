@@ -444,5 +444,9 @@
     "NoteUpdated": "Note updated",
     "NoteAdded": "Note added",
     "NoteUpdateFailed": "Failed to update note",
-    "NoteSaveFailed": "Failed to save note"
+    "NoteSaveFailed": "Failed to save note",
+    "ColorApplied": "The color will be applied throughout the app",
+    "HowItWorks": "How it works",
+    "MinimumHours": "Minimum Hours",
+    "MinimumHoursDesc": "Set the minimum hours needed per day to maintain your streak"
 }

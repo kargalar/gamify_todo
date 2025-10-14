@@ -12,7 +12,7 @@ import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/offline_mode_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/generated/lib/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/sync_manager.dart';
 import 'package:next_level/Provider/theme_provider.dart';
