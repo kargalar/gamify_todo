@@ -8,6 +8,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class ServerManager {
   ServerManager._privateConstructor();
@@ -196,7 +197,16 @@ class ServerManager {
 
   // get categories
   Future<List<CategoryModel>> getCategories() async {
-    return await HiveService().getCategories();
+    try {
+      return await HiveService().getCategories();
+    } catch (e) {
+      debugPrint('⚠️ ServerManager: Error loading categories (possibly data migration issue): $e');
+      debugPrint('🧹 ServerManager: Clearing category box and returning empty list');
+
+      // Clear the box if there's a migration error
+      await HiveService().clearCategoryBox();
+      return [];
+    }
   }
 
 // -------------------
@@ -373,17 +383,14 @@ class ServerManager {
   }
 
   // add category
-  Future<int> addCategory({
+  Future<String> addCategory({
     required CategoryModel categoryModel,
   }) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int id = prefs.getInt("last_category_id") ?? 0;
+    final String id = const Uuid().v4();
 
-    categoryModel.id = id + 1;
+    categoryModel.id = id;
 
     HiveService().addCategory(categoryModel);
-
-    prefs.setInt("last_category_id", categoryModel.id);
 
     return categoryModel.id;
 

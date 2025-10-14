@@ -23,7 +23,7 @@ class ProjectNoteModelAdapter extends TypeAdapter<ProjectNoteModel> {
       createdAt: fields[3] as DateTime,
       updatedAt: fields[4] as DateTime,
       title: fields[5] as String?,
-      orderIndex: fields[6] as int,
+      orderIndex: fields[6] as int?,
     );
   }
 

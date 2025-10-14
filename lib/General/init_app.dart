@@ -12,6 +12,7 @@ import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
+import 'package:next_level/Provider/store_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> initApp() async {
@@ -65,6 +66,9 @@ Future<void> initApp() async {
 
     // Load categories
     await TaskProvider().loadCategories();
+
+    // Load store items
+    await StoreProvider().loadItems();
   }
 
   // Custom Error

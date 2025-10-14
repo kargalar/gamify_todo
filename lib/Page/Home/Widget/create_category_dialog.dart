@@ -268,6 +268,7 @@ class _CreateCategoryDialogState extends State<CreateCategoryDialog> {
     if (widget.categoryModel == null) {
       // Create new category
       final newCategory = CategoryModel(
+        id: '',
         title: categoryTitleController.text.trim(),
         color: selectedColor,
       );

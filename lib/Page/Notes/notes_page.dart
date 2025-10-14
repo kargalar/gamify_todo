@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Widgets/Notes/note_card.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
 import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
@@ -188,8 +188,21 @@ class _NotesPageState extends State<NotesPage> {
                       selectedCategoryId: provider.selectedCategoryId,
                       onCategorySelected: (categoryId) => provider.selectCategory(categoryId as String?),
                       itemCounts: provider.noteCounts,
+                      onCategoryLongPress: (context, category) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AddCategoryDialog(
+                            existingCategories: provider.categories,
+                            editingCategory: category,
+                            onDeleteCategory: (deletedCategory) {
+                              provider.deleteCategory(deletedCategory.id);
+                            },
+                          ),
+                        );
+                      },
                       showIcons: true,
                       showColors: true,
+                      showAddButton: false,
                     ),
                   ),
                   // Yeni Kategori Ekle butonu
@@ -247,24 +260,24 @@ class _NotesPageState extends State<NotesPage> {
       debugPrint('✅ NotesPage: Category data received from dialog');
 
       // Yeni kategori oluştur
-      final newCategory = NoteCategoryModel(
+      final newCategory = CategoryModel(
         id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
-        name: result['name'] as String,
+        title: result['name'] as String,
         iconCodePoint: result['iconCodePoint'] as int,
-        colorValue: result['colorValue'] as int,
+        color: Color(result['colorValue'] as int),
         createdAt: DateTime.now(),
       );
 
       await provider.addCategory(newCategory);
 
-      debugPrint('✅ NotesPage: New category created - ${newCategory.name}');
+      debugPrint('✅ NotesPage: New category created - ${newCategory.title}');
 
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(LocaleKeys.CategoryCreated.tr(args: [newCategory.name])),
-          backgroundColor: Color(newCategory.colorValue),
+          content: Text(LocaleKeys.CategoryCreated.tr(args: [newCategory.title])),
+          backgroundColor: newCategory.color,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -453,7 +466,7 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
-  void _showDeleteCategoryDialog(BuildContext context, NotesProvider provider, NoteCategoryModel category) {
+  void _showDeleteCategoryDialog(BuildContext context, NotesProvider provider, CategoryModel category) {
     final count = provider.noteCounts[category.id] ?? 0;
 
     showDialog(

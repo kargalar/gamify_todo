@@ -3,14 +3,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Model/project_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 
 /// Yeni proje kategorisi oluşturma dialog'u
 class AddProjectCategoryDialog extends StatefulWidget {
-  final List<ProjectCategoryModel>? existingCategories;
-  final Function(ProjectCategoryModel)? onDeleteCategory;
-  final ProjectCategoryModel? editingCategory;
+  final List<CategoryModel>? existingCategories;
+  final Function(CategoryModel)? onDeleteCategory;
+  final CategoryModel? editingCategory;
 
   const AddProjectCategoryDialog({
     super.key,
@@ -71,8 +71,8 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
     super.initState();
     if (widget.editingCategory != null) {
       _nameController.text = widget.editingCategory!.name;
-      _selectedColor = Color(widget.editingCategory!.colorValue);
-      _selectedIcon = IconData(widget.editingCategory!.iconCodePoint, fontFamily: 'MaterialIcons');
+      _selectedColor = widget.editingCategory!.color;
+      _selectedIcon = IconData(widget.editingCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons');
     }
   }
 
@@ -90,10 +90,10 @@ class _AddProjectCategoryDialogState extends State<AddProjectCategoryDialog> {
 
     final provider = Provider.of<ProjectsProvider>(context, listen: false);
 
-    final newCategory = ProjectCategoryModel(
+    final newCategory = CategoryModel(
       id: 'proj_cat_${DateTime.now().millisecondsSinceEpoch}',
-      name: _nameController.text.trim(),
-      colorValue: _selectedColor.toARGB32(),
+      title: _nameController.text.trim(),
+      color: _selectedColor,
       iconCodePoint: _selectedIcon.codePoint,
       createdAt: DateTime.now(),
     );

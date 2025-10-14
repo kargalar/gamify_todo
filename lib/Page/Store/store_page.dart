@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Store/Widget/store_item.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
+import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
@@ -19,6 +19,14 @@ class StorePage extends StatefulWidget {
 }
 
 class _StorePageState extends State<StorePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StoreProvider>().loadItems();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final storeItems = context.watch<StoreProvider>().storeItemList;
@@ -89,6 +97,8 @@ class _StorePageState extends State<StorePage> {
   }
 
   Widget _buildCreditDisplay() {
+    final userProvider = context.watch<UserProvider>();
+
     return InkWell(
       onTap: () {
         showDialog(
@@ -194,7 +204,7 @@ class _StorePageState extends State<StorePage> {
         child: Row(
           children: [
             Text(
-              loginUser!.userCredit.toString(),
+              userProvider.userCredit.toString(),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -331,13 +341,10 @@ class _StorePageState extends State<StorePage> {
 
   Future<void> _resetCredit() async {
     try {
-      if (loginUser != null) {
-        loginUser!.userCredit = 0;
-        loginUser!.creditProgress = Duration.zero;
-        await HiveService().updateUser(loginUser!);
-        setState(() {});
-        Helper().getMessage(message: LocaleKeys.ResetCreditSuccess.tr());
-      }
+      final userProvider = context.read<UserProvider>();
+      await userProvider.resetCredit();
+      setState(() {});
+      Helper().getMessage(message: LocaleKeys.ResetCreditSuccess.tr());
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");
     }

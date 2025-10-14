@@ -17,6 +17,7 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Provider/user_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
@@ -227,9 +228,14 @@ class HiveService {
     await box.put(categoryModel.id, categoryModel);
   }
 
-  Future<void> deleteCategory(int id) async {
+  Future<void> deleteCategory(String id) async {
     final box = await _categoryBox;
     await box.delete(id);
+  }
+
+  Future<void> clearCategoryBox() async {
+    final box = await _categoryBox;
+    await box.clear();
   }
 
   // Task Log methods
@@ -598,8 +604,8 @@ class HiveService {
       sharedPrefsMap["categories_show_cancel"] = prefs.getBool('categories_show_cancel') ?? true;
       sharedPrefsMap["categories_show_archived"] = prefs.getBool('categories_show_archived') ?? false;
       sharedPrefsMap["categories_show_overdue"] = prefs.getBool('categories_show_overdue') ?? true;
-      sharedPrefsMap["categories_show_empty_status"] = prefs.getBool('categories_show_empty_status') ?? true;
-      sharedPrefsMap["categories_selected_category_id"] = prefs.getInt('categories_selected_category_id') ?? -1;
+      sharedPrefsMap["categories_show_empty_status"] = prefs.getString('categories_show_empty_status') ?? true;
+      sharedPrefsMap["categories_selected_category_id"] = prefs.getString('categories_selected_category_id') ?? '-1';
 
       // Export home page setting
       sharedPrefsMap["show_completed"] = prefs.getBool('show_completed') ?? false;
@@ -657,7 +663,7 @@ class HiveService {
           for (var entry in userData.entries) {
             final user = UserModel.fromJson(entry.value);
             await userBox.put(int.parse(entry.key), user);
-            loginUser = user;
+            UserProvider().setUser(user);
           }
 
           // Import items
@@ -740,7 +746,7 @@ class HiveService {
           await prefs.setBool('categories_show_archived', sharedPrefsMap["categories_show_archived"] ?? false);
           await prefs.setBool('categories_show_overdue', sharedPrefsMap["categories_show_overdue"] ?? true);
           await prefs.setBool('categories_show_empty_status', sharedPrefsMap["categories_show_empty_status"] ?? true);
-          await prefs.setInt('categories_selected_category_id', sharedPrefsMap["categories_selected_category_id"] ?? -1);
+          await prefs.setString('categories_selected_category_id', sharedPrefsMap["categories_selected_category_id"] ?? '-1');
 
           // Import home page setting
           await prefs.setBool('show_completed', sharedPrefsMap["show_completed"] ?? false);

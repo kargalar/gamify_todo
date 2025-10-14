@@ -11,10 +11,12 @@ import 'package:provider/provider.dart';
 
 class CreateCategoryBottomSheet extends StatefulWidget {
   final CategoryModel? categoryModel;
+  final CategoryType? initialCategoryType;
 
   const CreateCategoryBottomSheet({
     super.key,
     this.categoryModel,
+    this.initialCategoryType,
   });
 
   @override
@@ -24,6 +26,7 @@ class CreateCategoryBottomSheet extends StatefulWidget {
 class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
   final TextEditingController categoryTitleController = TextEditingController();
   Color selectedColor = AppColors.main;
+  CategoryType selectedCategoryType = CategoryType.task;
 
   @override
   void initState() {
@@ -31,6 +34,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
     if (widget.categoryModel != null) {
       categoryTitleController.text = widget.categoryModel!.title;
       selectedColor = widget.categoryModel!.color;
+      selectedCategoryType = widget.categoryModel!.categoryType;
+    } else if (widget.initialCategoryType != null) {
+      selectedCategoryType = widget.initialCategoryType!;
     }
   }
 
@@ -136,6 +142,20 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
 
             // Color Picker
             _buildColorPicker(),
+            const SizedBox(height: 20),
+
+            // Category Type Selector
+            const Text(
+              'Category Type',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Category Type Picker
+            _buildCategoryTypePicker(),
             const SizedBox(height: 24),
 
             // Action Buttons
@@ -282,6 +302,80 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
     );
   }
 
+  Widget _buildCategoryTypePicker() {
+    final List<Map<String, dynamic>> categoryTypes = [
+      {
+        'type': CategoryType.task,
+        'label': 'Task',
+        'icon': Icons.task,
+        'color': Colors.blue,
+      },
+      {
+        'type': CategoryType.note,
+        'label': 'Note',
+        'icon': Icons.note,
+        'color': Colors.green,
+      },
+      {
+        'type': CategoryType.project,
+        'label': 'Project',
+        'icon': Icons.folder,
+        'color': Colors.orange,
+      },
+    ];
+
+    return SizedBox(
+      height: 60,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: categoryTypes.map((typeData) {
+          final isSelected = selectedCategoryType == typeData['type'];
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedCategoryType = typeData['type'];
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? typeData['color'].withValues(alpha: 0.1) : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? typeData['color'] : Colors.grey.shade300,
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      typeData['icon'],
+                      color: isSelected ? typeData['color'] : Colors.grey.shade600,
+                      size: 20,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      typeData['label'],
+                      style: TextStyle(
+                        color: isSelected ? typeData['color'] : Colors.grey.shade600,
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   void _saveCategory() {
     if (categoryTitleController.text.trim().isEmpty) {
       Helper().getMessage(
@@ -296,8 +390,10 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
     if (widget.categoryModel == null) {
       // Create new category
       final newCategory = CategoryModel(
+        id: '',
         title: categoryTitleController.text.trim(),
         color: selectedColor,
+        categoryType: selectedCategoryType,
       );
       categoryProvider.addCategory(newCategory);
 
@@ -308,6 +404,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       // Update existing category
       widget.categoryModel!.title = categoryTitleController.text.trim();
       widget.categoryModel!.color = selectedColor;
+      widget.categoryModel!.categoryType = selectedCategoryType;
       categoryProvider.updateCategory(widget.categoryModel!);
     }
 

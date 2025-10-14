@@ -35,8 +35,6 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 
 ○ Storea öğe eklerken aherhangi bir şeyi deigtirdikten sonra türü degositirkenkuro
 
-○ İnbox kategori seçiminde basılı tutunca dahil değil olarak isaretlensin
-
 ○ tasklari üst üste işaretleyin ve sorun olabiliyor
 ○ alarmı güncelle.
     telefon sessizseyken cakmasin mesela veya çalarken ekrana gelsin direkt.su şekliyle iyi olmuyir
@@ -46,4 +44,4 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 NOTE: bildirimleri de bunne göre güncellemelisin
 
 
-profildeki en üstteki profil bilgileri kısmını kaldır. onun içindeki lvl bar kısmın fakrlı bir tasarım ile profil sayfasına kel
+profildeki en üstteki profil bilgileri kısmını kaldır. onun içindeki lvl bar kısmın fakrlı bir tasarım ile profil sayfasına ekle

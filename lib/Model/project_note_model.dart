@@ -23,7 +23,7 @@ class ProjectNoteModel extends HiveObject {
   String? title;
 
   @HiveField(6)
-  int orderIndex;
+  int? orderIndex;
 
   ProjectNoteModel({
     required this.id,
@@ -32,7 +32,7 @@ class ProjectNoteModel extends HiveObject {
     required this.createdAt,
     required this.updatedAt,
     this.title,
-    this.orderIndex = 0,
+    this.orderIndex,
   });
 
   /// Copy with method

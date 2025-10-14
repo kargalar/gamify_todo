@@ -44,7 +44,7 @@ class AddTaskProvider with ChangeNotifier {
   List<TraitModel> selectedTraits = [];
   int priority = 3;
   List<SubTaskModel> subtasks = [];
-  int? categoryId;
+  String? categoryId;
   int? earlyReminderMinutes; // Erken hatırlatma süresi (dakika cinsinden)
   bool isPinned = false; // Pin durumu
 
@@ -183,7 +183,7 @@ class AddTaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCategory(int? id) {
+  void updateCategory(String? id) {
     categoryId = id;
     notifyListeners();
   }

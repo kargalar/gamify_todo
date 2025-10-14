@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -22,7 +22,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
 
-  NoteCategoryModel? _selectedCategory;
+  CategoryModel? _selectedCategory;
   late bool _isPinned;
   bool _isSaving = false;
 
@@ -194,7 +194,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   }
 
   /// Kategori chip widget
-  Widget _buildCategoryChip(NoteCategoryModel? category, String label) {
+  Widget _buildCategoryChip(CategoryModel? category, String label) {
     final isSelected = (_selectedCategory?.id == category?.id) || (_selectedCategory == null && category == null);
 
     return FilterChip(
@@ -206,14 +206,14 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         });
       },
       backgroundColor: AppColors.panelBackground,
-      selectedColor: category != null ? Color(category.colorValue).withValues(alpha: 0.3) : AppColors.panelBackground2,
+      selectedColor: category != null ? category.color.withValues(alpha: 0.3) : AppColors.panelBackground2,
       labelStyle: TextStyle(
         color: AppColors.text,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
       checkmarkColor: AppColors.text,
       side: BorderSide(
-        color: isSelected ? (category != null ? Color(category.colorValue) : AppColors.panelBackground2) : AppColors.panelBackground2,
+        color: isSelected ? (category != null ? category.color : AppColors.panelBackground2) : AppColors.panelBackground2,
       ),
     );
   }

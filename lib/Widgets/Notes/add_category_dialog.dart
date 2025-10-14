@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 
 /// Kategori yönetimi dialog'u - ekleme ve silme
 class AddCategoryDialog extends StatefulWidget {
-  final List<NoteCategoryModel> existingCategories;
-  final Function(NoteCategoryModel) onDeleteCategory;
-  final NoteCategoryModel? editingCategory;
+  final List<CategoryModel> existingCategories;
+  final Function(CategoryModel) onDeleteCategory;
+  final CategoryModel? editingCategory;
 
   const AddCategoryDialog({
     super.key,
@@ -70,9 +70,9 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
   void initState() {
     super.initState();
     if (widget.editingCategory != null) {
-      _nameController.text = widget.editingCategory!.name;
-      _selectedColor = Color(widget.editingCategory!.colorValue);
-      _selectedIcon = IconData(widget.editingCategory!.iconCodePoint, fontFamily: 'MaterialIcons');
+      _nameController.text = widget.editingCategory!.title;
+      _selectedColor = widget.editingCategory!.color;
+      _selectedIcon = widget.editingCategory!.iconCodePoint != null ? IconData(widget.editingCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.note;
     }
   }
 
@@ -398,17 +398,17 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Color(category.colorValue).withValues(alpha: 0.2),
+                color: category.color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
-                color: Color(category.colorValue),
+                category.iconCodePoint != null ? IconData(category.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category,
+                color: category.color,
                 size: 24,
               ),
             ),
             title: Text(
-              category.name,
+              category.title,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: AppColors.text,

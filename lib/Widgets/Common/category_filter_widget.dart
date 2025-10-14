@@ -13,6 +13,9 @@ class CategoryFilterWidget extends StatelessWidget {
   final Function(BuildContext, dynamic)? onCategoryLongPress; // Optional long press handler
   final bool showIcons; // Whether to show category icons
   final bool showColors; // Whether to show category colors
+  final bool showAddButton; // Whether to show add category button
+  final VoidCallback? onAddCategory; // Callback for add category button
+  final bool showEmptyCategories; // Whether to show categories with 0 items
 
   const CategoryFilterWidget({
     super.key,
@@ -24,6 +27,9 @@ class CategoryFilterWidget extends StatelessWidget {
     this.onCategoryLongPress,
     this.showIcons = false,
     this.showColors = false,
+    this.showAddButton = false,
+    this.onAddCategory,
+    this.showEmptyCategories = false,
   });
 
   @override
@@ -46,8 +52,8 @@ class CategoryFilterWidget extends StatelessWidget {
             // Categories
             ...categories.map((category) {
               final count = itemCounts?[category.id] ?? 0;
-              // Only show categories that have items (unless selected)
-              if (count == 0 && selectedCategoryId != category.id) {
+              // Only show categories that have items (unless selected or showEmptyCategories is true)
+              if (!showEmptyCategories && count == 0 && selectedCategoryId != category.id) {
                 return const SizedBox.shrink();
               }
               return Padding(
@@ -55,6 +61,14 @@ class CategoryFilterWidget extends StatelessWidget {
                 child: _buildCategoryChip(context, category, count),
               );
             }),
+
+            // Add category button
+            if (showAddButton && onAddCategory != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildAddChip(context),
+              ),
+            ],
           ],
         ),
       ),
@@ -112,6 +126,32 @@ class CategoryFilterWidget extends StatelessWidget {
     );
   }
 
+  Widget _buildAddChip(BuildContext context) {
+    return FilterChip(
+      selected: false,
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.add,
+            size: 16,
+            color: AppColors.main,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            LocaleKeys.Add.tr(),
+            style: TextStyle(
+              color: AppColors.main,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      backgroundColor: AppColors.panelBackground,
+      onSelected: (_) => onAddCategory?.call(),
+    );
+  }
+
   Widget _buildCategoryChip(BuildContext context, dynamic category, int count) {
     final isSelected = selectedCategoryId == category.id;
 
@@ -129,7 +169,7 @@ class CategoryFilterWidget extends StatelessWidget {
             const SizedBox(width: 6),
           ],
           Text(
-            category.name ?? '',
+            category.name ?? (category.title ?? ''),
             style: TextStyle(
               color: isSelected ? Colors.white : AppColors.text,
             ),

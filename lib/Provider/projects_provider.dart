@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/project_note_model.dart';
-import 'package:next_level/Model/project_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/projects_service.dart';
 import 'package:next_level/Service/project_subtasks_service.dart';
 import 'package:next_level/Service/project_notes_service.dart';
-import 'package:next_level/Service/project_category_service.dart';
+import 'package:next_level/Provider/category_provider.dart';
 
 /// Projeleri yöneten Provider
 class ProjectsProvider with ChangeNotifier {
@@ -27,7 +27,7 @@ class ProjectsProvider with ChangeNotifier {
 
   // State
   List<ProjectModel> _projects = [];
-  List<ProjectCategoryModel> _categories = [];
+  List<CategoryModel> _categories = [];
   String _searchQuery = '';
   bool _isLoading = false;
   String? _errorMessage;
@@ -36,7 +36,7 @@ class ProjectsProvider with ChangeNotifier {
 
   // Getters
   List<ProjectModel> get projects => _projects;
-  List<ProjectCategoryModel> get categories => _categories;
+  List<CategoryModel> get categories => _categories;
   String get searchQuery => _searchQuery;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -47,8 +47,9 @@ class ProjectsProvider with ChangeNotifier {
   Future<void> loadCategories() async {
     try {
       debugPrint('📡 ProjectsProvider: Loading categories');
-      await ProjectCategoryService.initialize();
-      _categories = ProjectCategoryService.getCategories();
+      final categoryProvider = CategoryProvider();
+      await categoryProvider.initialize();
+      _categories = categoryProvider.getActiveCategories();
       debugPrint('✅ ProjectsProvider: Loaded ${_categories.length} categories');
       notifyListeners();
     } catch (e) {
@@ -64,20 +65,22 @@ class ProjectsProvider with ChangeNotifier {
   }
 
   /// Get category by ID
-  ProjectCategoryModel? getCategoryById(String? id) {
+  CategoryModel? getCategoryById(String? id) {
     if (id == null) return null;
-    return ProjectCategoryService.getCategoryById(id);
+    return _categories.firstWhere(
+      (category) => category.id == id,
+      orElse: () => CategoryModel(id: '', title: '', color: Colors.grey),
+    );
   }
 
   /// Add new category
-  Future<bool> addCategory(ProjectCategoryModel category) async {
+  Future<bool> addCategory(CategoryModel category) async {
     try {
-      final success = await ProjectCategoryService.addCategory(category);
-      if (success) {
-        await loadCategories();
-        debugPrint('✅ ProjectsProvider: Category added successfully');
-      }
-      return success;
+      final categoryProvider = CategoryProvider();
+      categoryProvider.addCategory(category);
+      await loadCategories();
+      debugPrint('✅ ProjectsProvider: Category added successfully');
+      return true;
     } catch (e) {
       debugPrint('❌ ProjectsProvider: Error adding category: $e');
       return false;
@@ -85,14 +88,13 @@ class ProjectsProvider with ChangeNotifier {
   }
 
   /// Update category
-  Future<bool> updateCategory(ProjectCategoryModel category) async {
+  Future<bool> updateCategory(CategoryModel category) async {
     try {
-      final success = await ProjectCategoryService.updateCategory(category);
-      if (success) {
-        await loadCategories();
-        debugPrint('✅ ProjectsProvider: Category updated successfully');
-      }
-      return success;
+      final categoryProvider = CategoryProvider();
+      categoryProvider.updateCategory(category);
+      await loadCategories();
+      debugPrint('✅ ProjectsProvider: Category updated successfully');
+      return true;
     } catch (e) {
       debugPrint('❌ ProjectsProvider: Error updating category: $e');
       return false;
@@ -102,12 +104,14 @@ class ProjectsProvider with ChangeNotifier {
   /// Delete category
   Future<bool> deleteCategory(String categoryId) async {
     try {
-      final success = await ProjectCategoryService.deleteCategory(categoryId);
-      if (success) {
+      final category = getCategoryById(categoryId);
+      if (category != null) {
+        final categoryProvider = CategoryProvider();
+        categoryProvider.deleteCategory(category);
         await loadCategories();
         debugPrint('✅ ProjectsProvider: Category deleted successfully');
       }
-      return success;
+      return true;
     } catch (e) {
       debugPrint('❌ ProjectsProvider: Error deleting category: $e');
       return false;

@@ -28,9 +28,19 @@ class HomeViewModel extends ChangeNotifier {
 
   bool get showArchived => TaskProvider().showArchived;
 
-  int? get selectedCategoryId => TaskProvider().selectedCategoryId;
+  String? get selectedCategoryId => TaskProvider().selectedCategoryId;
 
   List<dynamic> get taskCategories => CategoryProvider().categoryList;
+
+  Map<int, int> get taskCounts {
+    final counts = <int, int>{};
+    final allTasks = TaskProvider().taskList;
+
+    for (var category in taskCategories) {
+      counts[category.id] = allTasks.where((task) => task.categoryId == category.id).length;
+    }
+    return counts;
+  }
 
   // Commands
   void changeSelectedDate(DateTime date) {
@@ -45,7 +55,7 @@ class HomeViewModel extends ChangeNotifier {
     await TaskProvider().toggleShowArchived();
   }
 
-  void setSelectedCategory(int? categoryId) {
+  void setSelectedCategory(String? categoryId) {
     TaskProvider().setSelectedCategory(categoryId);
     notifyListeners();
   }

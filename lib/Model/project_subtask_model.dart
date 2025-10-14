@@ -20,7 +20,7 @@ class ProjectSubtaskModel extends HiveObject {
   DateTime createdAt;
 
   @HiveField(5)
-  int orderIndex;
+  int? orderIndex;
 
   @HiveField(6)
   String? description;
@@ -31,7 +31,7 @@ class ProjectSubtaskModel extends HiveObject {
     required this.title,
     this.isCompleted = false,
     required this.createdAt,
-    this.orderIndex = 0,
+    this.orderIndex,
     this.description,
   });
 

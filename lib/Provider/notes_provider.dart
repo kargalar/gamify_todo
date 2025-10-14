@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/notes_service.dart';
-import 'package:next_level/Service/note_category_service.dart';
+import 'package:next_level/Provider/category_provider.dart';
 
 /// Notları ve kategorileri yöneten Provider
 class NotesProvider with ChangeNotifier {
@@ -20,7 +20,7 @@ class NotesProvider with ChangeNotifier {
 
   // State
   List<NoteModel> _notes = [];
-  List<NoteCategoryModel> _categories = [];
+  List<CategoryModel> _categories = [];
   String? _selectedCategoryId;
   String _searchQuery = '';
   bool _isLoading = false;
@@ -29,10 +29,10 @@ class NotesProvider with ChangeNotifier {
 
   // Getters
   List<NoteModel> get notes => _notes;
-  List<NoteCategoryModel> get categories => _categories;
+  List<CategoryModel> get categories => _categories;
   String? get selectedCategoryId => _selectedCategoryId;
   bool get showArchivedOnly => _showArchivedOnly;
-  NoteCategoryModel? get selectedCategory {
+  CategoryModel? get selectedCategory {
     if (_selectedCategoryId == null) return null;
     try {
       return _categories.firstWhere((cat) => cat.id == _selectedCategoryId);
@@ -105,10 +105,10 @@ class NotesProvider with ChangeNotifier {
       _setError(null);
 
       await _notesService.initialize();
-      await NoteCategoryService.initialize();
+      await CategoryProvider().initialize();
 
       _notes = await _notesService.getNotes();
-      _categories = NoteCategoryService.getCategories();
+      _categories = CategoryProvider().categoryList;
 
       debugPrint('✅ NotesProvider: Loaded ${_notes.length} notes and ${_categories.length} categories');
     } catch (e) {
@@ -295,15 +295,13 @@ class NotesProvider with ChangeNotifier {
   }
 
   /// Kategori ekle
-  Future<bool> addCategory(NoteCategoryModel category) async {
+  Future<bool> addCategory(CategoryModel category) async {
     try {
-      debugPrint('➕ NotesProvider: Adding category: ${category.name}');
-      final success = await NoteCategoryService.addCategory(category);
-      if (success) {
-        await loadData();
-        debugPrint('✅ NotesProvider: Category added successfully');
-      }
-      return success;
+      debugPrint('➕ NotesProvider: Adding category: ${category.title}');
+      CategoryProvider().addCategory(category);
+      await loadData();
+      debugPrint('✅ NotesProvider: Category added successfully');
+      return true;
     } catch (e) {
       debugPrint('❌ NotesProvider: Error adding category: $e');
       _setError('Kategori eklenirken hata oluştu: $e');
@@ -312,15 +310,13 @@ class NotesProvider with ChangeNotifier {
   }
 
   /// Kategori güncelle
-  Future<bool> updateCategory(NoteCategoryModel category) async {
+  Future<bool> updateCategory(CategoryModel category) async {
     try {
       debugPrint('🔄 NotesProvider: Updating category: ${category.id}');
-      final success = await NoteCategoryService.updateCategory(category);
-      if (success) {
-        await loadData();
-        debugPrint('✅ NotesProvider: Category updated successfully');
-      }
-      return success;
+      CategoryProvider().updateCategory(category);
+      await loadData();
+      debugPrint('✅ NotesProvider: Category updated successfully');
+      return true;
     } catch (e) {
       debugPrint('❌ NotesProvider: Error updating category: $e');
       _setError('Kategori güncellenirken hata oluştu: $e');
@@ -341,15 +337,19 @@ class NotesProvider with ChangeNotifier {
         return false;
       }
 
-      final success = await NoteCategoryService.deleteCategory(categoryId);
-      if (success) {
+      final category = CategoryProvider().getCategoryById(categoryId);
+      if (category != null) {
+        CategoryProvider().deleteCategory(category);
         if (_selectedCategoryId == categoryId) {
           _selectedCategoryId = null;
         }
         await loadData();
         debugPrint('✅ NotesProvider: Category deleted successfully');
+        return true;
+      } else {
+        _setError('Kategori bulunamadı');
+        return false;
       }
-      return success;
     } catch (e) {
       debugPrint('❌ NotesProvider: Error deleting category: $e');
       _setError('Kategori silinirken hata oluştu: $e');
@@ -358,7 +358,7 @@ class NotesProvider with ChangeNotifier {
   }
 
   /// Kategoriye göre not al
-  NoteCategoryModel? getCategoryById(String? categoryId) {
+  CategoryModel? getCategoryById(String? categoryId) {
     if (categoryId == null) return null;
     try {
       return _categories.firstWhere((cat) => cat.id == categoryId);

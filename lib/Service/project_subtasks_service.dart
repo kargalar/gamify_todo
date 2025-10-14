@@ -37,8 +37,12 @@ class ProjectSubtasksService {
 
       final subtasks = _subtasksBox!.values.where((subtask) => subtask.projectId == projectId).toList();
 
-      // Order index'e göre sırala
-      subtasks.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+      // Order index'e göre sırala (null'lar en sona)
+      subtasks.sort((a, b) {
+        final aIndex = a.orderIndex ?? double.maxFinite;
+        final bIndex = b.orderIndex ?? double.maxFinite;
+        return aIndex.compareTo(bIndex);
+      });
 
       debugPrint('✅ ProjectSubtasksService: Loaded ${subtasks.length} subtasks for project: $projectId');
       return subtasks;

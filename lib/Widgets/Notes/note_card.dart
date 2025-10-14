@@ -28,7 +28,7 @@ class NoteCard extends StatelessWidget {
       builder: (context, provider, child) {
         // Kategori bilgisini Provider'dan al
         final category = provider.getCategoryById(note.categoryId);
-        final categoryColor = category != null ? Color(category.colorValue) : AppColors.grey;
+        final categoryColor = category != null ? category.color : AppColors.grey;
 
         return Slidable(
           key: ValueKey(note.id),
@@ -117,7 +117,7 @@ class NoteCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          category.iconCodePoint != null ? IconData(category.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category,
                           size: 20,
                           color: categoryColor,
                         ),

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
 
 /// Kategori seçimi için bottom sheet
 class CategorySelectorBottomSheet extends StatelessWidget {
-  final NoteCategoryModel? selectedCategory;
-  final List<NoteCategoryModel> categories;
-  final Future<void> Function(NoteCategoryModel) onCategoryAdded;
-  final Future<void> Function(NoteCategoryModel)? onCategoryDeleted;
+  final CategoryModel? selectedCategory;
+  final List<CategoryModel> categories;
+  final Future<void> Function(CategoryModel) onCategoryAdded;
+  final Future<void> Function(CategoryModel)? onCategoryDeleted;
 
   const CategorySelectorBottomSheet({
     super.key,
@@ -104,11 +104,11 @@ class CategorySelectorBottomSheet extends StatelessWidget {
 
   Widget _buildCategoryTile({
     required BuildContext context,
-    required NoteCategoryModel? category,
+    required CategoryModel? category,
     required bool isSelected,
   }) {
     final color = category != null ? Color(category.colorValue) : AppColors.grey;
-    final icon = category != null ? IconData(category.iconCodePoint, fontFamily: 'MaterialIcons') : Icons.category_outlined;
+    final icon = category != null && category.iconCodePoint != null ? IconData(category.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category_outlined;
     final name = category?.name ?? 'Kategorisiz';
 
     return InkWell(
@@ -216,11 +216,11 @@ class CategorySelectorBottomSheet extends StatelessWidget {
     if (result != null) {
       debugPrint('✅ CategorySelectorBottomSheet: Category data received from dialog');
 
-      final newCategory = NoteCategoryModel(
+      final newCategory = CategoryModel(
         id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
-        name: result['name'] as String,
+        title: result['name'] as String,
         iconCodePoint: result['iconCodePoint'] as int,
-        colorValue: result['colorValue'] as int,
+        color: Color(result['colorValue'] as int),
         createdAt: DateTime.now(),
       );
 

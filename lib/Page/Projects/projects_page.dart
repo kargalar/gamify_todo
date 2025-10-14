@@ -8,13 +8,12 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/project_note_model.dart';
-import 'package:next_level/Model/project_category_model.dart';
 import 'package:next_level/Page/Projects/project_detail_page.dart';
 import 'package:next_level/Widgets/Common/standard_app_bar.dart';
 import 'package:next_level/Widgets/Common/add_subtask_bottom_sheet.dart';
 import 'package:next_level/Widgets/Projects/add_project_note_bottom_sheet.dart';
 import 'package:next_level/Widgets/Common/category_filter_widget.dart';
-import 'package:next_level/Widgets/Projects/add_project_category_dialog.dart';
+import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 
 /// Projeler ana sayfası
 class ProjectsPage extends StatefulWidget {
@@ -147,9 +146,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       selectedCategoryId: provider.selectedCategoryId,
                       onCategorySelected: (categoryId) => provider.setSelectedCategory(categoryId as String?),
                       itemCounts: provider.projectCounts,
-                      onCategoryLongPress: null,
+                      onCategoryLongPress: (context, category) {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          barrierColor: Colors.transparent,
+                          builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+                        );
+                      },
                       showIcons: true,
                       showColors: true,
+                      showAddButton: false,
                     ),
                   ),
                   // Yeni Kategori Ekle butonu
@@ -299,7 +307,15 @@ class _ProjectsPageState extends State<ProjectsPage> {
         size: 20,
         color: AppColors.main,
       ),
-      onPressed: () => _showAddProjectCategoryDialog(context, provider),
+      onPressed: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          barrierColor: Colors.transparent,
+          builder: (context) => const CreateCategoryBottomSheet(),
+        );
+      },
       backgroundColor: AppColors.panelBackground,
       side: BorderSide(
         color: AppColors.main,
@@ -535,69 +551,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ],
         );
       },
-    );
-  }
-
-  Future<void> _showAddProjectCategoryDialog(BuildContext context, ProjectsProvider provider) async {
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (context) => AddProjectCategoryDialog(
-        existingCategories: provider.categories,
-        onDeleteCategory: (category) {
-          _showDeleteProjectCategoryDialog(context, provider, category);
-        },
-      ),
-    );
-
-    if (result != null) {
-      debugPrint('✅ ProjectsPage: Category data received from dialog');
-
-      // Yeni kategori oluştur
-      final newCategory = ProjectCategoryModel(
-        id: 'proj_cat_${DateTime.now().millisecondsSinceEpoch}',
-        name: result['name'] as String,
-        iconCodePoint: result['iconCodePoint'] as int,
-        colorValue: result['colorValue'] as int,
-        createdAt: DateTime.now(),
-      );
-
-      await provider.addCategory(newCategory);
-
-      debugPrint('✅ ProjectsPage: New category created - ${newCategory.name}');
-    }
-  }
-
-  void _showDeleteProjectCategoryDialog(BuildContext context, ProjectsProvider provider, ProjectCategoryModel category) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(LocaleKeys.DeleteCategory.tr()),
-        content: Text(
-          LocaleKeys.DeleteCategoryConfirmation.tr(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(LocaleKeys.Cancel.tr()),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // Dialog'u kapat
-              final success = await provider.deleteCategory(category.id);
-              if (success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(LocaleKeys.CategoryDeleted.tr())),
-                );
-                debugPrint('✅ ProjectsPage: Category deleted - ${category.name}');
-              }
-            },
-            child: Text(
-              LocaleKeys.Delete.tr(),
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

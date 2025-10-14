@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/hive_service.dart';
 
 class CategoryProvider extends ChangeNotifier {
   static final CategoryProvider _instance = CategoryProvider._internal();
@@ -13,8 +14,24 @@ class CategoryProvider extends ChangeNotifier {
 
   List<CategoryModel> categoryList = [];
 
+  Future<void> initialize() async {
+    try {
+      categoryList = await HiveService().getCategories();
+      debugPrint('✅ CategoryProvider: Loaded ${categoryList.length} categories');
+    } catch (e) {
+      debugPrint('⚠️ CategoryProvider: Error loading categories (possibly data migration issue): $e');
+      debugPrint('🧹 CategoryProvider: Clearing category box and starting fresh');
+
+      // Clear the box if there's a migration error
+      await HiveService().clearCategoryBox();
+      categoryList = [];
+      debugPrint('✅ CategoryProvider: Category box cleared, starting with empty list');
+    }
+    notifyListeners();
+  }
+
   void addCategory(CategoryModel categoryModel) async {
-    final int categoryId = await ServerManager().addCategory(categoryModel: categoryModel);
+    final String categoryId = await ServerManager().addCategory(categoryModel: categoryModel);
 
     categoryModel.id = categoryId;
     categoryList.add(categoryModel);
@@ -53,7 +70,7 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  CategoryModel? getCategoryById(int? categoryId) {
+  CategoryModel? getCategoryById(String? categoryId) {
     if (categoryId == null) return null;
 
     try {

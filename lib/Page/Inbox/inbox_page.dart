@@ -25,7 +25,7 @@ class InboxPage extends StatefulWidget {
 
 class _InboxPageState extends State<InboxPage> {
   CategoryModel? _selectedCategory;
-  int? _selectedCategoryId;
+  String? _selectedCategoryId;
   bool _isSearchActive = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -104,7 +104,7 @@ class _InboxPageState extends State<InboxPage> {
       if (hasOverdue) _selectedStatuses.add(TaskStatusEnum.OVERDUE);
 
       // Load selected category
-      _selectedCategoryId = prefs.getInt('categories_selected_category_id');
+      _selectedCategoryId = prefs.getString('categories_selected_category_id');
     });
 
     // Load the selected category if there's a saved ID
@@ -152,7 +152,7 @@ class _InboxPageState extends State<InboxPage> {
 
     // Save selected category
     if (_selectedCategory != null) {
-      await prefs.setInt('categories_selected_category_id', _selectedCategory!.id);
+      await prefs.setString('categories_selected_category_id', _selectedCategory!.id);
     } else {
       await prefs.remove('categories_selected_category_id');
     }

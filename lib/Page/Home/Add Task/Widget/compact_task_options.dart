@@ -22,7 +22,7 @@ class CompactTaskOptions extends StatelessWidget {
     if (addTaskProvider.categoryId != null) {
       selectedCategory = categoryProvider.categoryList.firstWhere(
         (category) => category.id == addTaskProvider.categoryId,
-        orElse: () => CategoryModel(title: LocaleKeys.NoCategory.tr(), color: AppColors.main),
+        orElse: () => CategoryModel(id: '', title: LocaleKeys.NoCategory.tr(), color: AppColors.main),
       );
     }
 

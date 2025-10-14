@@ -49,4 +49,13 @@ class StoreProvider with ChangeNotifier {
   void setStateItems() {
     notifyListeners();
   }
+
+  Future<void> loadItems() async {
+    try {
+      storeItemList = await ServerManager().getItems();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('❌ StoreProvider: Error loading items: $e');
+    }
+  }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Model/note_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
@@ -25,7 +25,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
   late final TextEditingController _contentController;
   final FocusNode _titleFocusNode = FocusNode();
 
-  NoteCategoryModel? _selectedCategory;
+  CategoryModel? _selectedCategory;
   late bool _isPinned;
   bool _isSaving = false;
 
@@ -134,6 +134,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
 
     return PopScope(
       canPop: true,
+      // ignore: deprecated_member_use
       onPopInvoked: (didPop) {
         if (didPop && isEditing) {
           Future.microtask(() => _autoSave());
@@ -206,6 +207,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                           onPressed: () async {
                             if (isEditing) await _autoSave();
                             widget.onDismiss?.call();
+                            // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                           },
                         ),
@@ -338,18 +340,18 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: Color(_selectedCategory!.colorValue).withValues(alpha: 0.2),
+                          color: _selectedCategory!.color.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          IconData(_selectedCategory!.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          _selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category,
                           size: 18,
-                          color: Color(_selectedCategory!.colorValue),
+                          color: _selectedCategory!.color,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _selectedCategory!.name,
+                        _selectedCategory!.title,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -381,7 +383,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
 
   /// Kategori seçici bottom sheet'i göster
   Future<void> _showCategorySelector(BuildContext context, NotesProvider provider) async {
-    final selected = await showModalBottomSheet<NoteCategoryModel?>(
+    final selected = await showModalBottomSheet<CategoryModel?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

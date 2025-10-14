@@ -103,14 +103,14 @@ class TaskProvider with ChangeNotifier {
   DateTime selectedDate = DateTime.now();
   bool showCompleted = false;
   bool showArchived = false;
-  int? selectedCategoryId;
+  String? selectedCategoryId;
 
   // Uygulama başladığında showCompleted durumunu SharedPreferences'dan yükle
   Future<void> loadShowCompletedState() async {
     final prefs = await SharedPreferences.getInstance();
     showCompleted = prefs.getBool('show_completed') ?? false;
     showArchived = prefs.getBool('show_archived') ?? false;
-    selectedCategoryId = prefs.getInt('selected_category_id');
+    selectedCategoryId = prefs.getString('selected_category_id');
     notifyListeners();
   }
 
@@ -1223,13 +1223,13 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setSelectedCategory(int? categoryId) async {
+  Future<void> setSelectedCategory(String? categoryId) async {
     selectedCategoryId = categoryId;
 
     // Değişikliği SharedPreferences'a kaydet
     final prefs = await SharedPreferences.getInstance();
     if (categoryId != null) {
-      await prefs.setInt('selected_category_id', categoryId);
+      await prefs.setString('selected_category_id', categoryId);
     } else {
       await prefs.remove('selected_category_id');
     }
@@ -1728,7 +1728,7 @@ class TaskProvider with ChangeNotifier {
   }
 
   // Get all tasks with a specific category ID
-  List<TaskModel> getTasksByCategoryId(int categoryId) {
+  List<TaskModel> getTasksByCategoryId(String categoryId) {
     // Filter tasks by category ID
     List<TaskModel> tasks = taskList.where((task) => task.categoryId == categoryId).toList();
 

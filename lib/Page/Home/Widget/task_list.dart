@@ -10,7 +10,6 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:provider/provider.dart';
-import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 
 class TaskList extends StatefulWidget {
   const TaskList({super.key});
@@ -173,13 +172,6 @@ class _TaskListState extends State<TaskList> {
             physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
-                // Category filter
-                CategoryFilterWidget(
-                  categories: vm.taskCategories,
-                  selectedCategoryId: vm.selectedCategoryId,
-                  onCategorySelected: (categoryId) => vm.setSelectedCategory(categoryId as int?),
-                ),
-
                 // Overdue tasks section (only on today's view) - minimalist spacing
                 if (isToday && overdueTasks.isNotEmpty) ...[
                   OverdueTasksHeader(overdueTasks: overdueTasks),

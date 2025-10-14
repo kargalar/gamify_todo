@@ -36,7 +36,7 @@ class ProjectCard extends StatelessWidget {
     // Kategori rengi veya default renk
     final categoryColor = category != null ? Color(category.colorValue) : AppColors.main;
 
-    final categoryIcon = category != null ? IconData(category.iconCodePoint, fontFamily: 'MaterialIcons') : Icons.folder_outlined;
+    final categoryIcon = category != null ? IconData(category.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : Icons.folder_outlined;
 
     return Slidable(
       key: ValueKey(project.id),

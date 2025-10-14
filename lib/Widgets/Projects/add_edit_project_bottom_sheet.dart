@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Model/project_model.dart';
-import 'package:next_level/Model/project_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
@@ -23,7 +23,7 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
 
-  ProjectCategoryModel? _selectedCategory;
+  CategoryModel? _selectedCategory;
   late bool _isPinned;
   bool _isSaving = false;
 
@@ -256,7 +256,7 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          IconData(_selectedCategory!.iconCodePoint, fontFamily: 'MaterialIcons'),
+                          IconData(_selectedCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons'),
                           size: 18,
                           color: Color(_selectedCategory!.colorValue),
                         ),
@@ -295,7 +295,7 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
 
   /// Kategori seçici bottom sheet'i göster
   Future<void> _showCategorySelector(BuildContext context, ProjectsProvider provider) async {
-    final selected = await showModalBottomSheet<ProjectCategoryModel?>(
+    final selected = await showModalBottomSheet<CategoryModel?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

@@ -5,9 +5,6 @@ import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-part 'task_model.g.dart';
-
-@HiveType(typeId: 2)
 class TaskModel extends HiveObject {
   @HiveField(0)
   int id; // id si
@@ -50,7 +47,7 @@ class TaskModel extends HiveObject {
   @HiveField(19)
   String? location; // konum bilgisi
   @HiveField(20)
-  int? categoryId; // kategori id'si
+  String? categoryId; // kategori id'si
   @HiveField(21)
   bool? _showSubtasks; // subtask'ları göster/gizle durumu
 
@@ -211,5 +208,102 @@ extension TaskModelExtension on TaskModel {
     }
 
     return taskDate?.isSameDay(date) == true && isRoutineCheck() && isCompletedCheck();
+  }
+}
+
+class TaskModelAdapter extends TypeAdapter<TaskModel> {
+  @override
+  final int typeId = 2;
+
+  @override
+  TaskModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+
+    return TaskModel(
+      id: fields[0] as int,
+      routineID: fields[1] as int?,
+      title: fields[2] as String,
+      description: fields[3] as String?,
+      type: fields[4] as TaskTypeEnum,
+      taskDate: fields[5] as DateTime?,
+      time: fields[6] as TimeOfDay?,
+      isNotificationOn: fields[7] as bool,
+      isAlarmOn: fields[8] as bool,
+      currentDuration: fields[9] as Duration?,
+      remainingDuration: fields[10] as Duration?,
+      currentCount: fields[11] as int?,
+      targetCount: fields[12] as int?,
+      isTimerActive: fields[13] as bool?,
+      attributeIDList: (fields[14] as List?)?.cast<int>(),
+      skillIDList: (fields[15] as List?)?.cast<int>(),
+      status: fields[16] as TaskStatusEnum?,
+      priority: fields[17] as int,
+      subtasks: (fields[18] as List?)?.cast<SubTaskModel>(),
+      location: fields[19] as String?,
+      categoryId: fields[20] is int ? (fields[20] as int).toString() : fields[20] as String?,
+      earlyReminderMinutes: fields[22] as int?,
+      attachmentPaths: (fields[23] as List?)?.cast<String>(),
+    )
+      .._showSubtasks = fields[21] as bool?
+      .._isPinned = fields[24] as bool?;
+  }
+
+  @override
+  void write(BinaryWriter writer, TaskModel obj) {
+    writer
+      ..writeByte(25)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.routineID)
+      ..writeByte(2)
+      ..write(obj.title)
+      ..writeByte(3)
+      ..write(obj.description)
+      ..writeByte(4)
+      ..write(obj.type)
+      ..writeByte(5)
+      ..write(obj.taskDate)
+      ..writeByte(6)
+      ..write(obj.time)
+      ..writeByte(7)
+      ..write(obj.isNotificationOn)
+      ..writeByte(8)
+      ..write(obj.isAlarmOn)
+      ..writeByte(9)
+      ..write(obj.currentDuration)
+      ..writeByte(10)
+      ..write(obj.remainingDuration)
+      ..writeByte(11)
+      ..write(obj.currentCount)
+      ..writeByte(12)
+      ..write(obj.targetCount)
+      ..writeByte(13)
+      ..write(obj.isTimerActive)
+      ..writeByte(14)
+      ..write(obj.attributeIDList)
+      ..writeByte(15)
+      ..write(obj.skillIDList)
+      ..writeByte(16)
+      ..write(obj.status)
+      ..writeByte(17)
+      ..write(obj.priority)
+      ..writeByte(18)
+      ..write(obj.subtasks)
+      ..writeByte(19)
+      ..write(obj.location)
+      ..writeByte(20)
+      ..write(obj.categoryId)
+      ..writeByte(21)
+      ..write(obj._showSubtasks)
+      ..writeByte(22)
+      ..write(obj.earlyReminderMinutes)
+      ..writeByte(23)
+      ..write(obj.attachmentPaths)
+      ..writeByte(24)
+      ..write(obj._isPinned);
   }
 }

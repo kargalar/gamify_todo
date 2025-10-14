@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:next_level/Model/project_category_model.dart';
+import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Projects/add_project_category_dialog.dart';
 
 /// Proje kategorisi seçimi için bottom sheet
 class ProjectCategorySelectorBottomSheet extends StatelessWidget {
-  final ProjectCategoryModel? currentCategory;
-  final List<ProjectCategoryModel> categories;
+  final CategoryModel? currentCategory;
+  final List<CategoryModel> categories;
 
   const ProjectCategorySelectorBottomSheet({
     super.key,
@@ -101,11 +101,11 @@ class ProjectCategorySelectorBottomSheet extends StatelessWidget {
 
   Widget _buildCategoryTile({
     required BuildContext context,
-    required ProjectCategoryModel? category,
+    required CategoryModel? category,
     required bool isSelected,
   }) {
     final color = category != null ? Color(category.colorValue) : AppColors.grey;
-    final icon = category != null ? IconData(category.iconCodePoint, fontFamily: 'MaterialIcons') : Icons.category_outlined;
+    final icon = category != null ? IconData(category.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : Icons.category_outlined;
     final name = category?.name ?? 'Kategorisiz';
 
     return InkWell(
@@ -159,7 +159,7 @@ class ProjectCategorySelectorBottomSheet extends StatelessWidget {
   Widget _buildAddCategoryButton(BuildContext context) {
     return InkWell(
       onTap: () async {
-        final newCategory = await showDialog<ProjectCategoryModel>(
+        final newCategory = await showDialog<CategoryModel>(
           context: context,
           builder: (context) => const AddProjectCategoryDialog(),
         );

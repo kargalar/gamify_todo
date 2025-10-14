@@ -22,7 +22,7 @@ class ProjectSubtaskModelAdapter extends TypeAdapter<ProjectSubtaskModel> {
       title: fields[2] as String,
       isCompleted: fields[3] as bool,
       createdAt: fields[4] as DateTime,
-      orderIndex: fields[5] as int,
+      orderIndex: fields[5] as int?,
       description: fields[6] as String?,
     );
   }

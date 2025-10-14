@@ -19,6 +19,9 @@ dependencies:
   # Date Formatter
   intl: ^0.20.2
 
+  # UUID
+  uuid: ^4.4.0
+
   # Font style
   google_fonts: ^6.1.0
 
