@@ -391,8 +391,10 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
         selectedCategory: _selectedCategory,
         categories: provider.categories,
         onCategoryAdded: (category) async {
-          debugPrint('➕ AddEditNoteBottomSheet: Adding new category ${category.name}');
-          await provider.addCategory(category);
+          debugPrint('➕ AddEditNoteBottomSheet: New category created ${category.name}');
+          // Kategori zaten CreateCategoryBottomSheet içinde CategoryProvider'a eklendi
+          // Sadece NotesProvider'ın kategoriler listesini güncellememiz gerekiyor
+          await provider.loadData();
         },
         onCategoryDeleted: (category) async {
           debugPrint('🗑️ AddEditNoteBottomSheet: Deleting category ${category.name}');

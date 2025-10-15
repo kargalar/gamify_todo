@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Widgets/Projects/add_project_category_dialog.dart';
+import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 
 /// Proje kategorisi seçimi için bottom sheet
 class ProjectCategorySelectorBottomSheet extends StatelessWidget {
@@ -159,9 +159,14 @@ class ProjectCategorySelectorBottomSheet extends StatelessWidget {
   Widget _buildAddCategoryButton(BuildContext context) {
     return InkWell(
       onTap: () async {
-        final newCategory = await showDialog<CategoryModel>(
+        final newCategory = await showModalBottomSheet<CategoryModel>(
           context: context,
-          builder: (context) => const AddProjectCategoryDialog(),
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          barrierColor: Colors.transparent,
+          builder: (context) => const CreateCategoryBottomSheet(
+            initialCategoryType: CategoryType.project,
+          ),
         );
 
         if (newCategory != null && context.mounted) {

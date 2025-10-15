@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Widgets/Notes/add_category_dialog.dart';
+import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 
 /// Kategori seçimi için bottom sheet
 class CategorySelectorBottomSheet extends StatelessWidget {
@@ -200,31 +200,22 @@ class CategorySelectorBottomSheet extends StatelessWidget {
   }
 
   Future<void> _showAddCategoryDialog(BuildContext context) async {
-    final result = await showDialog<Map<String, dynamic>>(
+    final newCategory = await showModalBottomSheet<CategoryModel>(
       context: context,
-      builder: (context) => AddCategoryDialog(
-        existingCategories: categories,
-        onDeleteCategory: (category) async {
-          debugPrint('🗑️ CategorySelectorBottomSheet: Deleting category ${category.name}');
-          if (onCategoryDeleted != null) {
-            await onCategoryDeleted!(category);
-          }
-        },
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
+      builder: (context) => const CreateCategoryBottomSheet(
+        initialCategoryType: CategoryType.note,
       ),
     );
 
-    if (result != null) {
-      debugPrint('✅ CategorySelectorBottomSheet: Category data received from dialog');
+    if (newCategory != null) {
+      debugPrint('✅ CategorySelectorBottomSheet: New category created: ${newCategory.name}');
 
-      final newCategory = CategoryModel(
-        id: 'cat_${DateTime.now().millisecondsSinceEpoch}',
-        title: result['name'] as String,
-        iconCodePoint: result['iconCodePoint'] as int,
-        color: Color(result['colorValue'] as int),
-        createdAt: DateTime.now(),
-        categoryType: CategoryType.note,
-      );
-
+      // Kategori zaten CreateCategoryBottomSheet içinde CategoryProvider'a eklendi
+      // Sadece NotesProvider'ın kategoriler listesini güncellememiz gerekiyor
+      // onCategoryAdded callback'i NotesProvider.loadData() çağırarak kategorileri yeniden yükleyecek
       await onCategoryAdded(newCategory);
 
       if (context.mounted) {

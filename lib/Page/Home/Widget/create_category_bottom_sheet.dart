@@ -442,6 +442,11 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
         addTaskProvider.updateCategory(newCategory.id);
       }
+
+      // Return the newly created category
+      if (mounted) {
+        Navigator.pop(context, newCategory);
+      }
     } else {
       // Update existing category (categoryType DEĞİŞTİRİLMEZ)
       widget.categoryModel!.title = categoryTitleController.text.trim();
@@ -449,10 +454,10 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       widget.categoryModel!.iconCodePoint = selectedIcon.codePoint;
       // categoryType değiştirilmez - hangi sayfada oluşturulduysa öyle kalır
       await categoryProvider.updateCategory(widget.categoryModel!);
-    }
 
-    if (mounted) {
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 }

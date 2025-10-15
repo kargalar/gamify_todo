@@ -305,6 +305,12 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
       ),
     );
 
+    // Yeni kategori oluşturulduysa, ProjectsProvider'ın kategoriler listesini güncelle
+    if (selected != null && !provider.categories.any((cat) => cat.id == selected.id)) {
+      debugPrint('🔄 AddEditProjectBottomSheet: New category detected, reloading categories');
+      await provider.loadCategories();
+    }
+
     // Allow both category selection and null (Kategorisiz) selection
     if (mounted) {
       setState(() {
