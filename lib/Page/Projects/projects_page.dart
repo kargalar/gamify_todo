@@ -158,6 +158,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     await provider.loadCategories();
                   }
                 },
+                onCategoryAdded: () async {
+                  // Yeni kategori eklendikten sonra kategorileri yeniden yükle
+                  await provider.loadCategories();
+                },
                 showIcons: true,
                 showColors: true,
                 showAddButton: true,

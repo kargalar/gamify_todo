@@ -390,7 +390,7 @@ class ServerManager {
 
     categoryModel.id = id;
 
-    HiveService().addCategory(categoryModel);
+    await HiveService().addCategory(categoryModel);
 
     return categoryModel.id;
 
@@ -487,7 +487,7 @@ class ServerManager {
   Future<void> updateCategory({
     required CategoryModel categoryModel,
   }) async {
-    HiveService().updateCategory(categoryModel);
+    await HiveService().updateCategory(categoryModel);
   }
 
   // delete item
@@ -558,7 +558,7 @@ class ServerManager {
   Future<void> deleteCategory({
     required CategoryModel categoryModel,
   }) async {
-    HiveService().deleteCategory(categoryModel.id);
+    await HiveService().deleteCategory(categoryModel.id);
   }
 
   // trigger tasks !!!!! normalde bu kullanılmıyor. 00:00 olduğunda otomatik backendde yapılıyor. test etmek için böyle koyuldu.

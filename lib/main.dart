@@ -90,7 +90,7 @@ class Main extends StatelessWidget {
           },
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
-          locale: context.locale,
+          locale: const Locale('en', 'US'), // Force English as default language
         );
       },
     );

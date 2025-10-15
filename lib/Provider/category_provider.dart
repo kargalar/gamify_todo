@@ -30,7 +30,7 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addCategory(CategoryModel categoryModel) async {
+  Future<void> addCategory(CategoryModel categoryModel) async {
     final String categoryId = await ServerManager().addCategory(categoryModel: categoryModel);
 
     categoryModel.id = categoryId;
@@ -39,7 +39,7 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCategory(CategoryModel categoryModel) async {
+  Future<void> updateCategory(CategoryModel categoryModel) async {
     await ServerManager().updateCategory(categoryModel: categoryModel);
 
     final index = categoryList.indexWhere((category) => category.id == categoryModel.id);
@@ -52,17 +52,17 @@ class CategoryProvider extends ChangeNotifier {
 
   Future<void> deleteCategory(CategoryModel categoryModel) async {
     debugPrint('🗑️ CategoryProvider: Deleting category ${categoryModel.id}');
-    
+
     await ServerManager().deleteCategory(categoryModel: categoryModel);
 
     categoryList.removeWhere((category) => category.id == categoryModel.id);
-    
+
     debugPrint('✅ CategoryProvider: Category deleted, remaining: ${categoryList.length}');
 
     notifyListeners();
   }
 
-  void archiveCategory(CategoryModel categoryModel) async {
+  Future<void> archiveCategory(CategoryModel categoryModel) async {
     categoryModel.isArchived = true;
     await ServerManager().updateCategory(categoryModel: categoryModel);
 

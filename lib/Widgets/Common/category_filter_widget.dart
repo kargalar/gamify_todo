@@ -13,6 +13,7 @@ class CategoryFilterWidget extends StatelessWidget {
   final bool showAllOption;
   final Map<dynamic, int>? itemCounts; // Optional count display
   final Function(BuildContext, dynamic)? onCategoryLongPress; // Optional long press handler
+  final VoidCallback? onCategoryAdded; // Optional callback when a category is added
   final bool showIcons; // Whether to show category icons
   final bool showColors; // Whether to show category colors
   final bool showAddButton; // Whether to show add category button
@@ -27,6 +28,7 @@ class CategoryFilterWidget extends StatelessWidget {
     this.showAllOption = true,
     this.itemCounts,
     this.onCategoryLongPress,
+    this.onCategoryAdded,
     this.showIcons = false,
     this.showColors = false,
     this.showAddButton = false,
@@ -150,9 +152,9 @@ class CategoryFilterWidget extends StatelessWidget {
         ],
       ),
       backgroundColor: AppColors.panelBackground,
-      onSelected: (_) {
+      onSelected: (_) async {
         // Otomatik olarak doğru tip ile kategori oluştur
-        showModalBottomSheet(
+        await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
@@ -161,6 +163,11 @@ class CategoryFilterWidget extends StatelessWidget {
             initialCategoryType: categoryType,
           ),
         );
+
+        // Kategori eklendikten sonra callback'i çağır
+        if (context.mounted) {
+          onCategoryAdded?.call();
+        }
       },
     );
   }

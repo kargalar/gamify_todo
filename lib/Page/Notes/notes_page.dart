@@ -199,6 +199,10 @@ class _NotesPageState extends State<NotesPage> {
                     await provider.loadData();
                   }
                 },
+                onCategoryAdded: () async {
+                  // Yeni kategori eklendikten sonra kategorileri yeniden yükle
+                  await provider.loadData();
+                },
                 showIcons: true,
                 showColors: true,
                 showAddButton: true,

@@ -299,7 +299,7 @@ class NotesProvider with ChangeNotifier {
   Future<bool> addCategory(CategoryModel category) async {
     try {
       debugPrint('➕ NotesProvider: Adding category: ${category.title}');
-      CategoryProvider().addCategory(category);
+      await CategoryProvider().addCategory(category);
 
       // Kategoriyi listeye hemen ekle
       _categories.add(category);

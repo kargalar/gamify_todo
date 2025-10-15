@@ -254,7 +254,7 @@ class _CreateCategoryDialogState extends State<CreateCategoryDialog> {
     );
   }
 
-  void _saveCategory() {
+  Future<void> _saveCategory() async {
     if (categoryTitleController.text.trim().isEmpty) {
       Helper().getMessage(
         message: LocaleKeys.CategoryNameEmpty.tr(),
@@ -272,18 +272,22 @@ class _CreateCategoryDialogState extends State<CreateCategoryDialog> {
         title: categoryTitleController.text.trim(),
         color: selectedColor,
       );
-      categoryProvider.addCategory(newCategory);
+      await categoryProvider.addCategory(newCategory);
 
       // Auto-select the newly created category
-      final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
-      addTaskProvider.updateCategory(newCategory.id);
+      if (mounted) {
+        final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
+        addTaskProvider.updateCategory(newCategory.id);
+      }
     } else {
       // Update existing category
       widget.categoryModel!.title = categoryTitleController.text.trim();
       widget.categoryModel!.color = selectedColor;
-      categoryProvider.updateCategory(widget.categoryModel!);
+      await categoryProvider.updateCategory(widget.categoryModel!);
     }
 
-    Get.back();
+    if (mounted) {
+      Get.back();
+    }
   }
 }

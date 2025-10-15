@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:next_level/Core/Widgets/language_pop.dart';
+// import 'package:next_level/Core/Widgets/language_pop.dart'; // Temporarily disabled
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
@@ -39,16 +39,17 @@ class SettingsPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            _settingsOption(
-              title: LocaleKeys.SelectLanguage.tr(),
-              icon: Icons.language,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const LanguageSelectionPopup(),
-                );
-              },
-            ),
+            // Language selection temporarily disabled - default is English
+            // _settingsOption(
+            //   title: LocaleKeys.SelectLanguage.tr(),
+            //   icon: Icons.language,
+            //   onTap: () {
+            //     showDialog(
+            //       context: context,
+            //       builder: (context) => const LanguageSelectionPopup(),
+            //     );
+            //   },
+            // ),
             _settingsOption(
               title: LocaleKeys.ThemeSelection.tr(),
               subtitle: LocaleKeys.ThemeSelectionSubtitle.tr(),

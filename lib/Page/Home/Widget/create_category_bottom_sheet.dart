@@ -415,7 +415,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
     );
   }
 
-  void _saveCategory() {
+  Future<void> _saveCategory() async {
     if (categoryTitleController.text.trim().isEmpty) {
       Helper().getMessage(
         message: LocaleKeys.CategoryNameEmpty.tr(),
@@ -435,20 +435,24 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         iconCodePoint: selectedIcon.codePoint,
         categoryType: selectedCategoryType,
       );
-      categoryProvider.addCategory(newCategory);
+      await categoryProvider.addCategory(newCategory);
 
       // Auto-select the newly created category
-      final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
-      addTaskProvider.updateCategory(newCategory.id);
+      if (mounted) {
+        final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
+        addTaskProvider.updateCategory(newCategory.id);
+      }
     } else {
       // Update existing category (categoryType DEĞİŞTİRİLMEZ)
       widget.categoryModel!.title = categoryTitleController.text.trim();
       widget.categoryModel!.color = selectedColor;
       widget.categoryModel!.iconCodePoint = selectedIcon.codePoint;
       // categoryType değiştirilmez - hangi sayfada oluşturulduysa öyle kalır
-      categoryProvider.updateCategory(widget.categoryModel!);
+      await categoryProvider.updateCategory(widget.categoryModel!);
     }
 
-    Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 }

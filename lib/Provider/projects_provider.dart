@@ -78,7 +78,7 @@ class ProjectsProvider with ChangeNotifier {
   Future<bool> addCategory(CategoryModel category) async {
     try {
       final categoryProvider = CategoryProvider();
-      categoryProvider.addCategory(category);
+      await categoryProvider.addCategory(category);
 
       // Kategoriyi listeye hemen ekle
       _categories.add(category);
