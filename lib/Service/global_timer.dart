@@ -128,6 +128,9 @@ class GlobalTimer {
 
       // Sunucuya güncelleme gönder
       ServerManager().updateTask(taskModel: taskModel);
+
+      // Widget'ı güncelle
+      HomeWidgetService.updateTaskCount();
     } else if (storeItemModel != null) {
       // Store item timer durumunu değiştir
       bool newTimerState = !(storeItemModel.isTimerActive ?? false);
@@ -204,6 +207,9 @@ class GlobalTimer {
           // SharedPreferences'ı bir kez al
           final prefs = await SharedPreferences.getInstance();
 
+          // Widget güncellemesi için flag
+          bool shouldUpdateWidget = false;
+
           for (var task in TaskProvider().taskList) {
             if (task.isTimerActive != null && task.isTimerActive == true) {
               // Timer başlangıç zamanını kontrol et
@@ -230,6 +236,7 @@ class GlobalTimer {
                 if (timerRunDuration.inSeconds % 5 == 0) {
                   prefs.setString('task_last_update_${task.id}', DateTime.now().toIso8601String());
                   prefs.setString('task_last_progress_${task.id}', task.currentDuration!.inSeconds.toString());
+                  shouldUpdateWidget = true;
                 }
               } else {
                 // Timer başlangıç zamanı yoksa, şimdi oluştur
@@ -238,13 +245,14 @@ class GlobalTimer {
 
                 // Bir saniye ekle
                 task.currentDuration = task.currentDuration! + const Duration(seconds: 1);
+                shouldUpdateWidget = true;
               }
 
               // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma (hedef >= 0 ise)
               if (task.status != TaskStatusEnum.DONE && task.remainingDuration != null && task.remainingDuration!.inSeconds >= 0 && task.currentDuration! >= task.remainingDuration!) {
                 // Clear any existing status before setting to COMPLETED
                 task.status = TaskStatusEnum.DONE;
-                HomeWidgetService.updateTaskCount();
+                shouldUpdateWidget = true;
 
                 // Zamanlanmış alarmı iptal etme; yalnızca alarm çalsın istiyoruz
 
@@ -327,6 +335,11 @@ class GlobalTimer {
           // UI'ı güncelle
           TaskProvider().updateItems();
           StoreProvider().setStateItems();
+
+          // Widget'ı güncelle (her 5 saniyede bir veya önemli değişiklik olduğunda)
+          if (shouldUpdateWidget) {
+            HomeWidgetService.updateTaskCount();
+          }
         },
       );
     }

@@ -26,14 +26,10 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 
 ○ Disiplin sistemi
 
-○ Credi - alınca statü sorun
-
 ○ Task statistic not true. Ayrıca resetleyince progress süresi de sıfırlansın
 
 ○ Repeat days dal all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. O tasklar ya en yakın diğer gund egisterilwin ya da gisterilmesin
-
-○ Storea öğe eklerken aherhangi bir şeyi deigtirdikten sonra türü degositirkenkuro
 
 ○ tasklari üst üste işaretleyin ve sorun olabiliyor
 ○ alarmı güncelle.

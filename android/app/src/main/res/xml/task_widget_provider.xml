@@ -4,7 +4,7 @@
 	android:minHeight="140dp"
 	android:minResizeWidth="120dp"
 	android:minResizeHeight="120dp"
-	android:updatePeriodMillis="1800000"
+	android:updatePeriodMillis="900000"
 	android:initialLayout="@layout/task_widget"
 	android:resizeMode="horizontal|vertical"
 	android:widgetCategory="home_screen"

@@ -37,8 +37,14 @@ class TaskWidgetProvider : AppWidgetProvider() {
                 val widgetData = HomeWidgetPlugin.getData(context)
                 val taskCount = widgetData.getInt("taskCount", 0)
                 val taskTitlesJson = widgetData.getString("taskTitles", "[]")
+                val taskDetailsJson = widgetData.getString("taskDetails", "[]")
                 val totalWorkSec = widgetData.getInt("totalWorkSec", 0)
                 val hideCompleted = widgetData.getBoolean("hideCompleted", false)
+
+                android.util.Log.d("TaskWidgetProvider", "=== WIDGET UPDATE ===")
+                android.util.Log.d("TaskWidgetProvider", "Task count: $taskCount")
+                android.util.Log.d("TaskWidgetProvider", "Task titles: $taskTitlesJson")
+                android.util.Log.d("TaskWidgetProvider", "Task details length: ${taskDetailsJson?.length ?: 0}")
 
                 // Header and count
                 val hh = totalWorkSec / 3600

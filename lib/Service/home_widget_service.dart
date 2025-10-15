@@ -16,6 +16,7 @@ import 'package:hive/hive.dart' as hive;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Top-level background entry point for AOT
 @pragma('vm:entry-point')
@@ -76,50 +77,126 @@ class HomeWidgetService {
       }
       debugPrint('Task list length for widget: ${allTasks.length}');
 
-      // Get today's tasks - we need to get incomplete tasks only
+      // Get today's date
       final today = DateTime.now();
       debugPrint('Today date: $today');
 
       // Read hide flag (default false)
       final hideCompleted = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
 
-      // When hideCompleted is true, still show TIMER tasks that are actively running
-      bool includeTask(TaskModel t) {
-        final isToday = t.taskDate?.isSameDay(today) == true;
-        if (!isToday) return false;
-        if (!hideCompleted) return true;
-        final activeTimer = t.type == TaskTypeEnum.TIMER && (t.isTimerActive ?? false);
-        return t.status == null || activeTimer;
+      // Check vacation mode from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final isVacationMode = prefs.getBool('vacation_mode_enabled') ?? false;
+      debugPrint('Vacation mode: $isVacationMode');
+
+      // Helper function to check if task should be included
+      bool includeTask(TaskModel t, {bool isRoutine = false, bool isOverdue = false}) {
+        // OVERDUE tasks are ALWAYS shown (never hidden by hideCompleted)
+        if (isOverdue) {
+          return true;
+        }
+
+        // Hide completed tasks if flag is set (except active timers and overdue)
+        if (hideCompleted) {
+          final activeTimer = t.type == TaskTypeEnum.TIMER && (t.isTimerActive ?? false);
+          if (t.status != null && !activeTimer) return false;
+        }
+
+        // Don't show routines if vacation mode is active
+        if (isRoutine && isVacationMode) return false;
+
+        return true;
       }
 
-      final todayTasks = allTasks.where((task) => includeTask(task) && task.routineID == null).toList();
-      final routineTasks = allTasks.where((task) => includeTask(task) && task.routineID != null).toList();
+      // Get overdue tasks (non-routine, non-pinned, overdue status) - ALWAYS SHOWN
+      final overdueTasks = allTasks.where((task) => task.status == TaskStatusEnum.OVERDUE && task.routineID == null && !task.isPinned && includeTask(task, isOverdue: true)).toList();
 
-      final allIncompleteTasks = [...todayTasks, ...routineTasks];
+      // Get pinned tasks (all dates, non-routine, not done/cancelled/failed)
+      final pinnedTasks = allTasks.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.DONE && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED && includeTask(task)).toList();
+
+      // Get today's normal tasks (not pinned, not overdue, today's date)
+      final todayTasks = allTasks.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID == null && !task.isPinned && task.status != TaskStatusEnum.OVERDUE && includeTask(task)).toList();
+
+      // Get today's routine tasks (only if not in vacation mode)
+      final routineTasks = allTasks.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID != null && includeTask(task, isRoutine: true)).toList();
+
+      // Combine all tasks in order: overdue -> pinned -> normal -> routines
+      final allIncompleteTasks = [...overdueTasks, ...pinnedTasks, ...todayTasks, ...routineTasks];
       final incompleteTasks = allIncompleteTasks.length;
 
       // Get all task titles for display
       final taskTitles = allIncompleteTasks.map((task) => task.title).toList();
 
-      // Build task details for progress display
-      final taskDetails = allIncompleteTasks
-          .map((task) => {
-                'id': task.id,
-                'title': task.title,
-                'type': task.type.toString().split('.').last,
-                'currentCount': task.currentCount ?? 0,
-                'targetCount': task.targetCount ?? 0,
-                'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
-                'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
-                'isTimerActive': task.isTimerActive ?? false,
-              })
-          .toList();
+      // Build task details for progress display with section info
+      final taskDetails = <Map<String, dynamic>>[];
+
+      // Add overdue tasks with section marker
+      for (var task in overdueTasks) {
+        taskDetails.add({
+          'id': task.id,
+          'title': task.title,
+          'type': task.type.toString().split('.').last,
+          'currentCount': task.currentCount ?? 0,
+          'targetCount': task.targetCount ?? 0,
+          'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
+          'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
+          'isTimerActive': task.isTimerActive ?? false,
+          'section': 'OVERDUE',
+        });
+      }
+
+      // Add pinned tasks with section marker
+      for (var task in pinnedTasks) {
+        taskDetails.add({
+          'id': task.id,
+          'title': task.title,
+          'type': task.type.toString().split('.').last,
+          'currentCount': task.currentCount ?? 0,
+          'targetCount': task.targetCount ?? 0,
+          'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
+          'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
+          'isTimerActive': task.isTimerActive ?? false,
+          'section': 'PINNED',
+        });
+      }
+
+      // Add normal tasks with section marker
+      for (var task in todayTasks) {
+        taskDetails.add({
+          'id': task.id,
+          'title': task.title,
+          'type': task.type.toString().split('.').last,
+          'currentCount': task.currentCount ?? 0,
+          'targetCount': task.targetCount ?? 0,
+          'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
+          'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
+          'isTimerActive': task.isTimerActive ?? false,
+          'section': 'TASKS',
+        });
+      }
+
+      // Add routine tasks with section marker
+      for (var task in routineTasks) {
+        taskDetails.add({
+          'id': task.id,
+          'title': task.title,
+          'type': task.type.toString().split('.').last,
+          'currentCount': task.currentCount ?? 0,
+          'targetCount': task.targetCount ?? 0,
+          'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
+          'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
+          'isTimerActive': task.isTimerActive ?? false,
+          'section': 'ROUTINES',
+        });
+      }
 
       // Calculate today's total work time from TIMER tasks (sum of currentDuration)
       final todaysAllTasks = allTasks.where((task) => task.taskDate?.isSameDay(today) == true).toList();
       final totalWorkSec = todaysAllTasks.where((t) => t.type == TaskTypeEnum.TIMER && t.currentDuration != null).fold<int>(0, (sum, t) => sum + (t.currentDuration!.inSeconds));
 
       debugPrint('=== WIDGET DATA ===');
+      debugPrint('Overdue tasks: ${overdueTasks.length}');
+      debugPrint('Pinned tasks: ${pinnedTasks.length}');
       debugPrint('Today tasks: ${todayTasks.length}');
       debugPrint('Routine tasks: ${routineTasks.length}');
       debugPrint('Total incomplete: $incompleteTasks');
@@ -205,15 +282,24 @@ class HomeWidgetService {
         debugPrint('TaskLogProvider.loadTaskLogs failed in background: $e');
       }
 
+      debugPrint('=== WIDGET BACKGROUND CALLBACK ===');
+      debugPrint('URI: $uri');
+      debugPrint('Query params: ${uri?.queryParameters}');
+
       final action = uri?.queryParameters['action'] ?? '';
+      debugPrint('Action: $action');
+
       if (action == 'toggleHideCompleted') {
+        debugPrint('Toggling hide completed...');
         final current = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
         await HomeWidget.saveWidgetData(hideCompletedKey, !current);
         await updateAllWidgets();
+        debugPrint('Hide completed toggled to ${!current}');
         return;
       }
 
       if (action == 'refresh') {
+        debugPrint('Refreshing widget...');
         // Explicit refresh requested by native side (e.g., date/time change)
         await updateAllWidgets();
         return;
@@ -223,6 +309,8 @@ class HomeWidgetService {
       final taskIdStr = uri?.queryParameters['taskId'];
       final taskId = taskIdStr != null ? int.tryParse(taskIdStr) : null;
       final titleParam = uri?.queryParameters['title'];
+
+      debugPrint('Task ID: $taskId, Title: $titleParam');
 
       // Load the task directly from Hive
       final tasks = await HiveService().getTasks();
