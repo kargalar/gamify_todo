@@ -289,6 +289,11 @@ class HomeWidgetService {
       final action = uri?.queryParameters['action'] ?? '';
       debugPrint('Action: $action');
 
+      if (action.isEmpty) {
+        debugPrint('⚠️ WARNING: Action is empty! URI might be malformed.');
+        return;
+      }
+
       if (action == 'toggleHideCompleted') {
         debugPrint('Toggling hide completed...');
         final current = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
@@ -331,8 +336,11 @@ class HomeWidgetService {
         return;
       }
 
+      debugPrint('✅ Task found: ${task.title} (type: ${task.type})');
+
       switch (action) {
         case 'toggleCheckbox':
+          debugPrint('🔘 Toggling checkbox for task: ${task.title}');
           if (task.type.toString().contains('CHECKBOX')) {
             // Toggle completion with date-aware logic and logging similar to TaskActionHandler
             if (task.status == TaskStatusEnum.DONE) {
@@ -365,9 +373,11 @@ class HomeWidgetService {
           }
           break;
         case 'incrementCounter':
+          debugPrint('➕ Incrementing counter for task: ${task.title}');
           if (task.type.toString().contains('COUNTER')) {
             final prev = task.currentCount ?? 0;
             task.currentCount = prev + 1;
+            debugPrint('Counter incremented: $prev -> ${task.currentCount}');
             // Log the increment
             await TaskLogProvider().addTaskLog(task, customCount: 1);
             // If reached target, mark as done and log completion

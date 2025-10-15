@@ -213,6 +213,7 @@ class TaskWidgetService : RemoteViewsService() {
 
                     // Set fill-in intent for item click
                     val fillIn = Intent()
+                    fillIn.action = "es.antonborri.home_widget.action.BACKGROUND"
                     val action = when (item.type) {
                         "CHECKBOX" -> "toggleCheckbox"
                         "COUNTER" -> "incrementCounter"
@@ -223,7 +224,13 @@ class TaskWidgetService : RemoteViewsService() {
                     val safeTitle = java.net.URLEncoder.encode(item.title, "UTF-8")
                     val dataUri = android.net.Uri.parse("homewidget://task?action=${action}&taskId=${item.id}&title=${safeTitle}")
                     fillIn.data = dataUri
+                    // Also add as extra for HomeWidget plugin
+                    fillIn.putExtra("url", dataUri.toString())
+                    android.util.Log.d("TaskWidgetService", "Task click intent set: action=$action, taskId=${item.id}, uri=$dataUri")
                     rv.setOnClickFillInIntent(R.id.task_item_root, fillIn)
+                    // Also attach to common child views for better hit area
+                    rv.setOnClickFillInIntent(R.id.task_item_title, fillIn)
+                    rv.setOnClickFillInIntent(R.id.task_item_icon, fillIn)
                     android.util.Log.d("TaskWidgetService", "Task view created successfully")
                     rv
                 }
