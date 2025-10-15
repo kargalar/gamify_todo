@@ -11,6 +11,7 @@
 
     <!-- Icon container -->
     <FrameLayout
+        android:id="@+id/task_item_icon_container"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_gravity="center_vertical"
@@ -28,6 +29,7 @@
 
     <!-- Texts and progress -->
     <LinearLayout
+        android:id="@+id/task_item_content"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"

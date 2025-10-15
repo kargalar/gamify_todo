@@ -10,6 +10,7 @@ import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/notification_services.dart';
+import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:hive/hive.dart' as hive;
@@ -32,7 +33,11 @@ class HomeWidgetService {
   static const String taskDetailsKey = 'taskDetails';
   static const String totalWorkSecKey = 'totalWorkSec';
   static const String hideCompletedKey = 'hideCompleted';
+  static const String widgetEventSeqKey = 'widget_event_seq';
+  static const String pendingCreditDeltaKey = 'pending_credit_delta_min';
   static Timer? _midnightTimer;
+  static Timer? _eventTimer;
+  static int? _lastEventSeq;
 
   /// Schedule a one-shot timer to refresh the widget right after local midnight
   static void scheduleNextMidnightRefresh() {
@@ -241,6 +246,53 @@ class HomeWidgetService {
     await updateTaskCount();
   }
 
+  // Bump a simple event sequence so the foreground app can detect widget-side changes instantly
+  static Future<void> _bumpWidgetEventSeq() async {
+    try {
+      final current = await HomeWidget.getWidgetData<int>(widgetEventSeqKey, defaultValue: 0) ?? 0;
+      await HomeWidget.saveWidgetData(widgetEventSeqKey, current + 1);
+    } catch (e) {
+      debugPrint('bumpWidgetEventSeq error: $e');
+    }
+  }
+
+  // Poll for widget-side changes and refresh providers when detected
+  static void startWidgetEventListener({Duration interval = const Duration(seconds: 1)}) {
+    try {
+      _eventTimer?.cancel();
+      _eventTimer = Timer.periodic(interval, (timer) async {
+        try {
+          final seq = await HomeWidget.getWidgetData<int>(widgetEventSeqKey, defaultValue: 0) ?? 0;
+          if (_lastEventSeq == null) {
+            _lastEventSeq = seq;
+            return;
+          }
+          if (seq != _lastEventSeq) {
+            debugPrint('HomeWidget event detected: $_lastEventSeq -> $seq, refreshing tasks');
+            _lastEventSeq = seq;
+            // Apply any pending credit delta computed in background isolate
+            final pending = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
+            if (pending != 0) {
+              debugPrint('Applying pending credit delta (minutes): $pending');
+              try {
+                AppHelper().addCreditByProgress(Duration(minutes: pending));
+              } catch (e) {
+                debugPrint('apply pending credit error: $e');
+              }
+              await HomeWidget.saveWidgetData(pendingCreditDeltaKey, 0);
+            }
+            // Reload task list in UI
+            TaskProvider().updateItems();
+          }
+        } catch (e) {
+          debugPrint('startWidgetEventListener tick error: $e');
+        }
+      });
+    } catch (e) {
+      debugPrint('startWidgetEventListener error: $e');
+    }
+  }
+
   // Background callback for widget interactions
   @pragma('vm:entry-point')
   static Future<void> backgroundCallback(Uri? uri) async {
@@ -299,6 +351,7 @@ class HomeWidgetService {
         final current = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
         await HomeWidget.saveWidgetData(hideCompletedKey, !current);
         await updateAllWidgets();
+        await _bumpWidgetEventSeq();
         debugPrint('Hide completed toggled to ${!current}');
         return;
       }
@@ -307,6 +360,7 @@ class HomeWidgetService {
         debugPrint('Refreshing widget...');
         // Explicit refresh requested by native side (e.g., date/time change)
         await updateAllWidgets();
+        await _bumpWidgetEventSeq();
         return;
       }
 
@@ -363,13 +417,26 @@ class HomeWidgetService {
                 task.status = null;
                 await TaskLogProvider().addTaskLog(task, customStatus: null);
               }
+              // Queue negative credit for uncomplete
+              final mins = task.remainingDuration?.inMinutes ?? 0;
+              if (mins != 0) {
+                final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
+                await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur - mins);
+              }
               await ServerManager().updateTask(taskModel: task);
             } else {
               task.status = TaskStatusEnum.DONE;
               await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.DONE);
+              // Queue positive credit for complete
+              final mins = task.remainingDuration?.inMinutes ?? 0;
+              if (mins != 0) {
+                final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
+                await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur + mins);
+              }
               await ServerManager().updateTask(taskModel: task);
             }
             await updateAllWidgets();
+            await _bumpWidgetEventSeq();
           }
           break;
         case 'incrementCounter':
@@ -380,6 +447,12 @@ class HomeWidgetService {
             debugPrint('Counter incremented: $prev -> ${task.currentCount}');
             // Log the increment
             await TaskLogProvider().addTaskLog(task, customCount: 1);
+            // Queue credit for one increment (mirror app logic)
+            final incMins = task.remainingDuration?.inMinutes ?? 0;
+            if (incMins != 0) {
+              final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
+              await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur + incMins);
+            }
             // If reached target, mark as done and log completion
             final target = task.targetCount ?? 0;
             if (target > 0 && (task.currentCount ?? 0) >= target && task.status != TaskStatusEnum.DONE) {
@@ -388,6 +461,7 @@ class HomeWidgetService {
             }
             await ServerManager().updateTask(taskModel: task);
             await updateAllWidgets();
+            await _bumpWidgetEventSeq();
           }
           break;
         case 'toggleTimer':
@@ -401,6 +475,7 @@ class HomeWidgetService {
             debugPrint('Background: toggling timer for task id=${task.id} title=${task.title}');
             GlobalTimer().startStopTimer(taskModel: task);
             await updateAllWidgets();
+            await _bumpWidgetEventSeq();
           }
           break;
       }
@@ -427,6 +502,8 @@ class HomeWidgetService {
       debugPrint('Home widget setup done successfully');
       // Also schedule a local midnight refresh while the app is alive
       scheduleNextMidnightRefresh();
+      // Start lightweight event listener to reflect widget-side changes instantly while app is open
+      startWidgetEventListener();
     } catch (e) {
       debugPrint('Error setting up home widget: $e');
       rethrow;

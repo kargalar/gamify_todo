@@ -161,6 +161,9 @@ class TaskActionHandler {
     _updateTaskAndSync(taskModel);
     TaskProvider().updateItems();
 
+    // Push instant widget update for any change
+    HomeWidgetService.updateAllWidgets();
+
     // Notify state change if callback provided
     if (onStateChanged != null) {
       onStateChanged();

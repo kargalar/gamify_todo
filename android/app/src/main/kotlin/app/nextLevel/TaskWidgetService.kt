@@ -231,6 +231,10 @@ class TaskWidgetService : RemoteViewsService() {
                     // Also attach to common child views for better hit area
                     rv.setOnClickFillInIntent(R.id.task_item_title, fillIn)
                     rv.setOnClickFillInIntent(R.id.task_item_icon, fillIn)
+                    rv.setOnClickFillInIntent(R.id.task_item_sub, fillIn)
+                    rv.setOnClickFillInIntent(R.id.task_item_progress, fillIn)
+                    rv.setOnClickFillInIntent(R.id.task_item_icon_container, fillIn)
+                    rv.setOnClickFillInIntent(R.id.task_item_content, fillIn)
                     android.util.Log.d("TaskWidgetService", "Task view created successfully")
                     rv
                 }
