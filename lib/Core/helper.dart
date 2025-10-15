@@ -40,7 +40,7 @@ class Helper {
     final appDocDir = await getApplicationDocumentsDirectory();
     final hivePath = '${appDocDir.path}/NextLevel';
     await Directory(hivePath).create(recursive: true);
-    Hive.initFlutter(hivePath);
+    await Hive.initFlutter(hivePath);
 
     Hive.registerAdapter(ColorAdapter());
     Hive.registerAdapter(DurationAdapter());

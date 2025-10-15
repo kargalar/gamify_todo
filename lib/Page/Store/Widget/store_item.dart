@@ -5,6 +5,7 @@ import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Store/add_store_item_page.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
+import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -295,6 +296,13 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     return InkWell(
       borderRadius: AppColors.borderRadiusAll,
       onTap: () async {
+        // Null check for loginUser
+        if (loginUser == null) {
+          debugPrint('❌ Store Item Purchase: loginUser is null');
+          return;
+        }
+
+        // Deduct credit (can go negative)
         loginUser!.userCredit -= widget.storeItemModel.credit;
 
         dynamic value; // Değişiklik miktarı
@@ -317,6 +325,10 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
 
         await ServerManager().updateUser(userModel: loginUser!);
         await ServerManager().updateItem(itemModel: widget.storeItemModel);
+
+        // Sync with UserProvider to update UI
+        UserProvider().setUser(loginUser!);
+
         StoreProvider().setStateItems();
       },
       child: Container(
