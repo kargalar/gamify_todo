@@ -281,7 +281,15 @@ class HomeWidgetService {
               }
               await HomeWidget.saveWidgetData(pendingCreditDeltaKey, 0);
             }
-            // Reload task list in UI
+            // Reload task list from Hive to get widget changes
+            try {
+              final tasks = await HiveService().getTasks();
+              TaskProvider().taskList = tasks;
+              debugPrint('✅ Tasks reloaded from Hive: ${tasks.length} tasks');
+            } catch (e) {
+              debugPrint('❌ Failed to reload tasks: $e');
+            }
+            // Update UI
             TaskProvider().updateItems();
           }
         } catch (e) {

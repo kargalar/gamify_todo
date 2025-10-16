@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/quick_add_task_bottom_sheet.dart';
 import 'package:next_level/Page/Inbox/inbox_page.dart';
@@ -21,6 +22,7 @@ import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
+import 'package:next_level/Provider/user_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -84,8 +86,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
+    debugPrint('🔄 App lifecycle state changed: $state');
     // Uygulama arkaplandayken timer düzgün çalışmadığı için bu kodu yazdım
     if (state == AppLifecycleState.resumed) {
+      debugPrint('✅ App resumed - reloading data');
       // Uygulama öne geldiğinde aktif timer'ları kontrol et
       await GlobalTimer().checkActiveTimerPref();
 
@@ -105,6 +109,20 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
       try {
         await context.read<TaskLogProvider>().loadTaskLogs();
       } catch (_) {}
+      // Kullanıcı bilgilerini de yeniden yükle (credit güncellemesi için)
+      try {
+        final user = await ServerManager().getUser();
+        if (user != null) {
+          debugPrint('💰 User reloaded: credit=${user.userCredit}, progress=${user.creditProgress.inMinutes} minutes');
+          loginUser = user; // Global değişkeni güncelle
+          if (mounted) {
+            context.read<UserProvider>().setUser(user); // Provider'ı güncelle
+            debugPrint('💰 UserProvider updated with new credit');
+          }
+        }
+      } catch (e) {
+        debugPrint('❌ Failed to reload user: $e');
+      }
       // UI'ı tazele
       if (mounted) {
         context.read<TaskProvider>().updateItems();
