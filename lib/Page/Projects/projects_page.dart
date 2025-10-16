@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Widgets/Projects/project_card.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
@@ -52,180 +53,186 @@ class _ProjectsPageState extends State<ProjectsPage> {
   Widget build(BuildContext context) {
     final provider = context.watch<ProjectsProvider>();
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: StandardAppBar(
-        title: LocaleKeys.Projects.tr(),
-        isSearching: _isSearching,
-        onSearchToggle: () {
-          setState(() {
-            _isSearching = !_isSearching;
-            if (!_isSearching) {
-              _searchController.clear();
-              provider.clearSearchQuery();
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (_, __) {
+        context.read<NavbarProvider>().updateIndex(1);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: StandardAppBar(
+          title: LocaleKeys.Projects.tr(),
+          isSearching: _isSearching,
+          onSearchToggle: () {
+            setState(() {
+              _isSearching = !_isSearching;
+              if (!_isSearching) {
+                _searchController.clear();
+                provider.clearSearchQuery();
+              }
+            });
+            debugPrint('🔍 Search toggled: $_isSearching');
+          },
+          showArchivedOnly: provider.showArchivedOnly,
+          onArchiveToggle: () {
+            provider.toggleArchivedFilter();
+            debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
+          },
+        ),
+        body: Consumer<ProjectsProvider>(
+          builder: (context, provider, _) {
+            // Yükleniyor
+            if (provider.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
             }
-          });
-          debugPrint('🔍 Search toggled: $_isSearching');
-        },
-        showArchivedOnly: provider.showArchivedOnly,
-        onArchiveToggle: () {
-          provider.toggleArchivedFilter();
-          debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
-        },
-      ),
-      body: Consumer<ProjectsProvider>(
-        builder: (context, provider, _) {
-          // Yükleniyor
-          if (provider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
 
-          // Hata
-          if (provider.errorMessage != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-                  const SizedBox(height: 16),
-                  Text(
-                    provider.errorMessage!,
-                    style: const TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => provider.loadProjects(),
-                    icon: const Icon(Icons.refresh),
-                    label: Text(LocaleKeys.Retry.tr()),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          // Projeler yok
-          if (provider.projects.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.folder_open, size: 100, color: AppColors.grey),
-                  const SizedBox(height: 16),
-                  Text(
-                    LocaleKeys.NoProjectsYet.tr(),
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: AppColors.text,
-                      fontWeight: FontWeight.w500,
+            // Hata
+            if (provider.errorMessage != null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                    const SizedBox(height: 16),
+                    Text(
+                      provider.errorMessage!,
+                      style: const TextStyle(fontSize: 16),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    LocaleKeys.AddFirstProject.tr(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.grey,
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () => provider.loadProjects(),
+                      icon: const Icon(Icons.refresh),
+                      label: Text(LocaleKeys.Retry.tr()),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          }
+                  ],
+                ),
+              );
+            }
 
-          return Column(
-            children: [
-              // Kategori filtresi
-              CategoryFilterWidget(
-                categories: provider.categories,
-                selectedCategoryId: provider.selectedCategoryId,
-                onCategorySelected: (categoryId) => provider.setSelectedCategory(categoryId as String?),
-                itemCounts: provider.projectCounts,
-                onCategoryLongPress: (context, category) async {
-                  final result = await showModalBottomSheet<bool>(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    barrierColor: Colors.transparent,
-                    builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
-                  );
-
-                  // Eğer kategori silindiyse, provider'ı güncelle
-                  if (result == true && context.mounted) {
-                    await provider.loadCategories();
-                  }
-                },
-                onCategoryAdded: () async {
-                  // Yeni kategori eklendikten sonra kategorileri yeniden yükle
-                  await provider.loadCategories();
-                },
-                showIcons: true,
-                showColors: true,
-                showAddButton: true,
-                categoryType: CategoryType.project,
-                showEmptyCategories: true, // Boş kategorileri de göster
-              ),
-
-              // Inline arama barı (arama aktifse göster)
-              if (_isSearching)
-                Container(
-                  height: 40,
-                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.panelBackground,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    autofocus: true,
-                    onChanged: (value) {
-                      provider.updateSearchQuery(value);
-                      debugPrint('🔍 Search query: $value');
-                    },
-                    style: const TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: LocaleKeys.SearchHint.tr(),
-                      hintStyle: TextStyle(
+            // Projeler yok
+            if (provider.projects.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.folder_open, size: 100, color: AppColors.grey),
+                    const SizedBox(height: 16),
+                    Text(
+                      LocaleKeys.NoProjectsYet.tr(),
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: AppColors.text,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      LocaleKeys.AddFirstProject.tr(),
+                      style: const TextStyle(
                         fontSize: 14,
-                        color: AppColors.text.withValues(alpha: 0.5),
+                        color: AppColors.grey,
                       ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 18,
-                        color: AppColors.text.withValues(alpha: 0.5),
-                      ),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.clear,
-                                size: 18,
-                                color: AppColors.text.withValues(alpha: 0.5),
-                              ),
-                              onPressed: () {
-                                _searchController.clear();
-                                provider.clearSearchQuery();
-                                debugPrint('🔍 Search cleared');
-                              },
-                            )
-                          : null,
-                      filled: false,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-                      isDense: true,
+                      textAlign: TextAlign.center,
                     ),
-                  ),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                // Kategori filtresi
+                CategoryFilterWidget(
+                  categories: provider.categories,
+                  selectedCategoryId: provider.selectedCategoryId,
+                  onCategorySelected: (categoryId) => provider.setSelectedCategory(categoryId as String?),
+                  itemCounts: provider.projectCounts,
+                  onCategoryLongPress: (context, category) async {
+                    final result = await showModalBottomSheet<bool>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      barrierColor: Colors.transparent,
+                      builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+                    );
+
+                    // Kategori güncellendiyse veya silindiyse, provider'ı güncelle
+                    if (result != null && context.mounted) {
+                      await provider.loadCategories();
+                    }
+                  },
+                  onCategoryAdded: () async {
+                    // Yeni kategori eklendikten sonra kategorileri yeniden yükle
+                    await provider.loadCategories();
+                  },
+                  showIcons: true,
+                  showColors: true,
+                  showAddButton: true,
+                  categoryType: CategoryType.project,
+                  showEmptyCategories: true, // Boş kategorileri de göster
                 ),
 
-              // Projeler listesi
-              Expanded(
-                child: _buildProjectsList(context, provider),
-              ),
-            ],
-          );
-        },
+                // Inline arama barı (arama aktifse göster)
+                if (_isSearching)
+                  Container(
+                    height: 40,
+                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.panelBackground,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      autofocus: true,
+                      onChanged: (value) {
+                        provider.updateSearchQuery(value);
+                        debugPrint('🔍 Search query: $value');
+                      },
+                      style: const TextStyle(fontSize: 14),
+                      decoration: InputDecoration(
+                        hintText: LocaleKeys.SearchHint.tr(),
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.text.withValues(alpha: 0.5),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          size: 18,
+                          color: AppColors.text.withValues(alpha: 0.5),
+                        ),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  size: 18,
+                                  color: AppColors.text.withValues(alpha: 0.5),
+                                ),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  provider.clearSearchQuery();
+                                  debugPrint('🔍 Search cleared');
+                                },
+                              )
+                            : null,
+                        filled: false,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                        isDense: true,
+                      ),
+                    ),
+                  ),
+
+                // Projeler listesi
+                Expanded(
+                  child: _buildProjectsList(context, provider),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

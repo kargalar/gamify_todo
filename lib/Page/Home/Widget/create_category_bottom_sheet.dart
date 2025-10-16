@@ -456,7 +456,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       await categoryProvider.updateCategory(widget.categoryModel!);
 
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context, false); // false = kategori güncellendi
       }
     }
   }

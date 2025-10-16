@@ -164,7 +164,12 @@ class AddStoreItemProvider with ChangeNotifier {
 
   void updateTargetCount(int value) {
     addCount = value;
+    notifyListeners();
+  }
 
+  // Method to update selected task type and notify listeners
+  void updateSelectedTaskType(TaskTypeEnum taskType) {
+    selectedTaskType = taskType;
     notifyListeners();
   }
 

@@ -11,6 +11,7 @@ import 'package:next_level/Page/Inbox/Widget/inbox_filter_dialog.dart';
 import 'package:next_level/Page/Inbox/Widget/inbox_task_list.dart';
 import 'package:next_level/Page/Inbox/Widget/date_filter_state.dart';
 import 'package:next_level/Provider/category_provider.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +32,7 @@ class _InboxPageState extends State<InboxPage> {
   // Filter states
   bool _showRoutines = true;
   bool _showTasks = true;
-  bool _showPinned = false; // Show only pinned tasks when enabled
+  bool _showPinned = false;
   DateFilterState _dateFilterState = DateFilterState.withoutDate;
   final Set<TaskTypeEnum> _selectedTaskTypes = {
     TaskTypeEnum.CHECKBOX,
@@ -159,102 +160,77 @@ class _InboxPageState extends State<InboxPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: Text(
-          LocaleKeys.Tasks.tr(),
-        ),
-        actions: [
-          // Arama icon
-          IconButton(
-            icon: Icon(
-              _isSearchActive ? Icons.search_off : Icons.search,
-              size: 20,
-            ),
-            tooltip: LocaleKeys.Search.tr(),
-            onPressed: () {
-              setState(() {
-                _isSearchActive = !_isSearchActive;
-                if (!_isSearchActive) {
-                  _searchController.clear();
-                }
-              });
-              debugPrint('🔍 Inbox search toggled: $_isSearchActive');
-            },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (_, __) {
+        context.read<NavbarProvider>().updateIndex(1);
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: Text(
+            LocaleKeys.Tasks.tr(),
           ),
-          // Arşiv icon - Arşivlenmiş rutinler sayfasına git
-          IconButton(
-            icon: const Icon(
-              Icons.archive,
-              size: 20,
-            ),
-            tooltip: 'Arşivlenmiş Rutinler',
-            onPressed: () {
-              debugPrint('📦 Navigating to archived routines page');
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ArchivedRoutinesPage(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.filter_list_rounded,
-              size: 20,
-              color: AppColors.text,
-            ),
-            tooltip: LocaleKeys.Filters.tr(),
-            onPressed: _showFilterDialog,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          if (_isSearchActive)
-            InboxSearchBar(
-              controller: _searchController,
-              onChanged: () => setState(() {}),
-            ),
-          // Kategori filtresi (her zaman göster - boş olsa bile "Tümü" ve "Ekle" butonu görünsün)
-          InboxCategoriesSection(
-            selectedCategory: _selectedCategory,
-            onCategorySelected: (category) {
-              setState(() => _selectedCategory = category);
-              _saveFilterPreferences();
-            },
-            searchQuery: _searchController.text,
-            showRoutines: _showRoutines,
-            showTasks: _showTasks,
-            showPinned: _showPinned,
-            dateFilterState: _dateFilterState,
-            selectedTaskTypes: _selectedTaskTypes,
-            selectedStatuses: _selectedStatuses,
-            showEmptyStatus: _showEmptyStatus,
-            onCategoryDeleted: () {
-              // Kategori silindiğinde UI'ı güncelle
-              setState(() {
-                // Eğer silinen kategori seçiliyse, seçimi kaldır
-                if (_selectedCategory != null) {
-                  final categories = context.read<CategoryProvider>().getActiveCategories();
-                  final categoryExists = categories.any((cat) => cat.id == _selectedCategory!.id);
-                  if (!categoryExists) {
-                    _selectedCategory = null;
+          actions: [
+            // Arama icon
+            IconButton(
+              icon: Icon(
+                _isSearchActive ? Icons.search_off : Icons.search,
+                size: 20,
+              ),
+              tooltip: LocaleKeys.Search.tr(),
+              onPressed: () {
+                setState(() {
+                  _isSearchActive = !_isSearchActive;
+                  if (!_isSearchActive) {
+                    _searchController.clear();
                   }
-                }
-              });
-            },
-          ),
-          Divider(
-            color: AppColors.text.withValues(alpha: 0.1),
-            height: 1,
-            thickness: 1,
-          ),
-          Expanded(
-            child: InboxTaskList(
+                });
+                debugPrint('🔍 Inbox search toggled: $_isSearchActive');
+              },
+            ),
+            // Arşiv icon - Arşivlenmiş rutinler sayfasına git
+            IconButton(
+              icon: const Icon(
+                Icons.archive,
+                size: 20,
+              ),
+              tooltip: 'Arşivlenmiş Rutinler',
+              onPressed: () {
+                debugPrint('📦 Navigating to archived routines page');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ArchivedRoutinesPage(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.filter_list_rounded,
+                size: 20,
+                color: AppColors.text,
+              ),
+              tooltip: LocaleKeys.Filters.tr(),
+              onPressed: _showFilterDialog,
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            if (_isSearchActive)
+              InboxSearchBar(
+                controller: _searchController,
+                onChanged: () => setState(() {}),
+              ),
+            // Kategori filtresi (her zaman göster - boş olsa bile "Tümü" ve "Ekle" butonu görünsün)
+            InboxCategoriesSection(
               selectedCategory: _selectedCategory,
+              onCategorySelected: (category) {
+                setState(() => _selectedCategory = category);
+                _saveFilterPreferences();
+              },
               searchQuery: _searchController.text,
               showRoutines: _showRoutines,
               showTasks: _showTasks,
@@ -263,9 +239,40 @@ class _InboxPageState extends State<InboxPage> {
               selectedTaskTypes: _selectedTaskTypes,
               selectedStatuses: _selectedStatuses,
               showEmptyStatus: _showEmptyStatus,
+              onCategoryDeleted: () {
+                // Kategori silindiğinde UI'ı güncelle
+                setState(() {
+                  // Eğer silinen kategori seçiliyse, seçimi kaldır
+                  if (_selectedCategory != null) {
+                    final categories = context.read<CategoryProvider>().getActiveCategories();
+                    final categoryExists = categories.any((cat) => cat.id == _selectedCategory!.id);
+                    if (!categoryExists) {
+                      _selectedCategory = null;
+                    }
+                  }
+                });
+              },
             ),
-          ),
-        ],
+            Divider(
+              color: AppColors.text.withValues(alpha: 0.1),
+              height: 1,
+              thickness: 1,
+            ),
+            Expanded(
+              child: InboxTaskList(
+                selectedCategory: _selectedCategory,
+                searchQuery: _searchController.text,
+                showRoutines: _showRoutines,
+                showTasks: _showTasks,
+                showPinned: _showPinned,
+                dateFilterState: _dateFilterState,
+                selectedTaskTypes: _selectedTaskTypes,
+                selectedStatuses: _selectedStatuses,
+                showEmptyStatus: _showEmptyStatus,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

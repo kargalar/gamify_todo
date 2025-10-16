@@ -112,6 +112,26 @@ class ProjectCategorySelectorBottomSheet extends StatelessWidget {
       onTap: () {
         Navigator.pop(context, category);
       },
+      onLongPress: category != null
+          ? () async {
+              // Kategori düzenleme bottom sheet'ini aç
+              final result = await showModalBottomSheet<bool>(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                barrierColor: Colors.transparent,
+                builder: (context) => CreateCategoryBottomSheet(categoryModel: category),
+              );
+
+              // Eğer kategori güncellendiyse veya silindiyse, bottom sheet'i kapat
+              if (!context.mounted) return;
+
+              if (result != null) {
+                // Kategori güncellendi veya silindi, bottom sheet'i kapat
+                Navigator.pop(context);
+              }
+            }
+          : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,

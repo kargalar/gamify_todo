@@ -136,9 +136,8 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
           // Use provider method so external listeners rebuild
           if (provider is AddTaskProvider) {
             provider.updateSelectedTaskType(taskType);
-          } else {
-            // Fallback for store item provider (if it mirrors API)
-            provider.selectedTaskType = taskType;
+          } else if (provider is AddStoreItemProvider) {
+            provider.updateSelectedTaskType(taskType);
           }
         },
         child: AnimatedContainer(

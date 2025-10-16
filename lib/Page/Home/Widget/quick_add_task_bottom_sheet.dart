@@ -24,8 +24,8 @@ class _QuickAddTaskBottomSheetState extends State<QuickAddTaskBottomSheet> {
   @override
   void initState() {
     super.initState();
-    // Default to today
-    _selectedDate = DateTime.now();
+    // Default to home page selected date
+    _selectedDate = context.read<TaskProvider>().selectedDate;
     // Auto focus on the text field when the bottom sheet opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _taskNameFocus.requestFocus();

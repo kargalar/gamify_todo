@@ -193,7 +193,16 @@ class CategoryFilterWidget extends StatelessWidget {
             category.name ?? (category.title ?? ''),
             style: TextStyle(
               color: isSelected ? Colors.white : categoryColor,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              shadows: isSelected
+                  ? null
+                  : [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 1,
+                        offset: const Offset(0, 0.5),
+                      ),
+                    ],
             ),
           ),
           if (itemCounts != null) ...[
