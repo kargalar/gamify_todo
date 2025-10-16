@@ -438,4 +438,13 @@ class NotesProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void clearAllNotes() {
+    _notes.clear();
+    _categories.clear();
+    _selectedCategoryId = null;
+    _searchQuery = '';
+    _showArchivedOnly = false;
+    notifyListeners();
+  }
 }

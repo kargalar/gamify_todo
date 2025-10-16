@@ -110,9 +110,11 @@ class NotesService {
         return false;
       }
 
-      // Yeni ID oluştur
-      final lastId = _notesBox!.values.isEmpty ? 0 : _notesBox!.values.map((n) => n.id).reduce((a, b) => a > b ? a : b);
-      note.id = lastId + 1;
+      // Yeni ID oluştur (eğer ID 0 ise)
+      if (note.id == 0) {
+        final lastId = _notesBox!.values.isEmpty ? 0 : _notesBox!.values.map((n) => n.id).reduce((a, b) => a > b ? a : b);
+        note.id = lastId + 1;
+      }
 
       debugPrint('➕ NotesService: Adding new note with ID: ${note.id}');
 
@@ -301,6 +303,21 @@ class NotesService {
       }
     } catch (e) {
       debugPrint('❌ NotesService: Error closing Hive box: $e');
+    }
+  }
+
+  /// Tüm notları sil
+  Future<void> clearAllNotes() async {
+    try {
+      await initialize();
+      if (_notesBox == null) {
+        debugPrint('❌ NotesService: Cannot clear notes - box is null');
+        return;
+      }
+      await _notesBox!.clear();
+      debugPrint('✅ NotesService: All notes cleared');
+    } catch (e) {
+      debugPrint('❌ NotesService: Error clearing notes: $e');
     }
   }
 }

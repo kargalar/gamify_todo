@@ -177,4 +177,19 @@ class ProjectsService {
       return null;
     }
   }
+
+  /// Tüm projeleri sil
+  Future<void> clearAllProjects() async {
+    try {
+      await initialize();
+      if (_projectsBox == null) {
+        debugPrint('❌ ProjectsService: Cannot clear projects - box is null');
+        return;
+      }
+      await _projectsBox!.clear();
+      debugPrint('✅ ProjectsService: All projects cleared');
+    } catch (e) {
+      debugPrint('❌ ProjectsService: Error clearing projects: $e');
+    }
+  }
 }

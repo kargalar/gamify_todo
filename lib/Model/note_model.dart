@@ -72,4 +72,32 @@ class NoteModel extends HiveObject {
   String toString() {
     return 'NoteModel(id: $id, title: $title, categoryId: $categoryId, isPinned: $isPinned, isArchived: $isArchived)';
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'categoryId': categoryId,
+      'colorIndex': colorIndex,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'isPinned': isPinned,
+      'isArchived': isArchived,
+    };
+  }
+
+  factory NoteModel.fromJson(Map<String, dynamic> json) {
+    return NoteModel(
+      id: json['id'],
+      title: json['title'],
+      content: json['content'],
+      categoryId: json['categoryId'],
+      colorIndex: json['colorIndex'] ?? 0,
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      isPinned: json['isPinned'] ?? false,
+      isArchived: json['isArchived'] ?? false,
+    );
+  }
 }

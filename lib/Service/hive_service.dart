@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
-import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/file_storage_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -17,6 +16,11 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Provider/category_provider.dart';
+import 'package:next_level/Provider/notes_provider.dart';
+import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Service/projects_service.dart';
+import 'package:next_level/Service/notes_service.dart';
 import 'package:next_level/Provider/user_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:next_level/Model/user_model.dart';
@@ -24,6 +28,8 @@ import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/task_log_model.dart';
 import 'package:next_level/Model/trait_model.dart';
+import 'package:next_level/Model/project_model.dart';
+import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -234,7 +240,7 @@ class HiveService {
     final box = await _categoryBox;
     debugPrint('🗑️ HiveService: Deleting category with ID: $id');
     await box.delete(id);
-    
+
     // Verify deletion
     if (!box.containsKey(id)) {
       debugPrint('✅ HiveService: Category $id successfully deleted from Hive');
@@ -418,8 +424,8 @@ class HiveService {
     }
 
     // Clear Hive boxes
-    final box = await _userBox;
-    await box.clear();
+    // final box = await _userBox; // Don't clear user box, just reset credits
+    // await box.clear();
 
     final box2 = await _itemBox;
     await box2.clear();
@@ -451,19 +457,23 @@ class HiveService {
     TraitProvider().traitList.clear();
 
     StoreProvider().storeItemList.clear();
-    StoreProvider().setStateItems(); // Clear task logs in the provider
+    // Clear task logs in the provider
     await TaskLogProvider().clearAllLogs();
 
-    // Set loginUser to null
-    loginUser = null;
+    // Clear projects and notes boxes
+    await ProjectsService().clearAllProjects();
+    await NotesService().clearAllNotes();
 
-    // Navigate to login page instead of home
-    NavigatorService().goBackNavbar(
-      isHome: false,
-      isDialog: true,
-    );
+    // Clear category, notes, projects providers
+    CategoryProvider().clearAllCategories();
+    NotesProvider().clearAllNotes();
+    ProjectsProvider().clearAllProjects();
+
+    // Reset user credits instead of deleting user
+    await UserProvider().resetCredit();
 
     Helper().getMessage(message: LocaleKeys.DeleteAllDataSuccess.tr());
+    debugPrint('All data deleted successfully, user credits reset');
   }
 
   Future<String?> exportData() async {
@@ -591,7 +601,26 @@ class HiveService {
         final category = categoryBox.get(key);
         if (category != null) categoryMap[key.toString()] = category.toJson();
       }
-      allData[_categoryBoxName] = categoryMap; // Export SharedPrefs
+      allData[_categoryBoxName] = categoryMap;
+      debugPrint('✅ Exported ${categoryMap.length} categories');
+
+      // Export projects
+      final projects = await ProjectsService().getProjects();
+      final projectMap = {};
+      for (var project in projects) {
+        projectMap[project.id.toString()] = project.toJson();
+      }
+      allData["projects"] = projectMap;
+
+      // Export notes
+      final notes = await NotesService().getNotes();
+      final noteMap = {};
+      for (var note in notes) {
+        noteMap[note.id.toString()] = note.toJson();
+      }
+      allData["notes"] = noteMap;
+
+      // Export SharedPrefs
       final prefs = await SharedPreferences.getInstance();
       final sharedPrefsMap = {};
 
@@ -614,7 +643,7 @@ class HiveService {
       sharedPrefsMap["categories_show_cancel"] = prefs.getBool('categories_show_cancel') ?? true;
       sharedPrefsMap["categories_show_archived"] = prefs.getBool('categories_show_archived') ?? false;
       sharedPrefsMap["categories_show_overdue"] = prefs.getBool('categories_show_overdue') ?? true;
-      sharedPrefsMap["categories_show_empty_status"] = prefs.getString('categories_show_empty_status') ?? true;
+      sharedPrefsMap["categories_show_empty_status"] = prefs.getBool('categories_show_empty_status') ?? true;
       sharedPrefsMap["categories_selected_category_id"] = prefs.getString('categories_selected_category_id') ?? '-1';
 
       // Export home page setting
@@ -640,6 +669,7 @@ class HiveService {
       NavigatorService().back();
 
       Helper().getMessage(message: LocaleKeys.backup_created_successfully.tr());
+      debugPrint('Backup created successfully at: $filePath');
 
       return filePath;
     } catch (e) {
@@ -717,10 +747,14 @@ class HiveService {
           if (allData.containsKey(_categoryBoxName)) {
             final categoryBox = await _categoryBox;
             final categoryData = allData[_categoryBoxName] as Map<String, dynamic>;
+            CategoryProvider().categoryList.clear();
             for (var entry in categoryData.entries) {
               final category = CategoryModel.fromJson(entry.value);
-              await categoryBox.put(int.parse(entry.key), category);
+              await categoryBox.put(entry.key, category);
+              CategoryProvider().categoryList.add(category);
             }
+            CategoryProvider().notifyCategoryUpdate();
+            debugPrint('✅ Imported ${categoryData.length} categories');
           }
 
           // Import task logs if they exist
@@ -731,7 +765,29 @@ class HiveService {
               final taskLog = TaskLogModel.fromJson(entry.value);
               await taskLogBox.put(int.parse(entry.key), taskLog);
             }
-          } // Import SharedPrefs
+          }
+
+          // Import projects if they exist
+          if (allData.containsKey("projects")) {
+            final projectData = allData["projects"] as Map<String, dynamic>;
+            for (var entry in projectData.entries) {
+              final project = ProjectModel.fromJson(entry.value);
+              await ProjectsService().addProject(project);
+            }
+            await ProjectsProvider().loadProjects();
+          }
+
+          // Import notes if they exist
+          if (allData.containsKey("notes")) {
+            final noteData = allData["notes"] as Map<String, dynamic>;
+            for (var entry in noteData.entries) {
+              final note = NoteModel.fromJson(entry.value);
+              await NotesService().addNote(note);
+            }
+            await NotesProvider().loadNotes();
+          }
+
+          // Import SharedPrefs
           final prefs = await SharedPreferences.getInstance();
           final sharedPrefsMap = allData["SharedPreferances"] as Map<String, dynamic>;
 
@@ -744,25 +800,25 @@ class HiveService {
           await prefs.setInt('last_category_id', sharedPrefsMap["last_category_id"] ?? 0);
 
           // Import inbox page filter settings with proper defaults
-          await prefs.setBool('categories_show_tasks', sharedPrefsMap["categories_show_tasks"] ?? true);
-          await prefs.setBool('categories_show_routines', sharedPrefsMap["categories_show_routines"] ?? true);
+          await prefs.setBool('categories_show_tasks', (sharedPrefsMap["categories_show_tasks"] is bool) ? sharedPrefsMap["categories_show_tasks"] : true);
+          await prefs.setBool('categories_show_routines', (sharedPrefsMap["categories_show_routines"] is bool) ? sharedPrefsMap["categories_show_routines"] : true);
           await prefs.setInt('categories_date_filter', sharedPrefsMap["categories_date_filter"] ?? 0);
-          await prefs.setBool('categories_show_checkbox', sharedPrefsMap["categories_show_checkbox"] ?? true);
-          await prefs.setBool('categories_show_counter', sharedPrefsMap["categories_show_counter"] ?? true);
-          await prefs.setBool('categories_show_timer', sharedPrefsMap["categories_show_timer"] ?? true);
-          await prefs.setBool('categories_show_completed', sharedPrefsMap["categories_show_completed"] ?? true);
-          await prefs.setBool('categories_show_failed', sharedPrefsMap["categories_show_failed"] ?? true);
-          await prefs.setBool('categories_show_cancel', sharedPrefsMap["categories_show_cancel"] ?? true);
-          await prefs.setBool('categories_show_archived', sharedPrefsMap["categories_show_archived"] ?? false);
-          await prefs.setBool('categories_show_overdue', sharedPrefsMap["categories_show_overdue"] ?? true);
-          await prefs.setBool('categories_show_empty_status', sharedPrefsMap["categories_show_empty_status"] ?? true);
+          await prefs.setBool('categories_show_checkbox', (sharedPrefsMap["categories_show_checkbox"] is bool) ? sharedPrefsMap["categories_show_checkbox"] : true);
+          await prefs.setBool('categories_show_counter', (sharedPrefsMap["categories_show_counter"] is bool) ? sharedPrefsMap["categories_show_counter"] : true);
+          await prefs.setBool('categories_show_timer', (sharedPrefsMap["categories_show_timer"] is bool) ? sharedPrefsMap["categories_show_timer"] : true);
+          await prefs.setBool('categories_show_completed', (sharedPrefsMap["categories_show_completed"] is bool) ? sharedPrefsMap["categories_show_completed"] : true);
+          await prefs.setBool('categories_show_failed', (sharedPrefsMap["categories_show_failed"] is bool) ? sharedPrefsMap["categories_show_failed"] : true);
+          await prefs.setBool('categories_show_cancel', (sharedPrefsMap["categories_show_cancel"] is bool) ? sharedPrefsMap["categories_show_cancel"] : true);
+          await prefs.setBool('categories_show_archived', (sharedPrefsMap["categories_show_archived"] is bool) ? sharedPrefsMap["categories_show_archived"] : false);
+          await prefs.setBool('categories_show_overdue', (sharedPrefsMap["categories_show_overdue"] is bool) ? sharedPrefsMap["categories_show_overdue"] : true);
+          await prefs.setBool('categories_show_empty_status', (sharedPrefsMap["categories_show_empty_status"] is bool) ? sharedPrefsMap["categories_show_empty_status"] : true);
           await prefs.setString('categories_selected_category_id', sharedPrefsMap["categories_selected_category_id"] ?? '-1');
 
           // Import home page setting
-          await prefs.setBool('show_completed', sharedPrefsMap["show_completed"] ?? false);
+          await prefs.setBool('show_completed', (sharedPrefsMap["show_completed"] is bool) ? sharedPrefsMap["show_completed"] : false);
 
           // Import theme setting
-          await prefs.setBool('isDark', sharedPrefsMap["isDark"] ?? false);
+          await prefs.setBool('isDark', (sharedPrefsMap["isDark"] is bool) ? sharedPrefsMap["isDark"] : false);
 
           // Import task style setting
           await prefs.setInt('task_style', sharedPrefsMap["task_style"] ?? 0);
@@ -794,6 +850,7 @@ class HiveService {
           );
 
           Helper().getMessage(message: LocaleKeys.backup_restored_successfully.tr());
+          debugPrint('Backup restored successfully');
 
           return true;
         }

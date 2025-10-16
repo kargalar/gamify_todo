@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/helper.dart';
-import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -67,7 +66,7 @@ class DataManagementDialog extends StatelessWidget {
                   TaskProvider().routineList = [];
                   TraitProvider().traitList = [];
                   StoreProvider().storeItemList = [];
-                  loginUser = null; // User must login again after data deletion
+                  // loginUser remains, credits reset
                 },
                 acceptButtonText: LocaleKeys.Yes.tr(),
                 title: "Hurra?",

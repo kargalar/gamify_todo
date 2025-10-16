@@ -72,4 +72,32 @@ class ProjectModel extends HiveObject {
   String toString() {
     return 'ProjectModel(id: $id, title: $title, description: $description, isPinned: $isPinned, isArchived: $isArchived, categoryId: $categoryId)';
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'isPinned': isPinned,
+      'isArchived': isArchived,
+      'colorIndex': colorIndex,
+      'categoryId': categoryId,
+    };
+  }
+
+  factory ProjectModel.fromJson(Map<String, dynamic> json) {
+    return ProjectModel(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      isPinned: json['isPinned'] ?? false,
+      isArchived: json['isArchived'] ?? false,
+      colorIndex: json['colorIndex'] ?? 0,
+      categoryId: json['categoryId'],
+    );
+  }
 }

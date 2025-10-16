@@ -469,4 +469,13 @@ class ProjectsProvider with ChangeNotifier {
     _errorMessage = message;
     notifyListeners();
   }
+
+  void clearAllProjects() {
+    _projects.clear();
+    _categories.clear();
+    _selectedCategoryId = null;
+    _searchQuery = '';
+    _showArchivedOnly = false;
+    notifyListeners();
+  }
 }

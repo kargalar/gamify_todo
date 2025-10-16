@@ -87,4 +87,13 @@ class CategoryProvider extends ChangeNotifier {
   List<CategoryModel> getActiveCategories() {
     return categoryList.where((category) => !category.isArchived).toList();
   }
+
+  void clearAllCategories() {
+    categoryList.clear();
+    notifyListeners();
+  }
+
+  void notifyCategoryUpdate() {
+    notifyListeners();
+  }
 }
