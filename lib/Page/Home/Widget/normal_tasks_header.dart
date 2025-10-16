@@ -86,7 +86,6 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
         color: AppColors.green.withValues(alpha: 0.01), // Light green background for normal tasks
         borderRadius: BorderRadius.circular(8),
       ),
-      margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -159,7 +158,7 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: widget.tasks.length,
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.zero,
               itemBuilder: (context, index) {
                 return TaskItem(taskModel: widget.tasks[index]);
               },

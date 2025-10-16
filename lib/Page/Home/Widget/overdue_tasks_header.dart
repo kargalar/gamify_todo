@@ -87,7 +87,6 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
         color: AppColors.orange.withValues(alpha: 0.01), // Light orange background - matching pinned style
         borderRadius: BorderRadius.circular(8),
       ),
-      margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -160,7 +159,7 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.overdueTasks.length,
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.zero,
                   itemBuilder: (context, index) {
                     return TaskItem(taskModel: widget.overdueTasks[index]);
                   },

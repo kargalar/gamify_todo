@@ -90,7 +90,6 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
         color: AppColors.blue.withValues(alpha: 0.01), // Light purple background for routine tasks
         borderRadius: BorderRadius.circular(8),
       ),
-      margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -182,7 +181,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: widget.routineTasks.length,
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.zero,
                     itemBuilder: (context, index) {
                       return TaskItem(
                         taskModel: widget.routineTasks[index],

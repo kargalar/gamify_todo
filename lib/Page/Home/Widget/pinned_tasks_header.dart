@@ -87,7 +87,6 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
         color: AppColors.yellow.withValues(alpha: 0.01), // Light yellow background - matching overdue style
         borderRadius: BorderRadius.circular(8),
       ),
-      margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -217,7 +216,6 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
           _buildDateHeader(dateKey, groupedTasks[dateKey]!.first),
           ...groupedTasks[dateKey]!.map((task) => TaskItem(taskModel: task)),
         ],
-        const SizedBox(height: 8),
       ],
     );
   }
