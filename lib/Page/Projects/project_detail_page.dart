@@ -42,7 +42,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   void initState() {
     super.initState();
     _currentProject = widget.project;
-    _showOnlyIncomplete = _currentProject.showOnlyIncompleteTasks;
+    _showOnlyIncomplete = _currentProject.showOnlyIncompleteTasks ?? false;
     _loadProjectData();
   }
 
@@ -643,12 +643,15 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                     ),
                   if (_subtasks.isNotEmpty)
                     PopupMenuItem(
-                      value: 'complete all',
+                      value: _subtasks.every((s) => s.isCompleted) ? 'incomplete all' : 'complete all',
                       child: Row(
                         children: [
-                          const Icon(Icons.done_all, size: 18),
+                          Icon(
+                            _subtasks.every((s) => s.isCompleted) ? Icons.undo : Icons.done_all,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
-                          Text(LocaleKeys.CompleteAll.tr()),
+                          Text(_subtasks.every((s) => s.isCompleted) ? 'Mark All Incomplete' : LocaleKeys.CompleteAll.tr()),
                         ],
                       ),
                     ),
@@ -680,6 +683,9 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       break;
                     case 'complete all':
                       _completeAllSubtasks();
+                      break;
+                    case 'incomplete all':
+                      _incompleteAllSubtasks();
                       break;
                     case 'clear all':
                       _clearAllSubtasks();
@@ -1043,8 +1049,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         ],
       ),
       child: GestureDetector(
-        onLongPress: () async {
-          // Long press to edit note
+        onTap: () async {
+          // Tap to edit note
           await showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -1327,6 +1333,35 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       ),
     );
     debugPrint('✅ ProjectDetailPage: $completedCount subtasks completed');
+  }
+
+  Future<void> _incompleteAllSubtasks() async {
+    if (_subtasks.isEmpty) {
+      debugPrint('⚠️ ProjectDetailPage: No subtasks to incomplete');
+      return;
+    }
+
+    final provider = context.read<ProjectsProvider>();
+    int incompletedCount = 0;
+
+    for (final subtask in _subtasks) {
+      if (subtask.isCompleted) {
+        subtask.isCompleted = false;
+        await provider.updateSubtask(subtask);
+        incompletedCount++;
+      }
+    }
+
+    await _loadProjectData(); // Refresh data
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Tasks marked as incomplete: $incompletedCount'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.orange,
+      ),
+    );
+    debugPrint('✅ ProjectDetailPage: $incompletedCount subtasks marked as incomplete');
   }
 
   Future<void> _clearAllSubtasks() async {

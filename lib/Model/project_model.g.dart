@@ -26,7 +26,7 @@ class ProjectModelAdapter extends TypeAdapter<ProjectModel> {
       isArchived: fields[6] as bool,
       colorIndex: fields[7] as int,
       categoryId: fields[8] as String?,
-      showOnlyIncompleteTasks: fields[9] as bool,
+      showOnlyIncompleteTasks: fields[9] as bool?,
     );
   }
 

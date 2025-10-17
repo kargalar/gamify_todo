@@ -303,70 +303,8 @@ class _NotesPageState extends State<NotesPage> {
     return NoteCard(
       note: note,
       onTap: () => _navigateToEditNote(context, note),
-      onLongPress: () => _showNoteOptions(context, provider, note),
+      onLongPress: () => _navigateToEditNote(context, note),
       onDelete: () => _confirmDelete(context, provider, note),
-    );
-  }
-
-  void _showNoteOptions(BuildContext context, NotesProvider provider, NoteModel note) {
-    final category = provider.categories.firstWhere(
-      (cat) => cat.id == note.categoryId,
-      orElse: () => provider.categories.first,
-    );
-    final categoryColor = Color(category.colorValue);
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.grey,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  note.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-                  color: categoryColor,
-                ),
-                title: Text(note.isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr()),
-                onTap: () {
-                  Navigator.pop(context);
-                  provider.togglePinNote(note.id, !note.isPinned);
-                  debugPrint('📌 Note pin toggled: ${note.isPinned}');
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.edit, color: categoryColor),
-                title: Text(LocaleKeys.Edit.tr()),
-                onTap: () {
-                  Navigator.pop(context);
-                  _navigateToEditNote(context, note);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: Text(LocaleKeys.Delete.tr()),
-                onTap: () {
-                  Navigator.pop(context);
-                  _confirmDelete(context, provider, note);
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
     );
   }
 

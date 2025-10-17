@@ -32,7 +32,7 @@ class ProjectModel extends HiveObject {
   String? categoryId;
 
   @HiveField(9)
-  bool showOnlyIncompleteTasks;
+  bool? showOnlyIncompleteTasks;
 
   ProjectModel({
     required this.id,
@@ -44,7 +44,7 @@ class ProjectModel extends HiveObject {
     this.isArchived = false,
     this.colorIndex = 0,
     this.categoryId,
-    this.showOnlyIncompleteTasks = false,
+    this.showOnlyIncompleteTasks,
   });
 
   /// Copy with method
@@ -105,7 +105,7 @@ class ProjectModel extends HiveObject {
       isArchived: json['isArchived'] ?? false,
       colorIndex: json['colorIndex'] ?? 0,
       categoryId: json['categoryId'],
-      showOnlyIncompleteTasks: json['showOnlyIncompleteTasks'] ?? false,
+      showOnlyIncompleteTasks: json['showOnlyIncompleteTasks'],
     );
   }
 }
