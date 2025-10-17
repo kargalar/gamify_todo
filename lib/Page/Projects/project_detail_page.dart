@@ -42,6 +42,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   void initState() {
     super.initState();
     _currentProject = widget.project;
+    _showOnlyIncomplete = _currentProject.showOnlyIncompleteTasks;
     _loadProjectData();
   }
 
@@ -1375,10 +1376,23 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     debugPrint('✅ ProjectDetailPage: $count subtasks cleared');
   }
 
-  void _toggleShowOnlyIncomplete() {
+  void _toggleShowOnlyIncomplete() async {
+    final newValue = !_showOnlyIncomplete;
     setState(() {
-      _showOnlyIncomplete = !_showOnlyIncomplete;
+      _showOnlyIncomplete = newValue;
     });
-    debugPrint('🔄 ProjectDetailPage: Show only incomplete toggled to $_showOnlyIncomplete');
+
+    // Update project model
+    final provider = context.read<ProjectsProvider>();
+    final updated = _currentProject.copyWith(
+      showOnlyIncompleteTasks: newValue,
+      updatedAt: DateTime.now(),
+    );
+    await provider.updateProject(updated);
+    setState(() {
+      _currentProject = updated;
+    });
+
+    debugPrint('🔄 ProjectDetailPage: Show only incomplete toggled to $_showOnlyIncomplete and saved to project');
   }
 }

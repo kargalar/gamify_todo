@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Widgets/Projects/project_card.dart';
+import 'package:next_level/Widgets/Projects/add_edit_project_bottom_sheet.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/project_model.dart';
@@ -320,10 +321,24 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ),
         );
       },
+      onLongPress: () async {
+        debugPrint('✏️ Project long pressed: ${project.id}');
+        final result = await showModalBottomSheet<bool>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => AddEditProjectBottomSheet(project: project),
+        );
+
+        if (result == true) {
+          // Refresh projects list
+          provider.loadProjects();
+        }
+      },
       onDelete: () => _confirmDelete(context, provider, project),
       getSubtaskCount: () async {
         final subtasks = await provider.getProjectSubtasks(project.id);
-        return subtasks.length;
+        return subtasks.where((s) => !s.isCompleted).length; // Only incomplete tasks
       },
       getNoteCount: () async {
         final notes = await provider.getProjectNotes(project.id);

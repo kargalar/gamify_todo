@@ -31,6 +31,9 @@ class ProjectModel extends HiveObject {
   @HiveField(8)
   String? categoryId;
 
+  @HiveField(9)
+  bool showOnlyIncompleteTasks;
+
   ProjectModel({
     required this.id,
     required this.title,
@@ -41,6 +44,7 @@ class ProjectModel extends HiveObject {
     this.isArchived = false,
     this.colorIndex = 0,
     this.categoryId,
+    this.showOnlyIncompleteTasks = false,
   });
 
   /// Copy with method
@@ -54,6 +58,7 @@ class ProjectModel extends HiveObject {
     bool? isArchived,
     int? colorIndex,
     String? categoryId,
+    bool? showOnlyIncompleteTasks,
   }) {
     return ProjectModel(
       id: id ?? this.id,
@@ -65,6 +70,7 @@ class ProjectModel extends HiveObject {
       isArchived: isArchived ?? this.isArchived,
       colorIndex: colorIndex ?? this.colorIndex,
       categoryId: categoryId ?? this.categoryId,
+      showOnlyIncompleteTasks: showOnlyIncompleteTasks ?? this.showOnlyIncompleteTasks,
     );
   }
 
@@ -84,6 +90,7 @@ class ProjectModel extends HiveObject {
       'isArchived': isArchived,
       'colorIndex': colorIndex,
       'categoryId': categoryId,
+      'showOnlyIncompleteTasks': showOnlyIncompleteTasks,
     };
   }
 
@@ -98,6 +105,7 @@ class ProjectModel extends HiveObject {
       isArchived: json['isArchived'] ?? false,
       colorIndex: json['colorIndex'] ?? 0,
       categoryId: json['categoryId'],
+      showOnlyIncompleteTasks: json['showOnlyIncompleteTasks'] ?? false,
     );
   }
 }

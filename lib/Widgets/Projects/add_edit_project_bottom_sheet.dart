@@ -49,6 +49,20 @@ class _AddEditProjectBottomSheetState extends State<AddEditProjectBottomSheet> {
       });
     }
 
+    // Auto-focus title field
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        FocusScope.of(context).requestFocus(FocusNode());
+        // Title field'ına focus
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            final titleFocus = FocusNode();
+            FocusScope.of(context).requestFocus(titleFocus);
+          }
+        });
+      }
+    });
+
     debugPrint('🔧 AddEditProjectBottomSheet: Initialized ${isEditing ? "edit" : "add"} mode');
   }
 

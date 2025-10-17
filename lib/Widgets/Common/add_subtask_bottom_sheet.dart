@@ -172,72 +172,86 @@ class _AddSubtaskBottomSheetState extends State<AddSubtaskBottomSheet> {
 
           const SizedBox(height: 8),
 
-          // Title field
-          TextField(
-            controller: _titleController,
-            focusNode: _titleFocus,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+          // Title and Description in same container (like project creation)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.panelBackground,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.panelBackground2),
             ),
-            decoration: InputDecoration(
-              hintText: LocaleKeys.Title.tr(),
-              hintStyle: TextStyle(
-                color: AppColors.text.withValues(alpha: 0.4),
-                fontWeight: FontWeight.normal,
-              ),
-              filled: true,
-              fillColor: AppColors.dirtyWhite.withValues(alpha: 0.3),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              prefixIcon: Icon(
-                Icons.title_rounded,
-                color: AppColors.main.withValues(alpha: 0.7),
-                size: 20,
-              ),
-            ),
-            textInputAction: TextInputAction.next,
-            onSubmitted: (_) {
-              _descriptionFocus.requestFocus();
-            },
-          ),
-
-          const SizedBox(height: 12),
-
-          // Description field (optional)
-          TextField(
-            controller: _descriptionController,
-            focusNode: _descriptionFocus,
-            maxLines: 3,
-            style: const TextStyle(
-              fontSize: 14,
-            ),
-            decoration: InputDecoration(
-              hintText: "${LocaleKeys.Description.tr()} (Optional)",
-              hintStyle: TextStyle(
-                color: AppColors.text.withValues(alpha: 0.4),
-              ),
-              filled: true,
-              fillColor: AppColors.dirtyWhite.withValues(alpha: 0.3),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(bottom: 50),
-                child: Icon(
-                  Icons.description_outlined,
-                  color: AppColors.main.withValues(alpha: 0.7),
-                  size: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title field
+                TextField(
+                  controller: _titleController,
+                  focusNode: _titleFocus,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: LocaleKeys.Title.tr(),
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                      fontWeight: FontWeight.normal,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.dirtyWhite.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    prefixIcon: Icon(
+                      Icons.title_rounded,
+                      color: AppColors.main.withValues(alpha: 0.7),
+                      size: 20,
+                    ),
+                  ),
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    _descriptionFocus.requestFocus();
+                  },
                 ),
-              ),
+
+                const SizedBox(height: 12),
+
+                // Description field (optional)
+                TextField(
+                  controller: _descriptionController,
+                  focusNode: _descriptionFocus,
+                  maxLines: 3,
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: "${LocaleKeys.Description.tr()} (Optional)",
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.dirtyWhite.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(bottom: 50),
+                      child: Icon(
+                        Icons.description_outlined,
+                        color: AppColors.main.withValues(alpha: 0.7),
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _saveSubtask(),
+                ),
+              ],
             ),
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _saveSubtask(),
           ),
 
           const SizedBox(height: 16),

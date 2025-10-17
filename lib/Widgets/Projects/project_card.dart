@@ -11,6 +11,7 @@ import 'package:next_level/General/app_colors.dart';
 class ProjectCard extends StatelessWidget {
   final ProjectModel project;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final VoidCallback? onDelete;
   final Future<int> Function()? getSubtaskCount;
   final Future<int> Function()? getNoteCount;
@@ -21,6 +22,7 @@ class ProjectCard extends StatelessWidget {
     super.key,
     required this.project,
     required this.onTap,
+    this.onLongPress,
     this.onDelete,
     this.getSubtaskCount,
     this.getNoteCount,
@@ -103,6 +105,7 @@ class ProjectCard extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
+            onLongPress: onLongPress,
             borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(16),
