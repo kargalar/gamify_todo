@@ -1,25 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Widgets/Projects/project_category_selector_bottom_sheet.dart';
 import 'package:next_level/Widgets/Notes/category_selector_bottom_sheet.dart';
 
-/// Not ekleme ve düzenleme bottom sheet'i
-class AddEditNoteBottomSheet extends StatefulWidget {
-  final NoteModel? note;
-  final VoidCallback? onDismiss;
-
-  const AddEditNoteBottomSheet({super.key, this.note, this.onDismiss});
-
-  @override
-  State<AddEditNoteBottomSheet> createState() => _AddEditNoteBottomSheetState();
+/// Item türleri
+enum ItemType {
+  project,
+  note,
 }
 
-class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
+/// Generic item ekleme ve düzenleme bottom sheet'i
+/// Hem proje hem not için ortak kod
+class AddEditItemBottomSheet extends StatefulWidget {
+  final ItemType type;
+  final dynamic item; // ProjectModel? veya NoteModel?
+  final VoidCallback? onDismiss;
+
+  const AddEditItemBottomSheet({
+    super.key,
+    required this.type,
+    this.item,
+    this.onDismiss,
+  });
+
+  @override
+  State<AddEditItemBottomSheet> createState() => _AddEditItemBottomSheetState();
+}
+
+class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
@@ -29,24 +45,26 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
   late bool _isPinned;
   bool _isSaving = false;
 
-  bool get isEditing => widget.note != null;
+  bool get isEditing => widget.item != null;
 
-  /// Değişiklik olup olmadığını kontrol eder
+  /// Değişiklik olup olmadığını kontrol eder (sadece not için)
   bool _hasChanges() {
-    if (!isEditing) return false;
+    if (!isEditing || widget.type != ItemType.note) return false;
 
-    return _titleController.text.trim() != (widget.note?.title ?? '') || _contentController.text.trim() != (widget.note?.content ?? '') || _selectedCategory?.id != widget.note?.categoryId || _isPinned != (widget.note?.isPinned ?? false);
+    final note = widget.item as NoteModel;
+    return _titleController.text.trim() != (note.title) || _contentController.text.trim() != (note.content) || _selectedCategory?.id != note.categoryId || _isPinned != note.isPinned;
   }
 
-  /// Otomatik kaydetme (düzenleme modunda)
+  /// Otomatik kaydetme (sadece not için)
   Future<void> _autoSave() async {
-    if (!isEditing || !_hasChanges()) return;
+    if (!isEditing || widget.type != ItemType.note || !_hasChanges()) return;
 
-    debugPrint('💾 AddEditNoteBottomSheet: Auto-saving changes');
+    debugPrint('💾 AddEditItemBottomSheet: Auto-saving changes');
 
     try {
       final provider = context.read<NotesProvider>();
-      final updatedNote = widget.note!.copyWith(
+      final note = widget.item as NoteModel;
+      final updatedNote = note.copyWith(
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
         categoryId: _selectedCategory?.id,
@@ -56,7 +74,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
       final success = await provider.updateNote(updatedNote);
 
       if (success) {
-        debugPrint('✅ AddEditNoteBottomSheet: Auto-saved successfully');
+        debugPrint('✅ AddEditItemBottomSheet: Auto-saved successfully');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -66,7 +84,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
           );
         }
       } else {
-        debugPrint('❌ AddEditNoteBottomSheet: Auto-save failed');
+        debugPrint('❌ AddEditItemBottomSheet: Auto-save failed');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -77,7 +95,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
         }
       }
     } catch (e) {
-      debugPrint('❌ AddEditNoteBottomSheet: Auto-save error: $e');
+      debugPrint('❌ AddEditItemBottomSheet: Auto-save error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -94,29 +112,45 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
     super.initState();
 
     // Initialize controllers
-    _titleController = TextEditingController(text: widget.note?.title ?? '');
-    _contentController = TextEditingController(text: widget.note?.content ?? '');
+    _titleController = TextEditingController(text: _getTitle());
+    _contentController = TextEditingController(text: _getContent());
 
     // Initialize state
-    _isPinned = widget.note?.isPinned ?? false;
+    _isPinned = _getIsPinned();
 
     // Kategoriyi yükle
-    if (widget.note?.categoryId != null) {
+    final categoryId = _getCategoryId();
+    if (categoryId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final provider = Provider.of<NotesProvider>(context, listen: false);
-        _selectedCategory = provider.getCategoryById(widget.note!.categoryId);
+        final provider = _getProvider(context, listen: false);
+        _selectedCategory = provider.getCategoryById(categoryId);
         if (mounted) setState(() {});
       });
     }
 
-    // Otomatik focus için (yeni not eklerken)
+    // Otomatik focus için (yeni item eklerken)
     if (!isEditing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _titleFocusNode.requestFocus();
       });
     }
 
-    debugPrint('🔧 AddEditNoteBottomSheet:   Initialized ${isEditing ? "edit" : "add"} mode');
+    // Proje için autofocus
+    if (widget.type == ItemType.project && !isEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          FocusScope.of(context).requestFocus(FocusNode());
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              final titleFocus = FocusNode();
+              FocusScope.of(context).requestFocus(titleFocus);
+            }
+          });
+        }
+      });
+    }
+
+    debugPrint('🔧 AddEditItemBottomSheet: Initialized ${widget.type} ${isEditing ? "edit" : "add"} mode');
   }
 
   @override
@@ -128,6 +162,47 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
     super.dispose();
   }
 
+  // Helper methods for type-specific data
+  String _getTitle() {
+    if (widget.item == null) return '';
+    return widget.type == ItemType.project ? (widget.item as ProjectModel).title : (widget.item as NoteModel).title;
+  }
+
+  String _getContent() {
+    if (widget.item == null) return '';
+    return widget.type == ItemType.project ? (widget.item as ProjectModel).description : (widget.item as NoteModel).content;
+  }
+
+  bool _getIsPinned() {
+    if (widget.item == null) return false;
+    return widget.type == ItemType.project ? (widget.item as ProjectModel).isPinned : (widget.item as NoteModel).isPinned;
+  }
+
+  String? _getCategoryId() {
+    if (widget.item == null) return null;
+    return widget.type == ItemType.project ? (widget.item as ProjectModel).categoryId : (widget.item as NoteModel).categoryId;
+  }
+
+  dynamic _getProvider(BuildContext context, {bool listen = true}) {
+    return widget.type == ItemType.project ? (listen ? context.watch<ProjectsProvider>() : context.read<ProjectsProvider>()) : (listen ? context.watch<NotesProvider>() : context.read<NotesProvider>());
+  }
+
+  String _getTitleHint() {
+    return widget.type == ItemType.project ? LocaleKeys.ProjectTitle.tr() : LocaleKeys.Title.tr();
+  }
+
+  String _getContentHint() {
+    return widget.type == ItemType.project ? LocaleKeys.ProjectDescriptionHint.tr() : LocaleKeys.ContentOptional.tr();
+  }
+
+  String _getHeaderTitle() {
+    if (isEditing) {
+      return widget.type == ItemType.project ? LocaleKeys.EditProject.tr() : LocaleKeys.EditNote.tr();
+    } else {
+      return widget.type == ItemType.project ? LocaleKeys.NewProject.tr() : LocaleKeys.NewNote.tr();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
@@ -136,7 +211,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
       canPop: true,
       // ignore: deprecated_member_use
       onPopInvoked: (didPop) {
-        if (didPop && isEditing) {
+        if (didPop && isEditing && widget.type == ItemType.note) {
           Future.microtask(() => _autoSave());
         }
       },
@@ -177,7 +252,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                     child: Row(
                       children: [
                         Text(
-                          isEditing ? LocaleKeys.EditNote.tr() : LocaleKeys.NewNote.tr(),
+                          _getHeaderTitle(),
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -195,17 +270,19 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                               setState(() {
                                 _isPinned = !_isPinned;
                               });
-                              // Pin değişikliğini hemen kaydet
-                              final provider = context.read<NotesProvider>();
-                              await provider.togglePinNote(widget.note!.id, _isPinned);
-                              debugPrint('📌 Note pin toggled to: $_isPinned');
+                              // Pin değişikliğini hemen kaydet (sadece not için)
+                              if (widget.type == ItemType.note) {
+                                final provider = context.read<NotesProvider>();
+                                await provider.togglePinNote((widget.item as NoteModel).id, _isPinned);
+                                debugPrint('📌 Note pin toggled to: $_isPinned');
+                              }
                             },
                             tooltip: _isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr(),
                           ),
                         IconButton(
                           icon: Icon(Icons.close, color: AppColors.text),
                           onPressed: () async {
-                            if (isEditing) await _autoSave();
+                            if (isEditing && widget.type == ItemType.note) await _autoSave();
                             widget.onDismiss?.call();
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
@@ -226,15 +303,15 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Başlık ve İçerik (tek container'da)
-                          _buildNoteFields(),
+                          _buildItemFields(),
                           const SizedBox(height: 20),
 
                           // Kategori seçimi (kompakt buton)
                           _buildCategorySelectorButton(),
                           const SizedBox(height: 24),
 
-                          // Kaydet butonu (sadece yeni not ekleme için)
-                          if (!isEditing) _buildSaveButton(),
+                          // Kaydet butonu (not için sadece yeni ekleme, proje için her zaman)
+                          if (widget.type == ItemType.project || !isEditing) _buildSaveButton(),
                           const SizedBox(height: 12),
                         ],
                       ),
@@ -249,8 +326,8 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
     );
   }
 
-  /// Başlık ve içerik alanları (tek container'da - task'lardaki gibi)
-  Widget _buildNoteFields() {
+  /// Başlık ve içerik alanları (tek container'da)
+  Widget _buildItemFields() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -271,7 +348,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
               color: AppColors.text,
             ),
             decoration: InputDecoration(
-              hintText: LocaleKeys.Title.tr(),
+              hintText: _getTitleHint(),
               hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
@@ -294,7 +371,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
               color: AppColors.text,
             ),
             decoration: InputDecoration(
-              hintText: LocaleKeys.ContentOptional.tr(),
+              hintText: _getContentHint(),
               hintStyle: const TextStyle(color: AppColors.grey),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
@@ -309,7 +386,7 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
 
   /// Kategori seçici butonu (kompakt)
   Widget _buildCategorySelectorButton() {
-    return Consumer<NotesProvider>(
+    return Consumer(
       builder: (context, provider, child) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,29 +417,29 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: _selectedCategory!.color.withValues(alpha: 0.2),
+                          color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue).withValues(alpha: 0.2) : _selectedCategory!.color.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          _selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category,
+                          widget.type == ItemType.project ? IconData(_selectedCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : (_selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category),
                           size: 18,
-                          color: _selectedCategory!.color,
+                          color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : _selectedCategory!.color,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        _selectedCategory!.title,
+                        widget.type == ItemType.project ? _selectedCategory!.name : _selectedCategory!.title,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(_selectedCategory!.colorValue),
+                          color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : Color(_selectedCategory!.colorValue),
                         ),
                       ),
                     ] else ...[
                       const Icon(Icons.category_outlined, size: 20, color: AppColors.grey),
                       const SizedBox(width: 12),
                       Text(
-                        LocaleKeys.NoCategory.tr(),
+                        widget.type == ItemType.project ? 'Kategorisiz' : LocaleKeys.NoCategory.tr(),
                         style: const TextStyle(
                           fontSize: 16,
                           color: AppColors.grey,
@@ -382,72 +459,80 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
   }
 
   /// Kategori seçici bottom sheet'i göster
-  Future<void> _showCategorySelector(BuildContext context, NotesProvider provider) async {
+  Future<void> _showCategorySelector(BuildContext context, dynamic provider) async {
     final selected = await showModalBottomSheet<CategoryModel?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CategorySelectorBottomSheet(
-        selectedCategory: _selectedCategory,
-        categories: provider.categories,
-        onCategoryAdded: (category) async {
-          debugPrint('➕ AddEditNoteBottomSheet: New category created ${category.name}');
-          // Kategori zaten CreateCategoryBottomSheet içinde CategoryProvider'a eklendi
-          // Sadece NotesProvider'ın kategoriler listesini güncellememiz gerekiyor
-          await provider.loadData();
-        },
-        onCategoryDeleted: (category) async {
-          debugPrint('🗑️ AddEditNoteBottomSheet: Deleting category ${category.name}');
-          await provider.deleteCategory(category.id);
-        },
-      ),
+      builder: (context) => widget.type == ItemType.project
+          ? ProjectCategorySelectorBottomSheet(
+              currentCategory: _selectedCategory,
+              categories: provider.categories,
+            )
+          : CategorySelectorBottomSheet(
+              selectedCategory: _selectedCategory,
+              categories: provider.categories,
+              onCategoryAdded: (category) async {
+                debugPrint('➕ AddEditItemBottomSheet: New category created ${category.name}');
+                await provider.loadData();
+              },
+              onCategoryDeleted: (category) async {
+                debugPrint('🗑️ AddEditItemBottomSheet: Deleting category ${category.name}');
+                await provider.deleteCategory(category.id);
+              },
+            ),
     );
 
-    if (selected != null || selected == null) {
+    // Proje için yeni kategori kontrolü
+    if (widget.type == ItemType.project && selected != null && !provider.categories.any((cat) => cat.id == selected.id)) {
+      debugPrint('🔄 AddEditItemBottomSheet: New category detected, reloading categories');
+      await provider.loadCategories();
+    }
+
+    if (mounted) {
       setState(() {
         _selectedCategory = selected;
       });
-      debugPrint('📌 AddEditNoteBottomSheet: Category selected - ${selected?.name ?? "None"}');
+      debugPrint('✅ AddEditItemBottomSheet: Category selected: ${selected?.name ?? "None"}');
     }
   }
 
   /// Kaydet butonu
   Widget _buildSaveButton() {
     return SizedBox(
-      height: 54,
-      child: ElevatedButton.icon(
-        onPressed: _isSaving ? null : _saveNote,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: _isSaving ? null : _handleSave,
         style: ElevatedButton.styleFrom(
-          backgroundColor: _selectedCategory != null ? Color(_selectedCategory!.colorValue) : AppColors.blue,
+          backgroundColor: widget.type == ItemType.note && _selectedCategory != null ? Color(_selectedCategory!.colorValue) : AppColors.green,
           foregroundColor: Colors.white,
+          disabledBackgroundColor: AppColors.grey,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          elevation: 2,
         ),
-        icon: _isSaving
+        child: _isSaving
             ? const SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.white,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : const Icon(Icons.save),
-        label: Text(
-          _isSaving
-              ? LocaleKeys.Saving.tr()
-              : isEditing
-                  ? LocaleKeys.Update.tr()
-                  : LocaleKeys.Save.tr(),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+            : Text(
+                isEditing ? 'Güncelle' : 'Oluştur',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }
 
-  Future<void> _saveNote() async {
+  /// Kaydet işlemi
+  Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -457,71 +542,79 @@ class _AddEditNoteBottomSheetState extends State<AddEditNoteBottomSheet> {
     });
 
     try {
-      final provider = context.read<NotesProvider>();
+      final provider = _getProvider(context, listen: false);
+      final now = DateTime.now();
 
       bool success;
-
-      if (isEditing) {
-        // Mevcut notu güncelle
-        debugPrint('📝 AddEditNoteBottomSheet: Updating note ${widget.note!.id}');
-        final updatedNote = widget.note!.copyWith(
+      if (widget.type == ItemType.project) {
+        final project = ProjectModel(
+          id: widget.item?.id ?? 'proj_${now.millisecondsSinceEpoch}',
           title: _titleController.text.trim(),
-          content: _contentController.text.trim(),
-          categoryId: _selectedCategory?.id,
+          description: _contentController.text.trim(),
+          createdAt: widget.item?.createdAt ?? now,
+          updatedAt: now,
           isPinned: _isPinned,
-          updatedAt: DateTime.now(),
-        );
-        success = await provider.updateNote(updatedNote);
-      } else {
-        // Yeni not ekle
-        debugPrint('➕ AddEditNoteBottomSheet: Adding new note');
-        success = await provider.addNote(
-          title: _titleController.text.trim(),
-          content: _contentController.text.trim(),
+          isArchived: widget.item?.isArchived ?? false,
+          colorIndex: widget.item?.colorIndex ?? 0,
           categoryId: _selectedCategory?.id,
         );
+
+        if (isEditing) {
+          success = await provider.updateProject(project);
+          debugPrint('✅ AddEditItemBottomSheet: Project updated');
+        } else {
+          success = await provider.addProject(project);
+          debugPrint('✅ AddEditItemBottomSheet: New project created');
+        }
+      } else {
+        // Note
+        if (isEditing) {
+          final note = widget.item as NoteModel;
+          final updatedNote = note.copyWith(
+            title: _titleController.text.trim(),
+            content: _contentController.text.trim(),
+            categoryId: _selectedCategory?.id,
+            isPinned: _isPinned,
+            updatedAt: now,
+          );
+          success = await provider.updateNote(updatedNote);
+          debugPrint('✅ AddEditItemBottomSheet: Note updated');
+        } else {
+          success = await provider.addNote(
+            title: _titleController.text.trim(),
+            content: _contentController.text.trim(),
+            categoryId: _selectedCategory?.id,
+          );
+          debugPrint('✅ AddEditItemBottomSheet: New note created');
+        }
       }
 
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-
-        if (success) {
-          debugPrint('✅ AddEditNoteBottomSheet: Note saved successfully');
-          Navigator.pop(context);
+      if (success && mounted) {
+        Navigator.pop(context, true);
+        if (widget.type == ItemType.note) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr(),
-              ),
+              content: Text(isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr()),
               backgroundColor: Colors.green,
-            ),
-          );
-        } else {
-          debugPrint('❌ AddEditNoteBottomSheet: Failed to save note');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isEditing ? LocaleKeys.NoteUpdateFailed.tr() : LocaleKeys.NoteSaveFailed.tr(),
-              ),
-              backgroundColor: Colors.red,
             ),
           );
         }
       }
     } catch (e) {
-      debugPrint('❌ AddEditNoteBottomSheet: Error saving note: $e');
+      debugPrint('❌ AddEditItemBottomSheet: Error saving item: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
+    } finally {
       if (mounted) {
         setState(() {
           _isSaving = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('ErrorOccurred'.tr(args: [e.toString()])),
-            backgroundColor: Colors.red,
-          ),
-        );
       }
     }
   }

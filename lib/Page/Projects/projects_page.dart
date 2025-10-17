@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Widgets/Projects/project_card.dart';
-import 'package:next_level/Widgets/Projects/add_edit_project_bottom_sheet.dart';
+import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/project_model.dart';
@@ -327,7 +327,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
-          builder: (context) => AddEditProjectBottomSheet(project: project),
+          builder: (context) => AddEditItemBottomSheet(
+            type: ItemType.project,
+            item: project,
+          ),
         );
 
         if (result == true) {

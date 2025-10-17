@@ -12,8 +12,7 @@ import 'package:next_level/Page/Store/add_store_item_page.dart';
 import 'package:next_level/Page/Store/store_page.dart';
 import 'package:next_level/Page/Notes/notes_page.dart';
 import 'package:next_level/Page/Projects/projects_page.dart';
-import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
-import 'package:next_level/Widgets/Projects/add_edit_project_bottom_sheet.dart';
+import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -299,7 +298,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const AddEditNoteBottomSheet(),
+                  builder: (context) => const AddEditItemBottomSheet(type: ItemType.note),
                 );
               } else if (currentIndex == 4) {
                 // Projects tab - add project with bottom sheet
@@ -307,7 +306,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => const AddEditProjectBottomSheet(),
+                  builder: (context) => const AddEditItemBottomSheet(type: ItemType.project),
                 );
               }
             },

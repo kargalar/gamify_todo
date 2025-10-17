@@ -7,7 +7,7 @@ import 'package:next_level/Widgets/Notes/note_card.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Widgets/Notes/add_edit_note_bottom_sheet.dart';
+import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Widgets/Common/standard_app_bar.dart';
@@ -342,7 +342,10 @@ class _NotesPageState extends State<NotesPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddEditNoteBottomSheet(note: note),
+      builder: (context) => AddEditItemBottomSheet(
+        type: ItemType.note,
+        item: note,
+      ),
     );
   }
 }

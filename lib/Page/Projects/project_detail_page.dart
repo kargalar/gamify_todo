@@ -13,7 +13,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
 import 'package:next_level/Widgets/Common/add_subtask_bottom_sheet.dart';
-import 'package:next_level/Widgets/Projects/add_edit_project_bottom_sheet.dart';
+import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:next_level/Widgets/Projects/add_project_note_bottom_sheet.dart';
 
 /// Proje detay sayfası - Modern tasarım (tab'sız)
@@ -129,7 +129,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddEditProjectBottomSheet(project: _currentProject),
+      builder: (context) => AddEditItemBottomSheet(
+        type: ItemType.project,
+        item: _currentProject,
+      ),
     );
 
     if (result == true) {
