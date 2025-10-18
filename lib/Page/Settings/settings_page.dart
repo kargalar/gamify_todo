@@ -5,15 +5,17 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
-import 'package:next_level/Page/Settings/privacy_policy_dialog.dart';
+import 'package:next_level/Page/Settings/privacy_policy_webview_page.dart';
 import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/theme_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
@@ -189,11 +191,24 @@ class SettingsPage extends StatelessWidget {
               title: LocaleKeys.PrivacyPolicy.tr(),
               subtitle: LocaleKeys.PrivacyPolicySubtitle.tr(),
               icon: Icons.privacy_tip,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const PrivacyPolicyDialog(),
-                );
+              onTap: () async {
+                const url = 'https://gamifytodo-lvl.web.app/'; // TODO: Update with actual URL
+                debugPrint('Settings: Opening Privacy Policy');
+
+                // Check if webview is supported on this platform
+                if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || kIsWeb) {
+                  debugPrint('Settings: Using WebView for Privacy Policy');
+                  NavigatorService().goTo(const PrivacyPolicyWebViewPage());
+                } else {
+                  // For unsupported platforms (like Windows), use external browser
+                  debugPrint('Settings: Using external browser for Privacy Policy: $url');
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                    debugPrint('Settings: Privacy Policy URL launched successfully');
+                  } else {
+                    debugPrint('Settings: Could not launch Privacy Policy URL');
+                  }
+                }
               },
             ),
             // TODO: for with database accounts
