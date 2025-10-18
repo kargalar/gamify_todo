@@ -47,6 +47,10 @@ abstract class  LocaleKeys {
   static const Cancel = 'Cancel';
   static const TraitNameEmpty = 'TraitNameEmpty';
   static const RoutineStartDateError = 'RoutineStartDateError';
+  static const RoutineCannotBeDateless = 'RoutineCannotBeDateless';
+  static const RoutineRequiresStartDate = 'RoutineRequiresStartDate';
+  static const RoutineMustHaveDate = 'RoutineMustHaveDate';
+  static const Clear = 'Clear';
   static const EditTask = 'EditTask';
   static const EditRoutine = 'EditRoutine';
   static const Edit = 'Edit';

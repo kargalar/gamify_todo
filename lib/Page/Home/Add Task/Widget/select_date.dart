@@ -3,10 +3,12 @@ import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class SelectDate extends StatefulWidget {
   const SelectDate({
@@ -265,7 +267,7 @@ class _SelectDateState extends State<SelectDate> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "Bugün",
+                                LocaleKeys.Today.tr(),
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -312,7 +314,7 @@ class _SelectDateState extends State<SelectDate> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "Yarın",
+                                LocaleKeys.Tomorrow.tr(),
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -338,7 +340,7 @@ class _SelectDateState extends State<SelectDate> {
                             // Rutin günü seçiliyken tarihsiz seçilmeye çalışıldığında uyarı
                             if (addTaskProvider.selectedDays.isNotEmpty) {
                               Helper().getMessage(
-                                message: "Rutin görevler tarihsiz olamaz. Önce rutin günlerini temizleyin.",
+                                message: LocaleKeys.RoutineCannotBeDateless.tr(),
                                 status: StatusEnum.WARNING,
                               );
                               return;
@@ -368,7 +370,7 @@ class _SelectDateState extends State<SelectDate> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "Tarihsiz",
+                                  LocaleKeys.NoDate.tr(),
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -403,9 +405,9 @@ class _SelectDateState extends State<SelectDate> {
                         width: 1,
                       ),
                     ),
-                    child: const Text(
-                      "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
-                      style: TextStyle(
+                    child: Text(
+                      LocaleKeys.RoutineRequiresStartDate.tr(),
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.dirtyRed,
                         fontStyle: FontStyle.italic,

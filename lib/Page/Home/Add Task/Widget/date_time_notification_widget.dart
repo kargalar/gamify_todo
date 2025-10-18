@@ -467,7 +467,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Bugün",
+                          LocaleKeys.Today.tr(),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -514,7 +514,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Yarın",
+                          LocaleKeys.Tomorrow.tr(),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -540,7 +540,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                       // Rutin günü seçiliyken tarihsiz seçilmeye çalışıldığında uyarı
                       if (addTaskProvider.selectedDays.isNotEmpty) {
                         Helper().getMessage(
-                          message: "Rutin görevler tarihsiz olamaz. Önce rutin günlerini temizleyin.",
+                          message: LocaleKeys.RoutineCannotBeDateless.tr(),
                           status: StatusEnum.WARNING,
                         );
                         return;
@@ -570,7 +570,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Tarihsiz",
+                            LocaleKeys.NoDate.tr(),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,

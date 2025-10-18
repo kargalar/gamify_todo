@@ -4,6 +4,7 @@ import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
@@ -51,7 +52,7 @@ class _SelectDaysState extends State<SelectDays> {
             children: [
               Expanded(
                 child: ClickableTooltip(
-                  title: "Repeat Days",
+                  title: LocaleKeys.RepeatDays.tr(),
                   bulletPoints: const ["Select days for recurring tasks", "No selection means one-time task", "Routines require a start date", "Tasks will repeat on selected days"],
                   child: Container(
                     color: AppColors.transparent,
@@ -63,8 +64,8 @@ class _SelectDaysState extends State<SelectDays> {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          "Repeat Days",
+                        Text(
+                          LocaleKeys.RepeatDays.tr(),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -87,7 +88,7 @@ class _SelectDaysState extends State<SelectDays> {
                     // Tarihsiz seçiliyken rutin günü seçilmeye çalışıldığında uyarı
                     if (addTaskProvider.selectedDate == null && addTaskProvider.selectedDays.length != 7) {
                       Helper().getMessage(
-                        message: "Rutin oluşturmak için önce bir tarih seçmelisiniz. Tarihsiz görevler rutin olamaz.",
+                        message: LocaleKeys.RoutineMustHaveDate.tr(),
                         status: StatusEnum.WARNING,
                       );
                       return;
@@ -115,7 +116,7 @@ class _SelectDaysState extends State<SelectDays> {
                       ),
                     ),
                     child: Text(
-                      addTaskProvider.selectedDays.length == 7 ? "Clear" : "All",
+                      addTaskProvider.selectedDays.length == 7 ? LocaleKeys.Clear.tr() : LocaleKeys.All.tr(),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -163,9 +164,9 @@ class _SelectDaysState extends State<SelectDays> {
                     width: 1,
                   ),
                 ),
-                child: const Text(
-                  "Rutin oluşturmak için başlangıç tarihi seçmelisiniz.",
-                  style: TextStyle(
+                child: Text(
+                  LocaleKeys.RoutineRequiresStartDate.tr(),
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.dirtyRed,
                     fontStyle: FontStyle.italic,
@@ -210,7 +211,7 @@ class _DayButtonState extends State<DayButton> {
           // Tarihsiz seçiliyken rutin günü seçilmeye çalışıldığında uyarı
           if (addTaskProvider.selectedDate == null && !addTaskProvider.selectedDays.contains(widget.index)) {
             Helper().getMessage(
-              message: "Rutin oluşturmak için önce bir tarih seçmelisiniz. Tarihsiz görevler rutin olamaz.",
+              message: LocaleKeys.RoutineMustHaveDate.tr(),
               status: StatusEnum.WARNING,
             );
             return;
