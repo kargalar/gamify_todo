@@ -183,12 +183,7 @@ class HiveService {
     debugPrint('Updating task in Hive: ID=${taskModel.id}, Title=${taskModel.title}');
 
     try {
-      // First save the HiveObject to ensure changes are persisted
-      debugPrint('Calling save() on task: ID=${taskModel.id}');
-      taskModel.save();
-      debugPrint('save() done successfully for task: ID=${taskModel.id}');
-
-      // Then update the box with the task model
+      // Update the box with the task model
       debugPrint('Putting task in Hive box: ID=${taskModel.id}');
       await box.put(taskModel.id, taskModel);
       debugPrint('put() done successfully for task: ID=${taskModel.id}');

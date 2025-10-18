@@ -2,10 +2,6 @@ botomsheet tam ekran olabilsin
 
 subtaskları birleştir
 
-timer aktifken loglamak fix
-
-geçimş rutinler slidable fix
-
 rutinin veya taskın type değiştirilebilsin.
 rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nıasl olur. o da ilerlemeyi fıtrılayarak çok güzel olur.
 
