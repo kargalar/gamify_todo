@@ -66,7 +66,7 @@ class _SelectDaysState extends State<SelectDays> {
                         const SizedBox(width: 8),
                         Text(
                           LocaleKeys.RepeatDays.tr(),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
