@@ -37,3 +37,4 @@ NOTE: bildirimleri de bunne göre güncellemelisin
 
 
 privicay policy link güncelle. firebase domain bağla
+attachments ve tema geçcii oalrak kaldırldı

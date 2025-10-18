@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/image_gallery_viewer.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/attachment_viewer_page.dart';
 
 class FileAttachmentWidget extends StatelessWidget {
   const FileAttachmentWidget({super.key});
@@ -376,15 +376,14 @@ class FileAttachmentWidget extends StatelessWidget {
 
   void _showFullScreenImage(BuildContext context, String imagePath) {
     final addTaskProvider = context.read<AddTaskProvider>();
-    final imageFiles = addTaskProvider.attachmentPaths.where((path) => _isImageFile(path)).toList();
-    final currentIndex = imageFiles.indexOf(imagePath);
+    final currentIndex = addTaskProvider.attachmentPaths.indexOf(imagePath);
 
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => ImageGalleryViewer(
-        imageFiles: imageFiles,
-        initialIndex: currentIndex >= 0 ? currentIndex : 0,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AttachmentViewerPage(
+          attachmentPaths: addTaskProvider.attachmentPaths,
+          initialIndex: currentIndex >= 0 ? currentIndex : 0,
+        ),
       ),
     );
   }

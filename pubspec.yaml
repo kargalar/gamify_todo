@@ -98,6 +98,13 @@ dependencies:
 
   # File Picker
   file_picker: ^8.1.7
+
+  # Share files
+  share_plus: ^10.1.3
+
+  # Open files
+  open_file: ^3.5.10
+
   path: ^1.9.0
 
   # URL Launcher

@@ -52,36 +52,36 @@ class SettingsPage extends StatelessWidget {
             //     );
             //   },
             // ),
-            _settingsOption(
-              title: LocaleKeys.ThemeSelection.tr(),
-              subtitle: LocaleKeys.ThemeSelectionSubtitle.tr(),
-              icon: Icons.dark_mode,
-              onTap: () {
-                context.read<ThemeProvider>().changeTheme();
-              },
-              trailing: Switch.adaptive(
-                value: AppColors.isDark,
-                thumbIcon: AppColors.isDark
-                    ? WidgetStateProperty.all(
-                        const Icon(
-                          Icons.brightness_2,
-                          color: AppColors.black,
-                        ),
-                      )
-                    : WidgetStateProperty.all(
-                        const Icon(
-                          Icons.wb_sunny,
-                          color: AppColors.white,
-                        ),
-                      ),
-                trackOutlineColor: AppColors.isDark ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
-                inactiveThumbColor: AppColors.dirtyRed,
-                inactiveTrackColor: AppColors.white,
-                onChanged: (_) {
-                  context.read<ThemeProvider>().changeTheme();
-                },
-              ),
-            ),
+            // _settingsOption(
+            //   title: LocaleKeys.ThemeSelection.tr(),
+            //   subtitle: LocaleKeys.ThemeSelectionSubtitle.tr(),
+            //   icon: Icons.dark_mode,
+            //   onTap: () {
+            //     context.read<ThemeProvider>().changeTheme();
+            //   },
+            //   trailing: Switch.adaptive(
+            //     value: AppColors.isDark,
+            //     thumbIcon: AppColors.isDark
+            //         ? WidgetStateProperty.all(
+            //             const Icon(
+            //               Icons.brightness_2,
+            //               color: AppColors.black,
+            //             ),
+            //           )
+            //         : WidgetStateProperty.all(
+            //             const Icon(
+            //               Icons.wb_sunny,
+            //               color: AppColors.white,
+            //             ),
+            //           ),
+            //     trackOutlineColor: AppColors.isDark ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
+            //     inactiveThumbColor: AppColors.dirtyRed,
+            //     inactiveTrackColor: AppColors.white,
+            //     onChanged: (_) {
+            //       context.read<ThemeProvider>().changeTheme();
+            //     },
+            //   ),
+            // ),
             _settingsOption(
               title: LocaleKeys.SelectTaskStyle.tr(),
               subtitle: LocaleKeys.SelectTaskStyle.tr(),

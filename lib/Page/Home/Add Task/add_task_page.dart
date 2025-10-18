@@ -28,7 +28,6 @@ import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/file_attachment_widget.dart';
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({
@@ -259,8 +258,9 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     const PinTaskSwitch(),
                     const SizedBox(height: 10),
                     // File attachment widget
-                    const FileAttachmentWidget(),
-                    const SizedBox(height: 10),
+                    // !!! geçcici oalrak kaldırıldı
+                    // const FileAttachmentWidget(),
+                    // const SizedBox(height: 10),
                     // Always show repeat days selector; for standalone tasks in edit, selecting days will convert to a routine
                     const SelectDays(),
                     const SizedBox(height: 10),

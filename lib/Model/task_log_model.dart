@@ -55,7 +55,18 @@ class TaskLogModel extends HiveObject {
       taskTitle: json['task_title'],
       duration: json['duration'] != null ? stringToDuration(json['duration']) : null,
       count: json['count'],
-      status: TaskStatusEnum.values.firstWhere((e) => e.toString().split('.').last == (json['status'] == 'COMPLETED' ? 'DONE' : json['status'])),
+      status: (() {
+        final statusString = json['status']?.toString().toUpperCase();
+        const Map<String, TaskStatusEnum> statusMap = {
+          'DONE': TaskStatusEnum.DONE,
+          'CANCEL': TaskStatusEnum.CANCEL,
+          'FAILED': TaskStatusEnum.FAILED,
+          'ARCHIVED': TaskStatusEnum.ARCHIVED,
+          'OVERDUE': TaskStatusEnum.OVERDUE,
+          'COMPLETED': TaskStatusEnum.DONE,
+        };
+        return statusMap[statusString] ?? TaskStatusEnum.DONE;
+      })(),
     );
   }
 
