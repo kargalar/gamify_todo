@@ -13,7 +13,7 @@ enum CategoryType {
   project,
 }
 
-@HiveType(typeId: 7)
+@HiveType(typeId: 16)
 class CategoryModel extends HiveObject {
   @HiveField(0)
   String id;

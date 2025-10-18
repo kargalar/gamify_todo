@@ -52,9 +52,8 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   late Animation<Color?> _failBackgroundColorAnimation;
   late Animation<Color?> _cancelBackgroundColorAnimation;
   bool _isAnimationRunning = false; // Track if completion animation is running
-  bool _isVisuallyCompleted = false; // Track visual state for checkbox UI
   AnimationType _currentAnimationType = AnimationType.completion; // Track current animation type
-  animationDuration() => const Duration(milliseconds: 400);
+  animationDuration() => const Duration(milliseconds: 100);
 
   @override
   void initState() {
@@ -303,7 +302,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                 ),
                 child: Icon(
                   widget.taskModel.type == TaskTypeEnum.CHECKBOX
-                      ? (_isVisuallyCompleted || widget.taskModel.status == TaskStatusEnum.DONE)
+                      ? (widget.taskModel.status == TaskStatusEnum.DONE)
                           ? Icons.check_box
                           : Icons.check_box_outline_blank
                       : (widget.taskModel.isTimerActive ?? false)
@@ -329,15 +328,8 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       );
     }
 
-    // Check if animation is running and this is a checkbox task
-    if (_isAnimationRunning && widget.taskModel.type == TaskTypeEnum.CHECKBOX) {
-      // Cancel the animation and revert the visual state
-      _completionAnimationController.stop();
-      _completionAnimationController.reset();
-      _isAnimationRunning = false;
-      _isVisuallyCompleted = false;
-
-      setState(() {});
+    // Check if animation is running - prevent multiple simultaneous checkbox animations
+    if (_isAnimationRunning) {
       return;
     }
 
@@ -345,24 +337,17 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     final bool isCheckboxTaskBeingCompleted = widget.taskModel.type == TaskTypeEnum.CHECKBOX && widget.taskModel.status != TaskStatusEnum.DONE;
 
     if (isCheckboxTaskBeingCompleted) {
-      // First, immediately update the visual state (checkbox appears checked)
-      _isVisuallyCompleted = true;
-      setState(() {});
-
       // Add haptic feedback when completing a checkbox task
       HapticFeedback.lightImpact();
 
-      // Then play the completion animation, and complete the task when animation finishes
-      _playCompletionAnimation(() {
-        // Actually complete the task after animation
-        TaskActionHandler.handleTaskAction(
-          widget.taskModel,
-          skipLogging: skipLogging,
-          onStateChanged: () {
-            setState(() {});
-          },
-        );
-      });
+      // Immediately complete the task
+      TaskActionHandler.handleTaskAction(
+        widget.taskModel,
+        skipLogging: skipLogging,
+        onStateChanged: () {
+          setState(() {});
+        },
+      );
     } else {
       // Add haptic feedback when completing a checkbox task
       HapticFeedback.lightImpact();
@@ -391,7 +376,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       // After animation effect, reverse it
       _completionAnimationController.reverse().then((_) {
         _isAnimationRunning = false;
-        _isVisuallyCompleted = false; // Reset visual state after animation
 
         // Execute completion callback
         if (onAnimationComplete != null) {
@@ -399,10 +383,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         }
       });
     });
-  }
-
-  void _playCompletionAnimation([VoidCallback? onAnimationComplete]) {
-    _playAnimation(AnimationType.completion, onAnimationComplete);
   }
 
   void _playFailAnimation() {

@@ -8,7 +8,7 @@ part of 'category_model.dart';
 
 class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
   @override
-  final int typeId = 7;
+  final int typeId = 16;
 
   @override
   CategoryModel read(BinaryReader reader) {
@@ -19,7 +19,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
     return CategoryModel(
       id: fields[0] as String,
       title: fields[1] as String,
-      color: fields[2] as Color,
+      color: Color(fields[2] as int),
       isArchived: fields[3] as bool,
       iconCodePoint: fields[4] as int?,
       createdAt: fields[5] as DateTime?,
@@ -36,7 +36,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
       ..writeByte(1)
       ..write(obj.title)
       ..writeByte(2)
-      ..write(obj.color)
+      ..write(obj.color.value)
       ..writeByte(3)
       ..write(obj.isArchived)
       ..writeByte(4)
@@ -51,11 +51,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is CategoryModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class CategoryTypeAdapter extends TypeAdapter<CategoryType> {
@@ -95,9 +91,5 @@ class CategoryTypeAdapter extends TypeAdapter<CategoryType> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CategoryTypeAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is CategoryTypeAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

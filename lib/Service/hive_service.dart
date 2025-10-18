@@ -47,7 +47,7 @@ class HiveService {
   static const String _routineBoxName = 'routineBox';
   static const String _taskBoxName = 'taskBox';
   static const String _taskLogBoxName = 'taskLogBox';
-  static const String _categoryBoxName = 'categoryBox';
+  static const String _categoryBoxName = 'categoryBox_v2';
 
   Future<Box<UserModel>> get _userBox async => await Hive.openBox<UserModel>(_userBoxName);
   Future<Box<ItemModel>> get _itemBox async => await Hive.openBox<ItemModel>(_itemBoxName);
