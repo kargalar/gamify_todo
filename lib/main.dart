@@ -21,24 +21,11 @@ import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Provider/user_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Setup WebView platform
-  if (WebViewPlatform.instance == null) {
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      WebViewPlatform.instance = AndroidWebViewPlatform();
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      WebViewPlatform.instance = WebKitWebViewPlatform();
-    }
-  }
 
   await initApp();
 
