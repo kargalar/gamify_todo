@@ -16,7 +16,7 @@ class _PrivacyPolicyWebViewPageState extends State<PrivacyPolicyWebViewPage> {
   late final WebViewController controller;
 
   // TODO: Update this URL to your actual privacy policy URL
-  final String privacyPolicyUrl = 'https://gamify-todo.web.app/';
+  final String privacyPolicyUrl = 'https://gamifytodo-lvl.web.app/';
 
   @override
   void initState() {
