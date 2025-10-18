@@ -386,80 +386,158 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
 
   /// Kategori seçici butonu (kompakt)
   Widget _buildCategorySelectorButton() {
-    return Consumer(
-      builder: (context, provider, child) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              LocaleKeys.Category.tr(),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.grey,
-              ),
-            ),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: () => _showCategorySelector(context, provider),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.panelBackground2),
+    if (widget.type == ItemType.project) {
+      return Consumer<ProjectsProvider>(
+        builder: (context, provider, child) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                LocaleKeys.Category.tr(),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.grey,
                 ),
-                child: Row(
-                  children: [
-                    if (_selectedCategory != null) ...[
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue).withValues(alpha: 0.2) : _selectedCategory!.color.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => _showCategorySelector(context, provider),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.panelBackground,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.panelBackground2),
+                  ),
+                  child: Row(
+                    children: [
+                      if (_selectedCategory != null) ...[
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue).withValues(alpha: 0.2) : _selectedCategory!.color.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            widget.type == ItemType.project ? IconData(_selectedCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : (_selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category),
+                            size: 18,
+                            color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : _selectedCategory!.color,
+                          ),
                         ),
-                        child: Icon(
-                          widget.type == ItemType.project ? IconData(_selectedCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : (_selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category),
-                          size: 18,
-                          color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : _selectedCategory!.color,
+                        const SizedBox(width: 12),
+                        Text(
+                          widget.type == ItemType.project ? _selectedCategory!.name : _selectedCategory!.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : Color(_selectedCategory!.colorValue),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        widget.type == ItemType.project ? _selectedCategory!.name : _selectedCategory!.title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : Color(_selectedCategory!.colorValue),
+                      ] else ...[
+                        const Icon(Icons.category_outlined, size: 20, color: AppColors.grey),
+                        const SizedBox(width: 12),
+                        Text(
+                          widget.type == ItemType.project ? 'Kategorisiz' : LocaleKeys.NoCategory.tr(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: AppColors.grey,
+                          ),
                         ),
-                      ),
-                    ] else ...[
-                      const Icon(Icons.category_outlined, size: 20, color: AppColors.grey),
-                      const SizedBox(width: 12),
-                      Text(
-                        widget.type == ItemType.project ? 'Kategorisiz' : LocaleKeys.NoCategory.tr(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: AppColors.grey,
-                        ),
-                      ),
+                      ],
+                      const Spacer(),
+                      const Icon(Icons.chevron_right, color: AppColors.grey),
                     ],
-                    const Spacer(),
-                    const Icon(Icons.chevron_right, color: AppColors.grey),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
-    );
+            ],
+          );
+        },
+      );
+    } else {
+      return Consumer<NotesProvider>(
+        builder: (context, provider, child) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                LocaleKeys.Category.tr(),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.grey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => _showCategorySelector(context, provider),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.panelBackground,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.panelBackground2),
+                  ),
+                  child: Row(
+                    children: [
+                      if (_selectedCategory != null) ...[
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue).withValues(alpha: 0.2) : _selectedCategory!.color.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            widget.type == ItemType.project ? IconData(_selectedCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : (_selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category),
+                            size: 18,
+                            color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : _selectedCategory!.color,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          widget.type == ItemType.project ? _selectedCategory!.name : _selectedCategory!.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : Color(_selectedCategory!.colorValue),
+                          ),
+                        ),
+                      ] else ...[
+                        const Icon(Icons.category_outlined, size: 20, color: AppColors.grey),
+                        const SizedBox(width: 12),
+                        Text(
+                          widget.type == ItemType.project ? 'Kategorisiz' : LocaleKeys.NoCategory.tr(),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: AppColors.grey,
+                          ),
+                        ),
+                      ],
+                      const Spacer(),
+                      const Icon(Icons.chevron_right, color: AppColors.grey),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   /// Kategori seçici bottom sheet'i göster
   Future<void> _showCategorySelector(BuildContext context, dynamic provider) async {
+    debugPrint('🔍 AddEditItemBottomSheet: Showing category selector for ${widget.type}');
+    if (provider == null) {
+      debugPrint('❌ AddEditItemBottomSheet: Provider is null, cannot show category selector');
+      return;
+    }
     final selected = await showModalBottomSheet<CategoryModel?>(
       context: context,
       isScrollControlled: true,
