@@ -30,11 +30,8 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
 
           return Container(
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              border: const Border(
-                top: BorderSide(color: AppColors.dirtyWhite),
-              ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
@@ -47,6 +44,13 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(8),
                   ),
+                ),
+                const SizedBox(height: 8),
+                // Top divider under handle
+                Container(
+                  height: 1,
+                  width: double.infinity,
+                  color: Colors.grey.withOpacity(0.12),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -74,7 +78,7 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                       children: [
                         Text(vm.todayTotalText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
-                        Text('${vm.todayTargetDuration.textShort2hour()} hedef', style: TextStyle(color: Colors.grey[600])),
+                        Text('Günlük hedef: ${vm.todayTargetDuration.textShort2hour()} | Streak: ${vm.streakDuration.textShort2hour()}', style: TextStyle(color: Colors.grey[600])),
                       ],
                     ),
                     const Spacer(),
@@ -303,6 +307,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               const Color start = Color(0xFFFFA726);
               const Color end = Color(0xFF66BB6A);
               final Color mainColor = percent > 1.0 ? const Color(0xFF42A5F5) : (Color.lerp(start, end, percent.clamp(0.0, 1.0)) ?? end);
+              final bool hasReachedStreak = vm.todayTotalDuration >= vm.streakDuration;
 
               return TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 350),
@@ -318,7 +323,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       height: 32,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [mainColor.withOpacity(0.18), mainColor.withOpacity(0.08)]),
+                        gradient: hasReachedStreak ? LinearGradient(colors: [Colors.orange.withOpacity(0.3), Colors.red.withOpacity(0.2)]) : LinearGradient(colors: [mainColor.withOpacity(0.18), mainColor.withOpacity(0.08)]),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -345,6 +350,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(vm.todayTotalText, style: TextStyle(fontSize: 12, color: AppColors.text)),
+                          if (hasReachedStreak) ...[
+                            const SizedBox(width: 4),
+                            const Icon(Icons.whatshot, size: 16, color: Colors.red),
+                          ],
                         ],
                       ),
                     ),

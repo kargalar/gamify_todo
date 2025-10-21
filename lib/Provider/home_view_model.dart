@@ -242,6 +242,13 @@ class HomeViewModel extends ChangeNotifier {
     return const Duration(hours: 1);
   }
 
+  /// Streak minimum duration (from settings)
+  Duration get streakDuration {
+    final double hours = StreakSettingsProvider().streakMinimumHours;
+    if (hours > 0) return Duration(minutes: (hours * 60).toInt());
+    return const Duration(hours: 1);
+  }
+
   /// Progress percent toward today's target (0..1)
   double get todayProgressPercent {
     final Duration target = todayTargetDuration;
