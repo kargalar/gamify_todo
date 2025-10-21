@@ -71,6 +71,37 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
             Text('${LocaleKeys.RecentLogs.tr()} (${widget.viewModel.recentLogs.length})', style: const TextStyle(color: Colors.grey)),
             Row(
               children: [
+                // Clear all logs butonu
+                IconButton(
+                  icon: const Icon(Icons.clear_all, size: 20, color: Colors.red),
+                  onPressed: () async {
+                    // Onay dialogu göster
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(LocaleKeys.ConfirmationTitle.tr()),
+                        content: Text(LocaleKeys.ClearAllLogsConfirmation.tr()),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: Text(LocaleKeys.Cancel.tr()),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirmed == true) {
+                      await widget.viewModel.clearLogsForTask();
+                      widget.viewModel.loadRecentLogs();
+                      setState(() {});
+                    }
+                  },
+                  tooltip: LocaleKeys.ClearAllLogs.tr(),
+                ),
                 // Rutin görevler için "Tüm Rutin Kayıtları" butonu
                 if (widget.viewModel.taskModel.routineID != null)
                   IconButton(

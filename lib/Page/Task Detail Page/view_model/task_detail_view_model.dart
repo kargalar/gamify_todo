@@ -336,4 +336,9 @@ class TaskDetailViewModel with ChangeNotifier {
   }
 
   int get successRate => (completedTaskCount + failedTaskCount) == 0 ? 0 : ((completedTaskCount / (completedTaskCount + failedTaskCount)) * 100).toInt();
+
+  Future<void> clearLogsForTask() async {
+    await TaskLogProvider().deleteLogsByTaskId(taskModel.id);
+    debugPrint('✅ Logs deleted for task ${taskModel.id}');
+  }
 }

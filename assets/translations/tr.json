@@ -107,6 +107,8 @@
     "DeleteAllData": "Tüm Verileri Sil",
     "DeleteAllDataWarning": "Tüm verileri silmek istediğinizden emin misiniz?",
     "DeleteAllDataSuccess": "Tüm veriler silindi.",
+    "ClearAllLogsConfirmation": "Tüm logları silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "ClearAllLogs": "Tüm Logları Temizle",
     "ResetRoutineProgress": "Rutin İlerlemelerini Sıfırla",
     "ResetRoutineProgressWarning": "Tüm rutinlerin ilerlemelerini sıfırlamak istediğinizden emin misiniz? Bu işlem tüm rutin görevlerinin ilerlemelerini ve loglarını temizleyecektir.",
     "ResetRoutineProgressSuccess": "Tüm rutin ilerlemeleri sıfırlandı.",

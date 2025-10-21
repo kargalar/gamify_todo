@@ -108,6 +108,8 @@
     "DeleteAllData": "Delete All Data",
     "DeleteAllDataWarning": "Are you sure you want to delete all data?",
     "DeleteAllDataSuccess": "All data has been deleted",
+    "ClearAllLogsConfirmation": "Are you sure you want to clear all logs? This action cannot be undone.",
+    "ClearAllLogs": "Clear All Logs",
     "ResetRoutineProgress": "Reset Routine Progress",
     "ResetRoutineProgressWarning": "Are you sure you want to reset all routine progress? This will clear all progress and logs for routine tasks.",
     "ResetRoutineProgressSuccess": "All routine progress has been reset",

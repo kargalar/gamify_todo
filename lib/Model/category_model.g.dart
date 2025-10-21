@@ -19,7 +19,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
     return CategoryModel(
       id: fields[0] as String,
       title: fields[1] as String,
-      color: Color(fields[2] as int),
+      color: fields[2] as Color,
       isArchived: fields[3] as bool,
       iconCodePoint: fields[4] as int?,
       createdAt: fields[5] as DateTime?,
@@ -36,7 +36,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
       ..writeByte(1)
       ..write(obj.title)
       ..writeByte(2)
-      ..write(obj.color.value)
+      ..write(obj.color)
       ..writeByte(3)
       ..write(obj.isArchived)
       ..writeByte(4)
@@ -51,7 +51,11 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is CategoryModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CategoryModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
 
 class CategoryTypeAdapter extends TypeAdapter<CategoryType> {
@@ -91,5 +95,9 @@ class CategoryTypeAdapter extends TypeAdapter<CategoryType> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is CategoryTypeAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CategoryTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

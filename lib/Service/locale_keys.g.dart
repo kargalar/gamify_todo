@@ -111,6 +111,8 @@ abstract class  LocaleKeys {
   static const DeleteAllData = 'DeleteAllData';
   static const DeleteAllDataWarning = 'DeleteAllDataWarning';
   static const DeleteAllDataSuccess = 'DeleteAllDataSuccess';
+  static const ClearAllLogsConfirmation = 'ClearAllLogsConfirmation';
+  static const ClearAllLogs = 'ClearAllLogs';
   static const ResetRoutineProgress = 'ResetRoutineProgress';
   static const ResetRoutineProgressWarning = 'ResetRoutineProgressWarning';
   static const ResetRoutineProgressSuccess = 'ResetRoutineProgressSuccess';
