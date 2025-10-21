@@ -41,7 +41,7 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: Colors.grey[300]!.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -66,7 +66,7 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                             value: percent.clamp(0.0, 1.0),
                             strokeWidth: 6,
                             valueColor: AlwaysStoppedAnimation(mainColor),
-                            backgroundColor: mainColor.withOpacity(0.12),
+                            backgroundColor: mainColor.withValues(alpha: 0.12),
                           ),
                           Text('${(percent * 100).round()}%', style: TextStyle(fontWeight: FontWeight.bold, color: mainColor)),
                         ],

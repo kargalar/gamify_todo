@@ -70,7 +70,7 @@ class ProjectsProvider with ChangeNotifier {
     if (id == null) return null;
     return _categories.firstWhere(
       (category) => category.id == id,
-      orElse: () => CategoryModel(id: '', title: '', color: Colors.grey),
+      orElse: () => CategoryModel(id: '', title: '', colorValue: Colors.grey.toARGB32()),
     );
   }
 

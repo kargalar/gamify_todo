@@ -7,7 +7,6 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:intl/intl.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class SelectDate extends StatefulWidget {

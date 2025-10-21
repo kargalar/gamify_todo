@@ -20,7 +20,7 @@ class CategoryModel extends HiveObject {
   @HiveField(1)
   String title;
   @HiveField(2)
-  Color color;
+  int colorValue;
   @HiveField(3)
   bool isArchived;
   @HiveField(4)
@@ -33,18 +33,20 @@ class CategoryModel extends HiveObject {
   CategoryModel({
     required this.id,
     required this.title,
-    required this.color,
+    required this.colorValue,
     this.isArchived = false,
     this.iconCodePoint,
     this.createdAt,
     this.categoryType = CategoryType.task,
   });
 
+  Color get color => Color(colorValue);
+
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
       id: json['id'].toString(),
       title: json['title'],
-      color: Color(int.parse(json['color'].toString().replaceAll("#", ""), radix: 16)),
+      colorValue: int.parse(json['color'].toString().replaceAll("#", ""), radix: 16),
       isArchived: json['is_archived'] ?? false,
       iconCodePoint: json['icon_code_point'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
@@ -56,7 +58,7 @@ class CategoryModel extends HiveObject {
     return {
       'id': id,
       'title': title,
-      'color': '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+      'color': '#${colorValue.toRadixString(16).padLeft(8, '0').substring(2)}',
       'is_archived': isArchived,
       'icon_code_point': iconCodePoint,
       'created_at': createdAt?.toIso8601String(),
@@ -65,6 +67,5 @@ class CategoryModel extends HiveObject {
   }
 
   // Getters for compatibility with ProjectCategoryModel
-  int get colorValue => color.toARGB32();
   String get name => title;
 }

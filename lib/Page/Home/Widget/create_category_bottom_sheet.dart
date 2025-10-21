@@ -431,7 +431,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       final newCategory = CategoryModel(
         id: '',
         title: categoryTitleController.text.trim(),
-        color: selectedColor,
+        colorValue: selectedColor.toARGB32(),
         iconCodePoint: selectedIcon.codePoint,
         categoryType: selectedCategoryType,
       );
@@ -450,7 +450,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
     } else {
       // Update existing category (categoryType DEĞİŞTİRİLMEZ)
       widget.categoryModel!.title = categoryTitleController.text.trim();
-      widget.categoryModel!.color = selectedColor;
+      widget.categoryModel!.colorValue = selectedColor.toARGB32();
       widget.categoryModel!.iconCodePoint = selectedIcon.codePoint;
       // categoryType değiştirilmez - hangi sayfada oluşturulduysa öyle kalır
       await categoryProvider.updateCategory(widget.categoryModel!);

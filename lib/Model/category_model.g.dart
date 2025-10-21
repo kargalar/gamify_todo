@@ -19,7 +19,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
     return CategoryModel(
       id: fields[0] as String,
       title: fields[1] as String,
-      color: fields[2] as Color,
+      colorValue: fields[2] as int,
       isArchived: fields[3] as bool,
       iconCodePoint: fields[4] as int?,
       createdAt: fields[5] as DateTime?,
@@ -36,7 +36,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
       ..writeByte(1)
       ..write(obj.title)
       ..writeByte(2)
-      ..write(obj.color)
+      ..write(obj.colorValue)
       ..writeByte(3)
       ..write(obj.isArchived)
       ..writeByte(4)

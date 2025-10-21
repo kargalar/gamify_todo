@@ -245,8 +245,7 @@ class HiveService {
   }
 
   Future<void> clearCategoryBox() async {
-    final box = await _categoryBox;
-    await box.clear();
+    await Hive.deleteBoxFromDisk(_categoryBoxName);
   }
 
   // Task Log methods

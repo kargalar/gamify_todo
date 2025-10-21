@@ -46,3 +46,5 @@ appardaki streaka basınca streaklarıda göstersin son 1 haftanına mode a absa
 editteyken sürekli log atması
 
 task name pin sorunu
+
+ilk task acitonda appardaki süre güncellenmiyor ve counter takların süresi yaanlış hesaplanıyor. (edittenken - log girince. logu silince yine düzgün.)
