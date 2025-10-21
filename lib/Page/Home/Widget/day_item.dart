@@ -42,7 +42,7 @@ class _DayItemState extends State<DayItem> {
             Text(
               DateFormat('EEE', locale.languageCode).format(widget.date),
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: AppColors.text,
               ),
@@ -50,7 +50,7 @@ class _DayItemState extends State<DayItem> {
             Text(
               widget.date.day.toString(),
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: AppColors.text,
               ),

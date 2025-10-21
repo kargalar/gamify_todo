@@ -105,11 +105,8 @@ class _QuickAddTaskBottomSheetState extends State<QuickAddTaskBottomSheet> {
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
-        border: Border(
-          top: BorderSide(
-            color: AppColors.dirtyMain,
-            width: 1,
-          ),
+        border: const Border(
+          top: BorderSide(color: AppColors.dirtyWhite),
         ),
         boxShadow: [
           BoxShadow(

@@ -227,6 +227,9 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
+              border: const Border(
+                top: BorderSide(color: AppColors.dirtyWhite),
+              ),
             ),
             child: SingleChildScrollView(
               child: Column(

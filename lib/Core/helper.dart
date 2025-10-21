@@ -505,7 +505,10 @@ class Helper {
                         todayDecoration: BoxDecoration(
                           color: AppColors.main.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.main, width: 1),
+                          border: Border.all(
+                            color: AppColors.text.withValues(alpha: 0.1),
+                            width: 1,
+                          ),
                         ),
                         defaultTextStyle: TextStyle(fontSize: 14, color: AppColors.text),
                         weekendTextStyle: TextStyle(fontSize: 14, color: AppColors.text),

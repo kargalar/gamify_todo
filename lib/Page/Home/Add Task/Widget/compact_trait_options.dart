@@ -41,7 +41,7 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(12),
         border: const Border(
-          top: BorderSide(color: AppColors.dirtyWhite, width: 1),
+          top: BorderSide(color: AppColors.dirtyWhite),
         ),
         boxShadow: [
           BoxShadow(

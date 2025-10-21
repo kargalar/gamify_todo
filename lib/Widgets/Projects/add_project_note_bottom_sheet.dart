@@ -105,7 +105,7 @@ class _AddProjectNoteBottomSheetState extends State<AddProjectNoteBottomSheet> {
           topRight: Radius.circular(20),
         ),
         border: const Border(
-          top: BorderSide(color: AppColors.dirtyWhite, width: 1),
+          top: BorderSide(color: AppColors.dirtyWhite),
         ),
         boxShadow: [
           BoxShadow(
