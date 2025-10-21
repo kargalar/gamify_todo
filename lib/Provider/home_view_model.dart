@@ -183,6 +183,12 @@ class HomeViewModel extends ChangeNotifier {
 
         if (log.duration != null) {
           total += log.duration!;
+        } else if (task.type == TaskTypeEnum.COUNTER && task.currentCount != null && task.currentCount! > 0) {
+          if (task.remainingDuration != null) {
+            final add = task.remainingDuration! * task.currentCount!;
+            total += add;
+            debugPrint('Counter task ${task.id}: currentCount=${task.currentCount}, remainingDuration=${task.remainingDuration}, added=${add.inSeconds}s');
+          }
         } else if (log.count != null && log.count! > 0) {
           if (task.remainingDuration != null) {
             total += (task.remainingDuration! * (log.count! <= 100 ? log.count! : 5));
@@ -255,7 +261,7 @@ class HomeViewModel extends ChangeNotifier {
     if (target.inSeconds == 0) return 0.0;
     final double p = todayTotalDuration.inSeconds / target.inSeconds;
     if (p.isNaN || p.isInfinite) return 0.0;
-    return p.clamp(0.0, 1.0);
+    return p;
   }
 
   /// Breakdown of contributions for selected date: list of map with title and duration
@@ -267,20 +273,23 @@ class HomeViewModel extends ChangeNotifier {
     for (final log in TaskLogProvider().taskLogList) {
       if (!log.logDate.isSameDay(date)) continue;
       final int taskId = log.taskId;
+      TaskModel? task;
+      try {
+        task = TaskProvider().taskList.firstWhere((x) => x.id == taskId);
+      } catch (_) {
+        continue;
+      }
       Duration add = Duration.zero;
       if (log.duration != null) {
         add = log.duration!;
+      } else if (task.type == TaskTypeEnum.COUNTER && task.currentCount != null && task.currentCount! > 0) {
+        final per = task.remainingDuration ?? Duration.zero;
+        add = per * task.currentCount!;
       } else if (log.count != null && log.count! > 0) {
-        try {
-          final t = TaskProvider().taskList.firstWhere((x) => x.id == taskId);
-          final per = t.remainingDuration ?? Duration.zero;
-          add = per * (log.count! <= 100 ? log.count! : 5);
-        } catch (_) {}
+        final per = task.remainingDuration ?? Duration.zero;
+        add = per * (log.count! <= 100 ? log.count! : 5);
       } else if (log.status == null || log.status == TaskStatusEnum.DONE) {
-        try {
-          final t = TaskProvider().taskList.firstWhere((x) => x.id == taskId);
-          add = t.remainingDuration ?? Duration.zero;
-        } catch (_) {}
+        add = task.remainingDuration ?? Duration.zero;
       }
 
       if (add > Duration.zero) {

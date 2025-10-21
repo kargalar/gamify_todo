@@ -25,8 +25,9 @@ class TaskLog {
   final String duration;
   final String status;
   final int logId;
+  final String datePart; // "Today", "Yesterday", or formatted date
 
-  TaskLog(this.dateTime, this.duration, this.status, this.logId);
+  TaskLog(this.dateTime, this.duration, this.status, this.logId, this.datePart);
 }
 
 class TaskDetailViewModel with ChangeNotifier {
@@ -220,12 +221,26 @@ class TaskDetailViewModel with ChangeNotifier {
     // Convert to UI model
     List<TaskLog> tempLogs = [];
 
-    for (int i = 0; i < logs.length && i < 10; i++) {
+    for (int i = 0; i < logs.length; i++) {
       final log = logs[i];
 
-      // Format the date with seconds for precise time display
-      // Format: "d MMM yyyy HH:mm:ss" - Daha kompakt bir format
-      String formattedDate = DateFormat('d MMM yyyy HH:mm:ss').format(log.logDate);
+      // Format the date with relative terms for today/yesterday
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+      DateTime yesterday = today.subtract(const Duration(days: 1));
+      DateTime logDateOnly = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+
+      String datePart;
+      if (logDateOnly == today) {
+        datePart = 'Today';
+      } else if (logDateOnly == yesterday) {
+        datePart = 'Yesterday';
+      } else {
+        datePart = DateFormat('d MMM yyyy').format(log.logDate);
+      }
+
+      String timePart = DateFormat('HH:mm:ss').format(log.logDate);
+      String formattedDate = '$datePart $timePart';
 
       // Format the duration or count as a difference
       String progressText = "";
@@ -285,7 +300,7 @@ class TaskDetailViewModel with ChangeNotifier {
       // Get status text
       String statusText = log.getStatusText();
 
-      tempLogs.add(TaskLog(formattedDate, progressText, statusText, log.id));
+      tempLogs.add(TaskLog(formattedDate, progressText, statusText, log.id, datePart));
     }
 
     recentLogs = tempLogs;

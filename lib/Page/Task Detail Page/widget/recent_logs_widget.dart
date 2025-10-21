@@ -68,7 +68,7 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(LocaleKeys.RecentLogs.tr(), style: const TextStyle(color: Colors.grey)),
+            Text('${LocaleKeys.RecentLogs.tr()} (${widget.viewModel.recentLogs.length})', style: const TextStyle(color: Colors.grey)),
             Row(
               children: [
                 // Rutin görevler için "Tüm Rutin Kayıtları" butonu
@@ -117,73 +117,80 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
             ),
           )
         else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: widget.viewModel.recentLogs.length,
-            itemBuilder: (context, index) {
-              final log = widget.viewModel.recentLogs[index];
-              return ListTile(
-                leading: const Icon(Icons.history, size: 16),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  // Tarih ve saat kısmını ayır
-                                  text: log.dateTime.substring(0, log.dateTime.lastIndexOf(':')),
-                                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                                ),
-                                TextSpan(
-                                  // Saniye kısmını vurgula
-                                  text: log.dateTime.substring(log.dateTime.lastIndexOf(':')),
-                                  style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                              ],
+          SizedBox(
+            height: 200, // Sabit yükseklik, kaydırılabilir yapar
+            child: ListView.builder(
+              shrinkWrap: false,
+              physics: const ClampingScrollPhysics(),
+              itemCount: widget.viewModel.recentLogs.length,
+              itemBuilder: (context, index) {
+                final log = widget.viewModel.recentLogs[index];
+                return ListTile(
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    // Tarih kısmını çevir, renkli ve kalın
+                                    text: log.datePart.tr(),
+                                    style: TextStyle(color: Colors.blue[700], fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                  TextSpan(
+                                    // Saat kısmını ayır (saniye hariç)
+                                    text: ' ${log.dateTime.substring(log.dateTime.indexOf(' ') + 1, log.dateTime.lastIndexOf(':'))}',
+                                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                                  ),
+                                  TextSpan(
+                                    // Saniye kısmını vurgula
+                                    text: log.dateTime.substring(log.dateTime.lastIndexOf(':')),
+                                    style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(log.status),
-                            borderRadius: BorderRadius.circular(4),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(log.status),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              log.status == "" ? "In Progress" : log.status,
+                              style: const TextStyle(color: Colors.white, fontSize: 10),
+                            ),
                           ),
-                          child: Text(
-                            log.status == "" ? "In Progress" : log.status,
-                            style: const TextStyle(color: Colors.white, fontSize: 10),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                trailing: Text(log.duration),
-                onTap: () async {
-                  // Log düzenleme dialogunu göster
-                  final result = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => EditLogDialog(
-                      taskModel: widget.viewModel.taskModel,
-                      logId: log.logId,
-                    ),
-                  );
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: Text(log.duration),
+                  onTap: () async {
+                    // Log düzenleme dialogunu göster
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => EditLogDialog(
+                        taskModel: widget.viewModel.taskModel,
+                        logId: log.logId,
+                      ),
+                    );
 
-                  // Eğer log düzenlendiyse, logları yeniden yükle
-                  if (result == true) {
-                    widget.viewModel.loadRecentLogs();
-                  }
-                },
-              );
-            },
-          ),
+                    // Eğer log düzenlendiyse, logları yeniden yükle
+                    if (result == true) {
+                      widget.viewModel.loadRecentLogs();
+                    }
+                  },
+                );
+              },
+            ),
+          )
       ],
     );
   }
