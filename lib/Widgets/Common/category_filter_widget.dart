@@ -38,43 +38,40 @@ class CategoryFilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            // "All" option
-            if (showAllOption) ...[
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _buildAllChip(context),
-              ),
-            ],
-
-            // Categories
-            ...categories.map((category) {
-              final count = itemCounts?[category.id] ?? 0;
-              // Only show categories that have items (unless selected or showEmptyCategories is true)
-              if (!showEmptyCategories && count == 0 && selectedCategoryId != category.id) {
-                return const SizedBox.shrink();
-              }
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _buildCategoryChip(context, category, count),
-              );
-            }),
-
-            // Add category button
-            if (showAddButton) ...[
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _buildAddChip(context),
-              ),
-            ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          // "All" option
+          if (showAllOption) ...[
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildAllChip(context),
+            ),
           ],
-        ),
+
+          // Categories
+          ...categories.map((category) {
+            final count = itemCounts?[category.id] ?? 0;
+            // Only show categories that have items (unless selected or showEmptyCategories is true)
+            if (!showEmptyCategories && count == 0 && selectedCategoryId != category.id) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildCategoryChip(context, category, count),
+            );
+          }),
+
+          // Add category button
+          if (showAddButton) ...[
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _buildAddChip(context),
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -1,21 +1,22 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:next_level/Model/category_model.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:next_level/Provider/projects_provider.dart';
-import 'package:next_level/Provider/navbar_provider.dart';
-import 'package:next_level/Widgets/Projects/project_card.dart';
-import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Model/project_model.dart';
-import 'package:next_level/Model/project_subtask_model.dart';
-import 'package:next_level/Model/project_note_model.dart';
-import 'package:next_level/Page/Projects/project_detail_page.dart';
-import 'package:next_level/Widgets/Common/standard_app_bar.dart';
-import 'package:next_level/Widgets/Common/add_item_dialog.dart';
-import 'package:next_level/Widgets/Common/category_filter_widget.dart';
-import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
+
+import '../../General/app_colors.dart';
+import '../../Model/category_model.dart';
+import '../../Model/project_model.dart';
+import '../../Enum/task_status_enum.dart';
+import '../../Provider/navbar_provider.dart';
+import '../../Provider/projects_provider.dart';
+import '../../Provider/task_provider.dart';
+import '../../Service/locale_keys.g.dart';
+import '../../Widgets/Common/add_item_dialog.dart';
+import '../../Widgets/Common/category_filter_widget.dart';
+import '../../Widgets/Common/common_button.dart';
+import '../../Widgets/Common/standard_app_bar.dart';
+import '../../Widgets/Projects/project_card.dart';
+import '../Home/Widget/create_category_bottom_sheet.dart';
+import 'project_detail_page.dart';
 
 /// Projeler ana sayfası
 class ProjectsPage extends StatefulWidget {
@@ -28,6 +29,7 @@ class ProjectsPage extends StatefulWidget {
 class _ProjectsPageState extends State<ProjectsPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
+  Map<String, Map<String, int>> _projectTaskCounts = {}; // projectId -> {total, completed}
 
   // Public method to show add project dialog from outside
   void showAddProjectDialog() {
@@ -38,8 +40,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
   void initState() {
     super.initState();
     // Sayfa açıldığında projeleri yükle
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProjectsProvider>().loadProjects();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<ProjectsProvider>();
+      await provider.loadProjects();
+      await _loadProjectTaskCounts();
     });
   }
 
@@ -47,6 +51,35 @@ class _ProjectsPageState extends State<ProjectsPage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProjectTaskCounts() async {
+    final provider = context.read<ProjectsProvider>();
+    final taskProvider = context.read<TaskProvider>();
+    final newCounts = <String, Map<String, int>>{};
+
+    for (final project in provider.projects) {
+      // Genel task'ları say (categoryId ile)
+      final generalTasks = taskProvider.taskList.where((task) => task.categoryId == project.categoryId).toList();
+      final generalTaskCount = generalTasks.length;
+      final generalCompletedCount = generalTasks.where((task) => task.status == TaskStatusEnum.DONE).length;
+
+      // Subtask'ları say
+      final subtasks = await provider.getProjectSubtasks(project.id);
+      final subtaskCount = subtasks.length;
+      final subtaskCompletedCount = subtasks.where((subtask) => subtask.isCompleted).length;
+
+      newCounts[project.id] = {
+        'total': generalTaskCount + subtaskCount,
+        'completed': generalCompletedCount + subtaskCompletedCount,
+      };
+    }
+
+    if (mounted) {
+      setState(() {
+        _projectTaskCounts = newCounts;
+      });
+    }
   }
 
   @override
@@ -81,6 +114,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
         ),
         body: Consumer<ProjectsProvider>(
           builder: (context, provider, _) {
+            // Projeler değiştiğinde task count'larını yeniden yükle
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (provider.projects.isNotEmpty && _projectTaskCounts.isEmpty) {
+                _loadProjectTaskCounts();
+              }
+            });
             // Yükleniyor
             if (provider.isLoading) {
               return const Center(
@@ -102,10 +141,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton.icon(
+                    CommonButton(
+                      text: LocaleKeys.Retry.tr(),
+                      icon: Icons.refresh,
                       onPressed: () => provider.loadProjects(),
-                      icon: const Icon(Icons.refresh),
-                      label: Text(LocaleKeys.Retry.tr()),
                     ),
                   ],
                 ),
@@ -309,195 +348,81 @@ class _ProjectsPageState extends State<ProjectsPage> {
   }
 
   Widget _buildProjectCard(BuildContext context, ProjectsProvider provider, ProjectModel project) {
+    // Get category for the project
+    CategoryModel? category;
+    try {
+      category = provider.categories.firstWhere(
+        (cat) => cat.id == project.categoryId,
+      );
+    } catch (e) {
+      category = null;
+    }
+
+    // Get task counts from cached data
+    final taskCounts = _projectTaskCounts[project.id] ?? {'total': 0, 'completed': 0};
+    final taskCount = taskCounts['total'] ?? 0;
+    final completedTaskCount = taskCounts['completed'] ?? 0;
+
     return ProjectCard(
+      itemId: project.id,
       project: project,
+      category: category,
+      taskCount: taskCount,
+      completedTaskCount: completedTaskCount,
       onTap: () {
-        debugPrint('📂 Project tapped: ${project.id}');
-        Navigator.push(
-          context,
+        Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ProjectDetailPage(project: project),
           ),
         );
       },
-      onLongPress: () async {
-        debugPrint('✏️ Project long pressed: ${project.id}');
-        final result = await showModalBottomSheet<bool>(
+      onPin: () async {
+        final success = await provider.togglePinProject(project.id);
+        if (context.mounted && success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(project.isPinned ? 'Project unpinned' : 'Project pinned')),
+          );
+          debugPrint('📌 Project ${project.isPinned ? 'unpinned' : 'pinned'}: ${project.title}');
+        }
+      },
+      onArchive: () async {
+        final success = await provider.toggleArchiveProject(project.id);
+        if (context.mounted && success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(project.isArchived ? 'Project unarchived' : 'Project archived')),
+          );
+          debugPrint('📦 Project ${project.isArchived ? 'unarchived' : 'archived'}: ${project.title}');
+        }
+      },
+      onDelete: () async {
+        final confirmed = await showDialog<bool>(
           context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => AddEditItemBottomSheet(
-            type: ItemType.project,
-            item: project,
+          builder: (context) => AlertDialog(
+            title: Text(LocaleKeys.DeleteProject.tr()),
+            content: Text(LocaleKeys.DeleteProjectConfirmation.tr()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(LocaleKeys.Cancel.tr()),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: Text(LocaleKeys.Delete.tr()),
+              ),
+            ],
           ),
         );
 
-        if (result == true) {
-          // Refresh projects list
-          provider.loadProjects();
+        if (confirmed == true) {
+          final success = await provider.deleteProject(project.id);
+          if (context.mounted && success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Project deleted')),
+            );
+            debugPrint('🗑️ Project deleted: ${project.title}');
+          }
         }
-      },
-      onDelete: () => _confirmDelete(context, provider, project),
-      getSubtaskCount: () async {
-        final subtasks = await provider.getProjectSubtasks(project.id);
-        return subtasks.where((s) => !s.isCompleted).length; // Only incomplete tasks
-      },
-      getNoteCount: () async {
-        final notes = await provider.getProjectNotes(project.id);
-        return notes.length;
-      },
-      onAddTask: () {
-        debugPrint('➕ Quick add task to project: ${project.id}');
-        _showQuickAddTaskDialog(context, provider, project);
-      },
-      onAddNote: () {
-        debugPrint('📝 Quick add note to project: ${project.id}');
-        _showQuickAddNoteDialog(context, provider, project);
-      },
-    );
-  }
-
-  void _showQuickAddTaskDialog(BuildContext context, ProjectsProvider provider, ProjectModel project) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AddItemDialog(
-        title: LocaleKeys.QuickAddTask.tr(),
-        icon: Icons.add_task_rounded,
-        titleLabel: LocaleKeys.TaskName.tr(),
-        titleHint: LocaleKeys.TaskName.tr(),
-        titleRequired: true,
-        descriptionLabel: LocaleKeys.EnterDescription.tr(),
-        descriptionHint: LocaleKeys.EnterDescription.tr(),
-        descriptionRequired: false,
-        descriptionMaxLines: 5,
-        descriptionMinLines: 2,
-        showCancelButton: true,
-        onSave: (title, description) async {
-          debugPrint('➕ Quick add task to project: ${project.id}');
-          final subtask = ProjectSubtaskModel(
-            id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
-            projectId: project.id,
-            title: title!,
-            description: description,
-            isCompleted: false,
-            createdAt: DateTime.now(),
-            orderIndex: 0,
-          );
-
-          final success = await provider.addSubtask(subtask);
-
-          if (success) {
-            debugPrint('✅ Subtask added successfully');
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(LocaleKeys.TaskAdded.tr()),
-                backgroundColor: AppColors.green,
-              ),
-            );
-          } else {
-            debugPrint('❌ Failed to add subtask');
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(LocaleKeys.TaskAddError.tr()),
-                backgroundColor: AppColors.red,
-              ),
-            );
-          }
-        },
-        isEditing: false,
-      ),
-    );
-  }
-
-  void _showQuickAddNoteDialog(BuildContext context, ProjectsProvider provider, ProjectModel project) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => AddItemDialog(
-        title: "Add Note",
-        icon: Icons.note_add_rounded,
-        titleLabel: "${LocaleKeys.Title.tr()} (Optional)",
-        titleHint: "${LocaleKeys.Title.tr()} (Optional)",
-        titleRequired: false,
-        descriptionLabel: "Content",
-        descriptionHint: "Content",
-        descriptionRequired: false,
-        descriptionMaxLines: 5,
-        descriptionMinLines: 3,
-        showCancelButton: false,
-        emptyValidationMessage: LocaleKeys.NoteValidationMessage.tr(),
-        onSave: (title, content) async {
-          debugPrint('📝 Quick add note to project: ${project.id}');
-          final now = DateTime.now();
-          final note = ProjectNoteModel(
-            id: 'note_${now.millisecondsSinceEpoch}',
-            projectId: project.id,
-            title: title,
-            content: content,
-            createdAt: now,
-            updatedAt: now,
-            orderIndex: 0,
-          );
-
-          final success = await provider.addProjectNote(note);
-
-          if (success) {
-            debugPrint('✅ Note added successfully');
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Not eklendi'),
-                backgroundColor: AppColors.blue,
-              ),
-            );
-          } else {
-            debugPrint('❌ Failed to add note');
-            if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(LocaleKeys.NoteAddError.tr()),
-                backgroundColor: AppColors.red,
-              ),
-            );
-          }
-        },
-        isEditing: false,
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, ProjectsProvider provider, ProjectModel project) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(LocaleKeys.Delete.tr()),
-          content: Text(LocaleKeys.ProjectDeleteConfirmation.tr()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(LocaleKeys.Cancel.tr()),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await provider.deleteProject(project.id);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Proje silindi')),
-                  );
-                }
-                debugPrint('✅ Project ${project.id} deleted');
-              },
-              child: const Text('Sil', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
       },
     );
   }

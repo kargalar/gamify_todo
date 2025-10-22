@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
-import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Model/category_model.dart';
-import 'package:next_level/Provider/notes_provider.dart';
-import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
+import '../../Model/note_model.dart';
+import '../../Model/category_model.dart';
+import '../../Provider/notes_provider.dart';
+import '../../General/app_colors.dart';
+import '../../Service/locale_keys.g.dart';
+import '../../Widgets/Common/common_text_field.dart';
 
 /// Not ekleme ve düzenleme sayfası
 class AddEditNotePage extends StatefulWidget {
@@ -114,19 +115,17 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextFormField(
+          CommonTextField(
             controller: _titleController,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.text,
             ),
-            decoration: InputDecoration(
-              hintText: LocaleKeys.Title.tr(),
-              hintStyle: const TextStyle(color: AppColors.grey),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
+            hint: LocaleKeys.Title.tr(),
+            hintStyle: const TextStyle(color: AppColors.grey),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return LocaleKeys.TitleRequired.tr();
@@ -137,18 +136,16 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           const SizedBox(height: 12),
           Divider(color: AppColors.panelBackground2, height: 1),
           const SizedBox(height: 12),
-          TextFormField(
+          CommonTextField(
             controller: _contentController,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.text,
             ),
-            decoration: InputDecoration(
-              hintText: LocaleKeys.ContentOptional.tr(),
-              hintStyle: const TextStyle(color: AppColors.grey),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
+            hint: LocaleKeys.ContentOptional.tr(),
+            hintStyle: const TextStyle(color: AppColors.grey),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
             maxLines: 10,
             minLines: 5,
           ),

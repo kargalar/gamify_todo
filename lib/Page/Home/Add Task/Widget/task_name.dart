@@ -50,8 +50,12 @@ class TaskName extends StatelessWidget {
             child: Column(
               children: [
                 ClickableTooltip(
-                  title: LocaleKeys.TaskName.tr(),
-                  bulletPoints: const ["Give your task a clear, descriptive name", "Use specific names to easily identify tasks", "Keep names concise but informative"],
+                  titleKey: LocaleKeys.tooltip_task_name_title,
+                  bulletPoints: [
+                    LocaleKeys.tooltip_task_name_bullet_1.tr(),
+                    LocaleKeys.tooltip_task_name_bullet_2.tr(),
+                    LocaleKeys.tooltip_task_name_bullet_3.tr(),
+                  ],
                   child: Container(
                     color: AppColors.transparent,
                     child: Row(

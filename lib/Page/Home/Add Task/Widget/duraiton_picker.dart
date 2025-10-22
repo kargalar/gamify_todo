@@ -1,6 +1,8 @@
 import 'package:duration_picker/duration_picker.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Widgets/clickable_tooltip.dart';
@@ -42,8 +44,12 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
         children: [
           // Header with title and icon
           ClickableTooltip(
-            title: "Duration",
-            bulletPoints: const ["Rotate the dial to set task duration", "For timer tasks: counts down from this duration", "For other tasks: estimated time to complete"],
+            titleKey: LocaleKeys.tooltip_duration_title,
+            bulletPoints: [
+              LocaleKeys.tooltip_duration_bullet_1.tr(),
+              LocaleKeys.tooltip_duration_bullet_2.tr(),
+              LocaleKeys.tooltip_duration_bullet_3.tr(),
+            ],
             child: Container(
               color: AppColors.transparent,
               child: Row(

@@ -44,7 +44,7 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
         children: [
           // Header with title and icon
           ClickableTooltip(
-            title: LocaleKeys.TaskType.tr(),
+            titleKey: LocaleKeys.TaskType,
             bulletPoints: [
               "${LocaleKeys.Checkbox.tr()}: ${LocaleKeys.CheckboxTasksDesc.tr()}",
               "${LocaleKeys.Counter.tr()}: ${LocaleKeys.CounterTasksDesc.tr()}",

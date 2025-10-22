@@ -53,8 +53,14 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
         children: [
           // Header with title and icon
           ClickableTooltip(
-            title: "Time & Notifications",
-            bulletPoints: const ["Set a specific time for your task", "Choose notification type: none, standard, or alarm", "Standard: Normal notification at set time", "Alarm: Full-screen alert at set time", "Early reminder: Optional notification before alarm"],
+            titleKey: LocaleKeys.tooltip_time_notifications_title,
+            bulletPoints: [
+              LocaleKeys.tooltip_time_notifications_bullet_1.tr(),
+              LocaleKeys.tooltip_time_notifications_bullet_2.tr(),
+              LocaleKeys.tooltip_time_notifications_bullet_3.tr(),
+              LocaleKeys.tooltip_time_notifications_bullet_4.tr(),
+              LocaleKeys.tooltip_time_notifications_bullet_5.tr(),
+            ],
             child: Container(
               color: AppColors.transparent,
               child: Row(
@@ -224,8 +230,13 @@ class _TimeNotificationWidgetState extends State<TimeNotificationWidget> {
               Padding(
                 padding: const EdgeInsets.only(top: 16, bottom: 12),
                 child: ClickableTooltip(
-                  title: "Early Reminder",
-                  bulletPoints: const ["Optional notification before the main notification/alarm", "Select how much advance notice you want", "Helps you prepare for upcoming tasks", "Select 'Off' to disable early reminder"],
+                  titleKey: LocaleKeys.tooltip_early_reminder_title,
+                  bulletPoints: [
+                    LocaleKeys.tooltip_early_reminder_bullet_1.tr(),
+                    LocaleKeys.tooltip_early_reminder_bullet_2.tr(),
+                    LocaleKeys.tooltip_early_reminder_bullet_3.tr(),
+                    LocaleKeys.tooltip_early_reminder_bullet_4.tr(),
+                  ],
                   child: Row(
                     children: [
                       Icon(

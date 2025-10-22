@@ -195,7 +195,7 @@ class _InboxPageState extends State<InboxPage> {
                 Icons.archive,
                 size: 20,
               ),
-              tooltip: 'Arşivlenmiş Rutinler',
+              tooltip: LocaleKeys.ArchivedRoutines.tr(),
               onPressed: () {
                 debugPrint('📦 Navigating to archived routines page');
                 Navigator.push(

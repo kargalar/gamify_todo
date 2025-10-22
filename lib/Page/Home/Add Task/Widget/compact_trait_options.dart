@@ -65,8 +65,12 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
               ),
               const SizedBox(width: 6),
               ClickableTooltip(
-                title: "${LocaleKeys.Attributes.tr()} & ${LocaleKeys.Skills.tr()}",
-                bulletPoints: const ["Select attributes and skills for your task", "Attributes represent qualities needed for tasks", "Skills improve as you complete tasks"],
+                titleKey: LocaleKeys.tooltip_attributes_skills_title,
+                bulletPoints: [
+                  LocaleKeys.tooltip_attributes_skills_bullet_1.tr(),
+                  LocaleKeys.tooltip_attributes_skills_bullet_2.tr(),
+                  LocaleKeys.tooltip_attributes_skills_bullet_3.tr(),
+                ],
                 child: Text(
                   "${LocaleKeys.Attributes.tr()} & ${LocaleKeys.Skills.tr()}",
                   style: const TextStyle(
@@ -452,8 +456,12 @@ class _TraitsBottomSheetState extends State<TraitsBottomSheet> {
                     ),
                     const SizedBox(width: 10),
                     ClickableTooltip(
-                      title: widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
-                      bulletPoints: ["Tap to select/deselect a ${widget.isSkill ? 'skill' : 'attribute'}", "Long press to view ${widget.isSkill ? 'skill' : 'attribute'} details", widget.isSkill ? "Skills improve as you complete tasks" : "Attributes represent qualities needed for tasks"],
+                      titleKey: widget.isSkill ? LocaleKeys.Skills : LocaleKeys.Attributes,
+                      bulletPoints: [
+                        LocaleKeys.tooltip_skills_attributes_bullet_1.tr(args: [widget.isSkill ? 'skill'.tr() : 'attribute'.tr()]),
+                        LocaleKeys.tooltip_skills_attributes_bullet_2.tr(args: [widget.isSkill ? 'skill'.tr() : 'attribute'.tr()]),
+                        widget.isSkill ? LocaleKeys.tooltip_skills_attributes_bullet_3.tr(args: ['Skills'.tr()]) : LocaleKeys.tooltip_attributes_bullet_3.tr(args: ['Attributes'.tr()]),
+                      ],
                       child: Text(
                         widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
                         style: const TextStyle(

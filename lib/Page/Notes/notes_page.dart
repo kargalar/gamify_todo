@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
-import 'package:next_level/Provider/notes_provider.dart';
-import 'package:next_level/Provider/navbar_provider.dart';
-import 'package:next_level/Widgets/Notes/note_card.dart';
-import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Model/category_model.dart';
-import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
-import 'package:next_level/Widgets/Common/category_filter_widget.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Widgets/Common/standard_app_bar.dart';
-import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
+import '../../Provider/notes_provider.dart';
+import '../../Provider/navbar_provider.dart';
+import '../../Widgets/Notes/note_card.dart';
+import '../../General/app_colors.dart';
+import '../../Model/category_model.dart';
+import '../../Model/note_model.dart';
+import '../../Widgets/add_edit_item_bottom_sheet.dart';
+import '../../Widgets/Common/category_filter_widget.dart';
+import '../../Widgets/Common/common_button.dart';
+import '../../Service/locale_keys.g.dart';
+import '../../Widgets/Common/standard_app_bar.dart';
+import '../Home/Widget/create_category_bottom_sheet.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {
@@ -93,10 +94,10 @@ class _NotesPageState extends State<NotesPage> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton.icon(
+                    CommonButton(
+                      text: LocaleKeys.Retry.tr(),
+                      icon: Icons.refresh,
                       onPressed: () => provider.loadNotes(),
-                      icon: const Icon(Icons.refresh),
-                      label: Text(LocaleKeys.Retry.tr()),
                     ),
                   ],
                 ),

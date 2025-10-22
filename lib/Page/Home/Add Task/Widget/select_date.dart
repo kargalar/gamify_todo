@@ -55,8 +55,13 @@ class _SelectDateState extends State<SelectDate> {
         children: [
           // Header with title and icon
           ClickableTooltip(
-            title: "Date",
-            bulletPoints: const ["Select a date for your task", "Tasks without dates go to inbox", "Routines require a start date", "Use today/tomorrow buttons for quick selection"],
+            titleKey: LocaleKeys.tooltip_date_title,
+            bulletPoints: [
+              LocaleKeys.tooltip_date_bullet_1.tr(),
+              LocaleKeys.tooltip_date_bullet_2.tr(),
+              LocaleKeys.tooltip_date_bullet_3.tr(),
+              LocaleKeys.tooltip_date_bullet_4.tr(),
+            ],
             child: Container(
               color: AppColors.transparent,
               child: Row(

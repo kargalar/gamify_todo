@@ -494,6 +494,90 @@
     "ProjectTitleLabel": "Titre du projet",
     "ProjectTitleHint": "Entrer le titre du projet",
     "ProjectDescriptionHint": "Entrer la description du projet",
-    "Level": "Niveau"
+    "Level": "Niveau",
+    "quick_task": "Tâche rapide",
+    "quick_note": "Note rapide",
+    "add_note": "Ajouter une note",
+    "note_title": "Titre de la note",
+    "enter_note_title": "Entrer le titre de la note",
+    "content": "Contenu",
+    "enter_note_content": "Entrer le contenu de la note",
+
+    "tooltip_task_name_title": "Nom de la tâche",
+    "tooltip_task_name_bullet_1": "Donnez à votre tâche un nom clair et descriptif",
+    "tooltip_task_name_bullet_2": "Utilisez des noms spécifiques pour identifier facilement les tâches",
+    "tooltip_task_name_bullet_3": "Gardez les noms concis mais informatifs",
+
+    "tooltip_duration_title": "Durée",
+    "tooltip_duration_bullet_1": "Tournez le cadran pour définir la durée de la tâche",
+    "tooltip_duration_bullet_2": "Pour les tâches minuteur : compte à rebours depuis cette durée",
+    "tooltip_duration_bullet_3": "Pour les autres tâches : temps estimé pour terminer",
+
+    "tooltip_date_time_notifications_title": "Date, Heure & Notifications",
+    "tooltip_date_time_notifications_bullet_1": "Définir une date pour votre tâche (optionnel)",
+    "tooltip_date_time_notifications_bullet_2": "Définir une heure spécifique pour votre tâche",
+    "tooltip_date_time_notifications_bullet_3": "Choisir le type de notification : aucun, standard ou alarme",
+    "tooltip_date_time_notifications_bullet_4": "Standard : Notification normale à l'heure définie",
+    "tooltip_date_time_notifications_bullet_5": "Alarme : Alerte plein écran à l'heure définie",
+    "tooltip_date_time_notifications_bullet_6": "Rappel anticipé : Notification optionnelle avant l'alarme",
+
+    "tooltip_location_bullet_1": "Entrer un lieu pour votre tâche",
+    "tooltip_location_bullet_2": "Le lieu sera affiché avec une icône",
+    "tooltip_location_bullet_3": "Cliquez sur le lieu pour ouvrir dans Google Maps",
+    "tooltip_location_bullet_4": "Limité à 20 caractères pour l'affichage",
+
+    "tooltip_subtasks_bullet_1": "Divisez votre tâche en plus petites étapes",
+    "tooltip_subtasks_bullet_2": "Appuyez sur la case à cocher pour marquer la sous-tâche comme terminée",
+    "tooltip_subtasks_bullet_3": "Appui long pour modifier une sous-tâche",
+    "tooltip_subtasks_bullet_4": "Glisser vers la gauche pour supprimer une sous-tâche",
+    "tooltip_subtasks_bullet_5": "Faites glisser pour réorganiser les sous-tâches",
+
+    "tooltip_date_title": "Date",
+    "tooltip_date_bullet_1": "Sélectionner une date pour votre tâche",
+    "tooltip_date_bullet_2": "Les tâches sans date vont dans la boîte de réception",
+    "tooltip_date_bullet_3": "Les routines nécessitent une date de début",
+    "tooltip_date_bullet_4": "Utilisez les boutons aujourd'hui/demain pour une sélection rapide",
+
+    "tooltip_time_notifications_title": "Heure & Notifications",
+    "tooltip_time_notifications_bullet_1": "Définir une heure spécifique pour votre tâche",
+    "tooltip_time_notifications_bullet_2": "Choisir le type de notification : aucun, standard ou alarme",
+    "tooltip_time_notifications_bullet_3": "Standard : Notification normale à l'heure définie",
+    "tooltip_time_notifications_bullet_4": "Alarme : Alerte plein écran à l'heure définie",
+    "tooltip_time_notifications_bullet_5": "Rappel anticipé : Notification optionnelle avant l'alarme",
+
+    "tooltip_category_bullet_1": "Appuyez sur une catégorie pour la sélectionner/désélectionner",
+    "tooltip_category_bullet_2": "Appui long pour modifier une catégorie",
+    "tooltip_category_bullet_3": "Utilisez le bouton + pour créer une nouvelle catégorie",
+    "tooltip_category_bullet_4": "Les catégories aident à organiser vos tâches",
+
+    "tooltip_skills_attributes_bullet_1": "Appuyez pour sélectionner/désélectionner un {0}",
+    "tooltip_skills_attributes_bullet_2": "Appui long pour voir les détails du {0}",
+    "tooltip_skills_attributes_bullet_3": "Les {0} s'améliorent lorsque vous terminez des tâches",
+    "tooltip_attributes_bullet_3": "Les {0} représentent les qualités nécessaires pour les tâches",
+
+    "tooltip_subtasks_view_bullet_1": "Appuyez sur la case à cocher pour marquer la sous-tâche comme terminée",
+    "tooltip_subtasks_view_bullet_2": "Appui long pour modifier une sous-tâche",
+    "tooltip_subtasks_view_bullet_3": "Glisser vers la gauche pour supprimer une sous-tâche",
+
+    "tooltip_attributes_skills_title": "Attributs & Compétences",
+    "tooltip_attributes_skills_bullet_1": "Sélectionner les attributs et compétences pour votre tâche",
+    "tooltip_attributes_skills_bullet_2": "Les attributs représentent les qualités nécessaires pour les tâches",
+    "tooltip_attributes_skills_bullet_3": "Les compétences s'améliorent lorsque vous terminez des tâches",
+
+    "tooltip_early_reminder_title": "Rappel Anticipé",
+    "tooltip_early_reminder_bullet_1": "Notification optionnelle avant la notification/alarme principale",
+    "tooltip_early_reminder_bullet_2": "Sélectionnez combien de temps à l'avance vous voulez être averti",
+    "tooltip_early_reminder_bullet_3": "Vous aide à vous préparer pour les tâches à venir",
+    "tooltip_early_reminder_bullet_4": "Sélectionnez 'Désactivé' pour désactiver le rappel anticipé",
+
+    "tooltip_repeat_days_title": "Jours de Répétition",
+    "tooltip_repeat_days_bullet_1": "Sélectionner les jours pour les tâches récurrentes",
+    "tooltip_repeat_days_bullet_2": "Aucune sélection signifie tâche unique",
+    "tooltip_repeat_days_bullet_3": "Les routines nécessitent une date de début",
+    "tooltip_repeat_days_bullet_4": "Les tâches se répéteront les jours sélectionnés",
+
+    "tooltip_priority_bullet_1": "Haute priorité : Les tâches apparaissent en haut de votre liste",
+    "tooltip_priority_bullet_2": "Priorité moyenne : Les tâches apparaissent au milieu de votre liste",
+    "tooltip_priority_bullet_3": "Basse priorité : Les tâches apparaissent en bas de votre liste"
 }
 

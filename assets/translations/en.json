@@ -496,5 +496,89 @@
     "ProjectTitleLabel": "Project Title",
     "ProjectTitleHint": "Enter project title",
     "ProjectDescriptionHint": "Enter project description",
-    "Level": "Level"
+    "Level": "Level",
+    "quick_task": "Quick Task",
+    "quick_note": "Quick Note",
+    "add_note": "Add Note",
+    "note_title": "Note Title",
+    "enter_note_title": "Enter note title",
+    "content": "Content",
+    "enter_note_content": "Enter note content",
+
+    "tooltip_task_name_title": "Task Name",
+    "tooltip_task_name_bullet_1": "Give your task a clear, descriptive name",
+    "tooltip_task_name_bullet_2": "Use specific names to easily identify tasks",
+    "tooltip_task_name_bullet_3": "Keep names concise but informative",
+
+    "tooltip_duration_title": "Duration",
+    "tooltip_duration_bullet_1": "Rotate the dial to set task duration",
+    "tooltip_duration_bullet_2": "For timer tasks: counts down from this duration",
+    "tooltip_duration_bullet_3": "For other tasks: estimated time to complete",
+
+    "tooltip_date_time_notifications_title": "Date, Time & Notifications",
+    "tooltip_date_time_notifications_bullet_1": "Set a date for your task (optional)",
+    "tooltip_date_time_notifications_bullet_2": "Set a specific time for your task",
+    "tooltip_date_time_notifications_bullet_3": "Choose notification type: none, standard, or alarm",
+    "tooltip_date_time_notifications_bullet_4": "Standard: Normal notification at set time",
+    "tooltip_date_time_notifications_bullet_5": "Alarm: Full-screen alert at set time",
+    "tooltip_date_time_notifications_bullet_6": "Early reminder: Optional notification before alarm",
+
+    "tooltip_location_bullet_1": "Enter a location for your task",
+    "tooltip_location_bullet_2": "Location will be displayed with an icon",
+    "tooltip_location_bullet_3": "Click location to open in Google Maps",
+    "tooltip_location_bullet_4": "Limited to 20 characters for display",
+
+    "tooltip_subtasks_bullet_1": "Break down your task into smaller steps",
+    "tooltip_subtasks_bullet_2": "Tap checkbox to mark subtask as done",
+    "tooltip_subtasks_bullet_3": "Long press to edit a subtask",
+    "tooltip_subtasks_bullet_4": "Swipe left to delete a subtask",
+    "tooltip_subtasks_bullet_5": "Drag to reorder subtasks",
+
+    "tooltip_date_title": "Date",
+    "tooltip_date_bullet_1": "Select a date for your task",
+    "tooltip_date_bullet_2": "Tasks without dates go to inbox",
+    "tooltip_date_bullet_3": "Routines require a start date",
+    "tooltip_date_bullet_4": "Use today/tomorrow buttons for quick selection",
+
+    "tooltip_time_notifications_title": "Time & Notifications",
+    "tooltip_time_notifications_bullet_1": "Set a specific time for your task",
+    "tooltip_time_notifications_bullet_2": "Choose notification type: none, standard, or alarm",
+    "tooltip_time_notifications_bullet_3": "Standard: Normal notification at set time",
+    "tooltip_time_notifications_bullet_4": "Alarm: Full-screen alert at set time",
+    "tooltip_time_notifications_bullet_5": "Early reminder: Optional notification before alarm",
+
+    "tooltip_category_bullet_1": "Tap a category to select/deselect it",
+    "tooltip_category_bullet_2": "Long press to edit a category",
+    "tooltip_category_bullet_3": "Use + button to create a new category",
+    "tooltip_category_bullet_4": "Categories help organize your tasks",
+
+    "tooltip_skills_attributes_bullet_1": "Tap to select/deselect a {0}",
+    "tooltip_skills_attributes_bullet_2": "Long press to view {0} details",
+    "tooltip_skills_attributes_bullet_3": "{0} improve as you complete tasks",
+    "tooltip_attributes_bullet_3": "{0} represent qualities needed for tasks",
+
+    "tooltip_subtasks_view_bullet_1": "Tap checkbox to mark subtask as done",
+    "tooltip_subtasks_view_bullet_2": "Long press to edit a subtask",
+    "tooltip_subtasks_view_bullet_3": "Swipe left to delete a subtask",
+
+    "tooltip_attributes_skills_title": "Attributes & Skills",
+    "tooltip_attributes_skills_bullet_1": "Select attributes and skills for your task",
+    "tooltip_attributes_skills_bullet_2": "Attributes represent qualities needed for tasks",
+    "tooltip_attributes_skills_bullet_3": "Skills improve as you complete tasks",
+
+    "tooltip_early_reminder_title": "Early Reminder",
+    "tooltip_early_reminder_bullet_1": "Optional notification before the main notification/alarm",
+    "tooltip_early_reminder_bullet_2": "Select how much advance notice you want",
+    "tooltip_early_reminder_bullet_3": "Helps you prepare for upcoming tasks",
+    "tooltip_early_reminder_bullet_4": "Select 'Off' to disable early reminder",
+
+    "tooltip_repeat_days_title": "Repeat Days",
+    "tooltip_repeat_days_bullet_1": "Select days for recurring tasks",
+    "tooltip_repeat_days_bullet_2": "No selection means one-time task",
+    "tooltip_repeat_days_bullet_3": "Routines require a start date",
+    "tooltip_repeat_days_bullet_4": "Tasks will repeat on selected days",
+
+    "tooltip_priority_bullet_1": "High priority: Tasks appear at the top of your list",
+    "tooltip_priority_bullet_2": "Medium priority: Tasks appear in the middle of your list",
+    "tooltip_priority_bullet_3": "Low priority: Tasks appear at the bottom of your list"
 }

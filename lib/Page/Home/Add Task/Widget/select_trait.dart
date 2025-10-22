@@ -50,8 +50,12 @@ class _SelectTraitListState extends State<SelectTraitList> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ClickableTooltip(
-                title: widget.isSkill ? LocaleKeys.Skills.tr() : LocaleKeys.Attributes.tr(),
-                bulletPoints: ["Tap to select/deselect a ${widget.isSkill ? 'skill' : 'attribute'}", "Long press to view ${widget.isSkill ? 'skill' : 'attribute'} details", widget.isSkill ? "Skills improve as you complete tasks" : "Attributes represent qualities needed for tasks"],
+                titleKey: widget.isSkill ? LocaleKeys.Skills : LocaleKeys.Attributes,
+                bulletPoints: [
+                  LocaleKeys.tooltip_skills_attributes_bullet_1.tr(args: [widget.isSkill ? 'skill'.tr() : 'attribute'.tr()]),
+                  LocaleKeys.tooltip_skills_attributes_bullet_2.tr(args: [widget.isSkill ? 'skill'.tr() : 'attribute'.tr()]),
+                  widget.isSkill ? LocaleKeys.tooltip_skills_attributes_bullet_3.tr(args: ['Skills'.tr()]) : LocaleKeys.tooltip_attributes_bullet_3.tr(args: ['Attributes'.tr()]),
+                ],
                 child: Container(
                   color: AppColors.transparent,
                   child: Row(

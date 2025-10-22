@@ -193,8 +193,13 @@ class CategoryBottomSheet extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     ClickableTooltip(
-                      title: LocaleKeys.Category.tr(),
-                      bulletPoints: const ["Tap a category to select/deselect it", "Long press to edit a category", "Use + button to create a new category", "Categories help organize your tasks"],
+                      titleKey: LocaleKeys.Category,
+                      bulletPoints: [
+                        LocaleKeys.tooltip_category_bullet_1.tr(),
+                        LocaleKeys.tooltip_category_bullet_2.tr(),
+                        LocaleKeys.tooltip_category_bullet_3.tr(),
+                        LocaleKeys.tooltip_category_bullet_4.tr(),
+                      ],
                       child: Text(
                         LocaleKeys.Category.tr(),
                         style: const TextStyle(

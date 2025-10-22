@@ -47,3 +47,9 @@ editteyken sürekli log atması
 task name pin sorunu
 
 ilk task acitonda appardaki süre güncellenmiyor ve counter takların süresi yaanlış hesaplanıyor. (edittenken - log girince. logu silince yine düzgün.)
+
+clicable tooltipler add localization
+
+timer task aktifken günün toplam çalışma süresi 2 katınca çıkıyor. (veya sadece tmier taskın süresi 2 katına çıkıyor olabilir)
+
+istatistikler kımları hatalı

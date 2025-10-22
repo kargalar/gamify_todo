@@ -34,7 +34,7 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: ClickableTooltip(
-            title: LocaleKeys.TargetCount.tr(),
+            titleKey: LocaleKeys.TargetCount,
             bulletPoints: [
               LocaleKeys.SelectTaskType.tr(),
               LocaleKeys.TapCheckboxToComplete.tr(),

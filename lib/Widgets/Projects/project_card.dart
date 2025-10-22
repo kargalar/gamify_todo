@@ -1,317 +1,464 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:next_level/Model/project_model.dart';
-import 'package:next_level/Provider/projects_provider.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/General/app_colors.dart';
+import '../../General/app_colors.dart';
+import '../../Model/category_model.dart';
+import '../../Model/project_model.dart';
+import '../../Model/project_subtask_model.dart';
+import '../../Model/project_note_model.dart';
+import '../../Provider/projects_provider.dart';
+import '../Common/base_card.dart';
+import '../Common/add_item_dialog.dart';
 
-/// Renkli ve kategorili proje kartı widget'ı
-class ProjectCard extends StatelessWidget {
+class ProjectCard extends BaseCard {
   final ProjectModel project;
-  final VoidCallback onTap;
-  final VoidCallback? onLongPress;
+  final CategoryModel? category;
+  final int taskCount;
+  final int completedTaskCount;
+  final VoidCallback? onTap;
+  final VoidCallback? onPin;
+  final VoidCallback? onArchive;
   final VoidCallback? onDelete;
-  final Future<int> Function()? getSubtaskCount;
-  final Future<int> Function()? getNoteCount;
-  final VoidCallback? onAddTask;
-  final VoidCallback? onAddNote;
 
   const ProjectCard({
     super.key,
+    required super.itemId,
     required this.project,
-    required this.onTap,
-    this.onLongPress,
+    this.category,
+    this.taskCount = 0,
+    this.completedTaskCount = 0,
+    this.onTap,
+    this.onPin,
+    this.onArchive,
     this.onDelete,
-    this.getSubtaskCount,
-    this.getNoteCount,
-    this.onAddTask,
-    this.onAddNote,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<ProjectsProvider>();
-    final category = project.categoryId != null ? provider.getCategoryById(project.categoryId) : null;
+  List<SlidableAction> buildActions(BuildContext context) {
+    return [
+      if (onPin != null)
+        SlidableAction(
+          onPressed: (_) => onPin!(),
+          backgroundColor: AppColors.yellow,
+          foregroundColor: AppColors.black,
+          icon: project.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+          label: project.isPinned ? 'unpin'.tr() : 'pin'.tr(),
+        ),
+      if (onArchive != null)
+        SlidableAction(
+          onPressed: (_) => onArchive!(),
+          backgroundColor: AppColors.orange,
+          foregroundColor: AppColors.black,
+          icon: project.isArchived ? Icons.unarchive : Icons.archive,
+          label: project.isArchived ? 'unarchive'.tr() : 'archive'.tr(),
+        ),
+      if (onDelete != null)
+        SlidableAction(
+          onPressed: (_) => onDelete!(),
+          backgroundColor: AppColors.red,
+          foregroundColor: AppColors.white,
+          icon: Icons.delete,
+          label: 'delete'.tr(),
+        ),
+    ];
+  }
 
-    // Kategori rengi veya default renk
-    final categoryColor = category != null ? Color(category.colorValue) : AppColors.main;
+  @override
+  Widget buildContent(BuildContext context) {
+    final progress = taskCount > 0 ? completedTaskCount / taskCount : 0.0;
 
-    final categoryIcon = category != null ? IconData(category.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : Icons.folder_outlined;
-
-    return Slidable(
-      key: ValueKey(project.id),
-      endActionPane: ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.6,
-        children: [
-          SlidableAction(
-            onPressed: (context) async {
-              final slidableProvider = Provider.of<ProjectsProvider>(context, listen: false);
-              await slidableProvider.togglePinProject(project.id);
-              debugPrint('📌 Project ${project.id} - Pin toggle: ${project.isPinned} -> ${!project.isPinned}');
-            },
-            backgroundColor: project.isPinned ? AppColors.grey : categoryColor,
-            icon: project.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-            label: project.isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.Pin.tr(),
-          ),
-          SlidableAction(
-            onPressed: (context) async {
-              final slidableProvider = Provider.of<ProjectsProvider>(context, listen: false);
-              await slidableProvider.toggleArchiveProject(project.id);
-            },
-            backgroundColor: AppColors.orange,
-            icon: project.isArchived ? Icons.unarchive : Icons.archive,
-            label: project.isArchived ? LocaleKeys.Unarchive.tr() : LocaleKeys.Archive.tr(),
-          ),
-          SlidableAction(
-            onPressed: (context) async {
-              if (onDelete != null) {
-                onDelete!();
-              }
-            },
-            backgroundColor: AppColors.red,
-            icon: Icons.delete,
-            label: LocaleKeys.Delete.tr(),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: AppColors.borderRadiusAll,
+        border: Border.all(
+          color: AppColors.onBackground.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              categoryColor.withValues(alpha: 0.12),
-              categoryColor.withValues(alpha: 0.05),
-            ],
-          ),
-          border: Border.all(
-            color: categoryColor.withValues(alpha: 0.3),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: categoryColor.withValues(alpha: 0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            onLongPress: onLongPress,
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppColors.borderRadiusAll,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with title and category
+              Row(
                 children: [
-                  // Header: Icon + Title + Pin
-                  Row(
-                    children: [
-                      // Kategori ikonu
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: categoryColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          categoryIcon,
-                          size: 22,
-                          color: categoryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Title + Category
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                if (project.isPinned)
-                                  const Padding(
-                                    padding: EdgeInsets.only(right: 6),
-                                    child: Icon(
-                                      Icons.push_pin,
-                                      size: 15,
-                                      color: AppColors.yellow,
-                                    ),
-                                  ),
-                                Expanded(
-                                  child: Text(
-                                    project.title,
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.text,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (category != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 3),
-                                child: Text(
-                                  category.name,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: categoryColor.withValues(alpha: 0.8),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      // Hızlı eylem iconları
-                      if (onAddTask != null)
-                        InkWell(
-                          onTap: onAddTask,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: Icon(
-                              Icons.add_task_rounded,
-                              size: 22,
-                              color: categoryColor,
-                            ),
-                          ),
-                        ),
-                      if (onAddNote != null)
-                        InkWell(
-                          onTap: onAddNote,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            child: Icon(
-                              Icons.note_add_rounded,
-                              size: 22,
-                              color: categoryColor,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-
-                  // Description
-                  if (project.description.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      project.description,
+                  Expanded(
+                    child: Text(
+                      project.title,
                       style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.text.withValues(alpha: 0.7),
-                        height: 1.4,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.onBackground,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                  ),
+                  if (category != null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: category!.color.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: category!.color.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (category!.iconCodePoint != null)
+                            Icon(
+                              IconData(category!.iconCodePoint!, fontFamily: 'MaterialIcons'),
+                              size: 16,
+                              color: category!.color,
+                            ),
+                          const SizedBox(width: 4),
+                          Text(
+                            category!.title,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: category!.color,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
+                ],
+              ),
 
-                  const SizedBox(height: 14),
+              // Description
+              if (project.description.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  project.description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.onBackground.withValues(alpha: 0.7),
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
 
-                  // Footer: Stats + Date
-                  Row(
-                    children: [
-                      // Subtask count
-                      if (getSubtaskCount != null)
-                        FutureBuilder<int>(
-                          future: getSubtaskCount!(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data! > 0) {
-                              return Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: categoryColor.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: categoryColor.withValues(alpha: 0.3),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.check_box_outlined,
-                                      size: 14,
-                                      color: categoryColor,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      '${snapshot.data}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: categoryColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+              const SizedBox(height: 12),
+
+              // Progress and stats
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Progress bar
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: AppColors.grey.withValues(alpha: 0.2),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              progress == 1.0 ? AppColors.green : AppColors.main,
+                            ),
+                          ),
                         ),
-
-                      // Note count
-                      if (getNoteCount != null)
-                        FutureBuilder<int>(
-                          future: getNoteCount!(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data! > 0) {
-                              return Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: categoryColor.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: categoryColor.withValues(alpha: 0.3),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.note_outlined,
-                                      size: 14,
-                                      color: categoryColor,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      '${snapshot.data}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: categoryColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+                        const SizedBox(height: 4),
+                        // Task count
+                        Text(
+                          '$completedTaskCount / $taskCount ${'tasks'.tr()}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.onBackground.withValues(alpha: 0.6),
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
 
-                      const Spacer(),
-                    ],
+                  // Status indicators
+                  if (project.isPinned)
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.yellow.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.push_pin,
+                        size: 14,
+                        color: AppColors.yellow,
+                      ),
+                    ),
+                  if (project.isArchived)
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      margin: const EdgeInsets.only(left: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.archive,
+                        size: 14,
+                        color: AppColors.orange,
+                      ),
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // Quick action buttons
+              Row(
+                children: [
+                  // Quick task button
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        // Quick subtask ekleme dialog'u
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => AddItemDialog(
+                            title: 'add_task'.tr(),
+                            icon: Icons.add_task,
+                            titleLabel: 'task_title'.tr(),
+                            titleHint: 'enter_task_title'.tr(),
+                            titleRequired: true,
+                            descriptionLabel: 'description'.tr(),
+                            descriptionHint: 'enter_task_description'.tr(),
+                            descriptionRequired: false,
+                            descriptionMaxLines: 3,
+                            descriptionMinLines: 1,
+                            showCancelButton: true,
+                            onSave: (title, description) async {
+                              if (title != null && title.isNotEmpty) {
+                                try {
+                                  final projectsProvider = Provider.of<ProjectsProvider>(context, listen: false);
+
+                                  final subtask = ProjectSubtaskModel(
+                                    id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
+                                    projectId: project.id,
+                                    title: title,
+                                    description: description,
+                                    createdAt: DateTime.now(),
+                                  );
+
+                                  final success = await projectsProvider.addSubtask(subtask);
+
+                                  if (success && context.mounted) {
+                                    Navigator.of(context).pop(); // Dialog'u kapat
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Görev başarıyla eklendi!'.tr()),
+                                        backgroundColor: AppColors.green,
+                                      ),
+                                    );
+                                  } else if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Görev eklenirken hata oluştu!'.tr()),
+                                        backgroundColor: AppColors.red,
+                                      ),
+                                    );
+                                  }
+
+                                  debugPrint('✅ Subtask added successfully to project "${project.title}": $title');
+                                } catch (e) {
+                                  debugPrint('❌ Error adding subtask: $e');
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Görev eklenirken hata oluştu!'.tr()),
+                                        backgroundColor: AppColors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            isEditing: false,
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.main.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.main.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_task,
+                              size: 12,
+                              color: AppColors.main,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'quick_task'.tr(),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppColors.main,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  // Quick note button
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        // Quick project note ekleme dialog'u
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => AddItemDialog(
+                            title: 'add_note'.tr(),
+                            icon: Icons.note_add,
+                            titleLabel: 'note_title'.tr(),
+                            titleHint: 'enter_note_title'.tr(),
+                            titleRequired: true,
+                            descriptionLabel: 'content'.tr(),
+                            descriptionHint: 'enter_note_content'.tr(),
+                            descriptionRequired: false,
+                            descriptionMaxLines: 5,
+                            descriptionMinLines: 3,
+                            showCancelButton: true,
+                            onSave: (title, description) async {
+                              if (title != null && title.isNotEmpty) {
+                                try {
+                                  final projectsProvider = Provider.of<ProjectsProvider>(context, listen: false);
+
+                                  final note = ProjectNoteModel(
+                                    id: 'note_${DateTime.now().millisecondsSinceEpoch}',
+                                    projectId: project.id,
+                                    title: title,
+                                    content: description,
+                                    createdAt: DateTime.now(),
+                                    updatedAt: DateTime.now(),
+                                  );
+
+                                  final success = await projectsProvider.addProjectNote(note);
+
+                                  if (success && context.mounted) {
+                                    Navigator.of(context).pop(); // Dialog'u kapat
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Not başarıyla eklendi!'.tr()),
+                                        backgroundColor: AppColors.green,
+                                      ),
+                                    );
+                                  } else if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Not eklenirken hata oluştu!'.tr()),
+                                        backgroundColor: AppColors.red,
+                                      ),
+                                    );
+                                  }
+
+                                  debugPrint('✅ Note added successfully to project "${project.title}": $title');
+                                } catch (e) {
+                                  debugPrint('❌ Error adding note: $e');
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Not eklenirken hata oluştu!'.tr()),
+                                        backgroundColor: AppColors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            isEditing: false,
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.blue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.blue.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.note_add,
+                              size: 12,
+                              color: AppColors.blue,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              'quick_note'.tr(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppColors.blue,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
+
+              // Created date
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${'created'.tr()}: ${DateFormat('dd/MM/yyyy').format(project.createdAt)}',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: AppColors.onBackground.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

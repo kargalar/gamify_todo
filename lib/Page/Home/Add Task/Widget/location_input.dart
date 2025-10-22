@@ -152,8 +152,13 @@ class LocationBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 ClickableTooltip(
-                  title: LocaleKeys.Location.tr(),
-                  bulletPoints: const ["Enter a location for your task", "Location will be displayed with an icon", "Click location to open in Google Maps", "Limited to 20 characters for display"],
+                  titleKey: LocaleKeys.Location,
+                  bulletPoints: [
+                    LocaleKeys.tooltip_location_bullet_1.tr(),
+                    LocaleKeys.tooltip_location_bullet_2.tr(),
+                    LocaleKeys.tooltip_location_bullet_3.tr(),
+                    LocaleKeys.tooltip_location_bullet_4.tr(),
+                  ],
                   child: Text(
                     LocaleKeys.Location.tr(),
                     style: const TextStyle(

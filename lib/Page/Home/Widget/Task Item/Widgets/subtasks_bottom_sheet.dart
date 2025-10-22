@@ -115,9 +115,12 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
                             ),
                             const SizedBox(width: 10),
                             ClickableTooltip(
-                              title: LocaleKeys.Subtasks.tr(),
-                              // TODO: localization
-                              bulletPoints: const ["Tap checkbox to mark subtask as done", "Long press to edit a subtask", "Swipe left to delete a subtask"],
+                              titleKey: LocaleKeys.Subtasks,
+                              bulletPoints: [
+                                LocaleKeys.tooltip_subtasks_view_bullet_1.tr(),
+                                LocaleKeys.tooltip_subtasks_view_bullet_2.tr(),
+                                LocaleKeys.tooltip_subtasks_view_bullet_3.tr(),
+                              ],
                               child: Text(
                                 LocaleKeys.Subtasks.tr(),
                                 style: const TextStyle(

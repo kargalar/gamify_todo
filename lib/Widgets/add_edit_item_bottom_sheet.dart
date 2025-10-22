@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
-import 'package:next_level/Model/project_model.dart';
-import 'package:next_level/Model/note_model.dart';
-import 'package:next_level/Model/category_model.dart';
-import 'package:next_level/Provider/projects_provider.dart';
-import 'package:next_level/Provider/notes_provider.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Widgets/Projects/project_category_selector_bottom_sheet.dart';
-import 'package:next_level/Widgets/Notes/category_selector_bottom_sheet.dart';
+import '../Model/project_model.dart';
+import '../Model/note_model.dart';
+import '../Model/category_model.dart';
+import '../Provider/projects_provider.dart';
+import '../Provider/notes_provider.dart';
+import '../Service/locale_keys.g.dart';
+import '../General/app_colors.dart';
+import '../Widgets/Common/common_text_field.dart';
+import 'Notes/category_selector_bottom_sheet.dart';
 
 /// Item türleri
 enum ItemType {
@@ -342,20 +342,17 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Başlık
-          TextFormField(
+          CommonTextField(
             controller: _titleController,
-            focusNode: _titleFocusNode,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.text,
             ),
-            decoration: InputDecoration(
-              hintText: _getTitleHint(),
-              hintStyle: const TextStyle(color: AppColors.grey),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
+            hint: _getTitleHint(),
+            hintStyle: const TextStyle(color: AppColors.grey),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return LocaleKeys.TitleRequired.tr();
@@ -367,18 +364,16 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
           Divider(color: AppColors.panelBackground2, height: 1),
           const SizedBox(height: 12),
           // İçerik (opsiyonel)
-          TextFormField(
+          CommonTextField(
             controller: _contentController,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.text,
             ),
-            decoration: InputDecoration(
-              hintText: _getContentHint(),
-              hintStyle: const TextStyle(color: AppColors.grey),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
+            hint: _getContentHint(),
+            hintStyle: const TextStyle(color: AppColors.grey),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
             maxLines: 10,
             minLines: 5,
           ),
@@ -546,8 +541,8 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => widget.type == ItemType.project
-          ? ProjectCategorySelectorBottomSheet(
-              currentCategory: _selectedCategory,
+          ? CategorySelectorBottomSheet(
+              selectedCategory: _selectedCategory,
               categories: provider.categories,
             )
           : CategorySelectorBottomSheet(

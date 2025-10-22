@@ -181,8 +181,12 @@ class PriorityBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 ClickableTooltip(
-                  title: LocaleKeys.Priority.tr(),
-                  bulletPoints: const ["High priority: Tasks appear at the top of your list", "Medium priority: Tasks appear in the middle of your list", "Low priority: Tasks appear at the bottom of your list"],
+                  titleKey: LocaleKeys.Priority,
+                  bulletPoints: [
+                    LocaleKeys.tooltip_priority_bullet_1.tr(),
+                    LocaleKeys.tooltip_priority_bullet_2.tr(),
+                    LocaleKeys.tooltip_priority_bullet_3.tr(),
+                  ],
                   child: Text(
                     LocaleKeys.Priority.tr(),
                     style: const TextStyle(

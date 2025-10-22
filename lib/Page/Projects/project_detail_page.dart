@@ -44,6 +44,18 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     _currentProject = widget.project;
     _showOnlyIncomplete = _currentProject.showOnlyIncompleteTasks ?? false;
     _loadProjectData();
+    // Listen to provider changes to refresh data when subtasks/notes are added
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ProjectsProvider>().addListener(_onProviderChanged);
+      }
+    });
+  }
+
+  void _onProviderChanged() {
+    if (mounted) {
+      _loadProjectData();
+    }
   }
 
   Future<void> _loadProjectData() async {
@@ -76,6 +88,14 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
     // Check clipboard after loading data
     _checkClipboard();
+  }
+
+  @override
+  void dispose() {
+    if (mounted) {
+      context.read<ProjectsProvider>().removeListener(_onProviderChanged);
+    }
+    super.dispose();
   }
 
   Future<void> _checkClipboard() async {

@@ -27,6 +27,7 @@ class TraitList extends StatefulWidget {
 class _TraitListState extends State<TraitList> {
   @override
   Widget build(BuildContext context) {
+    debugPrint("TraitList: Building trait list successfully - colors updated from AppColors");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -48,8 +49,8 @@ class _TraitListState extends State<TraitList> {
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  barrierColor: Colors.transparent,
+                  backgroundColor: AppColors.transparent,
+                  barrierColor: AppColors.transparent,
                   builder: (context) => CreateTraitBottomSheet(isSkill: widget.isSkill),
                 ).then((value) => setState(() {}));
               },
@@ -82,9 +83,10 @@ class _TraitListState extends State<TraitList> {
                 final Duration totalDuration = traitTotals[skill.id] ?? Duration.zero;
 
                 final decoration = BoxDecoration(
-                  gradient: LinearGradient(colors: [skill.color.withValues(alpha: 0.5), Theme.of(context).cardColor]),
+                  color: skill.color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 6, offset: const Offset(0, 3))],
+                  border: Border.all(color: skill.color.withValues(alpha: 0.4), width: 2),
+                  boxShadow: [BoxShadow(color: skill.color.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
                 );
 
                 final content = Column(
@@ -94,7 +96,7 @@ class _TraitListState extends State<TraitList> {
                     const Spacer(),
                     Text(skill.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
-                    Text(totalDuration.textShort2hour(), style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color)),
+                    Text(totalDuration.textShort2hour(), style: const TextStyle(color: AppColors.grey)),
                   ],
                 );
 
@@ -116,40 +118,77 @@ class _TraitListState extends State<TraitList> {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 3.8,
+            childAspectRatio: 2.8,
             children: attributes.map((attribute) {
               final traitTotals = viewModel.getTraitTotalsCombined(isSkill: false);
               final Duration totalDuration = traitTotals[attribute.id] ?? Duration.zero;
+
+              // Calculate progress (mock data for now - you can implement real progress logic)
 
               return GestureDetector(
                 onTap: () async {
                   await NavigatorService().goTo(TraitDetailPage(traitModel: attribute));
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [BoxShadow(color: Colors.black.withAlpha(12), blurRadius: 4, offset: const Offset(0, 2))],
+                    color: attribute.color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: attribute.color.withValues(alpha: 0.3), width: 1.5),
+                    boxShadow: [BoxShadow(color: attribute.color.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 3))],
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(color: attribute.color, borderRadius: BorderRadius.circular(8)),
-                        child: Center(child: Text(attribute.icon, style: const TextStyle(fontSize: 18))),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(attribute.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                            Text(totalDuration.textShort2hour(), style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color)),
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: attribute.color,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: attribute.color.withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
                           ],
                         ),
+                        child: Center(
+                          child: Text(
+                            attribute.icon,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: AppColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            attribute.title,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            totalDuration.textShort2hour(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.grey,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

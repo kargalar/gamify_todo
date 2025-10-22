@@ -52,8 +52,13 @@ class _SelectDaysState extends State<SelectDays> {
             children: [
               Expanded(
                 child: ClickableTooltip(
-                  title: LocaleKeys.RepeatDays.tr(),
-                  bulletPoints: const ["Select days for recurring tasks", "No selection means one-time task", "Routines require a start date", "Tasks will repeat on selected days"],
+                  titleKey: LocaleKeys.tooltip_repeat_days_title,
+                  bulletPoints: [
+                    LocaleKeys.tooltip_repeat_days_bullet_1.tr(),
+                    LocaleKeys.tooltip_repeat_days_bullet_2.tr(),
+                    LocaleKeys.tooltip_repeat_days_bullet_3.tr(),
+                    LocaleKeys.tooltip_repeat_days_bullet_4.tr(),
+                  ],
                   child: Container(
                     color: AppColors.transparent,
                     child: Row(

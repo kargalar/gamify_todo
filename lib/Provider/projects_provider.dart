@@ -478,4 +478,27 @@ class ProjectsProvider with ChangeNotifier {
     _showArchivedOnly = false;
     notifyListeners();
   }
+
+  /// Proje için toplam task sayısını hesapla (genel task'lar + subtask'lar)
+  Future<Map<String, int>> getProjectTaskCounts(String projectId) async {
+    try {
+      // Subtask'ları getir
+      final subtasks = await getProjectSubtasks(projectId);
+      final subtaskCount = subtasks.length;
+      final completedSubtaskCount = subtasks.where((subtask) => subtask.isCompleted).length;
+
+      // Genel task'ları say (şimdilik 0 olarak bırak, çünkü TaskProvider'a erişimimiz yok)
+      // Bu kısım ProjectsPage'de hesaplanacak
+      const generalTaskCount = 0;
+      const generalCompletedTaskCount = 0;
+
+      return {
+        'total': subtaskCount + generalTaskCount,
+        'completed': completedSubtaskCount + generalCompletedTaskCount,
+      };
+    } catch (e) {
+      debugPrint('❌ Error getting project task counts: $e');
+      return {'total': 0, 'completed': 0};
+    }
+  }
 }

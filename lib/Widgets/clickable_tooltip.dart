@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/General/app_colors.dart';
 
 // Aktif tooltip'i takip etmek için statik değişken
 _ClickableTooltipState? _activeTooltip;
 
 class ClickableTooltip extends StatefulWidget {
-  final Widget child;
+  final String titleKey;
   final List<String> bulletPoints;
-  final String title;
+  final Widget child;
 
   const ClickableTooltip({
     super.key,
-    required this.child,
+    required this.titleKey,
     required this.bulletPoints,
-    required this.title,
+    required this.child,
   });
 
   @override
@@ -105,7 +106,7 @@ class _ClickableTooltipState extends State<ClickableTooltip> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  widget.title,
+                                  widget.titleKey.tr(),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,

@@ -449,5 +449,89 @@
     "ProjectTitleLabel": "Proje Başlığı",
     "ProjectTitleHint": "Proje başlığını girin",
     "ProjectDescriptionHint": "Proje açıklamasını girin",
-    "Level": "Seviye"
+    "Level": "Seviye",
+    "quick_task": "Hızlı Görev",
+    "quick_note": "Hızlı Not",
+    "add_note": "Not Ekle",
+    "note_title": "Not Başlığı",
+    "enter_note_title": "Not başlığını girin",
+    "content": "İçerik",
+    "enter_note_content": "Not içeriğini girin",
+
+    "tooltip_task_name_title": "Görev Adı",
+    "tooltip_task_name_bullet_1": "Görevinize net, açıklayıcı bir isim verin",
+    "tooltip_task_name_bullet_2": "Görevleri kolayca tanımlamak için belirli isimler kullanın",
+    "tooltip_task_name_bullet_3": "İsimleri kısa ama bilgilendirici tutun",
+
+    "tooltip_duration_title": "Süre",
+    "tooltip_duration_bullet_1": "Görev süresini ayarlamak için kadranı döndürün",
+    "tooltip_duration_bullet_2": "Zamanlayıcı görevler için: bu süreden geriye sayar",
+    "tooltip_duration_bullet_3": "Diğer görevler için: tamamlamak için tahmini süre",
+
+    "tooltip_date_time_notifications_title": "Tarih, Saat & Bildirimler",
+    "tooltip_date_time_notifications_bullet_1": "Göreviniz için bir tarih ayarlayın (isteğe bağlı)",
+    "tooltip_date_time_notifications_bullet_2": "Göreviniz için belirli bir saat ayarlayın",
+    "tooltip_date_time_notifications_bullet_3": "Bildirim türünü seçin: yok, standart veya alarm",
+    "tooltip_date_time_notifications_bullet_4": "Standart: Ayarlanan saatte normal bildirim",
+    "tooltip_date_time_notifications_bullet_5": "Alarm: Ayarlanan saatte tam ekran uyarı",
+    "tooltip_date_time_notifications_bullet_6": "Erken hatırlatma: Alarmdan önce isteğe bağlı bildirim",
+
+    "tooltip_location_bullet_1": "Göreviniz için bir konum girin",
+    "tooltip_location_bullet_2": "Konum bir simge ile görüntülenecek",
+    "tooltip_location_bullet_3": "Google Haritalar'da açmak için konuma tıklayın",
+    "tooltip_location_bullet_4": "Görüntüleme için 20 karaktere sınırlıdır",
+
+    "tooltip_subtasks_bullet_1": "Görevinizi daha küçük adımlara bölün",
+    "tooltip_subtasks_bullet_2": "Alt görevi tamamlandı olarak işaretlemek için onay kutusuna dokunun",
+    "tooltip_subtasks_bullet_3": "Bir alt görevi düzenlemek için uzun basın",
+    "tooltip_subtasks_bullet_4": "Bir alt görevi silmek için sola kaydırın",
+    "tooltip_subtasks_bullet_5": "Alt görevleri yeniden sıralamak için sürükleyin",
+
+    "tooltip_date_title": "Tarih",
+    "tooltip_date_bullet_1": "Göreviniz için bir tarih seçin",
+    "tooltip_date_bullet_2": "Tarihsiz görevler gelen kutusuna gider",
+    "tooltip_date_bullet_3": "Rutinler başlangıç tarihi gerektirir",
+    "tooltip_date_bullet_4": "Hızlı seçim için bugün/yarın düğmelerini kullanın",
+
+    "tooltip_time_notifications_title": "Saat & Bildirimler",
+    "tooltip_time_notifications_bullet_1": "Göreviniz için belirli bir saat ayarlayın",
+    "tooltip_time_notifications_bullet_2": "Bildirim türünü seçin: yok, standart veya alarm",
+    "tooltip_time_notifications_bullet_3": "Standart: Ayarlanan saatte normal bildirim",
+    "tooltip_time_notifications_bullet_4": "Alarm: Ayarlanan saatte tam ekran uyarı",
+    "tooltip_time_notifications_bullet_5": "Erken hatırlatma: Alarmdan önce isteğe bağlı bildirim",
+
+    "tooltip_category_bullet_1": "Bir kategoriyi seçmek/seçimi kaldırmak için dokunun",
+    "tooltip_category_bullet_2": "Bir kategoriyi düzenlemek için uzun basın",
+    "tooltip_category_bullet_3": "Yeni kategori oluşturmak için + düğmesini kullanın",
+    "tooltip_category_bullet_4": "Kategoriler görevlerinizi organize etmeye yardımcı olur",
+
+    "tooltip_skills_attributes_bullet_1": "{0} seçmek/seçimi kaldırmak için dokunun",
+    "tooltip_skills_attributes_bullet_2": "{0} ayrıntılarını görüntülemek için uzun basın",
+    "tooltip_skills_attributes_bullet_3": "{0} görevleri tamamladıkça gelişir",
+    "tooltip_attributes_bullet_3": "{0} görevler için gereken nitelikleri temsil eder",
+
+    "tooltip_subtasks_view_bullet_1": "Alt görevi tamamlandı olarak işaretlemek için onay kutusuna dokunun",
+    "tooltip_subtasks_view_bullet_2": "Bir alt görevi düzenlemek için uzun basın",
+    "tooltip_subtasks_view_bullet_3": "Bir alt görevi silmek için sola kaydırın",
+
+    "tooltip_attributes_skills_title": "Özellikler & Yetenekler",
+    "tooltip_attributes_skills_bullet_1": "Göreviniz için özellikler ve yetenekler seçin",
+    "tooltip_attributes_skills_bullet_2": "Özellikler görevler için gereken nitelikleri temsil eder",
+    "tooltip_attributes_skills_bullet_3": "Yetenekler görevleri tamamladıkça gelişir",
+
+    "tooltip_early_reminder_title": "Erken Hatırlatma",
+    "tooltip_early_reminder_bullet_1": "Ana bildirim/alarmdan önce isteğe bağlı bildirim",
+    "tooltip_early_reminder_bullet_2": "Ne kadar önceden haber almak istediğinizi seçin",
+    "tooltip_early_reminder_bullet_3": "Yaklaşan görevlere hazırlanmanıza yardımcı olur",
+    "tooltip_early_reminder_bullet_4": "Erken hatırlatmayı devre dışı bırakmak için 'Kapalı' seçin",
+
+    "tooltip_repeat_days_title": "Tekrar Günleri",
+    "tooltip_repeat_days_bullet_1": "Yinelenen görevler için günler seçin",
+    "tooltip_repeat_days_bullet_2": "Seçim olmaması tek seferlik görev anlamına gelir",
+    "tooltip_repeat_days_bullet_3": "Rutinler başlangıç tarihi gerektirir",
+    "tooltip_repeat_days_bullet_4": "Görevler seçilen günlerde tekrarlanacak",
+
+    "tooltip_priority_bullet_1": "Yüksek öncelik: Görevler listenizin en üstünde görünür",
+    "tooltip_priority_bullet_2": "Orta öncelik: Görevler listenizin ortasında görünür",
+    "tooltip_priority_bullet_3": "Düşük öncelik: Görevler listenizin en altında görünür"
 }

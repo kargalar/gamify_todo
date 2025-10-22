@@ -8,14 +8,14 @@ import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 class CategorySelectorBottomSheet extends StatelessWidget {
   final CategoryModel? selectedCategory;
   final List<CategoryModel> categories;
-  final Future<void> Function(CategoryModel) onCategoryAdded;
+  final Future<void> Function(CategoryModel)? onCategoryAdded;
   final Future<void> Function(CategoryModel)? onCategoryDeleted;
 
   const CategorySelectorBottomSheet({
     super.key,
     required this.selectedCategory,
     required this.categories,
-    required this.onCategoryAdded,
+    this.onCategoryAdded,
     this.onCategoryDeleted,
   });
 
@@ -138,7 +138,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
                 }
               } else if (result == false) {
                 // Kategori güncellendi, callback'i çağır
-                await onCategoryAdded(category);
+                if (onCategoryAdded != null) await onCategoryAdded!(category);
               }
             }
           : null,
@@ -243,7 +243,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
       // Kategori zaten CreateCategoryBottomSheet içinde CategoryProvider'a eklendi
       // Sadece NotesProvider'ın kategoriler listesini güncellememiz gerekiyor
       // onCategoryAdded callback'i NotesProvider.loadData() çağırarak kategorileri yeniden yükleyecek
-      await onCategoryAdded(newCategory);
+      if (onCategoryAdded != null) await onCategoryAdded!(newCategory);
 
       if (context.mounted) {
         // Yeni kategoriyi seçili olarak dön
