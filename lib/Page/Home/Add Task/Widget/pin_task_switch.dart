@@ -12,7 +12,7 @@ class PinTaskSwitch extends StatelessWidget {
     final provider = context.watch<AddTaskProvider>();
 
     // Only show for edit mode and non-routine tasks
-    if (provider.editTask!.routineID != null && provider.editTask == null) {
+    if (provider.editTask == null || provider.editTask!.routineID != null) {
       return const SizedBox.shrink();
     }
 
