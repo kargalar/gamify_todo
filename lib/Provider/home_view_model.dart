@@ -215,4 +215,11 @@ class HomeViewModel extends ChangeNotifier {
   List<Map<String, dynamic>> todayContributions() {
     return DurationCalculator.getContributionsForDate(selectedDate);
   }
+
+  /// Get streak statuses for last 5 days, today, and tomorrow
+  List<Map<String, dynamic>> get streakStatuses {
+    final statuses = DurationCalculator.getStreakStatuses();
+    debugPrint('HomeViewModel: Streak statuses: $statuses');
+    return statuses;
+  }
 }

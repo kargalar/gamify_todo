@@ -163,4 +163,60 @@ class DurationCalculator {
 
     return const Duration(hours: 1);
   }
+
+  /// Calculate if the streak target was met for a given date
+  static bool calculateStreakStatusForDate(DateTime date) {
+    final totalDuration = calculateTotalDurationForDate(date);
+    final targetDuration = calculateTodayTargetDuration(date);
+    return totalDuration >= targetDuration;
+  }
+
+  /// Get streak status for the last 5 days, today, and tomorrow
+  static List<Map<String, dynamic>> getStreakStatuses() {
+    debugPrint('DurationCalculator: Getting streak statuses');
+    final now = DateTime.now();
+    final dates = [
+      now.subtract(const Duration(days: 5)),
+      now.subtract(const Duration(days: 4)),
+      now.subtract(const Duration(days: 3)),
+      now.subtract(const Duration(days: 2)),
+      now.subtract(const Duration(days: 1)),
+      now, // today
+      now.add(const Duration(days: 1)), // tomorrow
+    ];
+
+    return dates.map((date) {
+      final isFuture = date.isAfter(now);
+      final isVacation = _isVacationDay(date);
+      final isMet = isFuture || isVacation ? null : calculateStreakStatusForDate(date);
+      debugPrint('DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet');
+      return {
+        'date': date,
+        'isMet': isMet,
+        'dayName': _getDayName(date),
+        'isFuture': isFuture,
+        'isVacation': isVacation,
+      };
+    }).toList();
+  }
+
+  static bool _isVacationDay(DateTime date) {
+    final vacationWeekdays = StreakSettingsProvider().vacationWeekdays;
+    // weekday: 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
+    // Convert to 0-based index for our Set (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
+    final weekdayIndex = date.weekday - 1;
+    return vacationWeekdays.contains(weekdayIndex);
+  }
+
+  static String _getDayName(DateTime date) {
+    final now = DateTime.now();
+    if (date.year == now.year && date.month == now.month && date.day == now.day) {
+      return 'Bugün';
+    } else if (date.year == now.year && date.month == now.month && date.day == now.day + 1) {
+      return 'Yarın';
+    } else {
+      final weekdays = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+      return weekdays[date.weekday - 1];
+    }
+  }
 }
