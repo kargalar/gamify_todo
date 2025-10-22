@@ -13,8 +13,7 @@ import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Page/Projects/project_detail_page.dart';
 import 'package:next_level/Widgets/Common/standard_app_bar.dart';
-import 'package:next_level/Widgets/Common/add_subtask_bottom_sheet.dart';
-import 'package:next_level/Widgets/Projects/add_project_note_bottom_sheet.dart';
+import 'package:next_level/Widgets/Common/add_item_dialog.dart';
 import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 
@@ -363,14 +362,24 @@ class _ProjectsPageState extends State<ProjectsPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddSubtaskBottomSheet(
-        customTitle: LocaleKeys.QuickAddTask.tr(),
+      builder: (context) => AddItemDialog(
+        title: LocaleKeys.QuickAddTask.tr(),
+        icon: Icons.add_task_rounded,
+        titleLabel: LocaleKeys.TaskName.tr(),
+        titleHint: LocaleKeys.TaskName.tr(),
+        titleRequired: true,
+        descriptionLabel: LocaleKeys.EnterDescription.tr(),
+        descriptionHint: LocaleKeys.EnterDescription.tr(),
+        descriptionRequired: false,
+        descriptionMaxLines: 5,
+        descriptionMinLines: 2,
+        showCancelButton: true,
         onSave: (title, description) async {
           debugPrint('➕ Quick add task to project: ${project.id}');
           final subtask = ProjectSubtaskModel(
             id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
             projectId: project.id,
-            title: title,
+            title: title!,
             description: description,
             isCompleted: false,
             createdAt: DateTime.now(),
@@ -399,6 +408,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             );
           }
         },
+        isEditing: false,
       ),
     );
   }
@@ -408,7 +418,19 @@ class _ProjectsPageState extends State<ProjectsPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddProjectNoteBottomSheet(
+      builder: (context) => AddItemDialog(
+        title: "Add Note",
+        icon: Icons.note_add_rounded,
+        titleLabel: "${LocaleKeys.Title.tr()} (Optional)",
+        titleHint: "${LocaleKeys.Title.tr()} (Optional)",
+        titleRequired: false,
+        descriptionLabel: "Content",
+        descriptionHint: "Content",
+        descriptionRequired: false,
+        descriptionMaxLines: 5,
+        descriptionMinLines: 3,
+        showCancelButton: false,
+        emptyValidationMessage: LocaleKeys.NoteValidationMessage.tr(),
         onSave: (title, content) async {
           debugPrint('📝 Quick add note to project: ${project.id}');
           final now = DateTime.now();
@@ -444,6 +466,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             );
           }
         },
+        isEditing: false,
       ),
     );
   }
@@ -480,76 +503,45 @@ class _ProjectsPageState extends State<ProjectsPage> {
   }
 
   void _showAddProjectDialog(BuildContext context) {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
-
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(LocaleKeys.NewProject.tr()),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                  labelText: LocaleKeys.ProjectTitleLabel.tr(),
-                  hintText: LocaleKeys.ProjectTitleHint.tr(),
-                ),
-                autofocus: true,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  labelText: LocaleKeys.Description.tr(),
-                  hintText: LocaleKeys.ProjectDescriptionHint.tr(),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(LocaleKeys.Cancel.tr()),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (titleController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(LocaleKeys.PleaseEnterTitle.tr())),
-                  );
-                  return;
-                }
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddItemDialog(
+        title: LocaleKeys.NewProject.tr(),
+        icon: Icons.add_box_rounded,
+        titleLabel: LocaleKeys.ProjectTitleLabel.tr(),
+        titleHint: LocaleKeys.ProjectTitleHint.tr(),
+        titleRequired: true,
+        descriptionLabel: LocaleKeys.Description.tr(),
+        descriptionHint: LocaleKeys.ProjectDescriptionHint.tr(),
+        descriptionRequired: false,
+        descriptionMaxLines: 3,
+        descriptionMinLines: 1,
+        showCancelButton: true,
+        onSave: (title, description) async {
+          final project = ProjectModel(
+            id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
+            title: title!,
+            description: description?.isEmpty ?? true ? '' : description!,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
 
-                final project = ProjectModel(
-                  id: 'proj_${DateTime.now().millisecondsSinceEpoch}',
-                  title: titleController.text.trim(),
-                  description: descriptionController.text.trim(),
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                );
+          final provider = context.read<ProjectsProvider>();
+          final success = await provider.addProject(project);
 
-                final provider = context.read<ProjectsProvider>();
-                final success = await provider.addProject(project);
-
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(LocaleKeys.ProjectCreated.tr())),
-                    );
-                    debugPrint('✅ Project created: ${project.id}');
-                  }
-                }
-              },
-              child: Text(LocaleKeys.Create.tr()),
-            ),
-          ],
-        );
-      },
+          if (context.mounted) {
+            if (success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(LocaleKeys.ProjectCreated.tr())),
+              );
+              debugPrint('✅ Project created: ${project.id}');
+            }
+          }
+        },
+        isEditing: false,
+      ),
     );
   }
 }

@@ -117,10 +117,10 @@ class TaskDescription extends StatelessWidget {
                       )
                     : null,
               ),
-              maxLines: 5,
+              maxLines: null,
               minLines: 3,
               keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
+              textInputAction: TextInputAction.none,
               onChanged: (value) {
                 // Update description
               },

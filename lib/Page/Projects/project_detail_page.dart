@@ -12,7 +12,7 @@ import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
-import 'package:next_level/Widgets/Common/add_subtask_bottom_sheet.dart';
+import 'package:next_level/Widgets/Common/add_item_dialog.dart';
 import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:next_level/Widgets/Projects/add_project_note_bottom_sheet.dart';
 
@@ -200,14 +200,24 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddSubtaskBottomSheet(
-        customTitle: LocaleKeys.NewProjectTask.tr(),
+      builder: (context) => AddItemDialog(
+        title: LocaleKeys.NewProjectTask.tr(),
+        icon: Icons.add_task_rounded,
+        titleLabel: LocaleKeys.TaskName.tr(),
+        titleHint: LocaleKeys.TaskName.tr(),
+        titleRequired: true,
+        descriptionLabel: LocaleKeys.EnterDescription.tr(),
+        descriptionHint: LocaleKeys.EnterDescription.tr(),
+        descriptionRequired: false,
+        descriptionMaxLines: 5,
+        descriptionMinLines: 2,
+        showCancelButton: true,
         onSave: (title, description) async {
           final provider = context.read<ProjectsProvider>();
           final subtask = ProjectSubtaskModel(
             id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
             projectId: _currentProject.id,
-            title: title,
+            title: title!,
             description: description,
             isCompleted: false,
             createdAt: DateTime.now(),
@@ -218,6 +228,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           await _loadProjectData();
           debugPrint('✅ ProjectDetailPage: Subtask added');
         },
+        isEditing: false,
       ),
     );
   }
@@ -829,17 +840,29 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (context) => AddSubtaskBottomSheet(
+              builder: (context) => AddItemDialog(
+                title: LocaleKeys.EditTask.tr(),
+                icon: Icons.edit_note_rounded,
+                titleLabel: LocaleKeys.TaskName.tr(),
+                titleHint: LocaleKeys.TaskName.tr(),
+                titleRequired: true,
                 initialTitle: subtask.title,
+                descriptionLabel: LocaleKeys.EnterDescription.tr(),
+                descriptionHint: LocaleKeys.EnterDescription.tr(),
+                descriptionRequired: false,
                 initialDescription: subtask.description,
+                descriptionMaxLines: 5,
+                descriptionMinLines: 2,
+                showCancelButton: true,
                 onSave: (title, description) async {
                   final provider = context.read<ProjectsProvider>();
-                  subtask.title = title;
+                  subtask.title = title!;
                   subtask.description = description;
                   await provider.updateSubtask(subtask);
                   await _loadProjectData();
                   debugPrint('✅ ProjectDetailPage: Subtask updated');
                 },
+                isEditing: true,
               ),
             );
           },

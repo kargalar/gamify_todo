@@ -141,7 +141,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                   maxLines: null,
                   expands: true,
                   keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
+                  textInputAction: TextInputAction.none,
                   onChanged: (value) {
                     setState(() {}); // Update UI to reflect changes
                     widget.onChanged(value); // Trigger callback
