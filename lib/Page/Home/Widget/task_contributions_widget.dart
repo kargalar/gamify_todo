@@ -10,13 +10,9 @@ class TaskContributionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final taskCount = vm.todayContributions().length;
-    // Calculate dynamic max height: header (60) + tasks (50 per task) + padding
-    final dynamicMaxHeight = taskCount <= 3 ? 220.0 : 220 + (taskCount * 1.0).clamp(100.0, 400.0);
-
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: dynamicMaxHeight,
+      constraints: const BoxConstraints(
+        maxHeight: 400,
         minHeight: 100,
       ),
       padding: const EdgeInsets.all(12),

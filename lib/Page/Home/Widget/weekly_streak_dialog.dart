@@ -18,11 +18,9 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
   @override
   Widget build(BuildContext context) {
     // Calculate initial size based on today's tasks
-    final taskCount = widget.vm.todayContributions().length;
-    final dynamicInitialSize = 0.2 + (taskCount * 0.10).clamp(0.4, 0.9);
 
     return DraggableScrollableSheet(
-      initialChildSize: dynamicInitialSize,
+      initialChildSize: 0.7,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
