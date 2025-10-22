@@ -17,16 +17,23 @@ class WeeklyStreakDialog extends StatefulWidget {
 class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
   @override
   Widget build(BuildContext context) {
+    // Calculate initial size based on today's tasks
+    final taskCount = widget.vm.todayContributions().length;
+    final dynamicInitialSize = 0.2 + (taskCount * 0.10).clamp(0.4, 0.9);
+
     return DraggableScrollableSheet(
-      initialChildSize: 0.5,
-      minChildSize: 0.4,
-      maxChildSize: 0.8,
+      initialChildSize: dynamicInitialSize,
+      minChildSize: 0.3,
+      maxChildSize: 0.9,
       expand: false,
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            border: const Border(
+              top: BorderSide(color: AppColors.dirtyWhite),
+            ),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(

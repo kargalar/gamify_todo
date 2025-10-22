@@ -46,11 +46,11 @@ class DurationCalculator {
               counterTaskCounts[task.id] = (counterTaskCounts[task.id] ?? 0) + count;
             }
           }
-        } else if (log.status == null || log.status == TaskStatusEnum.DONE) {
-          // Treat as checkbox DONE if applicable
+        } else if (log.status == TaskStatusEnum.DONE) {
+          // Treat as checkbox DONE only if status is explicitly DONE
           String key = "${log.taskId}_${log.logDate.year}-${log.logDate.month}-${log.logDate.day}";
           if (!processedTaskDates.contains(key)) {
-            if (task.remainingDuration != null && log.status == TaskStatusEnum.DONE) {
+            if (task.remainingDuration != null) {
               total += task.remainingDuration!;
               debugPrint('DurationCalculator: Added checkbox duration: ${task.remainingDuration!.compactFormat()} for task ${task.title}');
             }
@@ -103,7 +103,7 @@ class DurationCalculator {
         if (task.type == TaskTypeEnum.COUNTER) {
           counterTaskCounts[task.id] = (counterTaskCounts[task.id] ?? 0) + count;
         }
-      } else if (log.status == null || log.status == TaskStatusEnum.DONE) {
+      } else if (log.status == TaskStatusEnum.DONE) {
         add = task.remainingDuration ?? Duration.zero;
         // For checkbox, ensure uniqueness
         String key = "${taskId}_${log.logDate.year}-${log.logDate.month}-${log.logDate.day}";

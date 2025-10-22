@@ -89,6 +89,9 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            border: const Border(
+              top: BorderSide(color: AppColors.dirtyWhite),
+            ),
           ),
           child: Column(
             children: [
