@@ -50,7 +50,7 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                 Container(
                   height: 1,
                   width: double.infinity,
-                  color: Colors.grey.withOpacity(0.12),
+                  color: Colors.grey.withValues(alpha: 0.12),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -117,9 +117,9 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor.withOpacity(0.96),
+                                  color: Theme.of(context).cardColor.withValues(alpha: 0.96),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey.withOpacity(0.08)),
+                                  border: Border.all(color: Colors.grey.withValues(alpha: 0.08)),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +145,7 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                                           value: progress,
                                           minHeight: 6,
                                           valueColor: AlwaysStoppedAnimation(mainColor),
-                                          backgroundColor: mainColor.withOpacity(0.12),
+                                          backgroundColor: mainColor.withValues(alpha: 0.12),
                                         ),
                                       ),
                                     ],
@@ -181,9 +181,9 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor.withOpacity(0.96),
+                                  color: Theme.of(context).cardColor.withValues(alpha: 0.96),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey.withOpacity(0.08)),
+                                  border: Border.all(color: Colors.grey.withValues(alpha: 0.08)),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +209,7 @@ void _showContributionsSheet(BuildContext context, List<Map<String, dynamic>> co
                                           value: progress,
                                           minHeight: 6,
                                           valueColor: AlwaysStoppedAnimation(mainColor),
-                                          backgroundColor: mainColor.withOpacity(0.12),
+                                          backgroundColor: mainColor.withValues(alpha: 0.12),
                                         ),
                                       ),
                                     ],
@@ -323,7 +323,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       height: 32,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
-                        gradient: hasReachedStreak ? LinearGradient(colors: [Colors.orange.withOpacity(0.3), Colors.red.withOpacity(0.2)]) : LinearGradient(colors: [mainColor.withOpacity(0.18), mainColor.withOpacity(0.08)]),
+                        gradient: hasReachedStreak ? LinearGradient(colors: [Colors.orange.withValues(alpha: 0.3), Colors.red.withValues(alpha: 0.2)]) : LinearGradient(colors: [mainColor.withValues(alpha: 0.18), mainColor.withValues(alpha: 0.08)]),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -341,7 +341,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     value: value,
                                     strokeWidth: 3,
                                     valueColor: AlwaysStoppedAnimation(mainColor),
-                                    backgroundColor: mainColor.withOpacity(0.12),
+                                    backgroundColor: mainColor.withValues(alpha: 0.12),
                                   ),
                                 ),
                                 Text('${(percent * 100).round()}%', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: mainColor)),
