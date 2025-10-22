@@ -27,7 +27,6 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 ○ Repeat days dal all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. O tasklar ya en yakın diğer gund egisterilwin ya da gisterilmesin
 
-○ tasklari üst üste işaretleyin ve sorun olabiliyor
 ○ alarmı güncelle.
     telefon sessizseyken cakmasin mesela veya çalarken ekrana gelsin direkt.su şekliyle iyi olmuyir
 

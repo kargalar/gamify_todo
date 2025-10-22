@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -290,7 +291,15 @@ class GlobalTimer {
                 String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
                 bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
 
+                debugPrint('🔥 STORE ITEM ALARM CHECK: ${storeItem.title} (ID: ${storeItem.id})');
+                debugPrint('🔥 Previous duration: ${previousDuration.inSeconds}s');
+                debugPrint('🔥 Current duration: ${storeItem.currentDuration!.inSeconds}s');
+                debugPrint('🔥 Alarm triggered flag: $alarmTriggered');
+                debugPrint('🔥 Memory flag: ${_storeItemAlarmTriggeredMemory.contains(storeItem.id)}');
+
                 if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
+                  debugPrint('🔥 TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
+
                   // Cancel the scheduled notification first
                   NotificationService().cancelNotificationOrAlarm(storeItem.id + 100000);
 
@@ -312,12 +321,9 @@ class GlobalTimer {
                   await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
                   _storeItemAlarmTriggeredMemory.add(storeItem.id);
 
-                  // NOT: Kullanıcı isteğiyle timer süresi bittikten sonra negatifte devam etmeli.
-                  // Bu yüzden timer'ı durdurmuyor veya süreyi 0'a çekmiyoruz. Sadece flag set edilip bir kez alarm çalacak.
-                  // (İsterse kullanıcı manuel durdurabilir.)
-
-                  // Update item in database
-                  ServerManager().updateItem(itemModel: storeItem);
+                  debugPrint('🔥 ALARM TRIGGERED AND MARKED FOR STORE ITEM: ${storeItem.title}');
+                } else {
+                  debugPrint('🔥 ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
                 }
               }
 
@@ -413,6 +419,7 @@ class GlobalTimer {
             String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
             bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
             if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
+              debugPrint('🔥 [RESUME] TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
               NotificationService().scheduleNotification(
                 id: storeItem.id + 200000,
                 title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
@@ -425,6 +432,9 @@ class GlobalTimer {
               });
               await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
               _storeItemAlarmTriggeredMemory.add(storeItem.id);
+              debugPrint('🔥 [RESUME] ALARM TRIGGERED FOR STORE ITEM: ${storeItem.title}');
+            } else {
+              debugPrint('🔥 [RESUME] ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
             }
           }
 
