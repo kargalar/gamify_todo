@@ -61,11 +61,16 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
     // İlgili tüm taskları al
     final tasksWithTrait = TaskProvider().taskList.where((task) => (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false)).toList();
 
+    debugPrint('Tasks with trait ${widget.traitModel.id}: ${tasksWithTrait.length}');
+
     // Log tabanlı toplam ilerleme, log yoksa state fallback
     totalDuration = Duration.zero;
     for (final task in tasksWithTrait) {
-      totalDuration += calculateTaskDuration(task);
+      final taskDuration = calculateTaskDuration(task);
+      totalDuration += taskDuration;
+      debugPrint('Task ${task.id} (${task.title}): duration $taskDuration');
     }
+    debugPrint('Total duration for trait ${widget.traitModel.id}: $totalDuration');
   }
 
   void findRelatedTasks() {
@@ -152,13 +157,19 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   // Log tabanlı tek task ilerleme hesabı (tüm zamanlar)
   Duration _calculateTaskDurationFromLogs(TaskModel task) {
     final logs = TaskLogProvider().getLogsByTaskId(task.id);
-    if (logs.isEmpty) return Duration.zero;
+    if (logs.isEmpty) {
+      debugPrint('No logs for task ${task.id}');
+      return Duration.zero;
+    }
+
+    debugPrint('Task ${task.id} has ${logs.length} logs');
 
     Duration total = Duration.zero;
     if (task.type == TaskTypeEnum.TIMER) {
       for (final l in logs) {
         if (l.duration != null) total += l.duration!;
       }
+      debugPrint('Timer task ${task.id}: total duration $total');
     } else if (task.type == TaskTypeEnum.COUNTER) {
       final per = task.remainingDuration ?? Duration.zero;
       int count = 0;
@@ -166,6 +177,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
         count += l.count ?? 0;
       }
       total = per * count;
+      debugPrint('Counter task ${task.id}: per $per, total count $count, total duration $total');
     } else if (task.type == TaskTypeEnum.CHECKBOX) {
       // Gün başına tek sayım (aynı gün birden fazla DONE varsa 1 kabul)
       final Set<String> doneDays = {};
@@ -176,6 +188,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       }
       final per = task.remainingDuration ?? Duration.zero;
       total = per * doneDays.length;
+      debugPrint('Checkbox task ${task.id}: per $per, done days ${doneDays.length}, total duration $total');
     }
     return total;
   }
@@ -259,16 +272,19 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   }
 
   Widget _buildStatisticsSection() {
-    // Get weekly and monthly data
+    // Get weekly, monthly, and yearly data
     final now = DateTime.now();
     final weekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
     final monthStart = DateTime(now.year, now.month, 1);
+    final yearStart = DateTime(now.year, 1, 1);
 
     Duration weeklyDuration = Duration.zero;
     Duration monthlyDuration = Duration.zero;
+    Duration yearlyDuration = Duration.zero;
 
     // Calculate from logs
     final taskLogs = TaskLogProvider().taskLogList;
+    debugPrint('Total task logs: ${taskLogs.length}');
     for (final log in taskLogs) {
       final task = TaskProvider().taskList.firstWhere(
             (t) => t.id == log.taskId,
@@ -286,14 +302,17 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       if (log.duration != null) {
         // Timer task
         logDuration = log.duration!;
+        debugPrint('Timer task ${task.id}: log duration ${log.duration}');
       } else if (log.count != null && log.count! > 0) {
         // Counter task
         final perCount = task.remainingDuration ?? Duration.zero;
         final count = log.count! <= 100 ? log.count! : 5; // Cap extreme counts
         logDuration = perCount * count;
+        debugPrint('Counter task ${task.id}: perCount $perCount, count $count, logDuration $logDuration');
       } else if (log.status == TaskStatusEnum.DONE) {
         // Checkbox task
         logDuration = task.remainingDuration ?? Duration.zero;
+        debugPrint('Checkbox task ${task.id}: remainingDuration ${task.remainingDuration}, logDuration $logDuration');
       }
 
       if (logDate.isAfter(weekStart) || logDate.isAtSameMomentAs(weekStart)) {
@@ -302,7 +321,12 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       if (logDate.isAfter(monthStart) || logDate.isAtSameMomentAs(monthStart)) {
         monthlyDuration += logDuration;
       }
+      if (logDate.isAfter(yearStart) || logDate.isAtSameMomentAs(yearStart)) {
+        yearlyDuration += logDuration;
+      }
     }
+
+    debugPrint('Trait ${widget.traitModel.id} - Weekly: $weeklyDuration, Monthly: $monthlyDuration, Yearly: $yearlyDuration, Total: $totalDuration');
 
     // Calculate weekly trend data (last 7 days)
     final weeklyData = <double>[];
@@ -385,6 +409,28 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
                   LocaleKeys.ThisMonth.tr(),
                   monthlyDuration.textShort2hour(),
                   Icons.calendar_month,
+                  selectedColor.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  "This Year",
+                  yearlyDuration.textShort2hour(),
+                  Icons.calendar_today,
+                  selectedColor.withValues(alpha: 0.1),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  "All Time",
+                  totalDuration.textShort2hour(),
+                  Icons.timeline,
                   selectedColor.withValues(alpha: 0.1),
                 ),
               ),

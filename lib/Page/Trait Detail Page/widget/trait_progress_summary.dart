@@ -39,6 +39,7 @@ class TraitProgressSummary extends StatelessWidget {
     int totalSessions = 0;
 
     final allLogs = TaskLogProvider().taskLogList;
+    debugPrint('TraitProgressSummary: Total logs ${allLogs.length} for trait ${traitModel.id}');
 
     for (final log in allLogs) {
       final task = TaskProvider().taskList.firstWhere(
@@ -79,6 +80,8 @@ class TraitProgressSummary extends StatelessWidget {
         }
       }
     }
+
+    debugPrint('TraitProgressSummary: Week $weekDuration, Month $monthDuration, Year $yearDuration, Sessions $totalSessions');
 
     return {
       'week': weekDuration,
