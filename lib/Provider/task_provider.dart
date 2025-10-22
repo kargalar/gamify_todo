@@ -1608,7 +1608,8 @@ class TaskProvider with ChangeNotifier {
   List<TaskModel> getPinnedTasksForToday() {
     // Get all pinned non-routine tasks regardless of date
     // Include: today's tasks, past tasks, future tasks, and dateless tasks
-    final pinnedTasks = taskList.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED).toList();
+    // Respect showCompleted setting like other task lists
+    final pinnedTasks = taskList.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED && (showCompleted || task.status != TaskStatusEnum.DONE)).toList();
 
     debugPrint('Found ${pinnedTasks.length} pinned tasks (all dates)');
     for (var task in pinnedTasks) {
