@@ -261,13 +261,13 @@ class NotesProvider with ChangeNotifier {
         debugPrint('✅ NotesProvider: Note pin toggled successfully');
       } else {
         debugPrint('❌ NotesProvider: Failed to toggle note pin');
-        _setError('Not sabitleme durumu değiştirilemedi');
+        _setError('Note pin status could not be changed');
       }
 
       return success;
     } catch (e) {
       debugPrint('❌ NotesProvider: Error toggling note pin: $e');
-      _setError('Not sabitleme durumu değiştirilirken hata oluştu: $e');
+      _setError('Error changing note pin status: $e');
       return false;
     }
   }
@@ -394,7 +394,7 @@ class NotesProvider with ChangeNotifier {
     }
   }
 
-  /// Arşiv filtresini değiştir
+  /// Change archive filter
   void toggleArchivedFilter() {
     debugPrint('📦 NotesProvider: Toggling archived filter - current: $_showArchivedOnly');
     _showArchivedOnly = !_showArchivedOnly;
@@ -402,7 +402,7 @@ class NotesProvider with ChangeNotifier {
     debugPrint('✅ NotesProvider: Archived filter toggled - new: $_showArchivedOnly');
   }
 
-  /// Notu arşivle/arşivden çıkar
+  /// Archive/unarchive note
   Future<bool> toggleArchiveNote(int noteId) async {
     try {
       debugPrint('📦 NotesProvider: Toggling archive for noteId: $noteId');
@@ -415,13 +415,13 @@ class NotesProvider with ChangeNotifier {
         debugPrint('✅ NotesProvider: Note archive toggled successfully');
       } else {
         debugPrint('❌ NotesProvider: Failed to toggle archive note');
-        _setError('Not arşivlenemedi');
+        _setError('Note could not be archived');
       }
 
       return success;
     } catch (e) {
       debugPrint('❌ NotesProvider: Error toggling archive note - $e');
-      _setError('Not arşivlenirken hata oluştu: $e');
+      _setError('Error archiving note: $e');
       return false;
     }
   }

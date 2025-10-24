@@ -80,7 +80,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.65,
+      initialChildSize: 0.7,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
@@ -179,6 +179,8 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
                     const SizedBox(width: 12),
                     _buildLegendItem(Colors.red, 'Ulaşılamadı'),
                     const SizedBox(width: 12),
+                    _buildLegendItem(Colors.orange, 'Tatil'),
+                    const SizedBox(width: 12),
                     _buildLegendItem(Colors.blue, 'Gelecek'),
                     const SizedBox(width: 12),
                     _buildLegendItem(Colors.grey, 'Veri Yok'),
@@ -248,6 +250,8 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
               final date = DateTime(selectedDate.year, selectedDate.month, dayNumber);
               final now = DateTime.now();
               final isFuture = date.isAfter(DateTime(now.year, now.month, now.day));
+              final isVacation = DurationCalculator.isVacationDay(date);
+              debugPrint('StreakCalendarDialog: Date $date, isFuture: $isFuture, isVacation: $isVacation');
               final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
 
               Color statusColor;
@@ -256,6 +260,9 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
               if (isFuture) {
                 statusColor = Colors.blue;
                 statusIcon = Icons.schedule;
+              } else if (isVacation) {
+                statusColor = Colors.orange;
+                statusIcon = Icons.beach_access;
               } else {
                 try {
                   final isMet = DurationCalculator.calculateStreakStatusForDate(date);
@@ -319,6 +326,9 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
     for (int day = 1; day <= lastDayOfMonth.day; day++) {
       final date = DateTime(selectedDate.year, selectedDate.month, day);
       if (date.isAfter(DateTime(now.year, now.month, now.day))) continue;
+
+      final isVacation = DurationCalculator.isVacationDay(date);
+      if (isVacation) continue; // Tatil günlerini istatistiklere dahil etme
 
       totalDays++;
       try {

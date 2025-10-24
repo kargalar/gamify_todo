@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -6,7 +7,7 @@ import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Common/base_card.dart';
 
-/// Kompakt ve sade not kartı widget'ı (Slidable actions ile)
+/// Compact and simple note card widget (with Slidable actions)
 class NoteCard extends BaseCard {
   final NoteModel note;
   final VoidCallback onTap;
@@ -35,37 +36,37 @@ class NoteCard extends BaseCard {
           debugPrint('📌 Note ${note.id} - Pin toggle: ${note.isPinned} -> ${!note.isPinned}');
           final success = await provider.togglePinNote(note.id, !note.isPinned);
           if (success) {
-            debugPrint('✅ Note ${note.id} - Pin durumu değiştirildi');
+            debugPrint('✅ Note ${note.id} - Pin status changed');
           } else {
-            debugPrint('❌ Note ${note.id} - Pin işlemi başarısız');
+            debugPrint('❌ Note ${note.id} - Pin operation failed');
           }
         },
         backgroundColor: note.isPinned ? AppColors.grey : categoryColor,
         icon: note.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-        label: note.isPinned ? 'Sabitlemeyi Kaldır' : 'Sabitle',
+        label: note.isPinned ? 'Unpin' : 'Pin',
         padding: const EdgeInsets.symmetric(horizontal: 5),
       ),
       SlidableAction(
         onPressed: (context) async {
-          debugPrint('📦 Note ${note.id} - Archive toggle başladı');
+          debugPrint('📦 Note ${note.id} - Archive toggle started');
           final success = await provider.toggleArchiveNote(note.id);
           if (success) {
-            debugPrint('✅ Note ${note.id} - Archive durumu değiştirildi');
+            debugPrint('✅ Note ${note.id} - Archive status changed');
           } else {
-            debugPrint('❌ Note ${note.id} - Archive işlemi başarısız');
+            debugPrint('❌ Note ${note.id} - Archive operation failed');
           }
         },
         backgroundColor: AppColors.orange,
         icon: note.isArchived ? Icons.unarchive : Icons.archive,
-        label: note.isArchived ? 'Geri Al' : 'Arşivle',
+        label: note.isArchived ? 'Unarchive' : 'Archive',
         padding: const EdgeInsets.symmetric(horizontal: 5),
       ),
       SlidableAction(
         onPressed: (context) async {
-          debugPrint('🗑️ Note ${note.id} - Silme işlemi başladı');
+          debugPrint('🗑️ Note ${note.id} - Delete operation started');
           if (onDelete != null) {
             onDelete!();
-            debugPrint('✅ Note ${note.id} - Silindi');
+            debugPrint('✅ Note ${note.id} - Deleted');
           } else {
             debugPrint('⚠️ Note ${note.id} - onDelete callback null');
           }
@@ -114,10 +115,10 @@ class NoteCard extends BaseCard {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Başlık ve kategori
+                    // Title and category
                     Row(
                       children: [
-                        // Kategori göstergesi
+                        // Category indicator
                         if (category != null) ...[
                           Container(
                             width: 12,
@@ -129,10 +130,10 @@ class NoteCard extends BaseCard {
                           ),
                           const SizedBox(width: 8),
                         ],
-                        // Başlık
+                        // Title
                         Expanded(
                           child: Text(
-                            note.title.isNotEmpty ? note.title : 'Başlıksız Not',
+                            note.title.isNotEmpty ? note.title : 'UntitledNote'.tr(),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -194,7 +195,7 @@ class NoteCard extends BaseCard {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Text(
-                              'Arşivlenmiş',
+                              'Archived',
                               style: TextStyle(
                                 fontSize: 10,
                                 color: AppColors.orange,

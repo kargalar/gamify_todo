@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/home_view_model.dart';
@@ -24,13 +25,13 @@ class TaskContributionsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Bugünkü Görevler', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Text('TodaysTasks'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 8),
           Expanded(
             child: vm.todayContributions().isEmpty
                 ? Center(
                     child: Text(
-                      'Bugün henüz görev tamamlanmamış',
+                      'NoTasksCompletedToday'.tr(),
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                   )

@@ -607,7 +607,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
     );
   }
 
-  /// Kaydet işlemi
+  /// Save operation
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) {
       return;

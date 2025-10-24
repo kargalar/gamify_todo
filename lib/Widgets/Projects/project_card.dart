@@ -269,14 +269,14 @@ class ProjectCard extends BaseCard {
                                     Navigator.of(context).pop(); // Dialog'u kapat
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Görev başarıyla eklendi!'.tr()),
+                                        content: Text('TaskAddSuccess'.tr()),
                                         backgroundColor: AppColors.green,
                                       ),
                                     );
                                   } else if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Görev eklenirken hata oluştu!'.tr()),
+                                        content: Text('TaskAddError'.tr()),
                                         backgroundColor: AppColors.red,
                                       ),
                                     );
@@ -288,7 +288,7 @@ class ProjectCard extends BaseCard {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Görev eklenirken hata oluştu!'.tr()),
+                                        content: Text('TaskAddError'.tr()),
                                         backgroundColor: AppColors.red,
                                       ),
                                     );
@@ -304,27 +304,27 @@ class ProjectCard extends BaseCard {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.main.withValues(alpha: 0.1),
+                          color: AppColors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppColors.main.withValues(alpha: 0.2),
+                            color: AppColors.green.withValues(alpha: 0.2),
                             width: 1,
                           ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.add_task,
                               size: 12,
-                              color: AppColors.main,
+                              color: AppColors.green,
                             ),
                             const SizedBox(width: 3),
                             Text(
                               'quick_task'.tr(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 10,
-                                color: AppColors.main,
+                                color: AppColors.green,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -377,14 +377,14 @@ class ProjectCard extends BaseCard {
                                     Navigator.of(context).pop(); // Dialog'u kapat
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Not başarıyla eklendi!'.tr()),
+                                        content: Text('NoteAddSuccess'.tr()),
                                         backgroundColor: AppColors.green,
                                       ),
                                     );
                                   } else if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Not eklenirken hata oluştu!'.tr()),
+                                        content: Text('NoteAddError'.tr()),
                                         backgroundColor: AppColors.red,
                                       ),
                                     );
@@ -396,7 +396,7 @@ class ProjectCard extends BaseCard {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Not eklenirken hata oluştu!'.tr()),
+                                        content: Text('NoteAddError'.tr()),
                                         backgroundColor: AppColors.red,
                                       ),
                                     );
@@ -412,10 +412,10 @@ class ProjectCard extends BaseCard {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.blue.withValues(alpha: 0.1),
+                          color: AppColors.yellow.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppColors.blue.withValues(alpha: 0.2),
+                            color: AppColors.yellow.withValues(alpha: 0.2),
                             width: 1,
                           ),
                         ),
@@ -425,14 +425,14 @@ class ProjectCard extends BaseCard {
                             const Icon(
                               Icons.note_add,
                               size: 12,
-                              color: AppColors.blue,
+                              color: AppColors.yellow,
                             ),
                             const SizedBox(width: 3),
                             Text(
                               'quick_note'.tr(),
                               style: const TextStyle(
                                 fontSize: 10,
-                                color: AppColors.blue,
+                                color: AppColors.yellow,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),

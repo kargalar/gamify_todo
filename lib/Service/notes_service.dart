@@ -202,7 +202,7 @@ class NotesService {
     }
   }
 
-  /// Notu arşivle/arşivden çıkar
+  /// Archive/unarchive note
   Future<bool> toggleArchiveNote(int noteId) async {
     try {
       await initialize();

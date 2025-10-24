@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -211,12 +212,21 @@ class DurationCalculator {
   static String _getDayName(DateTime date) {
     final now = DateTime.now();
     if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      return 'Bugün';
+      return 'Today'.tr();
     } else if (date.year == now.year && date.month == now.month && date.day == now.day + 1) {
-      return 'Yarın';
+      return 'Tomorrow'.tr();
     } else {
-      final weekdays = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+      final weekdays = ['Mon'.tr(), 'Tue'.tr(), 'Wed'.tr(), 'Thu'.tr(), 'Fri'.tr(), 'Sat'.tr(), 'Sun'.tr()];
       return weekdays[date.weekday - 1];
     }
+  }
+
+  /// Check if a date is a vacation day.
+  static bool isVacationDay(DateTime date) {
+    final vacationWeekdays = StreakSettingsProvider().vacationWeekdays;
+    // weekday: 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
+    // Convert to 0-based index for our Set (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
+    final weekdayIndex = date.weekday - 1;
+    return vacationWeekdays.contains(weekdayIndex);
   }
 }

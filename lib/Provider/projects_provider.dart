@@ -278,7 +278,7 @@ class ProjectsProvider with ChangeNotifier {
     }
   }
 
-  /// Projeyi sabitle/sabitlemeyi kaldır
+  /// Pin/unpin project
   Future<bool> togglePinProject(String projectId) async {
     try {
       debugPrint('📌 ProjectsProvider: Toggling project pin');
@@ -294,7 +294,7 @@ class ProjectsProvider with ChangeNotifier {
     }
   }
 
-  /// Arşiv filtresini değiştir
+  /// Change archive filter
   void toggleArchivedFilter() {
     debugPrint('📦 ProjectsProvider: Toggling archived filter - Current: $_showArchivedOnly');
     _showArchivedOnly = !_showArchivedOnly;
@@ -302,7 +302,7 @@ class ProjectsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Projeyi arşivle/arşivden çıkar
+  /// Archive/unarchive project
   Future<bool> toggleArchiveProject(String projectId) async {
     try {
       debugPrint('📦 ProjectsProvider: Toggling project archive');
@@ -379,7 +379,7 @@ class ProjectsProvider with ChangeNotifier {
     }
   }
 
-  /// Subtask tamamlanma durumunu değiştir
+  /// Change subtask completion status
   Future<bool> toggleSubtaskCompleted(String subtaskId) async {
     try {
       debugPrint('✅ ProjectsProvider: Toggling subtask completed');

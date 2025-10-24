@@ -37,7 +37,7 @@ class _CounterControlWidgetState extends State<CounterControlWidget> {
   }
 
   void setCount(int value, {bool skipLogging = false}) async {
-    // Sadece değeri değiştir, log oluşturma işlemini ViewModel'e bırak
+    // Only change the value, leave log creation to ViewModel
     if (mounted) {
       widget.onCountChanged(value, skipLogging: skipLogging);
     }

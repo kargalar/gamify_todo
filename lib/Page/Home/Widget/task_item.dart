@@ -261,7 +261,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                   timer.cancel();
                   return;
                 }
-                // Sadece display count'u artır, gerçek veriyi değiştirme
+                // Only increase display count, don't change actual data
                 _displayCount++;
                 setState(() {});
               });

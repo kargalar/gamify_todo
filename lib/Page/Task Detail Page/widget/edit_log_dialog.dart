@@ -142,7 +142,7 @@ class _EditLogDialogState extends State<EditLogDialog> {
               ],
             ),
             const SizedBox(height: 16),
-            // Status kaldırıldı - kullanıcı status'u değiştiremesin
+            // Status removed - user cannot change status
             if (widget.taskModel.type != TaskTypeEnum.CHECKBOX) const SizedBox(height: 0),
             if (widget.taskModel.type != TaskTypeEnum.CHECKBOX)
               _CompactSection(

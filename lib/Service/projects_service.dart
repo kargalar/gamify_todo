@@ -110,7 +110,7 @@ class ProjectsService {
     }
   }
 
-  /// Projeyi sabitle/sabitlemeyi kaldır
+  /// Pin/unpin project
   Future<bool> togglePinProject(String projectId) async {
     try {
       await initialize();
@@ -137,7 +137,7 @@ class ProjectsService {
     }
   }
 
-  /// Projeyi arşivle/arşivden çıkar
+  /// Archive/unarchive project
   Future<bool> toggleArchiveProject(String projectId) async {
     try {
       await initialize();

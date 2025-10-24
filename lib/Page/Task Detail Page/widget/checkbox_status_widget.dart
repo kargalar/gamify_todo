@@ -99,7 +99,7 @@ class _CheckboxStatusWidgetState extends State<CheckboxStatusWidget> {
     }
   }
 
-  // Durum değiştirme butonu
+  // Status change button
   Widget _buildStatusButton({
     required String label,
     required TaskStatusEnum status,

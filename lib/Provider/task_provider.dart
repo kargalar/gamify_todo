@@ -642,7 +642,7 @@ class TaskProvider with ChangeNotifier {
         statusColor: selectedDate != null ? AppColors.main : AppColors.orange,
         statusWord: selectedDate != null ? LocaleKeys.Changed.tr() : LocaleKeys.Dateless.tr(),
         taskName: taskModel.title,
-        dateInfo: selectedDate != null ? 'tarihi ${DateFormat('dd MMMM yyyy', 'tr').format(selectedDate)} olarak değiştirildi' : null,
+        dateInfo: selectedDate != null ? 'date changed to ${DateFormat('dd MMMM yyyy', 'en').format(selectedDate)}' : null,
         taskModel: taskModel, // Task'ı göster
       );
 
@@ -745,7 +745,7 @@ class TaskProvider with ChangeNotifier {
         statusColor: AppColors.main,
         statusWord: LocaleKeys.Changed.tr(),
         taskName: taskModel.title,
-        dateInfo: 'tarihi ${DateFormat('dd MMMM yyyy', 'tr').format(newDate)} olarak değiştirildi',
+        dateInfo: 'date changed to ${DateFormat('dd MMMM yyyy', 'en').format(newDate)}',
         taskModel: taskModel, // Task'ı göster
       );
 
@@ -909,7 +909,7 @@ class TaskProvider with ChangeNotifier {
     // Bildirim durumunu kontrol et
     checkTaskStatusForNotifications(taskModel);
 
-    // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
+    // TODO: Show undo message for a period of time in case of cancel or delete
     notifyListeners();
   }
 
@@ -993,7 +993,7 @@ class TaskProvider with ChangeNotifier {
     // Bildirim durumunu kontrol et
     checkTaskStatusForNotifications(taskModel);
 
-    // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
+    // TODO: Show undo message for a period of time in case of cancel or delete
     notifyListeners();
   }
 
@@ -1208,8 +1208,8 @@ class TaskProvider with ChangeNotifier {
       customStatus: TaskStatusEnum.DONE,
     );
 
-    // TODO: iptalde veya silem durumunda geri almak için mesaj çıkacak bir süre
-    // TODO: arşivden çıkar ekle
+    // TODO: Show undo message for a period of time in case of cancel or delete
+    // TODO: add unarchive
     notifyListeners();
   }
 

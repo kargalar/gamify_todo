@@ -143,7 +143,7 @@ class NotificationService {
       windows: windowsIitializationSettings,
     );
 
-    // Bildirime tıklandığında yapılacak işlemi tanımla
+    // Define what to do when notification is tapped
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {

@@ -90,7 +90,7 @@ class ProjectSubtasksService {
     }
   }
 
-  /// Subtask tamamlanma durumunu değiştir
+  /// Change subtask completion status
   Future<bool> toggleSubtaskCompleted(String subtaskId) async {
     try {
       await initialize();

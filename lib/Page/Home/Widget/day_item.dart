@@ -26,7 +26,7 @@ class _DayItemState extends State<DayItem> {
     return InkWell(
       borderRadius: AppColors.borderRadiusAll,
       onTap: () {
-        // ViewModel üzerinden tarihi değiştir
+        // Change date through ViewModel
         final vm = Provider.of<HomeViewModel>(context, listen: false);
         vm.changeSelectedDate(widget.date);
       },

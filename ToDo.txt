@@ -49,3 +49,13 @@ timer task aktifken günün toplam çalışma süresi 2 katınca çıkıyor. (ve
 en sonra bunkü yapıaln taskalrın listeinin ve o bottomshettin boyuutu n ayalrıyorudm
 
 checkbox tasklarda done durumundan çıkaırlınca done logu silinmeli (aynı şekilde cancel veya faild iken de geri alınca null veya inprogress yerine direkt o logu silmeli)
+
+streak takvime tatili ekle
+
+günlük hedef 1 saat streak hedefi 4 saat. ben 2 saat çalışamam rağmen streak durumu gün için ılaşıldı diyro. streaki günlük hedefe göre hesaplıyor. streak ayarlarında ayarladığım hedefe göre hesaplamalı. 
+streak hedef ayarlarını ayarlardan kaldır ve haftalık streak alanında düzenle iconuyla gidilebilir yap.
+
+bugünün ilerlemesi kısmındaki task itemların tarmı güncelle.
+
+add localization 
+bu sayfada hiçbir türkçe metin kalmasın localizasyon uyugla

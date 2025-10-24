@@ -452,7 +452,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       widget.categoryModel!.title = categoryTitleController.text.trim();
       widget.categoryModel!.colorValue = selectedColor.toARGB32();
       widget.categoryModel!.iconCodePoint = selectedIcon.codePoint;
-      // categoryType değiştirilmez - hangi sayfada oluşturulduysa öyle kalır
+      // categoryType is not changed - stays as it was created on which page
       await categoryProvider.updateCategory(widget.categoryModel!);
 
       if (mounted) {

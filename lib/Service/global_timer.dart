@@ -31,7 +31,7 @@ class GlobalTimer {
     bool suppressStopLog = false, // when stopping due to manual log, don't create extra stop log
   }) async {
     if (taskModel != null) {
-      // Timer durumunu değiştir
+      // Change timer status
       bool newTimerState = !(taskModel.isTimerActive ?? false);
       taskModel.isTimerActive = newTimerState;
 
@@ -133,7 +133,7 @@ class GlobalTimer {
       // Widget'ı güncelle
       HomeWidgetService.updateTaskCount();
     } else if (storeItemModel != null) {
-      // Store item timer durumunu değiştir
+      // Change store item timer status
       bool newTimerState = !(storeItemModel.isTimerActive ?? false);
       storeItemModel.isTimerActive = newTimerState;
 

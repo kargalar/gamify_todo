@@ -85,7 +85,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
                       ),
                     ),
                   ),
-                  // Değiştir simgesi
+                  // Change icon
                   Icon(
                     Icons.arrow_forward_ios,
                     size: 16,

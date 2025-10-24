@@ -463,7 +463,7 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
 
     _checkClipboard(); // Re-check clipboard after paste
 
-    // !!!! ScaffoldMessengerları helper de kullandığımıxa benzer bir mesaj  şeyiyle değiştir
+    // !!!! Replace ScaffoldMessenger with similar message thing used in helper
     // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
