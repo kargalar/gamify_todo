@@ -31,10 +31,8 @@ import 'package:next_level/Model/trait_model.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/routine_model.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -477,16 +475,10 @@ class HiveService {
       late final String filePath;
 
       if (Platform.isAndroid) {
-        // Request storage permissions based on Android version
+        // Request storage permission
         if (!await Permission.storage.isGranted) {
-          // Request both permissions
-          Map<Permission, PermissionStatus> statuses = await [
-            Permission.storage,
-            Permission.manageExternalStorage,
-          ].request();
-
-          // Check if any permission was denied
-          if (!(statuses.values.any((status) => status.isGranted))) {
+          var status = await Permission.storage.request();
+          if (!status.isGranted) {
             Helper().getMessage(
               message: LocaleKeys.storage_permission_required.tr(),
             );
@@ -494,41 +486,35 @@ class HiveService {
           }
         }
 
-        // Get the Downloads directory on Android
-        Directory? directory;
-        if (Platform.isAndroid) {
-          directory = Directory('/storage/emulated/0/Download');
-          if (!await directory.exists()) {
-            directory = await getExternalStorageDirectory();
-            if (directory != null) {
-              directory = Directory('${directory.path}/Download');
-            }
-          }
-        }
+        // Let user choose save location
+        String? selectedPath = await FilePicker.platform.saveFile(
+          dialogTitle: 'Backup dosyasını kaydet',
+          fileName: fileName,
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+        );
 
-        if (directory == null) {
-          Helper().getMessage(
-            message: LocaleKeys.storage_access_error.tr(),
-          );
+        if (selectedPath == null) {
+          // User cancelled
           return null;
         }
 
-        // Create directory if it doesn't exist
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-
-        filePath = path.join(directory.path, fileName);
+        filePath = selectedPath;
       } else {
-        // For Windows and other platforms
-        final downloadsDir = await getDownloadsDirectory();
-        if (downloadsDir == null) {
-          Helper().getMessage(
-            message: LocaleKeys.downloads_access_error.tr(),
-          );
+        // For Windows and other platforms, let user choose save location
+        String? selectedPath = await FilePicker.platform.saveFile(
+          dialogTitle: 'Backup dosyasını kaydet',
+          fileName: fileName,
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+        );
+
+        if (selectedPath == null) {
+          // User cancelled
           return null;
         }
-        filePath = path.join(downloadsDir.path, fileName);
+
+        filePath = selectedPath;
       }
 
       final file = File(filePath);
