@@ -15,25 +15,25 @@ class StreakCalendarDialog extends StatefulWidget {
 }
 
 class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
+  late DateTime _currentYear;
+  late int _minYear;
+  late int _maxYear;
   late DateTime _minDate;
-  late DateTime _maxDate;
-  late PageController _pageController;
-  late int _currentPageIndex;
 
   @override
   void initState() {
     super.initState();
     _calculateDateRange();
-    _currentPageIndex = _calculatePageIndex(DateTime.now());
-    _pageController = PageController(initialPage: _currentPageIndex);
+    _currentYear = DateTime.now();
   }
 
   void _calculateDateRange() {
     final logs = TaskLogProvider().taskLogList;
     if (logs.isEmpty) {
       final now = DateTime.now();
-      _minDate = DateTime(now.year, now.month, 1);
-      _maxDate = DateTime(now.year, now.month + 1, 0);
+      _minDate = DateTime(now.year, 1, 1);
+      _minYear = now.year;
+      _maxYear = now.year;
       return;
     }
 
@@ -45,37 +45,9 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
       if (log.logDate.isAfter(maxDate)) maxDate = log.logDate;
     }
 
-    _minDate = DateTime(minDate.year, minDate.month, 1);
-    _maxDate = DateTime(maxDate.year, maxDate.month + 1, 0);
-  }
-
-  int _calculatePageIndex(DateTime date) {
-    final minYear = _minDate.year;
-    final minMonth = _minDate.month;
-    final targetYear = date.year;
-    final targetMonth = date.month;
-
-    return (targetYear - minYear) * 12 + (targetMonth - minMonth);
-  }
-
-  DateTime _getDateFromPageIndex(int pageIndex) {
-    final minYear = _minDate.year;
-    final minMonth = _minDate.month;
-
-    final totalMonths = minMonth - 1 + pageIndex;
-    final year = minYear + (totalMonths ~/ 12);
-    final month = (totalMonths % 12) + 1;
-
-    return DateTime(year, month);
-  }
-
-  int _getTotalPages() {
-    final minYear = _minDate.year;
-    final minMonth = _minDate.month;
-    final maxYear = _maxDate.year;
-    final maxMonth = _maxDate.month;
-
-    return (maxYear - minYear) * 12 + (maxMonth - minMonth) + 1;
+    _minDate = minDate;
+    _minYear = minDate.year;
+    _maxYear = maxDate.year;
   }
 
   @override
@@ -125,40 +97,37 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
                 ),
               ),
 
-              // Month/Year Navigation
-              Container(
-                height: 60,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: (pageIndex) {
-                    setState(() {
-                      _currentPageIndex = pageIndex;
-                    });
-                  },
-                  itemCount: _getTotalPages(),
-                  itemBuilder: (context, index) {
-                    final date = _getDateFromPageIndex(index);
-                    final isCurrentPage = index == _currentPageIndex;
-
-                    return Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isCurrentPage ? AppColors.main.withValues(alpha: 0.1) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${_getMonthName(date.month)} ${date.year}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: isCurrentPage ? AppColors.main : AppColors.text,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+              // Year Navigation
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: _currentYear.year > _minYear
+                          ? () {
+                              setState(() {
+                                _currentYear = DateTime(_currentYear.year - 1);
+                              });
+                            }
+                          : null,
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    Text(
+                      '${_currentYear.year}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      onPressed: _currentYear.year < _maxYear
+                          ? () {
+                              setState(() {
+                                _currentYear = DateTime(_currentYear.year + 1);
+                              });
+                            }
+                          : null,
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
                 ),
               ),
 
@@ -166,7 +135,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildCalendarGrid(_getDateFromPageIndex(_currentPageIndex)),
+                  child: _buildYearlyCalendarGrid(_currentYear),
                 ),
               ),
 
@@ -192,7 +161,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
               // Statistics
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: _buildStatistics(_getDateFromPageIndex(_currentPageIndex)),
+                child: _buildYearlyStatistics(_currentYear),
               ),
             ],
           ),
@@ -201,132 +170,66 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
     );
   }
 
-  Widget _buildCalendarGrid(DateTime selectedDate) {
-    final firstDayOfMonth = DateTime(selectedDate.year, selectedDate.month, 1);
-    final lastDayOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 0);
-    final daysInMonth = lastDayOfMonth.day;
+  Widget _buildYearlyCalendarGrid(DateTime year) {
+    final daysInYear = DateTime(year.year + 1, 1, 1).difference(DateTime(year.year, 1, 1)).inDays;
+    final crossAxisCount = (daysInYear / 16).ceil(); // Bir sütunda 9 kare
 
-    // Calculate starting weekday (0 = Monday, 6 = Sunday)
-    final startWeekday = (firstDayOfMonth.weekday - 1) % 7;
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 1,
+        mainAxisSpacing: 1,
+      ),
+      itemCount: daysInYear,
+      itemBuilder: (context, index) {
+        final date = DateTime(year.year, 1, 1).add(Duration(days: index));
+        final now = DateTime.now();
+        final isFuture = date.isAfter(DateTime(now.year, now.month, now.day));
+        final isVacation = DurationCalculator.isVacationDay(date);
+        final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+        final isBeforeMinDate = date.isBefore(_minDate);
 
-    return Column(
-      children: [
-        // Weekday headers
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: ['Mon'.tr(), 'Tue'.tr(), 'Wed'.tr(), 'Thu'.tr(), 'Fri'.tr(), 'Sat'.tr(), 'Sun'.tr()]
-              .map((day) => Expanded(
-                    child: Center(
-                      child: Text(
-                        day,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.text.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
-                  ))
-              .toList(),
-        ),
-        const SizedBox(height: 8),
+        Color statusColor;
 
-        // Calendar days
-        Expanded(
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 2,
-            ),
-            itemCount: 42, // 6 weeks * 7 days
-            itemBuilder: (context, index) {
-              final dayNumber = index - startWeekday + 1;
-              final isValidDay = dayNumber > 0 && dayNumber <= daysInMonth;
+        if (isBeforeMinDate) {
+          statusColor = Colors.grey;
+        } else if (isFuture) {
+          statusColor = Colors.blue;
+        } else if (isVacation) {
+          statusColor = Colors.orange;
+        } else {
+          try {
+            final isMet = DurationCalculator.calculateStreakStatusForDate(date);
+            statusColor = isMet ? Colors.green : Colors.red;
+          } catch (e) {
+            statusColor = Colors.grey;
+          }
+        }
 
-              if (!isValidDay) {
-                return const SizedBox.shrink();
-              }
-
-              final date = DateTime(selectedDate.year, selectedDate.month, dayNumber);
-              final now = DateTime.now();
-              final isFuture = date.isAfter(DateTime(now.year, now.month, now.day));
-              final isVacation = DurationCalculator.isVacationDay(date);
-              debugPrint('StreakCalendarDialog: Date $date, isFuture: $isFuture, isVacation: $isVacation');
-              final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
-
-              Color statusColor;
-              IconData? statusIcon;
-
-              if (isFuture) {
-                statusColor = Colors.blue;
-                statusIcon = Icons.schedule;
-              } else if (isVacation) {
-                statusColor = Colors.orange;
-                statusIcon = Icons.beach_access;
-              } else {
-                try {
-                  final isMet = DurationCalculator.calculateStreakStatusForDate(date);
-                  if (isMet) {
-                    statusColor = Colors.green;
-                    statusIcon = Icons.check;
-                  } else {
-                    statusColor = Colors.red;
-                    statusIcon = Icons.close;
-                  }
-                } catch (e) {
-                  statusColor = Colors.grey;
-                  statusIcon = Icons.help_outline;
-                }
-              }
-
-              return Container(
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: isToday ? 0.3 : 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                  border: isToday ? Border.all(color: Colors.orange, width: 1.5) : null,
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Text(
-                      '$dayNumber',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                        color: statusColor,
-                      ),
-                    ),
-                    if (!isToday)
-                      Positioned(
-                        bottom: 1,
-                        right: 1,
-                        child: Icon(
-                          statusIcon,
-                          size: 6,
-                          color: statusColor,
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
+        return Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: isToday ? AppColors.green : statusColor.withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(1),
+            border: isToday ? Border.all(color: AppColors.white, width: 1) : null,
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildStatistics(DateTime selectedDate) {
-    final lastDayOfMonth = DateTime(selectedDate.year, selectedDate.month + 1, 0);
+  Widget _buildYearlyStatistics(DateTime year) {
     final now = DateTime.now();
+    final startOfYear = DateTime(year.year, 1, 1);
+    final endOfYear = DateTime(year.year + 1, 1, 1).subtract(const Duration(days: 1));
 
     int totalDays = 0;
     int successfulDays = 0;
 
-    for (int day = 1; day <= lastDayOfMonth.day; day++) {
-      final date = DateTime(selectedDate.year, selectedDate.month, day);
-      if (date.isAfter(DateTime(now.year, now.month, now.day))) continue;
+    for (int day = 0; day < endOfYear.difference(startOfYear).inDays + 1; day++) {
+      final date = startOfYear.add(Duration(days: day));
+      if (date.isAfter(DateTime(now.year, now.month, now.day)) || date.isBefore(_minDate)) continue;
 
       final isVacation = DurationCalculator.isVacationDay(date);
       if (isVacation) continue; // Tatil günlerini istatistiklere dahil etme
@@ -354,7 +257,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
       child: Column(
         children: [
           Text(
-            '${_getMonthName(selectedDate.month)} ${selectedDate.year} ${'Statistics'.tr()}',
+            '${year.year} ${'Statistics'.tr()}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -409,10 +312,5 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
         Text(label, style: TextStyle(fontSize: 10, color: AppColors.text)),
       ],
     );
-  }
-
-  String _getMonthName(int month) {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    return months[month - 1];
   }
 }

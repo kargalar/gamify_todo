@@ -35,7 +35,8 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 NOTE: bildirimleri de bunne göre güncellemelisin
 
 
-privicay policy link güncelle. firebase domain bağla
+privicay policy domain bağla
+
 attachments ve tema geçcii oalrak kaldırldı
 
 appardaki streaka basınca streaklarıda göstersin son 1 haftanına mode a absarsa takvimden
