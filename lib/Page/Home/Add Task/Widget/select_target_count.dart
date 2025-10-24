@@ -1,11 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
-import 'package:next_level/Widgets/clickable_tooltip.dart';
 import 'package:provider/provider.dart';
 
 class SelectTargetCount extends StatefulWidget {
@@ -27,119 +24,82 @@ class _SelectTargetCountState extends State<SelectTargetCount> {
   Widget build(BuildContext context) {
     targetCount = context.read<AddTaskProvider>().targetCount;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Target count title
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: ClickableTooltip(
-            titleKey: LocaleKeys.TargetCount,
-            bulletPoints: [
-              LocaleKeys.SelectTaskType.tr(),
-              LocaleKeys.TapCheckboxToComplete.tr(),
-              LocaleKeys.CounterTasksDesc.tr(),
-            ],
-            child: Row(
-              children: [
-                Icon(
-                  Icons.format_list_numbered_rounded,
-                  size: 18,
-                  color: AppColors.main.withValues(alpha: 0.7),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  LocaleKeys.TargetCount.tr(),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.text.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        // Decrease button
+        _buildCountButton(
+          icon: Icons.remove_rounded,
+          onTap: () {
+            _unfocusFields();
+            if (targetCount > 1) {
+              provider.updateTargetCount(targetCount - 1);
+            }
+            setState(() {});
+          },
+          onLongPressStart: (_) async {
+            _unfocusFields();
+            _isDecrementing = true;
+            while (_isDecrementing && mounted) {
+              if (targetCount > 1) {
+                provider.updateTargetCount(targetCount - 1);
+                setState(() {});
+
+                targetCount = context.read<AddTaskProvider>().targetCount;
+              }
+              await Future.delayed(const Duration(milliseconds: 100));
+            }
+          },
+          onLongPressEnd: (_) {
+            _isDecrementing = false;
+          },
         ),
 
-        // Target count selector
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Decrease button
-            _buildCountButton(
-              icon: Icons.remove_rounded,
-              onTap: () {
-                _unfocusFields();
-                if (targetCount > 1) {
-                  provider.updateTargetCount(targetCount - 1);
-                }
-                setState(() {});
-              },
-              onLongPressStart: (_) async {
-                _unfocusFields();
-                _isDecrementing = true;
-                while (_isDecrementing && mounted) {
-                  if (targetCount > 1) {
-                    provider.updateTargetCount(targetCount - 1);
-                    setState(() {});
-
-                    targetCount = context.read<AddTaskProvider>().targetCount;
-                  }
-                  await Future.delayed(const Duration(milliseconds: 100));
-                }
-              },
-              onLongPressEnd: (_) {
-                _isDecrementing = false;
-              },
+        // Count display
+        Container(
+          width: 80,
+          height: 50,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: AppColors.main.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.main.withValues(alpha: 0.3),
+              width: 1,
             ),
-
-            // Count display
-            Container(
-              width: 80,
-              height: 50,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.main.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.main.withValues(alpha: 0.3),
-                  width: 1,
-                ),
+          ),
+          child: Center(
+            child: Text(
+              targetCount.toString(),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
               ),
-              child: Center(
-                child: Text(
-                  targetCount.toString(),
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.white,
-                  ),
-                ),
-              ),
-            ), // Increase button
-            _buildCountButton(
-              icon: Icons.add_rounded,
-              onTap: () {
-                _unfocusFields();
-                provider.updateTargetCount(targetCount + 1);
-                setState(() {});
-              },
-              onLongPressStart: (_) async {
-                _unfocusFields();
-                _isIncrementing = true;
-                while (_isIncrementing && mounted) {
-                  provider.updateTargetCount(targetCount + 1);
-                  setState(() {});
-
-                  targetCount = context.read<AddTaskProvider>().targetCount;
-                  await Future.delayed(const Duration(milliseconds: 100));
-                }
-              },
-              onLongPressEnd: (_) {
-                _isIncrementing = false;
-              },
             ),
-          ],
+          ),
+        ), // Increase button
+        _buildCountButton(
+          icon: Icons.add_rounded,
+          onTap: () {
+            _unfocusFields();
+            provider.updateTargetCount(targetCount + 1);
+            setState(() {});
+          },
+          onLongPressStart: (_) async {
+            _unfocusFields();
+            _isIncrementing = true;
+            while (_isIncrementing && mounted) {
+              provider.updateTargetCount(targetCount + 1);
+              setState(() {});
+
+              targetCount = context.read<AddTaskProvider>().targetCount;
+              await Future.delayed(const Duration(milliseconds: 100));
+            }
+          },
+          onLongPressEnd: (_) {
+            _isIncrementing = false;
+          },
         ),
       ],
     );

@@ -60,9 +60,9 @@ class _DurationPickerWidgetState extends State<DurationPickerWidget> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    "for one buy",
-                    style: TextStyle(
+                  Text(
+                    widget.isStore ? "For one buy" : "Duration",
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),

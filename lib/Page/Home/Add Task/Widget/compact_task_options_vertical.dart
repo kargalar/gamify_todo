@@ -4,7 +4,6 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/category_selector.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/location_input.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/select_priority.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -26,29 +25,6 @@ class CompactTaskOptionsVertical extends StatelessWidget {
         orElse: () => CategoryModel(id: '', title: LocaleKeys.NoCategory.tr(), colorValue: AppColors.main.toARGB32()),
       );
     }
-
-    // Get priority info
-    Color priorityColor;
-    IconData priorityIcon;
-    String priorityText;
-
-    switch (addTaskProvider.priority) {
-      case 1:
-        priorityColor = Colors.red;
-        priorityIcon = Icons.priority_high_rounded;
-        priorityText = LocaleKeys.HighPriority.tr();
-        break;
-      case 2:
-        priorityColor = Colors.orange;
-        priorityIcon = Icons.drag_handle_rounded;
-        priorityText = LocaleKeys.MediumPriority.tr();
-        break;
-      default:
-        priorityColor = Colors.green;
-        priorityIcon = Icons.arrow_downward_rounded;
-        priorityText = LocaleKeys.LowPriority.tr();
-    }
-
     // Get location info
     final hasLocation = addTaskProvider.locationController.text.isNotEmpty;
 
@@ -70,28 +46,6 @@ class CompactTaskOptionsVertical extends StatelessWidget {
               backgroundColor: Colors.transparent,
               barrierColor: Colors.transparent,
               builder: (context) => const LocationBottomSheet(),
-            );
-          },
-        ),
-
-        const SizedBox(height: 6),
-
-        // Priority
-        _buildVerticalOption(
-          context: context,
-          icon: priorityIcon,
-          iconColor: priorityColor,
-          label: LocaleKeys.Priority.tr(),
-          value: priorityText,
-          hasValue: true,
-          onTap: () {
-            addTaskProvider.unfocusAll();
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              barrierColor: Colors.transparent,
-              builder: (context) => const PriorityBottomSheet(),
             );
           },
         ),

@@ -18,13 +18,7 @@ class PinTaskSwitch extends StatelessWidget {
 
     return Row(
       children: [
-        // Icon
-        Icon(
-          Icons.push_pin_rounded,
-          color: provider.isPinned ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
-          size: 20,
-        ),
-        // Compact Switch
+        // Compact Switch with pin icon inside
         Transform.scale(
           scale: 0.9,
           child: Switch(
@@ -33,6 +27,12 @@ class PinTaskSwitch extends StatelessWidget {
               context.read<AddTaskProvider>().updateIsPinned(value);
             },
             activeColor: AppColors.main,
+            thumbIcon: WidgetStateProperty.resolveWith<Icon?>((Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return const Icon(Icons.push_pin_rounded, color: Colors.white);
+              }
+              return const Icon(Icons.push_pin_rounded, color: Colors.grey);
+            }),
           ),
         ),
       ],

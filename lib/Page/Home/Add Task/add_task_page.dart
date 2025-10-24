@@ -10,7 +10,7 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/compact_trait_options.dar
 import 'package:next_level/Page/Home/Add%20Task/Widget/enhanced_subtask_section.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/date_time_notification_widget.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/pin_task_switch.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
@@ -144,8 +144,6 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // Watch provider for task type / target count reactive sections
-    final watchedAddTaskProvider = context.watch<AddTaskProvider>();
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -197,6 +195,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
+              if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) const PinTaskSwitch(),
             ],
           ),
           body: SingleChildScrollView(
@@ -246,11 +245,6 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     ),
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask == null) const SelectTaskType(),
-                    // Show target count only when task type is COUNTER (new or edit)
-                    if (watchedAddTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER) ...[
-                      const SizedBox(height: 10),
-                      const SelectTargetCount(),
-                    ],
                     const SizedBox(height: 10),
                     const CompactTraitOptions(),
                     const SizedBox(height: 10),
