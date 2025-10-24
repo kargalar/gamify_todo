@@ -232,38 +232,20 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(16),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                    child: const Row(
                       children: [
                         Text(
-                          "Credit",
+                          "Cost",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
-                        SizedBox(height: 12),
+                        Spacer(),
                         SetCredit(),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Duration section
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.panelBackground,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const DurationPickerWidget(isStore: true),
                   ),
                   const SizedBox(height: 10),
 
@@ -281,6 +263,31 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                       ],
                     ),
                     child: widget.editItemModel == null ? const SelectTaskType(isStore: true) : const SizedBox(),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Duration section - only show if not counter type
+                  Consumer<AddStoreItemProvider>(
+                    builder: (context, provider, child) {
+                      final selectedType = provider.selectedTaskType;
+                      if (selectedType == TaskTypeEnum.COUNTER) {
+                        return const SizedBox.shrink();
+                      }
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.panelBackground,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const DurationPickerWidget(isStore: true),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 10),

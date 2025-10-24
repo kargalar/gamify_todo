@@ -57,7 +57,6 @@ class _SetCreditState extends State<SetCredit> {
     final AddStoreItemProvider provider = context.watch<AddStoreItemProvider>();
 
     return Container(
-      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: AppColors.borderRadiusAll,

@@ -61,7 +61,7 @@ class _SelectTaskTypeState extends State<SelectTaskType> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    LocaleKeys.TaskType.tr(),
+                    widget.isStore ? "Item Type" : LocaleKeys.TaskType.tr(),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
