@@ -234,6 +234,8 @@ class _NotesPageState extends State<NotesPage> {
     final unpinnedNotes = provider.unpinnedNotes;
 
     if (provider.filteredNotes.isEmpty) {
+      final message = provider.showArchivedOnly ? LocaleKeys.NoArchivedNotes.tr() : LocaleKeys.NoteNotFound.tr();
+      debugPrint('📝 NotesPage: No notes found. Archived filter: ${provider.showArchivedOnly}, Message: $message');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -241,7 +243,7 @@ class _NotesPageState extends State<NotesPage> {
             const Icon(Icons.search_off, size: 64, color: AppColors.grey),
             const SizedBox(height: 16),
             Text(
-              LocaleKeys.NoteNotFound.tr(),
+              message,
               style: TextStyle(
                 fontSize: 18,
                 color: AppColors.text,

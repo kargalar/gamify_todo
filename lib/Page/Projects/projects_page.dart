@@ -281,6 +281,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
     final unpinnedProjects = provider.unpinnedProjects;
 
     if (provider.filteredProjects.isEmpty) {
+      final message = provider.showArchivedOnly ? LocaleKeys.NoArchivedProjects.tr() : LocaleKeys.NoProjectsFound.tr();
+      debugPrint('📁 ProjectsPage: No projects found. Archived filter: ${provider.showArchivedOnly}, Message: $message');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -288,7 +290,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             const Icon(Icons.search_off, size: 64, color: AppColors.grey),
             const SizedBox(height: 16),
             Text(
-              LocaleKeys.NoProjectsFound.tr(),
+              message,
               style: TextStyle(
                 fontSize: 18,
                 color: AppColors.text,

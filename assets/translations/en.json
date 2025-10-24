@@ -503,6 +503,7 @@
     "SearchNotes": "Search notes...",
     "All": "All",
     "NoteNotFound": "Note not found",
+    "NoArchivedNotes": "No archived notes found",
     "OtherNotes": "Other Notes",
     "SubtasksCopied": "Subtasks copied",
     "IncompleteSubtasksCopied": "Incomplete subtasks copied",
@@ -511,6 +512,7 @@
     "AddFirstProject": "Create your first project",
     "SearchHint": "Search projects...",
     "NoProjectsFound": "No projects found",
+    "NoArchivedProjects": "No archived projects found",
     "OtherProjects": "Other Projects",
     "Projects": "Projects",
     "ProjectTitleLabel": "Project Title",
@@ -627,6 +629,5 @@
     "TaskMarkedAsCancelled": "Task marked as cancelled",
     "TaskPinned": "Task pinned",
     "TaskUnpinned": "Task unpin removed",
-    "CannotPinRoutineTasks": "Cannot pin routine tasks",
-    "Error": "Error"
+    "CannotPinRoutineTasks": "Cannot pin routine tasks"
 }

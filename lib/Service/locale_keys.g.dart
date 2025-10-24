@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const NoArchivedRoutines = 'NoArchivedRoutines';
   static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
   static const Daily = 'Daily';
@@ -485,6 +485,7 @@ abstract class  LocaleKeys {
   static const SearchNotes = 'SearchNotes';
   static const All = 'All';
   static const NoteNotFound = 'NoteNotFound';
+  static const NoArchivedNotes = 'NoArchivedNotes';
   static const OtherNotes = 'OtherNotes';
   static const SubtasksCopied = 'SubtasksCopied';
   static const IncompleteSubtasksCopied = 'IncompleteSubtasksCopied';
@@ -493,6 +494,7 @@ abstract class  LocaleKeys {
   static const AddFirstProject = 'AddFirstProject';
   static const SearchHint = 'SearchHint';
   static const NoProjectsFound = 'NoProjectsFound';
+  static const NoArchivedProjects = 'NoArchivedProjects';
   static const OtherProjects = 'OtherProjects';
   static const Projects = 'Projects';
   static const ProjectTitleLabel = 'ProjectTitleLabel';
@@ -569,5 +571,4 @@ abstract class  LocaleKeys {
   static const tooltip_priority_bullet_1 = 'tooltip_priority_bullet_1';
   static const tooltip_priority_bullet_2 = 'tooltip_priority_bullet_2';
   static const tooltip_priority_bullet_3 = 'tooltip_priority_bullet_3';
-
 }
