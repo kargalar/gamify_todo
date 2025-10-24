@@ -61,7 +61,7 @@ class _TaskFailureData {
 }
 
 class TaskProvider with ChangeNotifier {
-  // burayı singelton yaptım gayet de iyi oldu neden normalde de context den kullanıyoruz anlamadım. galiba "watch" için olabilir. sibelton kısmını global timer için yaptım.
+  // Made this singleton, it worked well. Not sure why it was using context normally. Maybe for "watch"? Singleton part for global timer.
   static final TaskProvider _instance = TaskProvider._internal();
 
   factory TaskProvider() {
@@ -815,7 +815,7 @@ class TaskProvider with ChangeNotifier {
         NotificationService().scheduleNotification(
           id: taskModel.id,
           title: taskModel.title,
-          desc: "Don't forget!",
+          desc: "DontForget".tr(),
           scheduledDate: taskDateTime,
           isAlarm: taskModel.isAlarmOn,
           earlyReminderMinutes: taskModel.earlyReminderMinutes,
@@ -1042,7 +1042,7 @@ class TaskProvider with ChangeNotifier {
       Helper().getMessage(message: LocaleKeys.SkipRoutineSuccess.tr());
     } catch (e) {
       debugPrint('Error while skipping routines for date $date: $e');
-      Helper().getMessage(message: 'Hata: $e');
+      Helper().getMessage(message: "${"Error".tr()}: $e");
     }
   }
 
@@ -1512,12 +1512,10 @@ class TaskProvider with ChangeNotifier {
           // Show undo message for subtask completion
           if (showUndo) {
             Helper().getUndoMessage(
-              // TODO: localization
-              message: "Subtask marked as done",
+              message: "SubtaskMarkedAsDone".tr(),
               onUndo: () => toggleSubtaskCompletion(taskModel, subtask, showUndo: false),
               statusColor: AppColors.green,
-              // TODO: localization
-              statusWord: "done",
+              statusWord: "Done".tr(),
               taskName: subtask.title,
               taskModel: taskModel, // Ana task'ı göster
             );
@@ -1634,7 +1632,7 @@ class TaskProvider with ChangeNotifier {
       // Only allow pinning for non-routine tasks
       if (task.routineID != null) {
         debugPrint('⚠️ Cannot pin routine tasks: ID=$taskId');
-        Helper().getMessage(message: 'Rutin görevler sabitlenemez');
+        Helper().getMessage(message: "CannotPinRoutineTasks".tr());
         return;
       }
 
@@ -1658,11 +1656,11 @@ class TaskProvider with ChangeNotifier {
 
       // Show message
       Helper().getMessage(
-        message: task.isPinned ? 'Görev sabitlendi' : 'Görev sabitleme kaldırıldı',
+        message: task.isPinned ? "TaskPinned".tr() : "TaskUnpinned".tr(),
       );
     } catch (e) {
       debugPrint('❌ Error toggling task pin: $e');
-      Helper().getMessage(message: 'Hata: $e');
+      Helper().getMessage(message: "${"Error".tr()}: $e");
     }
   }
 
@@ -1909,10 +1907,10 @@ class TaskProvider with ChangeNotifier {
     if (showUndo) {
       // Show undo snackbar
       Helper().getUndoMessage(
-        message: "Task marked as done",
+        message: "TaskMarkedAsDone".tr(),
         onUndo: () => _undoTaskCompletion(taskModel.id),
         statusColor: AppColors.green,
-        statusWord: "done",
+        statusWord: "Done".tr(),
         taskName: taskModel.title,
         taskModel: taskModel, // Task'ı göster
       );
@@ -2203,10 +2201,10 @@ class TaskProvider with ChangeNotifier {
 
     // Show undo snackbar
     Helper().getUndoMessage(
-      message: "Task marked as failed",
+      message: "TaskMarkedAsFailed".tr(),
       onUndo: () => _undoTaskFailure(taskModel.id),
       statusColor: AppColors.red,
-      statusWord: "failed",
+      statusWord: "Failed".tr(),
       taskName: taskModel.title,
       taskModel: taskModel, // Task'ı göster
     );
@@ -2229,12 +2227,10 @@ class TaskProvider with ChangeNotifier {
       previousStatus: previousStatus,
     ); // Show undo snackbar
     Helper().getUndoMessage(
-      // TODO: localization
-      message: "Task marked as cancelled",
+      message: "TaskMarkedAsCancelled".tr(),
       onUndo: () => _undoTaskCancellation(taskModel.id),
       statusColor: AppColors.purple,
-      // TODO: localization
-      statusWord: "cancelled",
+      statusWord: "Cancelled".tr(),
       taskName: taskModel.title,
       taskModel: taskModel, // Task'ı göster
     );

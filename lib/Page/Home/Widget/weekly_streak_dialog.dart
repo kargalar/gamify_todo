@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/streak_calendar_dialog.dart';
 import 'package:next_level/Page/Home/Widget/task_contributions_widget.dart';
@@ -78,7 +79,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                       children: [
                         Text(widget.vm.todayTotalText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
-                        Text('Günlük hedef: ${widget.vm.todayTargetDuration.textShort2hour()} | Streak: ${widget.vm.streakDuration.textShort2hour()}', style: TextStyle(color: Colors.grey[600])),
+                        Text('${'DailyTargetLabel'.tr()}: ${widget.vm.todayTargetDuration.textShort2hour()} | ${'StreakLabel'.tr()}: ${widget.vm.streakDuration.textShort2hour()}', style: TextStyle(color: Colors.grey[600])),
                       ],
                     ),
                   ),
@@ -103,10 +104,10 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Streak Durumu', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text('StreakStatus'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                         TextButton(
                           onPressed: () => _showFullStreakCalendar(context),
-                          child: const Text('Tümünü Göster', style: TextStyle(fontSize: 12)),
+                          child: Text('ShowAll'.tr(), style: const TextStyle(fontSize: 12)),
                         ),
                       ],
                     ),
@@ -158,13 +159,13 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildLegendItem(Colors.green, 'Ulaşıldı'),
+                  _buildLegendItem(Colors.green, 'Reached'.tr()),
                   const SizedBox(width: 12),
-                  _buildLegendItem(Colors.red, 'Ulaşılamadı'),
+                  _buildLegendItem(Colors.red, 'Missed'.tr()),
                   const SizedBox(width: 12),
-                  _buildLegendItem(Colors.orange, 'Tatil'),
+                  _buildLegendItem(Colors.orange, 'Vacation'.tr()),
                   const SizedBox(width: 12),
-                  _buildLegendItem(Colors.blue, 'Gelecek'),
+                  _buildLegendItem(Colors.blue, 'Upcoming'.tr()),
                 ],
               ),
               const SizedBox(height: 12),

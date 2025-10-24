@@ -438,7 +438,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                         const Icon(Icons.category_outlined, size: 20, color: AppColors.grey),
                         const SizedBox(width: 12),
                         Text(
-                          widget.type == ItemType.project ? 'Kategorisiz' : LocaleKeys.NoCategory.tr(),
+                          widget.type == ItemType.project ? 'Uncategorized' : LocaleKeys.NoCategory.tr(),
                           style: const TextStyle(
                             fontSize: 16,
                             color: AppColors.grey,
@@ -509,7 +509,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                         const Icon(Icons.category_outlined, size: 20, color: AppColors.grey),
                         const SizedBox(width: 12),
                         Text(
-                          widget.type == ItemType.project ? 'Kategorisiz' : LocaleKeys.NoCategory.tr(),
+                          widget.type == ItemType.project ? "Uncategorized".tr() : LocaleKeys.NoCategory.tr(),
                           style: const TextStyle(
                             fontSize: 16,
                             color: AppColors.grey,
@@ -597,7 +597,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                 ),
               )
             : Text(
-                isEditing ? 'Güncelle' : 'Oluştur',
+                isEditing ? 'Update'.tr() : 'Create'.tr(),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -681,7 +681,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata: $e'),
+            content: Text("${'Error'.tr()}: $e"),
             backgroundColor: AppColors.red,
           ),
         );

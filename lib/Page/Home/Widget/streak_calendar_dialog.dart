@@ -3,6 +3,7 @@ import 'package:next_level/Core/duration_calculator.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class StreakCalendarDialog extends StatefulWidget {
   final HomeViewModel vm;
@@ -111,9 +112,9 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    const Text(
-                      'Streak Takvimi',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    Text(
+                      'StreakCalendar'.tr(),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
                     IconButton(
@@ -175,15 +176,15 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildLegendItem(Colors.green, 'Ulaşıldı'),
+                    _buildLegendItem(Colors.green, 'Reached'.tr()),
                     const SizedBox(width: 12),
-                    _buildLegendItem(Colors.red, 'Ulaşılamadı'),
+                    _buildLegendItem(Colors.red, 'Missed'.tr()),
                     const SizedBox(width: 12),
-                    _buildLegendItem(Colors.orange, 'Tatil'),
+                    _buildLegendItem(Colors.orange, 'Vacation'.tr()),
                     const SizedBox(width: 12),
-                    _buildLegendItem(Colors.blue, 'Gelecek'),
+                    _buildLegendItem(Colors.blue, 'Upcoming'.tr()),
                     const SizedBox(width: 12),
-                    _buildLegendItem(Colors.grey, 'Veri Yok'),
+                    _buildLegendItem(Colors.grey, 'NoData'.tr()),
                   ],
                 ),
               ),
@@ -213,7 +214,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
         // Weekday headers
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']
+          children: ['Mon'.tr(), 'Tue'.tr(), 'Wed'.tr(), 'Thu'.tr(), 'Fri'.tr(), 'Sat'.tr(), 'Sun'.tr()]
               .map((day) => Expanded(
                     child: Center(
                       child: Text(
@@ -353,16 +354,16 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
       child: Column(
         children: [
           Text(
-            '${_getMonthName(selectedDate.month)} ${selectedDate.year} İstatistikleri',
+            '${_getMonthName(selectedDate.month)} ${selectedDate.year} ${'Statistics'.tr()}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildStatItem('Toplam', '$totalDays'),
-              _buildStatItem('Başarılı', '$successfulDays'),
-              _buildStatItem('Oran', '%$successRate'),
+              _buildStatItem('Total'.tr(), '$totalDays'),
+              _buildStatItem('Successful'.tr(), '$successfulDays'),
+              _buildStatItem('Rate'.tr(), '%$successRate'),
             ],
           ),
         ],
@@ -411,7 +412,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
   }
 
   String _getMonthName(int month) {
-    const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return months[month - 1];
   }
 }

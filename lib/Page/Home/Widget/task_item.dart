@@ -617,7 +617,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       }
       setState(() {});
     } catch (e) {
-      Helper().getMessage(message: "Hata: $e");
+      Helper().getMessage(message: "${"Error".tr()}: $e");
     }
   }
 }

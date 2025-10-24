@@ -4,6 +4,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class NotificationStatus extends StatefulWidget {
   const NotificationStatus({
@@ -33,10 +34,10 @@ class _NotificationStatusState extends State<NotificationStatus> {
             : Icons.notifications_off;
 
     final String statusText = addTaskProvider.isNotificationOn
-        ? "Bildirim"
+        ? "NotificationStatus".tr()
         : addTaskProvider.isAlarmOn
-            ? "Alarm"
-            : "Kapalı";
+            ? "AlarmStatus".tr()
+            : "OffStatus".tr();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -119,7 +120,7 @@ class _NotificationStatusState extends State<NotificationStatus> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        "Erken Hatırlatma",
+                        "EarlyReminder".tr(),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -153,16 +154,16 @@ class _NotificationStatusState extends State<NotificationStatus> {
       crossAxisSpacing: 8, // Yatay boşluk
       padding: EdgeInsets.zero, // Padding'i kaldır
       children: [
-        _buildReminderOption(null, "Yok"),
-        _buildReminderOption(5, "5dk"),
-        _buildReminderOption(10, "10dk"),
-        _buildReminderOption(15, "15dk"),
-        _buildReminderOption(30, "30dk"),
-        _buildReminderOption(60, "1sa"),
-        _buildReminderOption(120, "2sa"),
-        _buildReminderOption(300, "5sa"),
-        _buildReminderOption(600, "10sa"),
-        _buildReminderOption(1440, "1gün"),
+        _buildReminderOption(null, "None".tr()),
+        _buildReminderOption(5, "5min".tr()),
+        _buildReminderOption(10, "10min".tr()),
+        _buildReminderOption(15, "15min".tr()),
+        _buildReminderOption(30, "30min".tr()),
+        _buildReminderOption(60, "1hour".tr()),
+        _buildReminderOption(120, "2hours".tr()),
+        _buildReminderOption(300, "5hours".tr()),
+        _buildReminderOption(600, "10hours".tr()),
+        _buildReminderOption(1440, "1day".tr()),
       ],
     );
   }
