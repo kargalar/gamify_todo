@@ -10,7 +10,6 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/compact_trait_options.dar
 import 'package:next_level/Page/Home/Add%20Task/Widget/enhanced_subtask_section.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/date_time_notification_widget.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/select_days.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
@@ -66,10 +65,12 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
         addTaskProvider.targetCount = routine.targetCount ?? 1;
         addTaskProvider.taskDuration = routine.remainingDuration ?? const Duration(hours: 0, minutes: 0);
         addTaskProvider.selectedDays = routine.repeatDays;
+        addTaskProvider.isRoutine = true;
       } else {
         addTaskProvider.targetCount = addTaskProvider.editTask!.targetCount ?? 1;
         addTaskProvider.taskDuration = addTaskProvider.editTask!.remainingDuration ?? const Duration(hours: 0, minutes: 0);
         addTaskProvider.selectedDays = [];
+        addTaskProvider.isRoutine = false;
       }
 
       addTaskProvider.taskNameController.text = addTaskProvider.editTask!.title;
@@ -257,9 +258,6 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     // !!! geçcici oalrak kaldırıldı
                     // const FileAttachmentWidget(),
                     // const SizedBox(height: 10),
-                    // Always show repeat days selector; for standalone tasks in edit, selecting days will convert to a routine
-                    const SelectDays(),
-                    const SizedBox(height: 10),
 
                     // Add Recent Logs section for edit task
                     if (addTaskProvider.editTask != null && _taskDetailViewModel != null)

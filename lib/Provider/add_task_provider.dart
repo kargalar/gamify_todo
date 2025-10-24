@@ -41,6 +41,7 @@ class AddTaskProvider with ChangeNotifier {
   Duration taskDuration = const Duration(hours: 0, minutes: 0);
   TaskTypeEnum selectedTaskType = TaskTypeEnum.CHECKBOX;
   List<int> selectedDays = [];
+  bool isRoutine = false; // Task/Routine switch
   List<TraitModel> selectedTraits = [];
   int priority = 3;
   List<SubTaskModel> subtasks = [];
