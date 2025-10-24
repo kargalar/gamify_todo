@@ -18,7 +18,7 @@ class CheckboxStatusViewModel extends ChangeNotifier {
 
   TaskStatusEnum? get currentStatus => taskModel.status;
 
-  void updateStatus(TaskStatusEnum? newStatus) {
+  Future<void> updateStatus(TaskStatusEnum? newStatus) async {
     // Store the previous status for credit calculation
     final TaskStatusEnum? previousStatus = taskModel.status;
 
@@ -29,6 +29,12 @@ class CheckboxStatusViewModel extends ChangeNotifier {
 
     // Eğer zaten seçili durum tıklanırsa, durumu kontrol et
     if (taskModel.status == newStatus) {
+      // Eğer status DONE, CANCEL veya FAILED ise, ilgili logu sil
+      if (taskModel.status == TaskStatusEnum.DONE || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED) {
+        // İlgili status logunu sil
+        await taskLogProvider.deleteLogByTaskIdAndStatus(taskModel.id, taskModel.status!);
+      }
+
       // Check if task should be overdue based on date when toggling status
       if (taskModel.taskDate != null) {
         final now = DateTime.now();
@@ -52,23 +58,13 @@ class CheckboxStatusViewModel extends ChangeNotifier {
           // Task date is in the future or today, set to null (in progress)
           taskModel.status = null;
 
-          // Log oluştur (durumu null olarak)
-          taskLogProvider.addTaskLog(
-            taskModel,
-            customLogDate: customLogDate,
-            customStatus: null,
-          );
+          // Log silindiği için yeni log ekleme
         }
       } else {
         // Dateless task, set to null (in progress)
         taskModel.status = null;
 
-        // Log oluştur (durumu null olarak)
-        taskLogProvider.addTaskLog(
-          taskModel,
-          customLogDate: customLogDate,
-          customStatus: null,
-        );
+        // Log silindiği için yeni log ekleme
       }
 
       // Credit adjustment: if task was completed before, subtract credit

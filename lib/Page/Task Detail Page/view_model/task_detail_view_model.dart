@@ -218,6 +218,9 @@ class TaskDetailViewModel with ChangeNotifier {
     // Sort logs by date (newest first) with precise timestamp comparison including seconds and milliseconds
     logs.sort((a, b) => b.logDate.compareTo(a.logDate));
 
+    // Filter out overdue logs from recent logs display
+    logs = logs.where((log) => log.status != TaskStatusEnum.OVERDUE).toList();
+
     // Convert to UI model
     List<TaskLog> tempLogs = [];
 

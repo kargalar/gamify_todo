@@ -62,6 +62,9 @@ class TaskActionHandler {
     if (taskModel.type == TaskTypeEnum.CHECKBOX) {
       // Toggle completion status for checkbox tasks
       if (taskModel.status == TaskStatusEnum.DONE) {
+        // When uncompleting a task, delete the DONE log first
+        TaskLogProvider().deleteLogByTaskIdAndStatus(taskModel.id, TaskStatusEnum.DONE);
+
         // When uncompleting a task, check if it should be overdue based on date
         if (taskModel.taskDate != null) {
           final now = DateTime.now();
@@ -86,25 +89,13 @@ class TaskActionHandler {
             // Task date is in the future or today, set to in progress
             taskModel.status = null;
 
-            // Create log for uncompleted checkbox task (unless logging is skipped)
-            if (!skipLogging) {
-              TaskLogProvider().addTaskLog(
-                taskModel,
-                customStatus: null, // null status means "in progress"
-              );
-            }
+            // Log silindiği için yeni log ekleme
           }
         } else {
           // Dateless task, set to in progress
           taskModel.status = null;
 
-          // Create log for uncompleted checkbox task (unless logging is skipped)
-          if (!skipLogging) {
-            TaskLogProvider().addTaskLog(
-              taskModel,
-              customStatus: null, // null status means "in progress"
-            );
-          }
+          // Log silindiği için yeni log ekleme
         }
 
         // Subtract credit for uncompleting the task
@@ -202,6 +193,9 @@ class TaskActionHandler {
   /// Handles task failure action
   static void handleTaskFailure(TaskModel taskModel) {
     if (taskModel.status == TaskStatusEnum.FAILED) {
+      // When un failing a task, delete the FAILED log first
+      TaskLogProvider().deleteLogByTaskIdAndStatus(taskModel.id, TaskStatusEnum.FAILED);
+
       // If already failed, check if task should be overdue based on date
       if (taskModel.taskDate != null) {
         final now = DateTime.now();
@@ -224,21 +218,13 @@ class TaskActionHandler {
           // Task date is in the future or today, set to in progress
           taskModel.status = null;
 
-          // Create log for the status change to null (in progress)
-          TaskLogProvider().addTaskLog(
-            taskModel,
-            customStatus: null, // null status means "in progress"
-          );
+          // Log silindiği için yeni log ekleme
         }
       } else {
         // Dateless task, set to in progress
         taskModel.status = null;
 
-        // Create log for the status change to null (in progress)
-        TaskLogProvider().addTaskLog(
-          taskModel,
-          customStatus: null, // null status means "in progress"
-        );
+        // Log silindiği için yeni log ekleme
       }
 
       // Update task in provider
@@ -276,6 +262,9 @@ class TaskActionHandler {
   /// Handles task cancellation action
   static void handleTaskCancellation(TaskModel taskModel) {
     if (taskModel.status == TaskStatusEnum.CANCEL) {
+      // When un cancelling a task, delete the CANCEL log first
+      TaskLogProvider().deleteLogByTaskIdAndStatus(taskModel.id, TaskStatusEnum.CANCEL);
+
       // If already cancelled, check if task should be overdue based on date
       if (taskModel.taskDate != null) {
         final now = DateTime.now();
@@ -298,21 +287,13 @@ class TaskActionHandler {
           // Task date is in the future or today, set to in progress
           taskModel.status = null;
 
-          // Create log for the status change to null (in progress)
-          TaskLogProvider().addTaskLog(
-            taskModel,
-            customStatus: null, // null status means "in progress"
-          );
+          // Log silindiği için yeni log ekleme
         }
       } else {
         // Dateless task, set to in progress
         taskModel.status = null;
 
-        // Create log for the status change to null (in progress)
-        TaskLogProvider().addTaskLog(
-          taskModel,
-          customStatus: null, // null status means "in progress"
-        );
+        // Log silindiği için yeni log ekleme
       }
 
       // Update task in provider

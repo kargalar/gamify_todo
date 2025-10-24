@@ -11,5 +11,7 @@ Provide project context and coding guidelines that AI should follow when generat
 - Tekrarlayan kodları custom hook veya utils içine taşı.
 - uygulamda hatalar gerçekleşiyor ama çoğu zaman göremiyor. bundan sonra yazdığım kodlar için debug panelde mesajı için kodlar da ekle. hata veya başarılı olma durumlarında.
 Eğer Color kullanman gerekiyors AppColors Sınıfından çağır.
+
+hiçbir zaman build alma veya uygulamaıy başlatma
 *'
 ---

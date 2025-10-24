@@ -197,4 +197,20 @@ class TaskLogProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  // Delete log by task ID and status (for checkbox tasks when undoing status)
+  Future<void> deleteLogByTaskIdAndStatus(int taskId, TaskStatusEnum status) async {
+    // Find the log for this task with the specific status
+    final logToDelete = taskLogList
+        .where(
+          (log) => log.taskId == taskId && log.status == status,
+        )
+        .firstOrNull;
+
+    if (logToDelete != null) {
+      await HiveService().deleteTaskLog(logToDelete.id);
+      taskLogList.remove(logToDelete);
+      notifyListeners();
+    }
+  }
 }
