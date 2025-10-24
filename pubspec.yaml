@@ -112,6 +112,9 @@ dependencies:
 
   # WebView
   webview_flutter: ^4.13.0
+
+  # Package Info
+  package_info_plus: ^8.0.2
   
 
 

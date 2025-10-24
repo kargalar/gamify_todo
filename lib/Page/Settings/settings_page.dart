@@ -16,11 +16,40 @@ import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({
     super.key,
   });
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getAppVersion();
+  }
+
+  Future<void> _getAppVersion() async {
+    try {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _appVersion = packageInfo.version;
+      });
+      debugPrint('Settings: App version loaded successfully: $_appVersion');
+    } catch (e) {
+      debugPrint('Settings: Error loading app version: $e');
+      setState(() {
+        _appVersion = '1.0.0';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,6 +248,20 @@ class SettingsPage extends StatelessWidget {
             //     NavigatorService().logout();
             //   },
             // ),
+            // App Version at the bottom
+            const SizedBox(height: 5),
+            Center(
+              child: Opacity(
+                opacity: 0.5,
+                child: Text(
+                  _appVersion,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
