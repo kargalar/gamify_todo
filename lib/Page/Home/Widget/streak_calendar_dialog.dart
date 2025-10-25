@@ -53,7 +53,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.7,
+      initialChildSize: 0.55,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
@@ -172,7 +172,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
 
   Widget _buildYearlyCalendarGrid(DateTime year) {
     final daysInYear = DateTime(year.year + 1, 1, 1).difference(DateTime(year.year, 1, 1)).inDays;
-    final crossAxisCount = (daysInYear / 16).ceil(); // Bir sütunda 9 kare
+    final crossAxisCount = (daysInYear / 12).ceil(); // Bir sütunda 12 kare
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -200,7 +200,11 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
         } else {
           try {
             final isMet = DurationCalculator.calculateStreakStatusForDate(date);
-            statusColor = isMet ? Colors.green : Colors.red;
+            if (isMet == null) {
+              statusColor = Colors.grey;
+            } else {
+              statusColor = isMet ? Colors.green : Colors.red;
+            }
           } catch (e) {
             statusColor = Colors.grey;
           }
@@ -237,7 +241,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
       totalDays++;
       try {
         final isMet = DurationCalculator.calculateStreakStatusForDate(date);
-        if (isMet) {
+        if (isMet == true) {
           successfulDays++;
         }
       } catch (e) {

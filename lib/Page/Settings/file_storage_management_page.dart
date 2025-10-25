@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -305,111 +307,111 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
           : Column(
               children: [
                 _dataManagementActions(),
-                _storageSummaryCard(),
-                Expanded(
-                  child: attachmentFilesWithDetails.isEmpty
-                      ? _emptyFiles()
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: attachmentFilesWithDetails.length,
-                          itemBuilder: (context, index) {
-                            final data = attachmentFilesWithDetails[index];
-                            final file = data['file'] as File;
-                            final meta = data['metadata'] as Map<String, dynamic>;
-                            final task = data['task'] as TaskModel?;
-                            final fileName = path.basename(file.path);
-                            final isImage = _isImageFile(file.path);
-                            final fileSize = meta['size'] as int;
-                            final modified = meta['modified'] as DateTime;
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              decoration: BoxDecoration(
-                                color: AppColors.background,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColors.text.withValues(alpha: 0.1), width: 1),
-                              ),
-                              child: ListTile(
-                                leading: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.main.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: isImage && File(file.path).existsSync()
-                                      ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Image.file(
-                                            File(file.path),
-                                            width: 40,
-                                            height: 40,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (c, e, s) => Icon(Icons.broken_image_rounded, color: AppColors.main, size: 20),
-                                          ),
-                                        )
-                                      : Icon(_getFileIcon(file.path), color: AppColors.main, size: 20),
-                                ),
-                                title: Text(
-                                  fileName,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: AppColors.text,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _fileStorageService.formatFileSize(fileSize),
-                                      style: TextStyle(color: AppColors.text.withValues(alpha: 0.6), fontSize: 12),
-                                    ),
-                                    Text(
-                                      DateFormat('MMM dd, yyyy HH:mm').format(modified),
-                                      style: TextStyle(color: AppColors.text.withValues(alpha: 0.5), fontSize: 11),
-                                    ),
-                                    if (task != null)
-                                      Text(
-                                        'From: ${task.title}',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: AppColors.main.withValues(alpha: 0.8),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (task != null)
-                                      IconButton(
-                                        onPressed: () => _navigateToTask(task),
-                                        icon: Icon(Icons.task_rounded, color: AppColors.main, size: 20),
-                                        tooltip: 'Go to Task',
-                                      ),
-                                    IconButton(
-                                      onPressed: () => _downloadSingleFile(file),
-                                      icon: Icon(Icons.download_rounded, color: AppColors.main, size: 20),
-                                      tooltip: 'Download',
-                                    ),
-                                    IconButton(
-                                      onPressed: () => _deleteFile(file),
-                                      icon: const Icon(Icons.delete_rounded, color: AppColors.red, size: 20),
-                                      tooltip: 'Delete',
-                                    ),
-                                  ],
-                                ),
-                                onTap: isImage ? () => _showFilePreview(file.path) : () => _downloadSingleFile(file),
-                              ),
-                            ); // end item Container
-                          },
-                        ),
-                ),
+                // _storageSummaryCard(),
+                // Expanded(
+                //   child: attachmentFilesWithDetails.isEmpty
+                //       ? _emptyFiles()
+                //       : ListView.builder(
+                //           padding: const EdgeInsets.symmetric(horizontal: 16),
+                //           itemCount: attachmentFilesWithDetails.length,
+                //           itemBuilder: (context, index) {
+                //             final data = attachmentFilesWithDetails[index];
+                //             final file = data['file'] as File;
+                //             final meta = data['metadata'] as Map<String, dynamic>;
+                //             final task = data['task'] as TaskModel?;
+                //             final fileName = path.basename(file.path);
+                //             final isImage = _isImageFile(file.path);
+                //             final fileSize = meta['size'] as int;
+                //             final modified = meta['modified'] as DateTime;
+                //             return Container(
+                //               margin: const EdgeInsets.only(bottom: 8),
+                //               decoration: BoxDecoration(
+                //                 color: AppColors.background,
+                //                 borderRadius: BorderRadius.circular(8),
+                //                 border: Border.all(color: AppColors.text.withValues(alpha: 0.1), width: 1),
+                //               ),
+                //               child: ListTile(
+                //                 leading: Container(
+                //                   width: 40,
+                //                   height: 40,
+                //                   decoration: BoxDecoration(
+                //                     color: AppColors.main.withValues(alpha: 0.1),
+                //                     borderRadius: BorderRadius.circular(8),
+                //                   ),
+                //                   child: isImage && File(file.path).existsSync()
+                //                       ? ClipRRect(
+                //                           borderRadius: BorderRadius.circular(8),
+                //                           child: Image.file(
+                //                             File(file.path),
+                //                             width: 40,
+                //                             height: 40,
+                //                             fit: BoxFit.cover,
+                //                             errorBuilder: (c, e, s) => Icon(Icons.broken_image_rounded, color: AppColors.main, size: 20),
+                //                           ),
+                //                         )
+                //                       : Icon(_getFileIcon(file.path), color: AppColors.main, size: 20),
+                //                 ),
+                //                 title: Text(
+                //                   fileName,
+                //                   maxLines: 2,
+                //                   overflow: TextOverflow.ellipsis,
+                //                   style: TextStyle(
+                //                     color: AppColors.text,
+                //                     fontSize: 14,
+                //                     fontWeight: FontWeight.w500,
+                //                   ),
+                //                 ),
+                //                 subtitle: Column(
+                //                   crossAxisAlignment: CrossAxisAlignment.start,
+                //                   children: [
+                //                     Text(
+                //                       _fileStorageService.formatFileSize(fileSize),
+                //                       style: TextStyle(color: AppColors.text.withValues(alpha: 0.6), fontSize: 12),
+                //                     ),
+                //                     Text(
+                //                       DateFormat('MMM dd, yyyy HH:mm').format(modified),
+                //                       style: TextStyle(color: AppColors.text.withValues(alpha: 0.5), fontSize: 11),
+                //                     ),
+                //                     if (task != null)
+                //                       Text(
+                //                         'From: ${task.title}',
+                //                         maxLines: 1,
+                //                         overflow: TextOverflow.ellipsis,
+                //                         style: TextStyle(
+                //                           color: AppColors.main.withValues(alpha: 0.8),
+                //                           fontSize: 11,
+                //                           fontWeight: FontWeight.w500,
+                //                         ),
+                //                       ),
+                //                   ],
+                //                 ),
+                //                 trailing: Row(
+                //                   mainAxisSize: MainAxisSize.min,
+                //                   children: [
+                //                     if (task != null)
+                //                       IconButton(
+                //                         onPressed: () => _navigateToTask(task),
+                //                         icon: Icon(Icons.task_rounded, color: AppColors.main, size: 20),
+                //                         tooltip: 'Go to Task',
+                //                       ),
+                //                     IconButton(
+                //                       onPressed: () => _downloadSingleFile(file),
+                //                       icon: Icon(Icons.download_rounded, color: AppColors.main, size: 20),
+                //                       tooltip: 'Download',
+                //                     ),
+                //                     IconButton(
+                //                       onPressed: () => _deleteFile(file),
+                //                       icon: const Icon(Icons.delete_rounded, color: AppColors.red, size: 20),
+                //                       tooltip: 'Delete',
+                //                     ),
+                //                   ],
+                //                 ),
+                //                 onTap: isImage ? () => _showFilePreview(file.path) : () => _downloadSingleFile(file),
+                //               ),
+                //             ); // end item Container
+                //           },
+                //         ),
+                // ),
               ],
             ),
     );

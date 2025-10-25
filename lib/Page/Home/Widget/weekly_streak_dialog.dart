@@ -23,7 +23,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
     // Calculate initial size based on today's tasks
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.75,
+      initialChildSize: 0.8,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
@@ -143,7 +143,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                             ? Colors.blue
                             : isVacation
                                 ? Colors.orange
-                                : (isMet == true ? Colors.green : Colors.red);
+                                : (isMet == null ? Colors.grey : (isMet == true ? Colors.green : Colors.red));
                         return Column(
                           children: [
                             Container(
@@ -158,7 +158,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                 ),
                               ),
                               child: Icon(
-                                isFuture ? Icons.schedule : (isVacation ? Icons.beach_access : (isMet == true ? Icons.check : Icons.close)),
+                                isFuture ? Icons.schedule : (isVacation ? Icons.beach_access : (isMet == null ? Icons.help_outline : (isMet == true ? Icons.check : Icons.close))),
                                 size: 16,
                                 color: color,
                               ),
@@ -174,19 +174,6 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildLegendItem(Colors.green, 'Reached'.tr()),
-                  const SizedBox(width: 12),
-                  _buildLegendItem(Colors.red, 'Missed'.tr()),
-                  const SizedBox(width: 12),
-                  _buildLegendItem(Colors.orange, 'Vacation'.tr()),
-                  const SizedBox(width: 12),
-                  _buildLegendItem(Colors.blue, 'Upcoming'.tr()),
-                ],
               ),
               const SizedBox(height: 12),
               // Today's Tasks Section
@@ -206,24 +193,6 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
       isDismissible: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StreakCalendarDialog(vm: widget.vm),
-    );
-  }
-
-  Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.2),
-            border: Border.all(color: color, width: 1),
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: TextStyle(fontSize: 10, color: AppColors.text)),
-      ],
     );
   }
 }

@@ -221,9 +221,16 @@ class DurationCalculator {
   }
 
   /// Calculate if the streak target was met for a given date
-  static bool calculateStreakStatusForDate(DateTime date) {
+  static bool? calculateStreakStatusForDate(DateTime date) {
     final totalDuration = calculateTotalDurationForDate(date);
     final targetDuration = calculateTodayTargetDuration(date);
+
+    // If no logs for this date, return null (no data)
+    final hasLogs = TaskLogProvider().taskLogList.any((log) => log.logDate.isSameDay(date));
+    if (!hasLogs) {
+      return null;
+    }
+
     return totalDuration >= targetDuration;
   }
 
