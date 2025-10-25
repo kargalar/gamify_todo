@@ -33,6 +33,8 @@ class ProjectsProvider with ChangeNotifier {
   String? _errorMessage;
   bool _showArchivedOnly = false;
   String? _selectedCategoryId;
+  int _taskCountVersion = 0;
+  int _noteCountVersion = 0;
 
   // Getters
   List<ProjectModel> get projects => _projects;
@@ -42,6 +44,8 @@ class ProjectsProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get showArchivedOnly => _showArchivedOnly;
   String? get selectedCategoryId => _selectedCategoryId;
+  int get taskCountVersion => _taskCountVersion;
+  int get noteCountVersion => _noteCountVersion;
 
   /// Kategorileri yükle
   Future<void> loadCategories() async {
@@ -354,7 +358,7 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _subtasksService.addSubtask(subtask);
       if (success) {
         debugPrint('✅ ProjectsProvider: Subtask added successfully');
-        notifyListeners();
+        _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
@@ -370,7 +374,7 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _subtasksService.updateSubtask(subtask);
       if (success) {
         debugPrint('✅ ProjectsProvider: Subtask updated successfully');
-        notifyListeners();
+        _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
@@ -386,7 +390,7 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _subtasksService.toggleSubtaskCompleted(subtaskId);
       if (success) {
         debugPrint('✅ ProjectsProvider: Subtask toggled successfully');
-        notifyListeners();
+        _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
@@ -402,7 +406,7 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _subtasksService.deleteSubtask(subtaskId);
       if (success) {
         debugPrint('✅ ProjectsProvider: Subtask deleted successfully');
-        notifyListeners();
+        _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
@@ -418,7 +422,7 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _notesService.addNote(note);
       if (success) {
         debugPrint('✅ ProjectsProvider: Project note added successfully');
-        notifyListeners();
+        _incrementNoteCountVersion();
       }
       return success;
     } catch (e) {
@@ -434,7 +438,7 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _notesService.updateNote(note);
       if (success) {
         debugPrint('✅ ProjectsProvider: Project note updated successfully');
-        notifyListeners();
+        _incrementNoteCountVersion();
       }
       return success;
     } catch (e) {
@@ -450,7 +454,7 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _notesService.deleteNote(noteId);
       if (success) {
         debugPrint('✅ ProjectsProvider: Project note deleted successfully');
-        notifyListeners();
+        _incrementNoteCountVersion();
       }
       return success;
     } catch (e) {
@@ -467,6 +471,16 @@ class ProjectsProvider with ChangeNotifier {
 
   void _setError(String? message) {
     _errorMessage = message;
+    notifyListeners();
+  }
+
+  void _incrementTaskCountVersion() {
+    _taskCountVersion++;
+    notifyListeners();
+  }
+
+  void _incrementNoteCountVersion() {
+    _noteCountVersion++;
     notifyListeners();
   }
 

@@ -16,6 +16,7 @@ class ProjectCard extends BaseCard {
   final CategoryModel? category;
   final int taskCount;
   final int completedTaskCount;
+  final int noteCount;
   final VoidCallback? onTap;
   final VoidCallback? onPin;
   final VoidCallback? onArchive;
@@ -28,6 +29,7 @@ class ProjectCard extends BaseCard {
     this.category,
     this.taskCount = 0,
     this.completedTaskCount = 0,
+    this.noteCount = 0,
     this.onTap,
     this.onPin,
     this.onArchive,
@@ -41,21 +43,24 @@ class ProjectCard extends BaseCard {
         SlidableAction(
           onPressed: (_) => onPin!(),
           backgroundColor: AppColors.yellow,
-          foregroundColor: AppColors.black,
+          padding: const EdgeInsets.all(0),
+          foregroundColor: AppColors.white,
           icon: project.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
           label: project.isPinned ? 'unpin'.tr() : 'pin'.tr(),
         ),
       if (onArchive != null)
         SlidableAction(
           onPressed: (_) => onArchive!(),
+          padding: const EdgeInsets.all(0),
           backgroundColor: AppColors.orange,
-          foregroundColor: AppColors.black,
+          foregroundColor: AppColors.white,
           icon: project.isArchived ? Icons.unarchive : Icons.archive,
           label: project.isArchived ? 'unarchive'.tr() : 'archive'.tr(),
         ),
       if (onDelete != null)
         SlidableAction(
           onPressed: (_) => onDelete!(),
+          padding: const EdgeInsets.all(0),
           backgroundColor: AppColors.red,
           foregroundColor: AppColors.white,
           icon: Icons.delete,
@@ -66,8 +71,6 @@ class ProjectCard extends BaseCard {
 
   @override
   Widget buildContent(BuildContext context) {
-    final progress = taskCount > 0 ? completedTaskCount / taskCount : 0.0;
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
@@ -89,7 +92,7 @@ class ProjectCard extends BaseCard {
         onTap: onTap,
         borderRadius: AppColors.borderRadiusAll,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -147,7 +150,6 @@ class ProjectCard extends BaseCard {
 
               // Description
               if (project.description.isNotEmpty) ...[
-                const SizedBox(height: 8),
                 Text(
                   project.description,
                   style: TextStyle(
@@ -160,69 +162,34 @@ class ProjectCard extends BaseCard {
                 ),
               ],
 
-              const SizedBox(height: 12),
-
-              // Progress and stats
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Progress bar
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            backgroundColor: AppColors.grey.withValues(alpha: 0.2),
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              progress == 1.0 ? AppColors.green : AppColors.main,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        // Task count
-                        Text(
-                          '$completedTaskCount / $taskCount ${'tasks'.tr()}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.onBackground.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
-                    ),
+              // Status indicators
+              if (project.isPinned)
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.yellow.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-
-                  // Status indicators
-                  if (project.isPinned)
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: AppColors.yellow.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.push_pin,
-                        size: 14,
-                        color: AppColors.yellow,
-                      ),
-                    ),
-                  if (project.isArchived)
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      margin: const EdgeInsets.only(left: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.orange.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.archive,
-                        size: 14,
-                        color: AppColors.orange,
-                      ),
-                    ),
-                ],
-              ),
+                  child: const Icon(
+                    Icons.push_pin,
+                    size: 14,
+                    color: AppColors.yellow,
+                  ),
+                ),
+              if (project.isArchived)
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  margin: const EdgeInsets.only(left: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.orange.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.archive,
+                    size: 14,
+                    color: AppColors.orange,
+                  ),
+                ),
 
               const SizedBox(height: 12),
 
@@ -302,7 +269,7 @@ class ProjectCard extends BaseCard {
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: AppColors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -321,7 +288,7 @@ class ProjectCard extends BaseCard {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              'quick_task'.tr(),
+                              '$completedTaskCount/$taskCount ${'quick_task'.tr()}',
                               style: const TextStyle(
                                 fontSize: 10,
                                 color: AppColors.green,
@@ -410,7 +377,7 @@ class ProjectCard extends BaseCard {
                       },
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: AppColors.yellow.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -429,7 +396,7 @@ class ProjectCard extends BaseCard {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              'quick_note'.tr(),
+                              '$noteCount ${'quick_note'.tr()}',
                               style: const TextStyle(
                                 fontSize: 10,
                                 color: AppColors.yellow,

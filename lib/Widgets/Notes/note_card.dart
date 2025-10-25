@@ -26,14 +26,12 @@ class NoteCard extends BaseCard {
 
   @override
   List<SlidableAction> buildActions(BuildContext context) {
-    final provider = context.read<NotesProvider>();
-    final category = provider.getCategoryById(note.categoryId);
-    final categoryColor = category != null ? category.color : AppColors.grey;
-
     return [
       SlidableAction(
+        padding: const EdgeInsets.all(0),
         onPressed: (context) async {
           debugPrint('📌 Note ${note.id} - Pin toggle: ${note.isPinned} -> ${!note.isPinned}');
+          final provider = context.read<NotesProvider>();
           final success = await provider.togglePinNote(note.id, !note.isPinned);
           if (success) {
             debugPrint('✅ Note ${note.id} - Pin status changed');
@@ -41,14 +39,16 @@ class NoteCard extends BaseCard {
             debugPrint('❌ Note ${note.id} - Pin operation failed');
           }
         },
-        backgroundColor: note.isPinned ? AppColors.grey : categoryColor,
-        icon: note.isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-        label: note.isPinned ? 'Unpin' : 'Pin',
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+        backgroundColor: AppColors.yellow,
+        foregroundColor: AppColors.white,
+        icon: note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+        label: note.isPinned ? 'unpin'.tr() : 'pin'.tr(),
       ),
       SlidableAction(
+        padding: const EdgeInsets.all(0),
         onPressed: (context) async {
           debugPrint('📦 Note ${note.id} - Archive toggle started');
+          final provider = context.read<NotesProvider>();
           final success = await provider.toggleArchiveNote(note.id);
           if (success) {
             debugPrint('✅ Note ${note.id} - Archive status changed');
@@ -57,11 +57,12 @@ class NoteCard extends BaseCard {
           }
         },
         backgroundColor: AppColors.orange,
+        foregroundColor: AppColors.white,
         icon: note.isArchived ? Icons.unarchive : Icons.archive,
-        label: note.isArchived ? 'Unarchive' : 'Archive',
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+        label: note.isArchived ? 'unarchive'.tr() : 'archive'.tr(),
       ),
       SlidableAction(
+        padding: const EdgeInsets.all(0),
         onPressed: (context) async {
           debugPrint('🗑️ Note ${note.id} - Delete operation started');
           if (onDelete != null) {
@@ -72,9 +73,9 @@ class NoteCard extends BaseCard {
           }
         },
         backgroundColor: AppColors.red,
+        foregroundColor: AppColors.white,
         icon: Icons.delete,
-        label: 'Sil',
-        padding: const EdgeInsets.symmetric(horizontal: 5),
+        label: 'delete'.tr(),
       ),
     ];
   }

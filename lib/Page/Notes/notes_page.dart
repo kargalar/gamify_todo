@@ -219,7 +219,7 @@ class _NotesPageState extends State<NotesPage> {
                   categoryType: CategoryType.note,
                   showEmptyCategories: true, // Boş kategorileri de göster
                 ),
-
+                const SizedBox(height: 8),
                 // Notlar listesi
                 Expanded(
                   child: _buildNotesList(context, provider),
@@ -280,7 +280,6 @@ class _NotesPageState extends State<NotesPage> {
             ),
           ),
           ...pinnedNotes.map((note) => _buildNoteCard(context, provider, note)),
-          const SizedBox(height: 8),
         ],
 
         // Diğer notlar

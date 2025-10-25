@@ -29,6 +29,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   Map<String, Map<String, int>> _projectTaskCounts = {}; // projectId -> {total, completed}
+  Map<String, int> _projectNoteCounts = {}; // projectId -> noteCount
+  int _previousTaskCountVersion = 0;
+  int _previousNoteCountVersion = 0;
 
   // Public method to show add project dialog from outside
   void showAddProjectDialog() {
@@ -41,8 +44,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
     // Sayfa açıldığında projeleri yükle
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<ProjectsProvider>();
+      _previousTaskCountVersion = provider.taskCountVersion;
+      _previousNoteCountVersion = provider.noteCountVersion;
       await provider.loadProjects();
       await _loadProjectTaskCounts();
+      await _loadProjectNoteCounts();
     });
   }
 
@@ -81,6 +87,23 @@ class _ProjectsPageState extends State<ProjectsPage> {
     }
   }
 
+  Future<void> _loadProjectNoteCounts() async {
+    final provider = context.read<ProjectsProvider>();
+    final newCounts = <String, int>{};
+
+    for (final project in provider.projects) {
+      // Notları say
+      final notes = await provider.getProjectNotes(project.id);
+      newCounts[project.id] = notes.length;
+    }
+
+    if (mounted) {
+      setState(() {
+        _projectNoteCounts = newCounts;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProjectsProvider>();
@@ -113,6 +136,22 @@ class _ProjectsPageState extends State<ProjectsPage> {
         ),
         body: Consumer<ProjectsProvider>(
           builder: (context, provider, _) {
+            // Task count version değiştiğinde task count'larını yeniden yükle
+            if (provider.taskCountVersion != _previousTaskCountVersion) {
+              _previousTaskCountVersion = provider.taskCountVersion;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _loadProjectTaskCounts();
+              });
+            }
+
+            // Note count version değiştiğinde note count'larını yeniden yükle
+            if (provider.noteCountVersion != _previousNoteCountVersion) {
+              _previousNoteCountVersion = provider.noteCountVersion;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _loadProjectNoteCounts();
+              });
+            }
+
             // Projeler değiştiğinde task count'larını yeniden yükle
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (provider.projects.isNotEmpty && _projectTaskCounts.isEmpty) {
@@ -311,6 +350,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       children: [
         // Sabitlenmiş projeler
         if (pinnedProjects.isNotEmpty) ...[
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Row(
@@ -329,11 +369,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
             ),
           ),
           ...pinnedProjects.map((project) => _buildProjectCard(context, provider, project)),
-          const SizedBox(height: 8),
         ],
 
         // Diğer projeler
         if (unpinnedProjects.isNotEmpty) ...[
+          if (pinnedProjects.isEmpty) const SizedBox(height: 8),
           if (pinnedProjects.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -370,12 +410,16 @@ class _ProjectsPageState extends State<ProjectsPage> {
     final taskCount = taskCounts['total'] ?? 0;
     final completedTaskCount = taskCounts['completed'] ?? 0;
 
+    // Get note count from cached data
+    final noteCount = _projectNoteCounts[project.id] ?? 0;
+
     return ProjectCard(
       itemId: project.id,
       project: project,
       category: category,
       taskCount: taskCount,
       completedTaskCount: completedTaskCount,
+      noteCount: noteCount,
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
