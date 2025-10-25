@@ -5,6 +5,8 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/streak_calendar_dialog.dart';
 import 'package:next_level/Page/Home/Widget/task_contributions_widget.dart';
 import 'package:next_level/Provider/home_view_model.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:provider/provider.dart';
 
 class WeeklyStreakDialog extends StatefulWidget {
   final HomeViewModel vm;
@@ -21,7 +23,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
     // Calculate initial size based on today's tasks
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.7,
+      initialChildSize: 0.75,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
@@ -77,15 +79,33 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.vm.todayTotalText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(widget.vm.todayTotalText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                            Consumer<VacationModeProvider>(
+                              builder: (context, vacationProvider, child) {
+                                return Switch(
+                                  value: vacationProvider.isVacationModeEnabled,
+                                  onChanged: (value) async {
+                                    await vacationProvider.toggleVacationMode();
+                                  },
+                                  activeColor: Colors.orange,
+                                  activeTrackColor: Colors.orange.withValues(alpha: 0.3),
+                                  inactiveThumbColor: Colors.grey,
+                                  inactiveTrackColor: Colors.grey.withValues(alpha: 0.3),
+                                  thumbIcon: vacationProvider.isVacationModeEnabled ? const WidgetStatePropertyAll(Icon(Icons.beach_access, color: Colors.white, size: 16)) : null,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 4),
                         Text('${'DailyTargetLabel'.tr()}: ${widget.vm.todayTargetDuration.textShort2hour()} | ${'StreakLabel'.tr()}: ${widget.vm.streakDuration.textShort2hour()}', style: TextStyle(color: Colors.grey[600])),
                       ],
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
                   ),
                 ],
               ),

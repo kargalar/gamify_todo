@@ -421,6 +421,8 @@
     "CategoryCreated": "{} category created",
     "ErrorOccurred": "Error occurred: {}",
     "VacationModeDisableConfirmation": "Do you want to disable vacation mode?",
+    "VacationModeEnabled": "Vacation mode enabled",
+    "VacationModeDisabled": "Vacation mode disabled",
     "TaskAdded": "Task added",
     "TaskAddSuccess": "Task added successfully!",
     "TaskAddError": "Error adding task",

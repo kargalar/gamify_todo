@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class VacationModeProvider extends ChangeNotifier {
   static final VacationModeProvider _instance = VacationModeProvider._internal();
@@ -49,24 +50,11 @@ class VacationModeProvider extends ChangeNotifier {
 
     // Show feedback message to user
     Helper().getMessage(
-      message: _isVacationModeEnabled ? 'Tatil modu aktifleştirildi' : 'Tatil modu devre dışı bırakıldı',
+      message: _isVacationModeEnabled ? 'VacationModeEnabled'.tr() : 'VacationModeDisabled'.tr(),
       status: StatusEnum.INFO,
-    );
-
-    // Notify TaskProvider to update UI immediately
+    ); // Notify TaskProvider to update UI immediately
     TaskProvider().notifyListeners();
 
     notifyListeners();
-  }
-
-  /// Set vacation mode explicitly
-  Future<void> setVacationMode(bool enabled) async {
-    if (_isVacationModeEnabled != enabled) {
-      _isVacationModeEnabled = enabled;
-      await _saveVacationModeSettings();
-      // Notify TaskProvider to update UI immediately
-      TaskProvider().notifyListeners();
-      notifyListeners();
-    }
   }
 }

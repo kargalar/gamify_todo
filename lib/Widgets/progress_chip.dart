@@ -3,6 +3,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Home/Widget/weekly_streak_dialog.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
 
 void _showWeeklyStreakDialog(BuildContext context, HomeViewModel vm) {
   showModalBottomSheet(
@@ -22,10 +23,21 @@ class ProgressChip extends StatelessWidget {
     return Consumer<HomeViewModel>(
       builder: (context, vm, child) {
         final percent = vm.todayProgressPercent;
-        const Color start = Color(0xFFFFA726);
-        const Color end = Color(0xFF66BB6A);
-        final Color mainColor = percent > 1.0 ? const Color(0xFF42A5F5) : (Color.lerp(start, end, percent.clamp(0.0, 1.0)) ?? end);
-        final bool hasReachedStreak = vm.todayTotalDuration >= vm.streakDuration;
+        final hasReachedDaily = percent >= 1.0;
+        final hasReachedStreak = vm.todayTotalDuration >= vm.streakDuration;
+        final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
+
+        // Determine color based on new rules
+        Color mainColor;
+        if (!hasReachedDaily && !hasReachedStreak) {
+          mainColor = Colors.grey; // Renksiz (grey)
+        } else if (hasReachedDaily && hasReachedStreak) {
+          mainColor = Colors.red; // Kırmızı
+        } else if (hasReachedStreak) {
+          mainColor = Colors.orange; // Turuncu
+        } else {
+          mainColor = Colors.green; // Yeşil
+        }
 
         return TweenAnimationBuilder<double>(
           duration: const Duration(milliseconds: 350),
@@ -38,7 +50,7 @@ class ProgressChip extends StatelessWidget {
                 height: 32,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  gradient: hasReachedStreak ? LinearGradient(colors: [Colors.orange.withValues(alpha: 0.3), Colors.red.withValues(alpha: 0.2)]) : LinearGradient(colors: [mainColor.withValues(alpha: 0.18), mainColor.withValues(alpha: 0.08)]),
+                  gradient: LinearGradient(colors: [mainColor.withValues(alpha: 0.18), mainColor.withValues(alpha: 0.08)]),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -65,6 +77,10 @@ class ProgressChip extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(vm.todayTotalText, style: TextStyle(fontSize: 12, color: AppColors.text)),
+                    if (isVacationModeActive) ...[
+                      const SizedBox(width: 4),
+                      const Icon(Icons.beach_access, size: 16, color: Colors.orange),
+                    ],
                     if (hasReachedStreak) ...[
                       const SizedBox(width: 4),
                       const Icon(Icons.whatshot, size: 16, color: Colors.red),

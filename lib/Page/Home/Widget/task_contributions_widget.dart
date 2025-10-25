@@ -17,7 +17,7 @@ class TaskContributionsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(
-        maxHeight: 400,
+        maxHeight: 350,
         minHeight: 100,
       ),
       padding: const EdgeInsets.all(12),
