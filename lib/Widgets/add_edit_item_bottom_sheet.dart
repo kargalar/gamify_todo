@@ -365,35 +365,33 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
           const SizedBox(height: 12),
           Divider(color: AppColors.panelBackground2, height: 1),
           const SizedBox(height: 12),
-          // İçerik (opsiyonel) - sadece note için tam ekran iconu
-          if (widget.type == ItemType.note) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.fullscreen, size: 20),
-                  onPressed: () async {
-                    debugPrint('🔍 AddEditItemBottomSheet: Opening full screen editor');
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DescriptionEditor(
-                          controller: _contentController,
-                          onChanged: (value) => setState(() {}),
-                          title: LocaleKeys.EditNote.tr(),
-                        ),
+          // İçerik (opsiyonel) - tam ekran iconu
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.fullscreen, size: 20),
+                onPressed: () async {
+                  debugPrint('🔍 AddEditItemBottomSheet: Opening full screen editor');
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DescriptionEditor(
+                        controller: _contentController,
+                        onChanged: (value) => setState(() {}),
+                        title: widget.type == ItemType.project ? LocaleKeys.EditProject.tr() : LocaleKeys.EditNote.tr(),
                       ),
-                    );
-                    debugPrint('✅ AddEditItemBottomSheet: Returned from full screen editor');
-                  },
-                  tooltip: 'Tam Ekran',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-          ],
+                    ),
+                  );
+                  debugPrint('✅ AddEditItemBottomSheet: Returned from full screen editor');
+                },
+                tooltip: 'Tam Ekran',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
           TextFormField(
             controller: _contentController,
             style: TextStyle(

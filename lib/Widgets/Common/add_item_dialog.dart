@@ -235,96 +235,93 @@ class _AddItemDialogState extends State<AddItemDialog> {
             decoration: BoxDecoration(
               color: AppColors.panelBackground,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.main.withValues(alpha: 0.2),
-                width: 1,
-              ),
+              border: Border.all(color: AppColors.panelBackground2),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title field (if configured)
                 if (widget.titleLabel != null) ...[
-                  TextField(
-                    autofocus: true,
-                    controller: _titleController,
-                    focusNode: _titleFocus,
-                    textCapitalization: TextCapitalization.sentences,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: widget.titleHint ?? widget.titleLabel,
-                      hintStyle: TextStyle(
-                        color: AppColors.text.withValues(alpha: 0.4),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: TextField(
+                      autofocus: true,
+                      controller: _titleController,
+                      focusNode: _titleFocus,
+                      textCapitalization: TextCapitalization.sentences,
+                      style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.normal,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
                       ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      decoration: InputDecoration(
+                        hintText: widget.titleHint ?? widget.titleLabel,
+                        hintStyle: const TextStyle(color: AppColors.grey),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      textInputAction: widget.descriptionLabel != null ? TextInputAction.next : TextInputAction.done,
+                      onSubmitted: widget.descriptionLabel != null ? (_) => _descriptionFocus.requestFocus() : (_) => _saveItem(),
                     ),
-                    textInputAction: widget.descriptionLabel != null ? TextInputAction.next : TextInputAction.done,
-                    onSubmitted: widget.descriptionLabel != null ? (_) => _descriptionFocus.requestFocus() : (_) => _saveItem(),
                   ),
-                  if (widget.descriptionLabel != null)
-                    Divider(
-                      color: AppColors.text.withValues(alpha: 0.1),
-                      height: 1,
-                    ),
+                  if (widget.descriptionLabel != null) Divider(color: AppColors.panelBackground2, height: 1),
                 ],
 
                 // Description field (if configured)
                 if (widget.descriptionLabel != null) ...[
-                  // Tam ekran iconu
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.fullscreen, size: 18),
-                        onPressed: () async {
-                          debugPrint('🔍 AddItemDialog: Opening full screen editor for description');
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DescriptionEditor(
-                                controller: _descriptionController,
-                                onChanged: (value) => setState(() {}),
-                                title: widget.title,
-                              ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Tam ekran iconu
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.fullscreen, size: 18),
+                              onPressed: () async {
+                                debugPrint('🔍 AddItemDialog: Opening full screen editor for description');
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DescriptionEditor(
+                                      controller: _descriptionController,
+                                      onChanged: (value) => setState(() {}),
+                                      title: widget.title,
+                                    ),
+                                  ),
+                                );
+                                debugPrint('✅ AddItemDialog: Returned from full screen editor');
+                              },
+                              tooltip: 'Tam Ekran',
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
                             ),
-                          );
-                          debugPrint('✅ AddItemDialog: Returned from full screen editor');
-                        },
-                        tooltip: 'Tam Ekran',
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  TextField(
-                    controller: _descriptionController,
-                    focusNode: _descriptionFocus,
-                    textCapitalization: TextCapitalization.sentences,
-                    style: const TextStyle(
-                      fontSize: 14,
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _descriptionController,
+                          focusNode: _descriptionFocus,
+                          textCapitalization: TextCapitalization.sentences,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.text,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: widget.descriptionHint ?? widget.descriptionLabel,
+                            hintStyle: const TextStyle(color: AppColors.grey),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          maxLines: widget.descriptionMaxLines,
+                          minLines: widget.descriptionMinLines,
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.none,
+                        ),
+                      ],
                     ),
-                    decoration: InputDecoration(
-                      hintText: widget.descriptionHint ?? widget.descriptionLabel,
-                      hintStyle: TextStyle(
-                        color: AppColors.text.withValues(alpha: 0.4),
-                        fontSize: 14,
-                        fontStyle: FontStyle.italic,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-                    ),
-                    maxLines: widget.descriptionMaxLines,
-                    minLines: widget.descriptionMinLines,
-                    keyboardType: TextInputType.multiline,
-                    textInputAction: TextInputAction.none,
                   ),
                 ],
               ],

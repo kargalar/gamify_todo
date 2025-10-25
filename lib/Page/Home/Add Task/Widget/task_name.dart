@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/description_editor.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/select_priority.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'description_editor.dart';
+import 'select_priority.dart';
 import 'package:provider/provider.dart';
 
 class TaskName extends StatelessWidget {
@@ -200,66 +200,55 @@ class TaskName extends StatelessWidget {
                   },
                 ),
 
-                // Description clickable field
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      // Unfocus any text fields before showing full-screen editor
-                      provider.unfocusAll();
-
-                      // Show the full-screen description editor
-                      Navigator.of(context)
-                          .push(
-                        MaterialPageRoute(
-                          builder: (context) => DescriptionEditor(isStore: isStore),
-                          fullscreenDialog: true,
-                        ),
-                      )
-                          .then((_) {
-                        provider.notifyListeners();
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      width: double.infinity,
-                      constraints: const BoxConstraints(
-                        minHeight: 50, // Minimum height for the description field
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: provider.descriptionController.text.isNotEmpty
-                                ? Text(
-                                    provider.descriptionController.text,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                  )
-                                : Text(
-                                    LocaleKeys.EnterDescription.tr(),
-                                    style: TextStyle(
-                                      color: AppColors.text.withValues(alpha: 0.4),
-                                      fontSize: 14,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
+                // Description field with inline editing and full-screen option
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.fullscreen, size: 18),
+                      onPressed: () async {
+                        debugPrint('🔍 TaskName: Opening full screen description editor');
+                        provider.unfocusAll();
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DescriptionEditor(isStore: isStore),
                           ),
-                          const SizedBox(width: 8),
-
-                          // Arrow icon to indicate it opens a full-screen editor
-                          Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: AppColors.text.withValues(alpha: 0.3),
-                            size: 14,
-                          ),
-                        ],
-                      ),
+                        );
+                        debugPrint('✅ TaskName: Returned from full screen editor');
+                      },
+                      tooltip: 'Full Screen',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                // Inline description TextField
+                TextField(
+                  controller: provider.descriptionController,
+                  focusNode: provider.descriptionFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: const TextStyle(
+                    fontSize: 14,
                   ),
+                  decoration: InputDecoration(
+                    hintText: LocaleKeys.EnterDescription.tr(),
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  maxLines: 4,
+                  minLines: 2,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                  onChanged: (value) {
+                    provider.notifyListeners();
+                  },
                 ),
               ],
             ),
