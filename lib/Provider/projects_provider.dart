@@ -27,7 +27,7 @@ class ProjectsProvider with ChangeNotifier {
 
   // State
   List<ProjectModel> _projects = [];
-  List<CategoryModel> _categories = [];
+  final List<CategoryModel> _categories = [];
   String _searchQuery = '';
   bool _isLoading = false;
   String? _errorMessage;
@@ -49,8 +49,8 @@ class ProjectsProvider with ChangeNotifier {
       debugPrint('📡 ProjectsProvider: Loading categories');
       final categoryProvider = CategoryProvider();
       await categoryProvider.initialize();
-      // SADECE PROJECT TİPİNDEKİ KATEGORİLERİ YÜKLEYELİM
-      _categories = categoryProvider.getActiveCategories().where((cat) => cat.categoryType == CategoryType.project).toList();
+      _categories.clear();
+      _categories.addAll(categoryProvider.categoryList);
       debugPrint('✅ ProjectsProvider: Loaded ${_categories.length} project categories');
       notifyListeners();
     } catch (e) {

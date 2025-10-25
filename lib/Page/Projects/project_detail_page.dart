@@ -144,6 +144,41 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     );
   }
 
+  Future<void> _selectCreationDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _currentProject.createdAt,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.main,
+              onPrimary: Colors.white,
+              surface: AppColors.panelBackground,
+              onSurface: AppColors.text,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null && pickedDate != _currentProject.createdAt) {
+      final provider = context.read<ProjectsProvider>();
+      final updated = _currentProject.copyWith(
+        createdAt: pickedDate,
+        updatedAt: DateTime.now(),
+      );
+      await provider.updateProject(updated);
+      setState(() {
+        _currentProject = updated;
+      });
+      debugPrint('✅ ProjectDetailPage: Creation date updated to ${pickedDate.toString()}');
+    }
+  }
+
   Future<void> _showEditProjectBottomSheet() async {
     final result = await showModalBottomSheet<bool>(
       context: context,
@@ -415,7 +450,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -441,43 +476,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.main.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.folder_rounded,
-                    color: AppColors.main,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _currentProject.title,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.text,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
             // Açıklama (eğer varsa)
             if (_currentProject.description.isNotEmpty) ...[
-              Divider(color: AppColors.main.withValues(alpha: 0.2), height: 24),
               GestureDetector(
                 onTap: () {
                   // Açıklama alanına tıklanınca description editor'ı aç
@@ -523,7 +523,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 ),
               ),
             ] else ...[
-              Divider(color: AppColors.main.withValues(alpha: 0.2), height: 24),
               GestureDetector(
                 onTap: () {
                   // Açıklama ekle butonuna tıklanınca description editor'ı aç
@@ -559,6 +558,44 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 ),
               ),
             ],
+
+            // Oluşturulma tarihi
+            Divider(color: AppColors.main.withValues(alpha: 0.2), height: 24),
+            GestureDetector(
+              onTap: _selectCreationDate,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 16,
+                    color: AppColors.text.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Oluşturulma Tarihi',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.text.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    DateFormat('dd/MM/yyyy').format(_currentProject.createdAt),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.text.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: AppColors.main,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

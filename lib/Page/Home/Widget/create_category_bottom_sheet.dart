@@ -41,6 +41,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       }
     } else if (widget.initialCategoryType != null) {
       selectedCategoryType = widget.initialCategoryType!;
+      debugPrint('🎨 CreateCategoryBottomSheet: Initial category type set to: $selectedCategoryType');
+    } else {
+      debugPrint('⚠️ CreateCategoryBottomSheet: No initial category type provided, using default: $selectedCategoryType');
     }
   }
 
@@ -435,7 +438,22 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         iconCodePoint: selectedIcon.codePoint,
         categoryType: selectedCategoryType,
       );
-      await categoryProvider.addCategory(newCategory);
+      debugPrint('🆕 CreateCategoryBottomSheet: Creating new category: ${newCategory.title}, type: ${newCategory.categoryType}');
+
+      // Add category to provider
+      try {
+        await categoryProvider.addCategory(newCategory);
+        debugPrint('✅ CreateCategoryBottomSheet: Category added to provider');
+      } catch (e) {
+        debugPrint('❌ CreateCategoryBottomSheet: Error adding category: $e');
+        if (mounted) {
+          Helper().getMessage(
+            message: 'Kategori oluşturulamadı: $e',
+            status: StatusEnum.ERROR,
+          );
+        }
+        return;
+      }
 
       // Auto-select the newly created category
       if (mounted) {

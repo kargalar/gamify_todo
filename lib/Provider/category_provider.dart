@@ -31,12 +31,20 @@ class CategoryProvider extends ChangeNotifier {
   }
 
   Future<void> addCategory(CategoryModel categoryModel) async {
-    final String categoryId = await ServerManager().addCategory(categoryModel: categoryModel);
+    try {
+      final String categoryId = await ServerManager().addCategory(categoryModel: categoryModel);
 
-    categoryModel.id = categoryId;
-    categoryList.add(categoryModel);
+      // The ID is already set in categoryModel by ServerManager
+      // Add to local list
+      categoryList.add(categoryModel);
 
-    notifyListeners();
+      debugPrint('✅ CategoryProvider: Added category ${categoryModel.title} (ID: $categoryId) to list. Total categories: ${categoryList.length}');
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('❌ CategoryProvider: Error adding category ${categoryModel.title}: $e');
+      rethrow;
+    }
   }
 
   Future<void> updateCategory(CategoryModel categoryModel) async {

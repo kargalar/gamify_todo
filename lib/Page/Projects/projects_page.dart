@@ -208,7 +208,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   },
                   onCategoryAdded: () async {
                     // Yeni kategori eklendikten sonra kategorileri yeniden yükle
+                    debugPrint('🔄 ProjectsPage: onCategoryAdded called, reloading categories');
                     await provider.loadCategories();
+                    debugPrint('✅ ProjectsPage: Categories reloaded');
                   },
                   showIcons: true,
                   showColors: true,

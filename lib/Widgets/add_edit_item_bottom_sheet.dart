@@ -574,10 +574,16 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
           ? CategorySelectorBottomSheet(
               selectedCategory: _selectedCategory,
               categories: provider.categories,
+              categoryType: CategoryType.project,
+              onCategoryAdded: (category) async {
+                debugPrint('➕ AddEditItemBottomSheet: New category created ${category.name} for project');
+                await provider.loadCategories();
+              },
             )
           : CategorySelectorBottomSheet(
               selectedCategory: _selectedCategory,
               categories: provider.categories,
+              categoryType: CategoryType.note,
               onCategoryAdded: (category) async {
                 debugPrint('➕ AddEditItemBottomSheet: New category created ${category.name}');
                 await provider.loadData();

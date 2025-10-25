@@ -150,8 +150,9 @@ class CategoryFilterWidget extends StatelessWidget {
       ),
       backgroundColor: AppColors.panelBackground,
       onSelected: (_) async {
+        debugPrint('➕ CategoryFilterWidget: Add category button pressed, type: $categoryType');
         // Otomatik olarak doğru tip ile kategori oluştur
-        await showModalBottomSheet(
+        final result = await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
@@ -160,6 +161,8 @@ class CategoryFilterWidget extends StatelessWidget {
             initialCategoryType: categoryType,
           ),
         );
+
+        debugPrint('✅ CategoryFilterWidget: Bottom sheet closed, result: $result');
 
         // Kategori eklendikten sonra callback'i çağır
         if (context.mounted) {

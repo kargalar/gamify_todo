@@ -10,6 +10,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
   final List<CategoryModel> categories;
   final Future<void> Function(CategoryModel)? onCategoryAdded;
   final Future<void> Function(CategoryModel)? onCategoryDeleted;
+  final CategoryType categoryType;
 
   const CategorySelectorBottomSheet({
     super.key,
@@ -17,6 +18,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
     required this.categories,
     this.onCategoryAdded,
     this.onCategoryDeleted,
+    this.categoryType = CategoryType.note,
   });
 
   @override
@@ -232,15 +234,15 @@ class CategorySelectorBottomSheet extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      builder: (context) => const CreateCategoryBottomSheet(
-        initialCategoryType: CategoryType.note,
+      builder: (context) => CreateCategoryBottomSheet(
+        initialCategoryType: categoryType,
       ),
     );
 
     if (newCategory != null) {
       debugPrint('✅ CategorySelectorBottomSheet: New category created: ${newCategory.name}');
 
-      // Kategori zaten CreateCategoryBottomSheet içinde CategoryProvider'a eklendi
+      // Kategori CreateCategoryBottomSheet içinde CategoryProvider'a eklendi
       // Sadece NotesProvider'ın kategoriler listesini güncellememiz gerekiyor
       // onCategoryAdded callback'i NotesProvider.loadData() çağırarak kategorileri yeniden yükleyecek
       if (onCategoryAdded != null) await onCategoryAdded!(newCategory);
