@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:next_level/Core/Enums/status_enum.dart';
-import 'package:next_level/Core/helper.dart';
-import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
+import '../../Core/Enums/status_enum.dart';
+import '../../Core/helper.dart';
+import '../../General/app_colors.dart';
+import '../../Service/locale_keys.g.dart';
+import 'description_editor.dart';
 
 /// Generic dialog for adding/editing items with title and description
 /// Can be used for subtasks, notes, projects, etc.
@@ -275,6 +276,33 @@ class _AddItemDialogState extends State<AddItemDialog> {
 
                 // Description field (if configured)
                 if (widget.descriptionLabel != null) ...[
+                  // Tam ekran iconu
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.fullscreen, size: 18),
+                        onPressed: () async {
+                          debugPrint('🔍 AddItemDialog: Opening full screen editor for description');
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DescriptionEditor(
+                                controller: _descriptionController,
+                                onChanged: (value) => setState(() {}),
+                                title: widget.title,
+                              ),
+                            ),
+                          );
+                          debugPrint('✅ AddItemDialog: Returned from full screen editor');
+                        },
+                        tooltip: 'Tam Ekran',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
                   TextField(
                     controller: _descriptionController,
                     focusNode: _descriptionFocus,

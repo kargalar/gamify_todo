@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
+import '../../General/app_colors.dart';
+import '../../Service/locale_keys.g.dart';
 
 /// Reusable description editor component
 /// Can be used for tasks, notes, projects, subtasks, etc.

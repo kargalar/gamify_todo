@@ -12,7 +12,6 @@ import '../../Provider/task_provider.dart';
 import '../../Service/locale_keys.g.dart';
 import '../../Widgets/Common/add_item_dialog.dart';
 import '../../Widgets/Common/category_filter_widget.dart';
-import '../../Widgets/Common/common_button.dart';
 import '../../Widgets/Common/standard_app_bar.dart';
 import '../../Widgets/Projects/project_card.dart';
 import '../Home/Widget/create_category_bottom_sheet.dart';
@@ -141,10 +140,14 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-                    CommonButton(
-                      text: LocaleKeys.Retry.tr(),
-                      icon: Icons.refresh,
+                    ElevatedButton.icon(
                       onPressed: () => provider.loadProjects(),
+                      icon: const Icon(Icons.refresh),
+                      label: Text(LocaleKeys.Retry.tr()),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.main,
+                        foregroundColor: AppColors.white,
+                      ),
                     ),
                   ],
                 ),

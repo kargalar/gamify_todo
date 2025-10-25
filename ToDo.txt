@@ -78,7 +78,6 @@ notlarda ve projelerde detaylar sayfasında oluşturulma tarihlerni göster. ayn
 
 streak bottom sheete safe are ekle ve alttan boşluk ver
 
-kğçğk not yazma alanı tam ekran butonuyla tam ekranda yaılabilecek
 
 tatil olan günler işaretleniyor mu. streak takviminde nasıl hesaplıyor.
 

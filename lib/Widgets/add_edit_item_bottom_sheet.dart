@@ -8,8 +8,8 @@ import '../Provider/projects_provider.dart';
 import '../Provider/notes_provider.dart';
 import '../Service/locale_keys.g.dart';
 import '../General/app_colors.dart';
-import '../Widgets/Common/common_text_field.dart';
 import 'Notes/category_selector_bottom_sheet.dart';
+import 'Common/description_editor.dart';
 
 /// Item türleri
 enum ItemType {
@@ -342,17 +342,19 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Başlık
-          CommonTextField(
+          TextFormField(
             controller: _titleController,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.text,
             ),
-            hint: _getTitleHint(),
-            hintStyle: const TextStyle(color: AppColors.grey),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
+            decoration: InputDecoration(
+              hintText: _getTitleHint(),
+              hintStyle: const TextStyle(color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return LocaleKeys.TitleRequired.tr();
@@ -363,17 +365,47 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
           const SizedBox(height: 12),
           Divider(color: AppColors.panelBackground2, height: 1),
           const SizedBox(height: 12),
-          // İçerik (opsiyonel)
-          CommonTextField(
+          // İçerik (opsiyonel) - sadece note için tam ekran iconu
+          if (widget.type == ItemType.note) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.fullscreen, size: 20),
+                  onPressed: () async {
+                    debugPrint('🔍 AddEditItemBottomSheet: Opening full screen editor');
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DescriptionEditor(
+                          controller: _contentController,
+                          onChanged: (value) => setState(() {}),
+                          title: LocaleKeys.EditNote.tr(),
+                        ),
+                      ),
+                    );
+                    debugPrint('✅ AddEditItemBottomSheet: Returned from full screen editor');
+                  },
+                  tooltip: 'Tam Ekran',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+          TextFormField(
             controller: _contentController,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.text,
             ),
-            hint: _getContentHint(),
-            hintStyle: const TextStyle(color: AppColors.grey),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
+            decoration: InputDecoration(
+              hintText: _getContentHint(),
+              hintStyle: const TextStyle(color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
             maxLines: 10,
             minLines: 5,
           ),

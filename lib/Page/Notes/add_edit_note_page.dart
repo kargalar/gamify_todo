@@ -6,7 +6,6 @@ import '../../Model/category_model.dart';
 import '../../Provider/notes_provider.dart';
 import '../../General/app_colors.dart';
 import '../../Service/locale_keys.g.dart';
-import '../../Widgets/Common/common_text_field.dart';
 
 /// Not ekleme ve düzenleme sayfası
 class AddEditNotePage extends StatefulWidget {
@@ -115,17 +114,19 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CommonTextField(
+          TextFormField(
             controller: _titleController,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.text,
             ),
-            hint: LocaleKeys.Title.tr(),
-            hintStyle: const TextStyle(color: AppColors.grey),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
+            decoration: InputDecoration(
+              hintText: LocaleKeys.Title.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return LocaleKeys.TitleRequired.tr();
@@ -136,16 +137,18 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
           const SizedBox(height: 12),
           Divider(color: AppColors.panelBackground2, height: 1),
           const SizedBox(height: 12),
-          CommonTextField(
+          TextFormField(
             controller: _contentController,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.text,
             ),
-            hint: LocaleKeys.ContentOptional.tr(),
-            hintStyle: const TextStyle(color: AppColors.grey),
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
+            decoration: InputDecoration(
+              hintText: LocaleKeys.ContentOptional.tr(),
+              hintStyle: const TextStyle(color: AppColors.grey),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
             maxLines: 10,
             minLines: 5,
           ),
