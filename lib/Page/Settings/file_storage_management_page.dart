@@ -12,6 +12,7 @@ import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/file_storage_service.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Add Task/add_task_page.dart';
@@ -52,7 +53,7 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
       storageStats = stats;
       _sortFiles();
     } catch (e) {
-      debugPrint('Error loading attachment files: $e');
+      LogService.error('Error loading attachment files: $e');
     } finally {
       if (mounted) setState(() => isLoading = false);
     }

@@ -12,6 +12,7 @@ import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskProgressViewModel extends ChangeNotifier {
@@ -191,7 +192,7 @@ class TaskProgressViewModel extends ChangeNotifier {
     // Task için TÜMLOGS (tarihten bağımsız)
     List<TaskLogModel> logs = taskLogProvider.getLogsByTaskId(taskModel!.id);
 
-    debugPrint('✅ Progress hesaplama: ${logs.length} log bulundu (tarihten bağımsız)');
+    LogService.debug('✅ Progress hesaplama: ${logs.length} log bulundu (tarihten bağımsız)');
 
     // Toplam ilerlemeyi hesapla
     int totalCount = 0;
@@ -207,7 +208,7 @@ class TaskProgressViewModel extends ChangeNotifier {
 
       // Task durumunu güncelle
       taskModel!.status = latestLog.status;
-      debugPrint('✅ Checkbox: En son durum = ${latestLog.status}');
+      LogService.debug('✅ Checkbox: En son durum = ${latestLog.status}');
     }
 
     // TÜM logları işle ve toplam değeri hesapla (tarihten bağımsız)
@@ -221,7 +222,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       }
     }
 
-    debugPrint('✅ Progress: Toplam duration = ${totalDuration.inMinutes} dakika, count = $totalCount');
+    LogService.debug('✅ Progress: Toplam duration = ${totalDuration.inMinutes} dakika, count = $totalCount');
 
     // Aktif timer varsa, şu anki timer değerini de ekle
     if (taskModel!.type == TaskTypeEnum.TIMER && taskModel!.isTimerActive == true) {

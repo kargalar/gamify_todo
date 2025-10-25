@@ -46,7 +46,7 @@ Future<void> initApp() async {
     await HiveService().addUser(loginUser!);
     LogService.debug('✅ Created default guest user');
   } else {
-    debugPrint('✅ Loaded existing user: ${loginUser!.username}');
+    LogService.debug('✅ Loaded existing user: ${loginUser!.username}');
   }
 
   // Sync loginUser with UserProvider

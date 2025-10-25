@@ -8,6 +8,7 @@ import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Widgets/Common/category_filter_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class InboxCategoriesSection extends StatelessWidget {
   final CategoryModel? selectedCategory;
@@ -90,9 +91,9 @@ class InboxCategoriesSection extends StatelessWidget {
 
             // Eğer kategori silindiyse, CategoryProvider'ı yeniden yükle ve parent'ı bilgilendir
             if (result == true && context.mounted) {
-              debugPrint('🔄 InboxCategoriesSection: Category deleted, reloading CategoryProvider');
+              LogService.debug('🔄 InboxCategoriesSection: Category deleted, reloading CategoryProvider');
               await context.read<CategoryProvider>().initialize();
-              debugPrint('✅ InboxCategoriesSection: CategoryProvider reloaded');
+              LogService.debug('✅ InboxCategoriesSection: CategoryProvider reloaded');
 
               // Parent widget'ı bilgilendir (setState çağırsın)
               onCategoryDeleted?.call();

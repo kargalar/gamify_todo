@@ -10,6 +10,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class AddManualLogDialog extends StatefulWidget {
   final TaskModel taskModel;
@@ -52,7 +53,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
             hours = seconds ~/ 3600;
             minutes = (seconds % 3600) ~/ 60;
           });
-          debugPrint('✅ Manuel log: Son kaydedilen süre yüklendi - $hours saat $minutes dakika');
+          LogService.debug('✅ Manuel log: Son kaydedilen süre yüklendi - $hours saat $minutes dakika');
         }
       } else if (widget.taskModel.type == TaskTypeEnum.COUNTER) {
         final lastCount = prefs.getInt('last_logged_count_${widget.taskModel.id}');
@@ -60,11 +61,11 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
           setState(() {
             count = lastCount;
           });
-          debugPrint('✅ Manuel log: Son kaydedilen count yüklendi - $count');
+          LogService.debug('✅ Manuel log: Son kaydedilen count yüklendi - $count');
         }
       }
     } catch (e) {
-      debugPrint('❌ Manuel log: Son değerler yüklenirken hata - $e');
+      LogService.error('❌ Manuel log: Son değerler yüklenirken hata - $e');
     }
   }
 
@@ -170,7 +171,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
                 time.minute,
               );
             });
-            debugPrint('✅ Manuel log: Tarih ve saat seçildi - ${DateFormat('d MMMM yyyy HH:mm').format(selectedDateTime)}');
+            LogService.debug('✅ Manuel log: Tarih ve saat seçildi - ${DateFormat('d MMMM yyyy HH:mm').format(selectedDateTime)}');
           }
         }
       },
@@ -257,7 +258,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
               setState(() {
                 selectedStatus = value;
               });
-              debugPrint('✅ Manuel log: Durum değişti - $value');
+              LogService.debug('✅ Manuel log: Durum değişti - $value');
             }
           },
         ),
@@ -284,7 +285,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
                 setState(() {
                   count--;
                 });
-                debugPrint('✅ Manuel log: Count azaltıldı - $count');
+                LogService.debug('✅ Manuel log: Count azaltıldı - $count');
               }
             },
             enabled: count > 1,
@@ -321,7 +322,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
               setState(() {
                 count++;
               });
-              debugPrint('✅ Manuel log: Count artırıldı - $count');
+              LogService.debug('✅ Manuel log: Count artırıldı - $count');
             },
             enabled: true,
           ),
@@ -342,7 +343,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
               setState(() {
                 hours--;
               });
-              debugPrint('✅ Manuel log: Saat azaltıldı - $hours');
+              LogService.debug('✅ Manuel log: Saat azaltıldı - $hours');
             }
           },
           onIncrease: () {
@@ -350,7 +351,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
               setState(() {
                 hours++;
               });
-              debugPrint('✅ Manuel log: Saat artırıldı - $hours');
+              LogService.debug('✅ Manuel log: Saat artırıldı - $hours');
             }
           },
         ),
@@ -364,7 +365,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
               setState(() {
                 minutes = (minutes - 5).clamp(0, 59);
               });
-              debugPrint('✅ Manuel log: Dakika azaltıldı - $minutes');
+              LogService.debug('✅ Manuel log: Dakika azaltıldı - $minutes');
             }
           },
           onIncrease: () {
@@ -372,7 +373,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
               setState(() {
                 minutes = (minutes + 5).clamp(0, 59);
               });
-              debugPrint('✅ Manuel log: Dakika artırıldı - $minutes');
+              LogService.debug('✅ Manuel log: Dakika artırıldı - $minutes');
             }
           },
         ),
@@ -510,14 +511,14 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
         // Timer için son loglanan süreyi SharedPreferences'a kaydet
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('last_logged_duration_${widget.taskModel.id}', duration.inSeconds.toString());
-        debugPrint('✅ Manuel log: Timer değeri kaydedildi - ${duration.inMinutes} dakika');
+        LogService.debug('✅ Manuel log: Timer değeri kaydedildi - ${duration.inMinutes} dakika');
       } else if (widget.taskModel.type == TaskTypeEnum.COUNTER) {
         countValue = count;
 
         // Counter için son loglanan sayıyı SharedPreferences'a kaydet
         final prefs = await SharedPreferences.getInstance();
         await prefs.setInt('last_logged_count_${widget.taskModel.id}', count);
-        debugPrint('✅ Manuel log: Counter değeri kaydedildi - $count');
+        LogService.debug('✅ Manuel log: Counter değeri kaydedildi - $count');
       }
 
       // Status kontrolü: Hedefe ulaşılmış mı?
@@ -541,10 +542,10 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
         // Hedefe ulaşıldı mı kontrol et
         if (widget.taskModel.remainingDuration != null && totalDuration >= widget.taskModel.remainingDuration!) {
           logStatus = TaskStatusEnum.DONE;
-          debugPrint('✅ Timer: Hedefe ulaşıldı! ${totalDuration.inMinutes}/${widget.taskModel.remainingDuration!.inMinutes} dakika');
+          LogService.debug('✅ Timer: Hedefe ulaşıldı! ${totalDuration.inMinutes}/${widget.taskModel.remainingDuration!.inMinutes} dakika');
         } else {
           logStatus = TaskStatusEnum.DONE; // Her log Done olarak kaydedilir ama task InProgress olabilir
-          debugPrint('⏳ Timer: Hedefe henüz ulaşılmadı. ${totalDuration.inMinutes}/${widget.taskModel.remainingDuration?.inMinutes ?? 0} dakika');
+          LogService.debug('⏳ Timer: Hedefe henüz ulaşılmadı. ${totalDuration.inMinutes}/${widget.taskModel.remainingDuration?.inMinutes ?? 0} dakika');
         }
       } else if (widget.taskModel.type == TaskTypeEnum.COUNTER) {
         // Counter için: Mevcut tüm logların toplamı + bu log >= hedef mi?
@@ -561,21 +562,21 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
         // Hedefe ulaşıldı mı kontrol et
         if (widget.taskModel.targetCount != null && totalCount >= widget.taskModel.targetCount!) {
           logStatus = TaskStatusEnum.DONE;
-          debugPrint('✅ Counter: Hedefe ulaşıldı! $totalCount/${widget.taskModel.targetCount} adet');
+          LogService.debug('✅ Counter: Hedefe ulaşıldı! $totalCount/${widget.taskModel.targetCount} adet');
         } else {
           logStatus = TaskStatusEnum.DONE; // Her log Done olarak kaydedilir ama task InProgress olabilir
-          debugPrint('⏳ Counter: Hedefe henüz ulaşılmadı. $totalCount/${widget.taskModel.targetCount ?? 0} adet');
+          LogService.debug('⏳ Counter: Hedefe henüz ulaşılmadı. $totalCount/${widget.taskModel.targetCount ?? 0} adet');
         }
       } else {
         logStatus = TaskStatusEnum.DONE;
       }
 
-      debugPrint('✅ Manuel log ekleniyor: ${widget.taskModel.title}');
-      debugPrint('   Tarih: ${DateFormat('d MMMM yyyy HH:mm').format(logDateTime)}');
-      debugPrint('   Durum: $logStatus');
-      debugPrint('   Rutin ID: ${widget.taskModel.routineID ?? "Rutin değil"}');
-      if (duration != null) debugPrint('   Süre: ${duration.inMinutes} dakika');
-      if (countValue != null) debugPrint('   Count: $countValue');
+      LogService.debug('✅ Manuel log ekleniyor: ${widget.taskModel.title}');
+      LogService.debug('   Tarih: ${DateFormat('d MMMM yyyy HH:mm').format(logDateTime)}');
+      LogService.debug('   Durum: $logStatus');
+      LogService.debug('   Rutin ID: ${widget.taskModel.routineID ?? "Rutin değil"}');
+      if (duration != null) LogService.debug('   Süre: ${duration.inMinutes} dakika');
+      if (countValue != null) LogService.debug('   Count: $countValue');
 
       await TaskLogProvider().addTaskLog(
         widget.taskModel,
@@ -585,9 +586,9 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
         customStatus: logStatus,
       );
 
-      debugPrint('✅ Manuel log başarıyla eklendi!');
+      LogService.debug('✅ Manuel log başarıyla eklendi!');
     } catch (e) {
-      debugPrint('❌ Manuel log eklenirken hata oluştu: $e');
+      LogService.error('❌ Manuel log eklenirken hata oluştu: $e');
     }
   }
 }

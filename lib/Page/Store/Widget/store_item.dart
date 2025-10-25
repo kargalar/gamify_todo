@@ -15,6 +15,7 @@ import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class StoreItem extends StatefulWidget {
   const StoreItem({
@@ -298,7 +299,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
       onTap: () async {
         // Null check for loginUser
         if (loginUser == null) {
-          debugPrint('❌ Store Item Purchase: loginUser is null');
+          LogService.error('❌ Store Item Purchase: loginUser is null');
           return;
         }
 
@@ -387,9 +388,9 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         String? timerStartTimeStr = prefs.getString('item_timer_start_time_${widget.storeItemModel.id}');
         String? timerStartDurationStr = prefs.getString('item_timer_start_duration_${widget.storeItemModel.id}');
 
-        debugPrint('DEBUG: Timer will be stopped for item ${widget.storeItemModel.id}');
-        debugPrint('DEBUG: timerStartTimeStr = $timerStartTimeStr');
-        debugPrint('DEBUG: timerStartDurationStr = $timerStartDurationStr');
+        LogService.debug('DEBUG: Timer will be stopped for item ${widget.storeItemModel.id}');
+        LogService.debug('DEBUG: timerStartTimeStr = $timerStartTimeStr');
+        LogService.debug('DEBUG: timerStartDurationStr = $timerStartDurationStr');
 
         if (timerStartTimeStr != null && timerStartDurationStr != null) {
           DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
@@ -398,10 +399,10 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
           // Geçen süreyi hesapla (timer ne kadar çalıştı)
           elapsedTime = currentTime.difference(timerStartTime);
 
-          debugPrint('DEBUG: timerStartTime = $timerStartTime');
-          debugPrint('DEBUG: currentTime = $currentTime');
-          debugPrint('DEBUG: elapsedTime = ${elapsedTime.inSeconds} seconds (${elapsedTime.inMinutes}m ${elapsedTime.inSeconds % 60}s)');
-          debugPrint('DEBUG: elapsedTime.inMilliseconds = ${elapsedTime.inMilliseconds}');
+          LogService.debug('DEBUG: timerStartTime = $timerStartTime');
+          LogService.debug('DEBUG: currentTime = $currentTime');
+          LogService.debug('DEBUG: elapsedTime = ${elapsedTime.inSeconds} seconds (${elapsedTime.inMinutes}m ${elapsedTime.inSeconds % 60}s)');
+          LogService.debug('DEBUG: elapsedTime.inMilliseconds = ${elapsedTime.inMilliseconds}');
         }
       }
 
@@ -422,10 +423,10 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         if (elapsedTime != null) {
           // Store item timer'ları geri sayım yapar, kullanılan süre negatif olarak log'lanır
           value = -elapsedTime;
-          debugPrint('DEBUG: value to log = ${value.inSeconds} seconds');
-          debugPrint('DEBUG: value.inMinutes = ${value.inMinutes}, value.inSeconds % 60 = ${value.inSeconds % 60}');
+          LogService.debug('DEBUG: value to log = ${value.inSeconds} seconds');
+          LogService.debug('DEBUG: value.inMinutes = ${value.inMinutes}, value.inSeconds % 60 = ${value.inSeconds % 60}');
         } else {
-          debugPrint('DEBUG: Timer data was not available, logging as zero');
+          LogService.debug('DEBUG: Timer data was not available, logging as zero');
           value = Duration.zero;
         }
       } else {

@@ -24,6 +24,7 @@ import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class RoutineDetailPage extends StatefulWidget {
   const RoutineDetailPage({
@@ -301,8 +302,8 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       final routineId = widget.taskModel.routineID!;
       final today = DateTime.now();
 
-      debugPrint('=== RESETTING SINGLE ROUTINE PROGRESS ===');
-      debugPrint('Routine ID: $routineId');
+      LogService.debug('=== RESETTING SINGLE ROUTINE PROGRESS ===');
+      LogService.debug('Routine ID: $routineId');
 
       // Bu rutine ait tüm taskları bul
       final routineTasks = taskProvider.taskList.where((task) => task.routineID == routineId).toList();
@@ -327,18 +328,18 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
         }
       }
 
-      debugPrint('Tasks to delete: ${tasksToDelete.length}');
-      debugPrint('Tasks to reset: ${tasksToReset.length}');
+      LogService.debug('Tasks to delete: ${tasksToDelete.length}');
+      LogService.debug('Tasks to reset: ${tasksToReset.length}');
 
       // Geçmiş routine taskları tamamen sil
       for (final task in tasksToDelete) {
-        debugPrint('Deleting past routine task: ${task.title} (ID=${task.id}, Date=${task.taskDate})');
+        LogService.debug('Deleting past routine task: ${task.title} (ID=${task.id}, Date=${task.taskDate})');
         await HiveService().deleteTask(task.id);
       }
 
       // Şimdiki routine taskları sıfırla
       for (final task in tasksToReset) {
-        debugPrint('Resetting current routine task: ${task.title} (ID=${task.id})');
+        LogService.debug('Resetting current routine task: ${task.title} (ID=${task.id})');
 
         // Reset progress values
         if (task.type == TaskTypeEnum.COUNTER) {
@@ -382,7 +383,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       // Provider'ları güncelle
       taskProvider.updateItems();
 
-      debugPrint('Single routine reset completed. Deleted ${tasksToDelete.length} past tasks, reset ${tasksToReset.length} current tasks, and deleted ${routineLogIds.length} logs.');
+      LogService.debug('Single routine reset completed. Deleted ${tasksToDelete.length} past tasks, reset ${tasksToReset.length} current tasks, and deleted ${routineLogIds.length} logs.');
 
       // Success message
       Helper().getMessage(message: "Rutin ilerlemesi başarıyla sıfırlandı. ${tasksToDelete.length} geçmiş görev silindi, ${tasksToReset.length} mevcut görev sıfırlandı.");
@@ -393,7 +394,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       }
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");
-      debugPrint('Error in _resetSingleRoutineProgress: $e');
+      LogService.error('Error in _resetSingleRoutineProgress: $e');
     }
   }
 
@@ -463,7 +464,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       Helper().getMessage(message: "Rutin başarıyla silindi.");
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");
-      debugPrint('Error in _deleteRoutine: $e');
+      LogService.error('Error in _deleteRoutine: $e');
     }
   }
 
@@ -505,7 +506,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       }
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");
-      debugPrint('Error in _archiveRoutine: $e');
+      LogService.error('Error in _archiveRoutine: $e');
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class SelectDaysWidget extends StatefulWidget {
   final AddTaskProvider addTaskProvider;
@@ -136,16 +137,16 @@ class _SelectDaysWidgetState extends State<SelectDaysWidget> {
               message: LocaleKeys.RoutineMustHaveDate.tr(),
               status: StatusEnum.WARNING,
             );
-            debugPrint('SelectDaysWidget: Day $name selection cancelled - no date selected for routine');
+            LogService.debug('SelectDaysWidget: Day $name selection cancelled - no date selected for routine');
             return;
           }
 
           if (widget.addTaskProvider.selectedDays.contains(index)) {
             widget.addTaskProvider.selectedDays.remove(index);
-            debugPrint('SelectDaysWidget: Day $name deselected successfully');
+            LogService.debug('SelectDaysWidget: Day $name deselected successfully');
           } else {
             widget.addTaskProvider.selectedDays.add(index);
-            debugPrint('SelectDaysWidget: Day $name selected successfully');
+            LogService.debug('SelectDaysWidget: Day $name selected successfully');
           }
 
           // Force rebuild to show the updated state

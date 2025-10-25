@@ -12,6 +12,7 @@ import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:provider/provider.dart';
 import 'package:get/route_manager.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class ArchivedRoutinesPage extends StatefulWidget {
   const ArchivedRoutinesPage({super.key});
@@ -95,7 +96,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
             onPressed: (context) async {
               // Arşivden çıkar
               await taskProvider.unarchiveRoutine(routine.id);
-              debugPrint('📦 Routine unarchived: ${routine.title}');
+              LogService.debug('📦 Routine unarchived: ${routine.title}');
             },
             backgroundColor: AppColors.green,
             foregroundColor: Colors.white,
@@ -125,7 +126,7 @@ class _ArchivedRoutinesPageState extends State<ArchivedRoutinesPage> {
 
               if (confirmed == true) {
                 await taskProvider.deleteRoutine(routine.id);
-                debugPrint('🗑️ Routine deleted: ${routine.title}');
+                LogService.debug('🗑️ Routine deleted: ${routine.title}');
               }
             },
             backgroundColor: AppColors.red,

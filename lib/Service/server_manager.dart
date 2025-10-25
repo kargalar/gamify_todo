@@ -27,7 +27,10 @@ class ServerManager {
   // check request
   void checkRequest(Response response) {
     if (response.statusCode == 200) {
-      // debugPrint(json.encode(response.data));
+      // Log response data in debug mode via centralized logger
+      try {
+        LogService.debug('ServerManager: response data: ${response.data}');
+      } catch (_) {}
     } else {
       LogService.error(response.statusMessage ?? 'ServerManager: empty statusMessage');
     }

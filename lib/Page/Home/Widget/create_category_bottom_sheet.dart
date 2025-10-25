@@ -8,6 +8,7 @@ import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class CreateCategoryBottomSheet extends StatefulWidget {
   final CategoryModel? categoryModel;
@@ -41,9 +42,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       }
     } else if (widget.initialCategoryType != null) {
       selectedCategoryType = widget.initialCategoryType!;
-      debugPrint('🎨 CreateCategoryBottomSheet: Initial category type set to: $selectedCategoryType');
+      LogService.debug('🎨 CreateCategoryBottomSheet: Initial category type set to: $selectedCategoryType');
     } else {
-      debugPrint('⚠️ CreateCategoryBottomSheet: No initial category type provided, using default: $selectedCategoryType');
+      LogService.debug('⚠️ CreateCategoryBottomSheet: No initial category type provided, using default: $selectedCategoryType');
     }
   }
 
@@ -187,9 +188,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
                             TextButton(
                               onPressed: () async {
                                 Navigator.pop(context); // Close dialog
-                                debugPrint('🗑️ CreateCategoryBottomSheet: Deleting category ${widget.categoryModel!.id}');
+                                LogService.debug('🗑️ CreateCategoryBottomSheet: Deleting category ${widget.categoryModel!.id}');
                                 await context.read<CategoryProvider>().deleteCategory(widget.categoryModel!);
-                                debugPrint('✅ CreateCategoryBottomSheet: Category deleted, closing bottom sheet');
+                                LogService.debug('✅ CreateCategoryBottomSheet: Category deleted, closing bottom sheet');
                                 if (context.mounted) {
                                   Navigator.pop(context, true); // Close bottom sheet and return true to indicate deletion
                                 }
@@ -438,14 +439,14 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         iconCodePoint: selectedIcon.codePoint,
         categoryType: selectedCategoryType,
       );
-      debugPrint('🆕 CreateCategoryBottomSheet: Creating new category: ${newCategory.title}, type: ${newCategory.categoryType}');
+      LogService.debug('🆕 CreateCategoryBottomSheet: Creating new category: ${newCategory.title}, type: ${newCategory.categoryType}');
 
       // Add category to provider
       try {
         await categoryProvider.addCategory(newCategory);
-        debugPrint('✅ CreateCategoryBottomSheet: Category added to provider');
+        LogService.debug('✅ CreateCategoryBottomSheet: Category added to provider');
       } catch (e) {
-        debugPrint('❌ CreateCategoryBottomSheet: Error adding category: $e');
+        LogService.error('❌ CreateCategoryBottomSheet: Error adding category: $e');
         if (mounted) {
           Helper().getMessage(
             message: 'Kategori oluşturulamadı: $e',

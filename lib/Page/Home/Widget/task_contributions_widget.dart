@@ -6,6 +6,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/routine_detail_page.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/task_model.dart';
 
 class TaskContributionsWidget extends StatelessWidget {
@@ -50,14 +51,14 @@ class TaskContributionsWidget extends StatelessWidget {
                       final task = contribution['task'] as TaskModel; // TaskModel
                       return GestureDetector(
                         onTap: () {
-                          debugPrint('TaskContributionsWidget: Tapped on task: ${task.title}, routineID: ${task.routineID}');
+                          LogService.debug('TaskContributionsWidget: Tapped on task: ${task.title}, routineID: ${task.routineID}');
                           if (task.routineID != null) {
                             // Rutin detay sayfasına git
-                            debugPrint('TaskContributionsWidget: Navigating to RoutineDetailPage');
+                            LogService.debug('TaskContributionsWidget: Navigating to RoutineDetailPage');
                             Get.to(() => RoutineDetailPage(taskModel: task));
                           } else {
                             // Task edit sayfasına git
-                            debugPrint('TaskContributionsWidget: Navigating to AddTaskPage for edit');
+                            LogService.debug('TaskContributionsWidget: Navigating to AddTaskPage for edit');
                             Get.to(() => AddTaskPage(editTask: task));
                           }
                         },

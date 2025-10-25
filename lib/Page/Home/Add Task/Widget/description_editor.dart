@@ -5,6 +5,7 @@ import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// Wrapper for the task/store description editor
 /// Uses the shared DescriptionEditor component with timer support
@@ -73,7 +74,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
         taskProvider.editTask!.description = text.isNotEmpty ? text : null;
         // Save to database
         ServerManager().updateTask(taskModel: taskProvider.editTask!);
-        debugPrint('✅ Task description auto-saved: ${text.length} characters');
+        LogService.debug('✅ Task description auto-saved: ${text.length} characters');
       }
       // For new tasks, the description will be saved when the task is created
     } else {
@@ -99,7 +100,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
 
         // Save to database
         ServerManager().updateItem(itemModel: updatedItem);
-        debugPrint('✅ Store item description auto-saved: ${text.length} characters');
+        LogService.debug('✅ Store item description auto-saved: ${text.length} characters');
       }
       // For new store items, the description will be saved when the item is created
     }
@@ -118,7 +119,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                 timerDuration: provider.descriptionTimeSpent,
                 onTimerReset: () {
                   provider.resetDescriptionTimer();
-                  debugPrint('✅ Description timer reset for store item');
+                  LogService.debug('✅ Description timer reset for store item');
                 },
               );
             },

@@ -7,6 +7,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'description_editor.dart';
 import 'select_priority.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class TaskName extends StatelessWidget {
   const TaskName({
@@ -207,7 +208,7 @@ class TaskName extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.fullscreen, size: 18),
                       onPressed: () async {
-                        debugPrint('🔍 TaskName: Opening full screen description editor');
+                        LogService.debug('🔍 TaskName: Opening full screen description editor');
                         provider.unfocusAll();
                         await Navigator.push(
                           context,
@@ -215,7 +216,7 @@ class TaskName extends StatelessWidget {
                             builder: (context) => DescriptionEditor(isStore: isStore),
                           ),
                         );
-                        debugPrint('✅ TaskName: Returned from full screen editor');
+                        LogService.debug('✅ TaskName: Returned from full screen editor');
                       },
                       tooltip: 'Full Screen',
                       padding: EdgeInsets.zero,

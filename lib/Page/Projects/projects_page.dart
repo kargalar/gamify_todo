@@ -10,6 +10,7 @@ import '../../Provider/navbar_provider.dart';
 import '../../Provider/projects_provider.dart';
 import '../../Provider/task_provider.dart';
 import '../../Service/locale_keys.g.dart';
+import '../../Service/logging_service.dart';
 import '../../Widgets/Common/add_item_dialog.dart';
 import '../../Widgets/Common/category_filter_widget.dart';
 import '../../Widgets/Common/standard_app_bar.dart';
@@ -126,12 +127,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
                 provider.clearSearchQuery();
               }
             });
-            debugPrint('🔍 Search toggled: $_isSearching');
+            LogService.debug('🔍 Search toggled: $_isSearching');
           },
           showArchivedOnly: provider.showArchivedOnly,
           onArchiveToggle: () {
             provider.toggleArchivedFilter();
-            debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
+            LogService.debug('📦 Archive filter toggled: ${provider.showArchivedOnly}');
           },
         ),
         body: Consumer<ProjectsProvider>(
@@ -247,9 +248,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   },
                   onCategoryAdded: () async {
                     // Yeni kategori eklendikten sonra kategorileri yeniden yükle
-                    debugPrint('🔄 ProjectsPage: onCategoryAdded called, reloading categories');
+                    LogService.debug('🔄 ProjectsPage: onCategoryAdded called, reloading categories');
                     await provider.loadCategories();
-                    debugPrint('✅ ProjectsPage: Categories reloaded');
+                    LogService.debug('✅ ProjectsPage: Categories reloaded');
                   },
                   showIcons: true,
                   showColors: true,
@@ -272,7 +273,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                       autofocus: true,
                       onChanged: (value) {
                         provider.updateSearchQuery(value);
-                        debugPrint('🔍 Search query: $value');
+                        LogService.debug('🔍 Search query: $value');
                       },
                       style: const TextStyle(fontSize: 14),
                       decoration: InputDecoration(
@@ -296,7 +297,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                                 onPressed: () {
                                   _searchController.clear();
                                   provider.clearSearchQuery();
-                                  debugPrint('🔍 Search cleared');
+                                  LogService.debug('🔍 Search cleared');
                                 },
                               )
                             : null,
@@ -326,7 +327,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
     if (provider.filteredProjects.isEmpty) {
       final message = provider.showArchivedOnly ? LocaleKeys.NoArchivedProjects.tr() : LocaleKeys.NoProjectsFound.tr();
-      debugPrint('📁 ProjectsPage: No projects found. Archived filter: ${provider.showArchivedOnly}, Message: $message');
+      LogService.debug('📁 ProjectsPage: No projects found. Archived filter: ${provider.showArchivedOnly}, Message: $message');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -433,7 +434,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(project.isPinned ? 'Project unpinned' : 'Project pinned')),
           );
-          debugPrint('📌 Project ${project.isPinned ? 'unpinned' : 'pinned'}: ${project.title}');
+          LogService.debug('📌 Project ${project.isPinned ? 'unpinned' : 'pinned'}: ${project.title}');
         }
       },
       onArchive: () async {
@@ -442,7 +443,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(project.isArchived ? 'Project unarchived' : 'Project archived')),
           );
-          debugPrint('📦 Project ${project.isArchived ? 'unarchived' : 'archived'}: ${project.title}');
+          LogService.debug('📦 Project ${project.isArchived ? 'unarchived' : 'archived'}: ${project.title}');
         }
       },
       onDelete: () async {
@@ -471,7 +472,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Project deleted')),
             );
-            debugPrint('🗑️ Project deleted: ${project.title}');
+            LogService.debug('🗑️ Project deleted: ${project.title}');
           }
         }
       },
@@ -512,7 +513,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(LocaleKeys.ProjectCreated.tr())),
               );
-              debugPrint('✅ Project created: ${project.id}');
+              LogService.debug('✅ Project created: ${project.id}');
             }
           }
         },

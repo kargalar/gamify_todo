@@ -5,6 +5,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class AllRoutineLogsDialog extends StatelessWidget {
   final TaskModel taskModel;
@@ -54,7 +55,7 @@ class AllRoutineLogsDialog extends StatelessWidget {
       return b.taskDate!.compareTo(a.taskDate!);
     });
 
-    debugPrint('✅ All Routine Logs: ${allRoutineTasks.length} rutin task bulundu');
+    LogService.debug('✅ All Routine Logs: ${allRoutineTasks.length} rutin task bulundu');
 
     return AlertDialog(
       title: Text(

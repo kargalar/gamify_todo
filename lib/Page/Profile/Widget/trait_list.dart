@@ -11,6 +11,7 @@ import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/profile_view_model.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class TraitList extends StatefulWidget {
   const TraitList({
@@ -27,7 +28,7 @@ class TraitList extends StatefulWidget {
 class _TraitListState extends State<TraitList> {
   @override
   Widget build(BuildContext context) {
-    debugPrint("TraitList: Building trait list successfully - colors updated from AppColors");
+    LogService.debug("TraitList: Building trait list successfully - colors updated from AppColors");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

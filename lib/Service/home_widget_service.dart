@@ -65,7 +65,7 @@ class HomeWidgetService {
 
   static Future<void> updateTaskCount() async {
     try {
-      debugPrint('=== HOME WIDGET UPDATE START ===');
+      LogService.debug('=== HOME WIDGET UPDATE START ===');
 
       // Setup widget first
       await setupHomeWidget();

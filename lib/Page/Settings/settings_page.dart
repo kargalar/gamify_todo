@@ -17,6 +17,7 @@ import 'package:flutter/foundation.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({
@@ -42,9 +43,9 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         _appVersion = packageInfo.version;
       });
-      debugPrint('Settings: App version loaded successfully: $_appVersion');
+      LogService.debug('Settings: App version loaded successfully: $_appVersion');
     } catch (e) {
-      debugPrint('Settings: Error loading app version: $e');
+      LogService.error('Settings: Error loading app version: $e');
       setState(() {
         _appVersion = '1.0.0';
       });
@@ -222,20 +223,20 @@ class _SettingsPageState extends State<SettingsPage> {
               icon: Icons.privacy_tip,
               onTap: () async {
                 const url = 'https://gamifytodo-lvl.web.app/'; // TODO: Update with actual URL
-                debugPrint('Settings: Opening Privacy Policy');
+                LogService.debug('Settings: Opening Privacy Policy');
 
                 // Check if webview is supported on this platform
                 if (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || kIsWeb) {
-                  debugPrint('Settings: Using WebView for Privacy Policy');
+                  LogService.debug('Settings: Using WebView for Privacy Policy');
                   NavigatorService().goTo(const PrivacyPolicyWebViewPage());
                 } else {
                   // For unsupported platforms (like Windows), use external browser
-                  debugPrint('Settings: Using external browser for Privacy Policy: $url');
+                  LogService.debug('Settings: Using external browser for Privacy Policy: $url');
                   if (await canLaunchUrl(Uri.parse(url))) {
                     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                    debugPrint('Settings: Privacy Policy URL launched successfully');
+                    LogService.debug('Settings: Privacy Policy URL launched successfully');
                   } else {
-                    debugPrint('Settings: Could not launch Privacy Policy URL');
+                    LogService.error('Settings: Could not launch Privacy Policy URL');
                   }
                 }
               },

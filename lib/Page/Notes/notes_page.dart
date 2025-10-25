@@ -10,6 +10,7 @@ import '../../Model/note_model.dart';
 import '../../Widgets/add_edit_item_bottom_sheet.dart';
 import '../../Widgets/Common/category_filter_widget.dart';
 import '../../Service/locale_keys.g.dart';
+import '../../Service/logging_service.dart';
 import '../../Widgets/Common/standard_app_bar.dart';
 import '../Home/Widget/create_category_bottom_sheet.dart';
 
@@ -62,12 +63,12 @@ class _NotesPageState extends State<NotesPage> {
                 provider.clearSearchQuery();
               }
             });
-            debugPrint('🔍 Search toggled: $_isSearching');
+            LogService.debug('🔍 Search toggled: $_isSearching');
           },
           showArchivedOnly: provider.showArchivedOnly,
           onArchiveToggle: () {
             provider.toggleArchivedFilter();
-            debugPrint('📦 Archive filter toggled: ${provider.showArchivedOnly}');
+            LogService.debug('📦 Archive filter toggled: ${provider.showArchivedOnly}');
           },
         ),
         body: Consumer<NotesProvider>(
@@ -153,7 +154,7 @@ class _NotesPageState extends State<NotesPage> {
                       autofocus: true,
                       onChanged: (value) {
                         provider.updateSearchQuery(value);
-                        debugPrint('🔍 Search query: $value');
+                        LogService.debug('🔍 Search query: $value');
                       },
                       style: const TextStyle(fontSize: 14),
                       decoration: InputDecoration(
@@ -177,7 +178,7 @@ class _NotesPageState extends State<NotesPage> {
                                 onPressed: () {
                                   _searchController.clear();
                                   provider.clearSearchQuery();
-                                  debugPrint('🔍 Search cleared');
+                                  LogService.debug('🔍 Search cleared');
                                 },
                               )
                             : null,
@@ -238,7 +239,7 @@ class _NotesPageState extends State<NotesPage> {
 
     if (provider.filteredNotes.isEmpty) {
       final message = provider.showArchivedOnly ? LocaleKeys.NoArchivedNotes.tr() : LocaleKeys.NoteNotFound.tr();
-      debugPrint('📝 NotesPage: No notes found. Archived filter: ${provider.showArchivedOnly}, Message: $message');
+      LogService.debug('📝 NotesPage: No notes found. Archived filter: ${provider.showArchivedOnly}, Message: $message');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -332,7 +333,7 @@ class _NotesPageState extends State<NotesPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(LocaleKeys.NoteDeleted.tr())),
                 );
-                debugPrint('✅ Note ${note.id} deleted');
+                LogService.debug('✅ Note ${note.id} deleted');
               },
               child: Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: Colors.red)),
             ),

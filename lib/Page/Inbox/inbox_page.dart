@@ -15,6 +15,7 @@ import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
@@ -71,7 +72,7 @@ class _InboxPageState extends State<InboxPage> {
       } else {
         _dateFilterState = DateFilterState.withoutDate; // Default to withoutDate if no valid preference is found
       }
-      debugPrint('Loaded date filter: $_dateFilterState (index: $dateFilterIndex)');
+      LogService.debug('Loaded date filter: $_dateFilterState (index: $dateFilterIndex)');
 
       // Load task type filter preferences
       final hasCheckbox = prefs.getBool('categories_show_checkbox') ?? true;
@@ -136,7 +137,7 @@ class _InboxPageState extends State<InboxPage> {
 
     // Save date filter preference
     await prefs.setInt('categories_date_filter', _dateFilterState.index);
-    debugPrint('Saved date filter: $_dateFilterState (index: ${_dateFilterState.index})');
+    LogService.debug('Saved date filter: $_dateFilterState (index: ${_dateFilterState.index})');
 
     // Save task type filter preferences
     await prefs.setBool('categories_show_checkbox', _selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX));
@@ -186,7 +187,7 @@ class _InboxPageState extends State<InboxPage> {
                     _searchController.clear();
                   }
                 });
-                debugPrint('🔍 Inbox search toggled: $_isSearchActive');
+                LogService.debug('🔍 Inbox search toggled: $_isSearchActive');
               },
             ),
             // Arşiv icon - Arşivlenmiş rutinler sayfasına git
@@ -197,7 +198,7 @@ class _InboxPageState extends State<InboxPage> {
               ),
               tooltip: LocaleKeys.ArchivedRoutines.tr(),
               onPressed: () {
-                debugPrint('📦 Navigating to archived routines page');
+                LogService.debug('📦 Navigating to archived routines page');
                 Navigator.push(
                   context,
                   MaterialPageRoute(

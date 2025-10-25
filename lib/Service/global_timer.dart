@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -14,6 +13,7 @@ import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class GlobalTimer {
   static final GlobalTimer _instance = GlobalTimer._internal();
@@ -291,14 +291,14 @@ class GlobalTimer {
                 String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
                 bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
 
-                debugPrint('🔥 STORE ITEM ALARM CHECK: ${storeItem.title} (ID: ${storeItem.id})');
-                debugPrint('🔥 Previous duration: ${previousDuration.inSeconds}s');
-                debugPrint('🔥 Current duration: ${storeItem.currentDuration!.inSeconds}s');
-                debugPrint('🔥 Alarm triggered flag: $alarmTriggered');
-                debugPrint('🔥 Memory flag: ${_storeItemAlarmTriggeredMemory.contains(storeItem.id)}');
+                LogService.debug('🔥 STORE ITEM ALARM CHECK: ${storeItem.title} (ID: ${storeItem.id})');
+                LogService.debug('🔥 Previous duration: ${previousDuration.inSeconds}s');
+                LogService.debug('🔥 Current duration: ${storeItem.currentDuration!.inSeconds}s');
+                LogService.debug('🔥 Alarm triggered flag: $alarmTriggered');
+                LogService.debug('🔥 Memory flag: ${_storeItemAlarmTriggeredMemory.contains(storeItem.id)}');
 
                 if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
-                  debugPrint('🔥 TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
+                  LogService.debug('🔥 TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
 
                   // Cancel the scheduled notification first
                   NotificationService().cancelNotificationOrAlarm(storeItem.id + 100000);
@@ -321,9 +321,9 @@ class GlobalTimer {
                   await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
                   _storeItemAlarmTriggeredMemory.add(storeItem.id);
 
-                  debugPrint('🔥 ALARM TRIGGERED AND MARKED FOR STORE ITEM: ${storeItem.title}');
+                  LogService.debug('🔥 ALARM TRIGGERED AND MARKED FOR STORE ITEM: ${storeItem.title}');
                 } else {
-                  debugPrint('🔥 ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
+                  LogService.debug('🔥 ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
                 }
               }
 
@@ -419,7 +419,7 @@ class GlobalTimer {
             String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
             bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
             if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
-              debugPrint('🔥 [RESUME] TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
+              LogService.debug('🔥 [RESUME] TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
               NotificationService().scheduleNotification(
                 id: storeItem.id + 200000,
                 title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
@@ -432,9 +432,9 @@ class GlobalTimer {
               });
               await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
               _storeItemAlarmTriggeredMemory.add(storeItem.id);
-              debugPrint('🔥 [RESUME] ALARM TRIGGERED FOR STORE ITEM: ${storeItem.title}');
+              LogService.debug('🔥 [RESUME] ALARM TRIGGERED FOR STORE ITEM: ${storeItem.title}');
             } else {
-              debugPrint('🔥 [RESUME] ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
+              LogService.debug('🔥 [RESUME] ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
             }
           }
 

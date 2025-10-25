@@ -10,6 +10,7 @@ import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/task_log_model.dart';
 import 'package:intl/intl.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class TraitProgressData {
   final int traitId;
@@ -85,11 +86,11 @@ class TaskDetailViewModel with ChangeNotifier {
     if (taskModel.routineID != null) {
       // Rutin için TÜM RUTIN TASKLAR'ın loglarını al (tarihten bağımsız)
       logs = TaskLogProvider().getLogsByRoutineId(taskModel.routineID!);
-      debugPrint('✅ Statistics: Rutin için ${logs.length} log bulundu (tüm tasklar)');
+      LogService.debug('✅ Statistics: Rutin için ${logs.length} log bulundu (tüm tasklar)');
     } else {
       // Tek task için logları al
       logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
-      debugPrint('✅ Statistics: Task için ${logs.length} log bulundu');
+      LogService.debug('✅ Statistics: Task için ${logs.length} log bulundu');
     }
 
     // İstatistikleri sıfırla
@@ -124,7 +125,7 @@ class TaskDetailViewModel with ChangeNotifier {
         taskRutinCreatedDate = routine.createdDate;
       } catch (e) {
         // If routine not found, use current date as fallback
-        debugPrint('Routine with ID ${taskModel.routineID} not found in TaskProvider list');
+        LogService.error('Routine with ID ${taskModel.routineID} not found in TaskProvider list');
         taskRutinCreatedDate = DateTime.now();
       }
     } else {
@@ -210,9 +211,9 @@ class TaskDetailViewModel with ChangeNotifier {
     logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
 
     if (taskModel.routineID != null) {
-      debugPrint('✅ Recent logs: Rutin task (ID: ${taskModel.id}) için ${logs.length} log bulundu');
+      LogService.debug('✅ Recent logs: Rutin task (ID: ${taskModel.id}) için ${logs.length} log bulundu');
     } else {
-      debugPrint('✅ Recent logs: Normal task için ${logs.length} log bulundu');
+      LogService.debug('✅ Recent logs: Normal task için ${logs.length} log bulundu');
     }
 
     // Sort logs by date (newest first) with precise timestamp comparison including seconds and milliseconds
@@ -342,6 +343,6 @@ class TaskDetailViewModel with ChangeNotifier {
 
   Future<void> clearLogsForTask() async {
     await TaskLogProvider().deleteLogsByTaskId(taskModel.id);
-    debugPrint('✅ Logs deleted for task ${taskModel.id}');
+    LogService.debug('✅ Logs deleted for task ${taskModel.id}');
   }
 }

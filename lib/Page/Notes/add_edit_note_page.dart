@@ -6,6 +6,7 @@ import '../../Model/category_model.dart';
 import '../../Provider/notes_provider.dart';
 import '../../General/app_colors.dart';
 import '../../Service/locale_keys.g.dart';
+import '../../Service/logging_service.dart';
 
 /// Not ekleme ve düzenleme sayfası
 class AddEditNotePage extends StatefulWidget {
@@ -48,7 +49,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
       });
     }
 
-    debugPrint('🔧 AddEditNotePage: Initialized ${isEditing ? "edit" : "add"} mode');
+    LogService.debug('🔧 AddEditNotePage: Initialized ${isEditing ? "edit" : "add"} mode');
   }
 
   @override
@@ -270,7 +271,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
 
       if (isEditing) {
         // Mevcut notu güncelle
-        debugPrint('📝 AddEditNotePage: Updating note ${widget.note!.id}');
+        LogService.debug('📝 AddEditNotePage: Updating note ${widget.note!.id}');
         final updatedNote = widget.note!.copyWith(
           title: _titleController.text.trim(),
           content: _contentController.text.trim(),
@@ -281,7 +282,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         success = await provider.updateNote(updatedNote);
       } else {
         // Yeni not ekle
-        debugPrint('➕ AddEditNotePage: Adding new note');
+        LogService.debug('➕ AddEditNotePage: Adding new note');
         success = await provider.addNote(
           title: _titleController.text.trim(),
           content: _contentController.text.trim(),
@@ -295,7 +296,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         });
 
         if (success) {
-          debugPrint('✅ AddEditNotePage: Note saved successfully');
+          LogService.debug('✅ AddEditNotePage: Note saved successfully');
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -306,7 +307,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
             ),
           );
         } else {
-          debugPrint('❌ AddEditNotePage: Failed to save note');
+          LogService.error('❌ AddEditNotePage: Failed to save note');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -318,7 +319,7 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         }
       }
     } catch (e) {
-      debugPrint('❌ AddEditNotePage: Error saving note: $e');
+      LogService.error('❌ AddEditNotePage: Error saving note: $e');
       if (mounted) {
         setState(() {
           _isSaving = false;

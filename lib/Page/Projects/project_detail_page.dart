@@ -13,6 +13,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
 import 'package:next_level/Widgets/Common/add_item_dialog.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:next_level/Widgets/Projects/add_project_note_bottom_sheet.dart';
 
@@ -59,23 +60,23 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
 
   Future<void> _loadProjectData() async {
-    debugPrint('🔄 ProjectDetailPage: Starting to load data for project: ${_currentProject.id}');
+    LogService.debug('🔄 ProjectDetailPage: Starting to load data for project: ${_currentProject.id}');
     setState(() => _isLoading = true);
     final provider = context.read<ProjectsProvider>();
 
     // Get updated project from provider
     final projects = provider.projects;
-    debugPrint('📊 ProjectDetailPage: Provider has ${projects.length} projects');
+    LogService.debug('📊 ProjectDetailPage: Provider has ${projects.length} projects');
 
     final updatedProject = projects.firstWhere(
       (p) => p.id == _currentProject.id,
       orElse: () {
-        debugPrint('❌ ProjectDetailPage: Project not found in provider, using original');
+        LogService.debug('❌ ProjectDetailPage: Project not found in provider, using original');
         return _currentProject;
       },
     );
 
-    debugPrint('📂 ProjectDetailPage: Found project: ${updatedProject.title}');
+    LogService.debug('📂 ProjectDetailPage: Found project: ${updatedProject.title}');
 
     _subtasks = await provider.getProjectSubtasks(_currentProject.id);
     _notes = await provider.getProjectNotes(_currentProject.id);
@@ -88,7 +89,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       _currentProject = updatedProject;
       _isLoading = false;
     });
-    debugPrint('📂 ProjectDetailPage: Loaded ${_subtasks.length} subtasks, ${_notes.length} notes for project: ${_currentProject.title}');
+    LogService.debug('📂 ProjectDetailPage: Loaded ${_subtasks.length} subtasks, ${_notes.length} notes for project: ${_currentProject.title}');
 
     // Check clipboard after loading data
     _checkClipboard();
@@ -141,7 +142,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             setState(() {
               _currentProject = updated;
             });
-            debugPrint('✅ ProjectDetailPage: Description auto-saved');
+            LogService.debug('✅ ProjectDetailPage: Description auto-saved');
           },
         ),
       ),
@@ -179,7 +180,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       setState(() {
         _currentProject = updated;
       });
-      debugPrint('✅ ProjectDetailPage: Creation date updated to ${pickedDate.toString()}');
+      LogService.debug('✅ ProjectDetailPage: Creation date updated to ${pickedDate.toString()}');
     }
   }
 
@@ -202,7 +203,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       setState(() {
         _currentProject = updated;
       });
-      debugPrint('✅ ProjectDetailPage: Project updated, UI refreshed');
+      LogService.debug('✅ ProjectDetailPage: Project updated, UI refreshed');
     }
   }
 
@@ -285,7 +286,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
           await provider.addSubtask(subtask);
           await _loadProjectData();
-          debugPrint('✅ ProjectDetailPage: Subtask added');
+          LogService.debug('✅ ProjectDetailPage: Subtask added');
         },
         isEditing: false,
       ),
@@ -312,7 +313,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
           await provider.addProjectNote(note);
           await _loadProjectData();
-          debugPrint('✅ ProjectDetailPage: Note added with title: $title');
+          LogService.debug('✅ ProjectDetailPage: Note added with title: $title');
         },
       ),
     );
@@ -320,8 +321,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🏗️ ProjectDetailPage: Building UI for project: ${_currentProject.title}');
-    debugPrint('📊 ProjectDetailPage: Current project - ID: ${_currentProject.id}, Title: ${_currentProject.title}, Description: ${_currentProject.description}');
+    LogService.debug('🏗️ ProjectDetailPage: Building UI for project: ${_currentProject.title}');
+    LogService.debug('📊 ProjectDetailPage: Current project - ID: ${_currentProject.id}, Title: ${_currentProject.title}, Description: ${_currentProject.description}');
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -351,7 +352,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               setState(() {
                 _currentProject = updatedProject;
               });
-              debugPrint('📌 ProjectDetailPage: Pin state updated to ${_currentProject.isPinned}');
+              LogService.debug('📌 ProjectDetailPage: Pin state updated to ${_currentProject.isPinned}');
             },
           ),
           // Düzenleme menüsü
@@ -444,7 +445,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   }
 
   Widget _buildProjectInfoCard() {
-    debugPrint('🎴 ProjectDetailPage: Building project info card for: ${_currentProject.title}');
+    LogService.debug('🎴 ProjectDetailPage: Building project info card for: ${_currentProject.title}');
 
     return InkWell(
       onTap: () {
@@ -835,7 +836,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       }
 
                       setState(() {});
-                      debugPrint('✅ Subtasks reordered');
+                      LogService.debug('✅ Subtasks reordered');
                     },
                     itemBuilder: (context, index) {
                       final subtask = _subtasks[index];
@@ -861,7 +862,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               final provider = context.read<ProjectsProvider>();
               await provider.deleteSubtask(subtask.id);
               await _loadProjectData();
-              debugPrint('🗑️ Subtask deleted via slidable');
+              LogService.debug('🗑️ Subtask deleted via slidable');
             },
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
@@ -921,7 +922,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   subtask.description = description;
                   await provider.updateSubtask(subtask);
                   await _loadProjectData();
-                  debugPrint('✅ ProjectDetailPage: Subtask updated');
+                  LogService.debug('✅ ProjectDetailPage: Subtask updated');
                 },
                 isEditing: true,
               ),
@@ -1106,7 +1107,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 }
 
                 setState(() {});
-                debugPrint('✅ Notes reordered');
+                LogService.debug('✅ Notes reordered');
               },
               children: _notes.map((note) => _buildNoteItem(note)).toList(),
             ),
@@ -1126,7 +1127,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
               final provider = context.read<ProjectsProvider>();
               await provider.deleteProjectNote(note.id);
               await _loadProjectData();
-              debugPrint('🗑️ Note deleted via slidable');
+              LogService.debug('🗑️ Note deleted via slidable');
             },
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
@@ -1152,7 +1153,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 note.updatedAt = DateTime.now();
                 await provider.updateProjectNote(note);
                 await _loadProjectData();
-                debugPrint('✅ ProjectDetailPage: Note updated with title: $title');
+                LogService.debug('✅ ProjectDetailPage: Note updated with title: $title');
               },
             ),
           );
@@ -1248,7 +1249,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
   void _copyAllSubtasks() {
     if (_subtasks.isEmpty) {
-      debugPrint('⚠️ ProjectDetailPage: No subtasks to copy');
+      LogService.error('⚠️ ProjectDetailPage: No subtasks to copy');
       return;
     }
 
@@ -1279,7 +1280,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           backgroundColor: AppColors.main,
         ),
       );
-      debugPrint('✅ ProjectDetailPage: ${_subtasks.length} subtasks copied to clipboard');
+      LogService.debug('✅ ProjectDetailPage: ${_subtasks.length} subtasks copied to clipboard');
     });
   }
 
@@ -1293,7 +1294,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           backgroundColor: AppColors.text.withValues(alpha: 0.7),
         ),
       );
-      debugPrint('⚠️ ProjectDetailPage: No incomplete subtasks to copy');
+      LogService.error('⚠️ ProjectDetailPage: No incomplete subtasks to copy');
       return;
     }
 
@@ -1316,7 +1317,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           backgroundColor: AppColors.main,
         ),
       );
-      debugPrint('✅ ProjectDetailPage: ${incomplete.length} incomplete subtasks copied');
+      LogService.debug('✅ ProjectDetailPage: ${incomplete.length} incomplete subtasks copied');
     });
   }
 
@@ -1358,7 +1359,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   Future<void> _pasteSubtasks() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data?.text == null || data!.text!.isEmpty) {
-      debugPrint('⚠️ ProjectDetailPage: Clipboard is empty');
+      LogService.error('⚠️ ProjectDetailPage: Clipboard is empty');
       return;
     }
 
@@ -1370,7 +1371,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           backgroundColor: Colors.red,
         ),
       );
-      debugPrint('⚠️ ProjectDetailPage: No valid subtasks in clipboard');
+      LogService.error('⚠️ ProjectDetailPage: No valid subtasks in clipboard');
       return;
     }
 
@@ -1390,12 +1391,12 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         backgroundColor: AppColors.main,
       ),
     );
-    debugPrint('✅ ProjectDetailPage: ${parsedSubtasks.length} subtasks pasted');
+    LogService.debug('✅ ProjectDetailPage: ${parsedSubtasks.length} subtasks pasted');
   }
 
   Future<void> _completeAllSubtasks() async {
     if (_subtasks.isEmpty) {
-      debugPrint('⚠️ ProjectDetailPage: No subtasks to complete');
+      LogService.error('⚠️ ProjectDetailPage: No subtasks to complete');
       return;
     }
 
@@ -1419,12 +1420,12 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         backgroundColor: AppColors.green,
       ),
     );
-    debugPrint('✅ ProjectDetailPage: $completedCount subtasks completed');
+    LogService.debug('✅ ProjectDetailPage: $completedCount subtasks completed');
   }
 
   Future<void> _incompleteAllSubtasks() async {
     if (_subtasks.isEmpty) {
-      debugPrint('⚠️ ProjectDetailPage: No subtasks to incomplete');
+      LogService.error('⚠️ ProjectDetailPage: No subtasks to incomplete');
       return;
     }
 
@@ -1448,12 +1449,12 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         backgroundColor: AppColors.orange,
       ),
     );
-    debugPrint('✅ ProjectDetailPage: $incompletedCount subtasks marked as incomplete');
+    LogService.debug('✅ ProjectDetailPage: $incompletedCount subtasks marked as incomplete');
   }
 
   Future<void> _clearAllSubtasks() async {
     if (_subtasks.isEmpty) {
-      debugPrint('⚠️ ProjectDetailPage: No subtasks to clear');
+      LogService.error('⚠️ ProjectDetailPage: No subtasks to clear');
       return;
     }
 
@@ -1495,7 +1496,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         backgroundColor: AppColors.red,
       ),
     );
-    debugPrint('✅ ProjectDetailPage: $count subtasks cleared');
+    LogService.debug('✅ ProjectDetailPage: $count subtasks cleared');
   }
 
   void _toggleShowOnlyIncomplete() async {
@@ -1515,6 +1516,6 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
       _currentProject = updated;
     });
 
-    debugPrint('🔄 ProjectDetailPage: Show only incomplete toggled to $_showOnlyIncomplete and saved to project');
+    LogService.debug('🔄 ProjectDetailPage: Show only incomplete toggled to $_showOnlyIncomplete and saved to project');
   }
 }

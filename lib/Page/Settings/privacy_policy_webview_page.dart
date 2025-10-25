@@ -4,6 +4,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class PrivacyPolicyWebViewPage extends StatefulWidget {
   const PrivacyPolicyWebViewPage({super.key});
@@ -21,27 +22,27 @@ class _PrivacyPolicyWebViewPageState extends State<PrivacyPolicyWebViewPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint('Privacy Policy WebView: Initializing controller');
+    LogService.debug('Privacy Policy WebView: Initializing controller');
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(AppColors.background)
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            debugPrint('Privacy Policy WebView: Loading progress: $progress%');
+            LogService.debug('Privacy Policy WebView: Loading progress: $progress%');
           },
           onPageStarted: (String url) {
-            debugPrint('Privacy Policy WebView: Started loading $url');
+            LogService.debug('Privacy Policy WebView: Started loading $url');
           },
           onPageFinished: (String url) {
-            debugPrint('Privacy Policy WebView: Finished loading $url');
+            LogService.debug('Privacy Policy WebView: Finished loading $url');
           },
           onWebResourceError: (WebResourceError error) {
-            debugPrint('Privacy Policy WebView: Error loading page: ${error.description}');
+            LogService.error('Privacy Policy WebView: Error loading page: ${error.description}');
           },
           onNavigationRequest: (NavigationRequest request) {
             if (request.url.startsWith('https://www.youtube.com/')) {
-              debugPrint('Privacy Policy WebView: Blocked navigation to YouTube');
+              LogService.debug('Privacy Policy WebView: Blocked navigation to YouTube');
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;
@@ -49,7 +50,7 @@ class _PrivacyPolicyWebViewPageState extends State<PrivacyPolicyWebViewPage> {
         ),
       )
       ..loadRequest(Uri.parse(privacyPolicyUrl));
-    debugPrint('Privacy Policy WebView: Controller initialized successfully');
+    LogService.debug('Privacy Policy WebView: Controller initialized successfully');
   }
 
   @override

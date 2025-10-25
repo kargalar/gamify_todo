@@ -674,10 +674,10 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
 
         if (isEditing) {
           success = await provider.updateProject(project);
-          debugPrint('✅ AddEditItemBottomSheet: Project updated');
+          LogService.debug('✅ AddEditItemBottomSheet: Project updated');
         } else {
           success = await provider.addProject(project);
-          debugPrint('✅ AddEditItemBottomSheet: New project created');
+          LogService.debug('✅ AddEditItemBottomSheet: New project created');
         }
       } else {
         // Note

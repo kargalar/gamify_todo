@@ -1,117 +1,117 @@
-import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/hive_service.dart';
+import 'logging_service.dart';
 
 class DebugHelper {
   static void debugRoutineScheduling() {
-    debugPrint('=== ROUTINE SCHEDULING DEBUG ===');
+    LogService.debug('=== ROUTINE SCHEDULING DEBUG ===');
 
     final routines = TaskProvider().routineList;
     final today = DateTime.now();
 
-    debugPrint('Total routines: ${routines.length}');
-    debugPrint('Today: $today (weekday: ${today.weekday})');
-    debugPrint('Today weekday-1: ${today.weekday - 1}');
+    LogService.debug('Total routines: ${routines.length}');
+    LogService.debug('Today: $today (weekday: ${today.weekday})');
+    LogService.debug('Today weekday-1: ${today.weekday - 1}');
 
     for (int i = 0; i < routines.length; i++) {
       final routine = routines[i];
-      debugPrint('\n--- Routine ${i + 1}: ${routine.title} ---');
-      debugPrint('ID: ${routine.id}');
-      debugPrint('Repeat days: ${routine.repeatDays}');
-      debugPrint('Start date: ${routine.startDate}');
-      debugPrint('Is archived: ${routine.isArchived}');
-      debugPrint('Notification on: ${routine.isNotificationOn}');
-      debugPrint('Alarm on: ${routine.isAlarmOn}');
-      debugPrint('Time: ${routine.time}');
+      LogService.debug('\n--- Routine ${i + 1}: ${routine.title} ---');
+      LogService.debug('ID: ${routine.id}');
+      LogService.debug('Repeat days: ${routine.repeatDays}');
+      LogService.debug('Start date: ${routine.startDate}');
+      LogService.debug('Is archived: ${routine.isArchived}');
+      LogService.debug('Notification on: ${routine.isNotificationOn}');
+      LogService.debug('Alarm on: ${routine.isAlarmOn}');
+      LogService.debug('Time: ${routine.time}');
 
       // Check if routine should be active today
       final shouldBeActiveToday = routine.isActiveForThisDate(today);
-      debugPrint('Should be active today: $shouldBeActiveToday');
+      LogService.debug('Should be active today: $shouldBeActiveToday');
 
       if (!shouldBeActiveToday) {
-        debugPrint('Reason not active:');
-        debugPrint('  - Contains today weekday (${today.weekday - 1}): ${routine.repeatDays.contains(today.weekday - 1)}');
-        debugPrint('  - Start date check: ${routine.startDate == null ? 'null (OK)' : '${routine.startDate!.isBeforeOrSameDay(today)} (${routine.startDate})'}');
-        debugPrint('  - Not archived: ${!routine.isArchived}');
+        LogService.debug('Reason not active:');
+        LogService.debug('  - Contains today weekday (${today.weekday - 1}): ${routine.repeatDays.contains(today.weekday - 1)}');
+        LogService.debug('  - Start date check: ${routine.startDate == null ? 'null (OK)' : '${routine.startDate!.isBeforeOrSameDay(today)} (${routine.startDate})'}');
+        LogService.debug('  - Not archived: ${!routine.isArchived}');
       }
 
       // Check for the next few days
       for (int day = 0; day < 7; day++) {
         final checkDate = today.add(Duration(days: day));
         final isActive = routine.isActiveForThisDate(checkDate);
-        debugPrint('  ${checkDate.toString().split(' ')[0]} (${checkDate.weekday}): $isActive');
+        LogService.debug('  ${checkDate.toString().split(' ')[0]} (${checkDate.weekday}): $isActive');
       }
     }
 
     // Check existing tasks from routines
     final routineTasks = TaskProvider().taskList.where((task) => task.routineID != null).toList();
-    debugPrint('\n=== EXISTING ROUTINE TASKS ===');
-    debugPrint('Total routine tasks: ${routineTasks.length}');
+    LogService.debug('\n=== EXISTING ROUTINE TASKS ===');
+    LogService.debug('Total routine tasks: ${routineTasks.length}');
 
     for (final task in routineTasks) {
-      debugPrint('Task: ${task.title} (Routine ID: ${task.routineID}, Date: ${task.taskDate})');
+      LogService.debug('Task: ${task.title} (Routine ID: ${task.routineID}, Date: ${task.taskDate})');
     }
   }
 
   static Future<void> debugNotificationSetup() async {
-    debugPrint('=== NOTIFICATION SETUP DEBUG ===');
+    LogService.debug('=== NOTIFICATION SETUP DEBUG ===');
 
     final notificationService = NotificationService();
 
     // Check permissions
     final hasNotificationPermission = await notificationService.checkNotificationPermissions();
-    debugPrint('Notification permission: $hasNotificationPermission');
+    LogService.debug('Notification permission: $hasNotificationPermission');
 
     if (!hasNotificationPermission) {
-      debugPrint('Requesting notification permission...');
+      LogService.debug('Requesting notification permission...');
       final granted = await notificationService.requestNotificationPermissions();
-      debugPrint('Permission granted: $granted');
+      LogService.debug('Permission granted: $granted');
     }
 
     // Test immediate notification
-    debugPrint('Testing immediate notification...');
+    LogService.debug('Testing immediate notification...');
     try {
       await notificationService.notificationTest();
-      debugPrint('✓ Test notification sent');
+      LogService.debug('✓ Test notification sent');
     } catch (e) {
-      debugPrint('✗ Error sending test notification: $e');
+      LogService.error('✗ Error sending test notification: $e');
     }
   }
 
   static Future<void> debugTaskCreationFromRoutines() async {
-    debugPrint('=== TASK CREATION FROM ROUTINES DEBUG ===');
+    LogService.debug('=== TASK CREATION FROM ROUTINES DEBUG ===');
 
     // Force recreation of tasks from routines
     try {
       await HiveService().createTasksFromRoutines();
-      debugPrint('✓ createTasksFromRoutines done');
+      LogService.debug('✓ createTasksFromRoutines done');
     } catch (e) {
-      debugPrint('✗ Error in createTasksFromRoutines: $e');
+      LogService.error('✗ Error in createTasksFromRoutines: $e');
     }
 
     // Check results
     final routineTasks = TaskProvider().taskList.where((task) => task.routineID != null).toList();
-    debugPrint('Routine tasks after creation: ${routineTasks.length}');
+    LogService.debug('Routine tasks after creation: ${routineTasks.length}');
 
     final today = DateTime.now();
     final todayTasks = routineTasks.where((task) => task.taskDate != null && task.taskDate!.isSameDay(today)).toList();
 
-    debugPrint('Today\'s routine tasks: ${todayTasks.length}');
+    LogService.debug('Today\'s routine tasks: ${todayTasks.length}');
     for (final task in todayTasks) {
-      debugPrint('  - ${task.title} (Time: ${task.time}, Notif: ${task.isNotificationOn}, Alarm: ${task.isAlarmOn})');
+      LogService.debug('  - ${task.title} (Time: ${task.time}, Notif: ${task.isNotificationOn}, Alarm: ${task.isAlarmOn})');
     }
   }
 
   static Future<void> runFullDebug() async {
-    debugPrint('\n🔍 STARTING FULL DEBUG SESSION 🔍\n');
+    LogService.debug('\n🔍 STARTING FULL DEBUG SESSION 🔍\n');
 
     // debugRoutineScheduling();
     await debugNotificationSetup();
     // await debugTaskCreationFromRoutines();
 
-    debugPrint('\n✅ FULL DEBUG SESSION DONE ✅\n');
+    LogService.debug('\n✅ FULL DEBUG SESSION DONE ✅\n');
   }
 }

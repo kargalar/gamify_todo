@@ -4,6 +4,7 @@ import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class AttachmentViewerPage extends StatefulWidget {
   final List<String> attachmentPaths;
@@ -70,10 +71,10 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
             ),
           );
         }
-        debugPrint('Dosya indirildi: $newPath');
+        LogService.debug('Dosya indirildi: $newPath');
       }
     } catch (e) {
-      debugPrint('İndirme hatası: $e');
+      LogService.error('İndirme hatası: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -92,7 +93,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
         await Share.shareXFiles([XFile(filePath)]);
       }
     } catch (e) {
-      debugPrint('Paylaşma hatası: $e');
+      LogService.error('Paylaşma hatası: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -105,7 +106,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
   }
 
   Future<void> _openFile(String filePath) async {
-    debugPrint('Dosya açma işlemi başlatıldı: $filePath');
+    LogService.debug('Dosya açma işlemi başlatıldı: $filePath');
     try {
       final result = await OpenFile.open(filePath);
       if (result.type != ResultType.done) {
@@ -121,7 +122,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
         }
       }
     } catch (e) {
-      debugPrint('Dosya açma hatası: $e');
+      LogService.error('Dosya açma hatası: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -236,7 +237,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
                   // Dosya için
                   return GestureDetector(
                     onTap: () {
-                      debugPrint('Dosya tıklandı: $filePath');
+                      LogService.debug('Dosya tıklandı: $filePath');
                       _openFile(filePath);
                     },
                     child: Center(

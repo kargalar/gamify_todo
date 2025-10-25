@@ -26,6 +26,7 @@ import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({
@@ -500,13 +501,13 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
           } else if (addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER) {
             existingTask.currentCount = addTaskProvider.editTask!.currentCount ?? 0;
           } // Now call editTask with the updated existing task
-          debugPrint('Updating existing task with preserved Hive identity: ID=${existingTask.id}');
+          LogService.debug('Updating existing task with preserved Hive identity: ID=${existingTask.id}');
           await TaskProvider().editTask(
             selectedDays: addTaskProvider.selectedDays,
             taskModel: existingTask,
           );
         } else {
-          debugPrint('ERROR: Task not found in taskList: ID=${addTaskProvider.editTask!.id}');
+          LogService.error('ERROR: Task not found in taskList: ID=${addTaskProvider.editTask!.id}');
         }
       } else {
         // For routine tasks, use the original method as it already preserves Hive object identity

@@ -30,6 +30,7 @@ import 'package:next_level/Provider/trait_provider.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class NavbarPageManager extends StatefulWidget {
   const NavbarPageManager({super.key});
@@ -85,10 +86,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    debugPrint('🔄 App lifecycle state changed: $state');
+    LogService.debug('🔄 App lifecycle state changed: $state');
     // Uygulama arkaplandayken timer düzgün çalışmadığı için bu kodu yazdım
     if (state == AppLifecycleState.resumed) {
-      debugPrint('✅ App resumed - reloading data');
+      LogService.debug('✅ App resumed - reloading data');
       // Uygulama öne geldiğinde aktif timer'ları kontrol et
       await GlobalTimer().checkActiveTimerPref();
 
@@ -112,15 +113,15 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
       try {
         final user = await ServerManager().getUser();
         if (user != null) {
-          debugPrint('💰 User reloaded: credit=${user.userCredit}, progress=${user.creditProgress.inMinutes} minutes');
+          LogService.debug('💰 User reloaded: credit=${user.userCredit}, progress=${user.creditProgress.inMinutes} minutes');
           loginUser = user; // Global değişkeni güncelle
           if (mounted) {
             context.read<UserProvider>().setUser(user); // Provider'ı güncelle
-            debugPrint('💰 UserProvider updated with new credit');
+            LogService.debug('💰 UserProvider updated with new credit');
           }
         }
       } catch (e) {
-        debugPrint('❌ Failed to reload user: $e');
+        LogService.error('❌ Failed to reload user: $e');
       }
       // UI'ı tazele
       if (mounted) {
@@ -227,9 +228,9 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     try {
       await HomeWidgetService.setupHomeWidget();
       await HomeWidgetService.updateAllWidgets();
-      debugPrint('Home widget initialized successfully');
+      LogService.debug('Home widget initialized successfully');
     } catch (e) {
-      debugPrint('Failed to initialize home widget: $e');
+      LogService.error('Failed to initialize home widget: $e');
     }
 
     isLoading = true;

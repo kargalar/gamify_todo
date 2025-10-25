@@ -135,7 +135,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
                     Switch(
                       value: _keepScreenOn,
                       onChanged: (value) {
-                        debugPrint('FullScreenTimerPage: Keep screen on toggled to $value');
+                        LogService.debug('FullScreenTimerPage: Keep screen on toggled to $value');
                         setState(() {
                           _keepScreenOn = value;
                         });

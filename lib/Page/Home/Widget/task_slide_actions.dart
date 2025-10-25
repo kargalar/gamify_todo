@@ -9,6 +9,7 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class TaskSlideActions extends StatefulWidget {
   const TaskSlideActions({
@@ -188,7 +189,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
     return SlidableAction(
       onPressed: (context) async {
         // Toggle pin status
-        debugPrint('📌 Task ${widget.taskModel.id} - Pin toggle: $isPinned -> ${!isPinned}');
+        LogService.debug('📌 Task ${widget.taskModel.id} - Pin toggle: $isPinned -> ${!isPinned}');
         await taskProvider.toggleTaskPin(widget.taskModel.id);
       },
       backgroundColor: isPinned ? AppColors.grey : AppColors.main,
