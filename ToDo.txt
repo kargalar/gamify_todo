@@ -34,22 +34,15 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. ne yapılabilir
 NOTE: bildirimleri de bunne göre güncellemelisin
 
-
 privicay policy domain bağla
 
-attachments ve tema geçcii oalrak kaldırldı
+attachments ve tema geçici oalrak kaldırldı
 
 appardaki streaka basınca streaklarıda göstersin son 1 haftanına mode a absarsa takvimden
 
 editteyken sürekli log atması
 
-ilk task acitonda appardaki süre güncellenmiyor ve counter takların süresi yaanlış hesaplanıyor. (edittenken - log girince. logu silince yine düzgün.)
-
-timer task aktifken günün toplam çalışma süresi 2 katınca çıkıyor. (veya sadece tmier taskın süresi 2 katına çıkıyor olabilir)
-
 en sonra bunkü yapıaln taskalrın listeinin ve o bottomshettin boyuutu n ayalrıyorudm
-
-checkbox tasklarda done durumundan çıkaırlınca done logu silinmeli (aynı şekilde cancel veya faild iken de geri alınca null veya inprogress yerine direkt o logu silmeli)
 
 streak takvime çalışıyor mu bak
 

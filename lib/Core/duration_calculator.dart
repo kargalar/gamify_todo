@@ -64,11 +64,47 @@ class DurationCalculator {
       }
     }
 
-    // Add running timers for tasks that are active on the date
+    // Add running timers for tasks that are active on the date.
+    // Avoid double-counting durations that are already present in task logs.
+    // For each active timer task, compute how much duration we've already
+    // accounted for via logs for that task on the date and only add the
+    // remaining (currentDuration - loggedForTask) if positive.
+    final Map<int, Duration> loggedPerTask = {};
+    for (final log in logs) {
+      if (!(log.logDate.year == date.year && log.logDate.month == date.month && log.logDate.day == date.day)) continue;
+      try {
+        final task = TaskProvider().taskList.firstWhere((t) => t.id == log.taskId);
+        final int taskId = task.id;
+        Duration add = Duration.zero;
+        if (log.duration != null) {
+          add = log.duration!;
+        } else if (log.count != null && log.count! > 0 && task.remainingDuration != null) {
+          final count = log.count! <= 100 ? log.count! : 5;
+          add = task.remainingDuration! * count;
+        } else if (log.status == TaskStatusEnum.DONE && task.remainingDuration != null) {
+          // For checkbox DONE entries, ensure we count the remainingDuration once.
+          add = task.remainingDuration!;
+        }
+
+        if (add > Duration.zero) {
+          loggedPerTask[taskId] = (loggedPerTask[taskId] ?? Duration.zero) + add;
+        }
+      } catch (_) {
+        // ignore
+      }
+    }
+
     for (final task in TaskProvider().taskList) {
       if (task.isTimerActive == true && task.taskDate != null && task.taskDate!.isSameDay(date)) {
-        total += task.currentDuration ?? Duration.zero;
-        debugPrint('DurationCalculator: Added running timer: ${(task.currentDuration ?? Duration.zero).compactFormat()} for task ${task.title}');
+        final current = task.currentDuration ?? Duration.zero;
+        final alreadyLogged = loggedPerTask[task.id] ?? Duration.zero;
+        final remaining = current - alreadyLogged;
+        if (remaining > Duration.zero) {
+          total += remaining;
+          debugPrint('DurationCalculator: Added running timer delta: ${remaining.compactFormat()} for task ${task.title} (current: ${current.compactFormat()}, logged: ${alreadyLogged.compactFormat()})');
+        } else {
+          debugPrint('DurationCalculator: Skipped running timer for task ${task.title} because currentDuration <= logged (${current.compactFormat()} <= ${alreadyLogged.compactFormat()})');
+        }
       }
     }
 
@@ -121,12 +157,11 @@ class DurationCalculator {
       }
     }
 
-    // Include running timers for tasks scheduled on the date
-    for (final t in TaskProvider().taskList) {
-      if (t.isTimerActive == true && t.taskDate != null && t.taskDate!.isSameDay(date)) {
-        perTask[t.id] = (perTask[t.id] ?? Duration.zero) + (t.currentDuration ?? Duration.zero);
-      }
-    }
+    // NOTE: contributions list intentionally reflects only logged durations
+    // (manual logs, checkbox completions, counter increments). Running
+    // timers are excluded from the per-task contributions to avoid confusing
+    // the breakdown view — running timers are still included in the overall
+    // totals via calculateTotalDurationForDate.
 
     // Build list of contributions with titles
     final List<Map<String, dynamic>> list = [];
