@@ -278,6 +278,15 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
   Widget build(BuildContext context) {
     final addTaskProvider = context.watch<AddTaskProvider>();
 
+    // Sort subtasks: incomplete first, then completed, and within each group sort by newest first (higher id)
+    addTaskProvider.subtasks.sort((a, b) {
+      // First sort by completion status (incomplete first)
+      if (a.isCompleted && !b.isCompleted) return 1;
+      if (!a.isCompleted && b.isCompleted) return -1;
+      // Within same completion status, sort by id descending (newest first)
+      return b.id.compareTo(a.id);
+    });
+
     return Container(
       padding: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(

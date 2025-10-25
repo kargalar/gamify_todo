@@ -90,6 +90,73 @@ class ProjectCard extends BaseCard {
       ),
       child: InkWell(
         onTap: onTap,
+        onLongPress: () {
+          // Proje düzenleme dialog'u
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => AddItemDialog(
+              title: 'edit_project'.tr(),
+              icon: Icons.edit,
+              titleLabel: 'project_title'.tr(),
+              titleHint: 'enter_project_title'.tr(),
+              titleRequired: true,
+              initialTitle: project.title,
+              descriptionLabel: 'description'.tr(),
+              descriptionHint: 'enter_project_description'.tr(),
+              descriptionRequired: false,
+              initialDescription: project.description,
+              descriptionMaxLines: 3,
+              descriptionMinLines: 1,
+              showCancelButton: true,
+              onSave: (title, description) async {
+                if (title != null && title.isNotEmpty) {
+                  try {
+                    final projectsProvider = Provider.of<ProjectsProvider>(context, listen: false);
+
+                    final updatedProject = project.copyWith(
+                      title: title,
+                      description: description ?? '',
+                    );
+
+                    final success = await projectsProvider.updateProject(updatedProject);
+
+                    if (success && context.mounted) {
+                      Navigator.of(context).pop(); // Dialog'u kapat
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('ProjectUpdateSuccess'.tr()),
+                          backgroundColor: AppColors.green,
+                        ),
+                      );
+                    } else if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('ProjectUpdateError'.tr()),
+                          backgroundColor: AppColors.red,
+                        ),
+                      );
+                    }
+
+                    debugPrint('✅ Project updated successfully: $title');
+                  } catch (e) {
+                    debugPrint('❌ Error updating project: $e');
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('ProjectUpdateError'.tr()),
+                          backgroundColor: AppColors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              isEditing: true,
+            ),
+          );
+        },
         borderRadius: AppColors.borderRadiusAll,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

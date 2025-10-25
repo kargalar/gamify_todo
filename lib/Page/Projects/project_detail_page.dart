@@ -80,6 +80,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     _subtasks = await provider.getProjectSubtasks(_currentProject.id);
     _notes = await provider.getProjectNotes(_currentProject.id);
 
+    // Sort subtasks and notes from new to old (newest first)
+    _subtasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    _notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
     setState(() {
       _currentProject = updatedProject;
       _isLoading = false;

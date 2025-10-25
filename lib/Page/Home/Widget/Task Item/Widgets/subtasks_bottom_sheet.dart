@@ -52,12 +52,14 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
     final taskProvider = context.watch<TaskProvider>();
     final subtasks = widget.taskModel.subtasks ?? [];
 
-    // Sort subtasks: incomplete first, completed last
+    // Sort subtasks: incomplete first, then completed, and within each group sort by newest first (higher id)
     final sortedSubtasks = List<SubTaskModel>.from(subtasks)
       ..sort((a, b) {
+        // First sort by completion status (incomplete first)
         if (a.isCompleted && !b.isCompleted) return 1;
         if (!a.isCompleted && b.isCompleted) return -1;
-        return 0;
+        // Within same completion status, sort by id descending (newest first)
+        return b.id.compareTo(a.id);
       });
 
     final displayedSubtasks = widget.taskModel.showSubtasks ? sortedSubtasks : sortedSubtasks.where((subtask) => !subtask.isCompleted).toList();

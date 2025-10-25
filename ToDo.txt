@@ -64,9 +64,7 @@ profildeki çalışma grafiğinde barlara basınca o barın detaylarına gidlirs
 
 slitch tasarım geliştirmeleri
 
-proje taska basınca düzenle bottomsheet açılssın
-
-projenin taskları ve notları yeniden eskiye sıralansın
+proje taska basılı tutunca düzenle bottomsheet açılssın
 
 projenin task sayısı incompleted duruundayekn sadece incompletederi sayıyor. her şekilde completleri de dahil ederek saymalı
 
