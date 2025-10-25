@@ -200,59 +200,57 @@ class TaskName extends StatelessWidget {
                     }
                   },
                 ),
-                Stack(
+
+                // Description field with inline editing and full-screen option
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Description field with inline editing and full-screen option
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: IconButton(
-                        icon: const Icon(Icons.fullscreen, size: 18),
-                        onPressed: () async {
-                          LogService.debug('🔍 TaskName: Opening full screen description editor');
-                          provider.unfocusAll();
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DescriptionEditor(isStore: isStore),
-                            ),
-                          );
-                          LogService.debug('✅ TaskName: Returned from full screen editor');
-                        },
-                        tooltip: 'Full Screen',
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Inline description TextField
-                    TextField(
-                      controller: provider.descriptionController,
-                      focusNode: provider.descriptionFocus,
-                      textCapitalization: TextCapitalization.sentences,
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: LocaleKeys.EnterDescription.tr(),
-                        hintStyle: TextStyle(
-                          color: AppColors.text.withValues(alpha: 0.4),
-                          fontSize: 14,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      maxLines: 4,
-                      minLines: 2,
-                      keyboardType: TextInputType.multiline,
-                      textInputAction: TextInputAction.newline,
-                      onChanged: (value) {
-                        provider.notifyListeners();
+                    IconButton(
+                      icon: const Icon(Icons.fullscreen, size: 18),
+                      onPressed: () async {
+                        LogService.debug('🔍 TaskName: Opening full screen description editor');
+                        provider.unfocusAll();
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DescriptionEditor(isStore: isStore),
+                          ),
+                        );
+                        LogService.debug('✅ TaskName: Returned from full screen editor');
                       },
+                      tooltip: 'Full Screen',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
                   ],
-                )
+                ),
+                const SizedBox(height: 4),
+                // Inline description TextField
+                TextField(
+                  controller: provider.descriptionController,
+                  focusNode: provider.descriptionFocus,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: const TextStyle(
+                    fontSize: 14,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: LocaleKeys.EnterDescription.tr(),
+                    hintStyle: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.4),
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  maxLines: 4,
+                  minLines: 2,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                  onChanged: (value) {
+                    provider.notifyListeners();
+                  },
+                ),
               ],
             ),
           ),
