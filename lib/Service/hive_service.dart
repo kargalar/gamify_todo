@@ -32,7 +32,8 @@ import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/logging_service.dart';
 
@@ -474,48 +475,9 @@ class HiveService {
       final fileName = 'gamify_todo_backup_${now.year}${now.month}${now.day}_${now.hour}${now.minute}.json';
       late final String filePath;
 
-      if (Platform.isAndroid) {
-        // Request storage permission
-        if (!await Permission.storage.isGranted) {
-          var status = await Permission.storage.request();
-          if (!status.isGranted) {
-            Helper().getMessage(
-              message: LocaleKeys.storage_permission_required.tr(),
-            );
-            return null;
-          }
-        }
-
-        // Let user choose save location
-        String? selectedPath = await FilePicker.platform.saveFile(
-          dialogTitle: 'Backup dosyasını kaydet',
-          fileName: fileName,
-          type: FileType.custom,
-          allowedExtensions: ['json'],
-        );
-
-        if (selectedPath == null) {
-          // User cancelled
-          return null;
-        }
-
-        filePath = selectedPath;
-      } else {
-        // For Windows and other platforms, let user choose save location
-        String? selectedPath = await FilePicker.platform.saveFile(
-          dialogTitle: 'Backup dosyasını kaydet',
-          fileName: fileName,
-          type: FileType.custom,
-          allowedExtensions: ['json'],
-        );
-
-        if (selectedPath == null) {
-          // User cancelled
-          return null;
-        }
-
-        filePath = selectedPath;
-      }
+      // Get application documents directory
+      final directory = await getApplicationDocumentsDirectory();
+      filePath = '${directory.path}/$fileName';
 
       final file = File(filePath);
       final Map<String, dynamic> allData = {};
@@ -646,10 +608,16 @@ class HiveService {
       final jsonString = jsonEncode(allData);
       await file.writeAsString(jsonString);
 
+      // Share the backup file
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        text: 'Gamify Todo Backup',
+        subject: 'Backup File',
+      );
+
       NavigatorService().back();
 
-      Helper().getMessage(message: LocaleKeys.backup_created_successfully.tr());
-      LogService.debug('Backup created successfully at: $filePath');
+      LogService.debug('Backup created and shared successfully at: $filePath');
 
       return filePath;
     } catch (e) {
