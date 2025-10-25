@@ -5,205 +5,122 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Widgets/clickable_tooltip.dart';
-import 'package:provider/provider.dart';
 
-class SelectDays extends StatefulWidget {
-  const SelectDays({super.key});
+class SelectDaysWidget extends StatefulWidget {
+  final AddTaskProvider addTaskProvider;
+
+  const SelectDaysWidget({
+    super.key,
+    required this.addTaskProvider,
+  });
 
   @override
-  State<SelectDays> createState() => _SelectDaysState();
+  State<SelectDaysWidget> createState() => _SelectDaysWidgetState();
 }
 
-class _SelectDaysState extends State<SelectDays> {
-  late final addTaskProvider = context.read<AddTaskProvider>();
+class _SelectDaysWidgetState extends State<SelectDaysWidget> {
+  // Build select days section for routine mode
+  Widget _buildSelectDaysSection() {
+    late List<String> days;
 
-  late List<String> days;
+    days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  @override
-  Widget build(BuildContext context) {
-    // Listen to changes in selectedDays and selectedDate to rebuild the widget
-    context.watch<AddTaskProvider>();
+    return Column(
+      children: [
+        // Material(
+        //   color: Colors.transparent,
+        //   child: InkWell(
+        //     borderRadius: BorderRadius.circular(6),
+        //     onTap: () {
+        //       // Unfocus any text fields
+        //       widget.addTaskProvider.unfocusAll();
 
-    if (context.locale == const Locale('en', 'US')) {
-      days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    } else {
-      days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-    }
+        //       // Tarihsiz seçiliyken rutin günü seçilmeye çalışıldığında uyarı
+        //       if (widget.addTaskProvider.selectedDate == null && widget.addTaskProvider.selectedDays.length != 7) {
+        //         Helper().getMessage(
+        //           message: LocaleKeys.RoutineMustHaveDate.tr(),
+        //           status: StatusEnum.WARNING,
+        //         );
+        //         debugPrint('SelectDaysWidget: Select all cancelled - no date selected for routine');
+        //         return;
+        //       }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        //       // Toggle select all functionality
+        //       if (widget.addTaskProvider.selectedDays.length == 7) {
+        //         // If all days are selected, clear selection
+        //         widget.addTaskProvider.selectedDays.clear();
+        //         debugPrint('SelectDaysWidget: All days cleared successfully');
+        //       } else {
+        //         // Select all days
+        //         widget.addTaskProvider.selectedDays.clear();
+        //         widget.addTaskProvider.selectedDays.addAll([0, 1, 2, 3, 4, 5, 6]);
+        //         debugPrint('SelectDaysWidget: All days selected successfully');
+        //       }
+        //       setState(() {});
+        //     },
+        //     child: Container(
+        //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        //       decoration: BoxDecoration(
+        //         color: widget.addTaskProvider.selectedDays.length == 7 ? AppColors.main.withValues(alpha: 0.1) : AppColors.text.withValues(alpha: 0.05),
+        //         borderRadius: BorderRadius.circular(6),
+        //         border: Border.all(
+        //           color: widget.addTaskProvider.selectedDays.length == 7 ? AppColors.main.withValues(alpha: 0.3) : AppColors.text.withValues(alpha: 0.1),
+        //           width: 1,
+        //         ),
+        //       ),
+        //       child: Text(
+        //         widget.addTaskProvider.selectedDays.length == 7 ? LocaleKeys.Clear.tr() : LocaleKeys.All.tr(),
+        //         style: TextStyle(
+        //           fontSize: 12,
+        //           fontWeight: FontWeight.w500,
+        //           color: widget.addTaskProvider.selectedDays.length == 7 ? AppColors.main : AppColors.text.withValues(alpha: 0.7),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
+
+        // Days selector
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(
+            days.length,
+            (index) => _buildDayButton(index, days[index]),
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with title and icon
-          Row(
-            children: [
-              Expanded(
-                child: ClickableTooltip(
-                  titleKey: LocaleKeys.tooltip_repeat_days_title,
-                  bulletPoints: [
-                    LocaleKeys.tooltip_repeat_days_bullet_1.tr(),
-                    LocaleKeys.tooltip_repeat_days_bullet_2.tr(),
-                    LocaleKeys.tooltip_repeat_days_bullet_3.tr(),
-                    LocaleKeys.tooltip_repeat_days_bullet_4.tr(),
-                  ],
-                  child: Container(
-                    color: AppColors.transparent,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today_rounded,
-                          color: AppColors.main,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          LocaleKeys.RepeatDays.tr(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Select All button
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(6),
-                  onTap: () {
-                    // Unfocus any text fields
-                    addTaskProvider.unfocusAll();
+        ),
 
-                    // Tarihsiz seçiliyken rutin günü seçilmeye çalışıldığında uyarı
-                    if (addTaskProvider.selectedDate == null && addTaskProvider.selectedDays.length != 7) {
-                      Helper().getMessage(
-                        message: LocaleKeys.RoutineMustHaveDate.tr(),
-                        status: StatusEnum.WARNING,
-                      );
-                      return;
-                    }
-
-                    // Toggle select all functionality
-                    if (addTaskProvider.selectedDays.length == 7) {
-                      // If all days are selected, clear selection
-                      addTaskProvider.selectedDays.clear();
-                    } else {
-                      // Select all days
-                      addTaskProvider.selectedDays.clear();
-                      addTaskProvider.selectedDays.addAll([0, 1, 2, 3, 4, 5, 6]);
-                    }
-                    setState(() {});
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: addTaskProvider.selectedDays.length == 7 ? AppColors.main.withValues(alpha: 0.1) : AppColors.text.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: addTaskProvider.selectedDays.length == 7 ? AppColors.main.withValues(alpha: 0.3) : AppColors.text.withValues(alpha: 0.1),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      addTaskProvider.selectedDays.length == 7 ? LocaleKeys.Clear.tr() : LocaleKeys.All.tr(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: addTaskProvider.selectedDays.length == 7 ? AppColors.main : AppColors.text.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // Divider
+        // Warning message for routines without date
+        if (widget.addTaskProvider.selectedDays.isNotEmpty && widget.addTaskProvider.selectedDate == null)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Divider(
-              color: AppColors.text.withValues(alpha: 0.1),
-              height: 1,
-            ),
-          ),
-
-          // Days selector
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(
-              days.length,
-              (index) => DayButton(
-                index: index,
-                name: days[index],
-              ),
-            ),
-          ),
-
-          // Warning message for routines without date
-          if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.dirtyRed.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColors.dirtyRed,
-                    width: 1,
-                  ),
+            padding: const EdgeInsets.only(top: 12.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppColors.dirtyRed.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppColors.dirtyRed,
+                  width: 1,
                 ),
-                child: Text(
-                  LocaleKeys.RoutineRequiresStartDate.tr(),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.dirtyRed,
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              child: Text(
+                LocaleKeys.RoutineRequiresStartDate.tr(),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.dirtyRed,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
-}
 
-class DayButton extends StatefulWidget {
-  const DayButton({super.key, required this.index, required this.name});
-
-  final int index;
-  final String name;
-
-  @override
-  State<DayButton> createState() => _DayButtonState();
-}
-
-class _DayButtonState extends State<DayButton> {
-  late final addTaskProvider = context.read<AddTaskProvider>();
-
-  @override
-  Widget build(BuildContext context) {
-    // Listen to provider changes to update the button state
-    context.watch<AddTaskProvider>();
-    final isSelected = addTaskProvider.selectedDays.contains(widget.index);
+  // Build day button for select days section
+  Widget _buildDayButton(int index, String name) {
+    final isSelected = widget.addTaskProvider.selectedDays.contains(index);
 
     return Material(
       color: Colors.transparent,
@@ -211,21 +128,24 @@ class _DayButtonState extends State<DayButton> {
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           // Unfocus any text fields when selecting days
-          addTaskProvider.unfocusAll();
+          widget.addTaskProvider.unfocusAll();
 
           // Tarihsiz seçiliyken rutin günü seçilmeye çalışıldığında uyarı
-          if (addTaskProvider.selectedDate == null && !addTaskProvider.selectedDays.contains(widget.index)) {
+          if (widget.addTaskProvider.selectedDate == null && !widget.addTaskProvider.selectedDays.contains(index)) {
             Helper().getMessage(
               message: LocaleKeys.RoutineMustHaveDate.tr(),
               status: StatusEnum.WARNING,
             );
+            debugPrint('SelectDaysWidget: Day $name selection cancelled - no date selected for routine');
             return;
           }
 
-          if (addTaskProvider.selectedDays.contains(widget.index)) {
-            addTaskProvider.selectedDays.remove(widget.index);
+          if (widget.addTaskProvider.selectedDays.contains(index)) {
+            widget.addTaskProvider.selectedDays.remove(index);
+            debugPrint('SelectDaysWidget: Day $name deselected successfully');
           } else {
-            addTaskProvider.selectedDays.add(widget.index);
+            widget.addTaskProvider.selectedDays.add(index);
+            debugPrint('SelectDaysWidget: Day $name selected successfully');
           }
 
           // Force rebuild to show the updated state
@@ -245,7 +165,7 @@ class _DayButtonState extends State<DayButton> {
           ),
           child: Center(
             child: Text(
-              widget.name,
+              name,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -256,5 +176,10 @@ class _DayButtonState extends State<DayButton> {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildSelectDaysSection();
   }
 }

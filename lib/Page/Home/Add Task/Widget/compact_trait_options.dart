@@ -40,9 +40,6 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(12),
-        border: const Border(
-          top: BorderSide(color: AppColors.dirtyWhite),
-        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),

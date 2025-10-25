@@ -57,3 +57,28 @@ günlük hedef 1 saat streak hedefi 4 saat. ben 2 saat çalışamam rağmen stre
 streak hedef ayarlarını ayarlardan kaldır ve haftalık streak alanında düzenle iconuyla gidilebilir yap.
 
 bugünün ilerlemesi kısmındaki task itemların tarmı güncelle.
+
+günlük özet bildirimleri
+
+profildeki çalışma grafiğinde barlara basınca o barın detaylarına gidlirsin
+
+slitch tasarım geliştirmeleri
+
+proje taska basınca düzenle bottomsheet açılssın
+
+projenin taskları ve notları yeniden eskiye sıralansın
+
+projenin task sayısı incompleted duruundayekn sadece incompletederi sayıyor. her şekilde completleri de dahil ederek saymalı
+
+tatil modunda ise günlük süre hedefini de ona göre göstersin
+
+common textfield ve butonu kaldır
+
+notlarda ve projelerde detaylar sayfasında oluşturulma tarihlerni göster. aynı zamanda düzenlenebiir olmalı
+
+streak bottom sheete safe are ekle ve alttan boşluk ver
+
+tasklarda tam ekran timer açılabilecek
+
+kğçğk not yazma alanı tam ekran butonuyla tam ekranda yaılabilecek
+
