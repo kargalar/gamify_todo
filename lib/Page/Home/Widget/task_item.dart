@@ -8,6 +8,7 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/description_editor.dart';
+import 'package:next_level/Page/Timer/full_screen_timer_page.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/priority_line.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/subtasks_bottom_sheet.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_location.dart';
@@ -179,8 +180,18 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                     opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && (widget.taskModel.isTimerActive ?? false)) ? 0.75 : 1.0,
                     child: InkWell(
                       onTap: () {
+                        // Eğer timer aktifse tam ekran timer sayfasına git
+                        if (widget.taskModel.isTimerActive ?? false) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => FullScreenTimerPage(
+                                taskModel: widget.taskModel,
+                              ),
+                            ),
+                          );
+                        }
                         // eğer subtask var ise subtask bottom sheet açılır
-                        if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
+                        else if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
                           _showSubtasksBottomSheet();
                         }
                         // eğer description varsa description editor aç

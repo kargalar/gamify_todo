@@ -81,7 +81,7 @@ dependencies:
   connectivity_plus: ^6.1.3
 
   # Localization
-  # flutter pub run easy_localization:generate -S assets/translations -f keys -O lib/Service -o locale_keys.g.dart
+  # dart run easy_localization:generate -S assets/translations -f keys -O lib/Service -o locale_keys.g.dart
   easy_localization: ^3.0.7
 
   # Windows
@@ -115,6 +115,9 @@ dependencies:
 
   # Package Info
   package_info_plus: ^8.0.2
+
+  # Wakelock
+  wakelock_plus: ^1.2.8
   
 
 

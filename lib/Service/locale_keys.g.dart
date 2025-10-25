@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
   static const NoArchivedRoutines = 'NoArchivedRoutines';
   static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
   static const Daily = 'Daily';
@@ -93,8 +93,18 @@ abstract class LocaleKeys {
   static const LongestStreak = 'LongestStreak';
   static const CurrentStreak = 'CurrentStreak';
   static const Streak = 'Streak';
+  static const StreakStatus = 'StreakStatus';
+  static const ShowAll = 'ShowAll';
+  static const DailyTargetLabel = 'DailyTargetLabel';
+  static const StreakLabel = 'StreakLabel';
+  static const Reached = 'Reached';
+  static const Missed = 'Missed';
+  static const Vacation = 'Vacation';
+  static const Upcoming = 'Upcoming';
   static const Day = 'Day';
   static const Today = 'Today';
+  static const TodaysTasks = 'TodaysTasks';
+  static const NoTasksCompletedToday = 'NoTasksCompletedToday';
   static const RecentLogs = 'RecentLogs';
   static const Cancelled = 'Cancelled';
   static const InProgress = 'InProgress';
@@ -148,6 +158,7 @@ abstract class LocaleKeys {
   static const ExportData = 'ExportData';
   static const ImportData = 'ImportData';
   static const Subtasks = 'Subtasks';
+  static const UntitledNote = 'UntitledNote';
   static const AddSubtask = 'AddSubtask';
   static const EditSubtask = 'EditSubtask';
   static const SubtaskEmpty = 'SubtaskEmpty';
@@ -371,6 +382,13 @@ abstract class LocaleKeys {
   static const Friday = 'Friday';
   static const Saturday = 'Saturday';
   static const Sunday = 'Sunday';
+  static const Mon = 'Mon';
+  static const Tue = 'Tue';
+  static const Wed = 'Wed';
+  static const Thu = 'Thu';
+  static const Fri = 'Fri';
+  static const Sat = 'Sat';
+  static const Sun = 'Sun';
   static const MinimumHoursForStreak = 'MinimumHoursForStreak';
   static const Pin = 'Pin';
   static const Pinned = 'Pinned';
@@ -405,8 +423,12 @@ abstract class LocaleKeys {
   static const CategoryCreated = 'CategoryCreated';
   static const ErrorOccurred = 'ErrorOccurred';
   static const VacationModeDisableConfirmation = 'VacationModeDisableConfirmation';
+  static const VacationModeEnabled = 'VacationModeEnabled';
+  static const VacationModeDisabled = 'VacationModeDisabled';
   static const TaskAdded = 'TaskAdded';
+  static const TaskAddSuccess = 'TaskAddSuccess';
   static const TaskAddError = 'TaskAddError';
+  static const NoteAddSuccess = 'NoteAddSuccess';
   static const NoteAddError = 'NoteAddError';
   static const ProjectDeleteConfirmation = 'ProjectDeleteConfirmation';
   static const PleaseEnterTitle = 'PleaseEnterTitle';
@@ -571,4 +593,34 @@ abstract class LocaleKeys {
   static const tooltip_priority_bullet_1 = 'tooltip_priority_bullet_1';
   static const tooltip_priority_bullet_2 = 'tooltip_priority_bullet_2';
   static const tooltip_priority_bullet_3 = 'tooltip_priority_bullet_3';
+  static const NotificationStatus = 'NotificationStatus';
+  static const AlarmStatus = 'AlarmStatus';
+  static const OffStatus = 'OffStatus';
+  static const EarlyReminder = 'EarlyReminder';
+  static const None = 'None';
+  static const FiveMin = 'FiveMin';
+  static const TenMin = 'TenMin';
+  static const FifteenMin = 'FifteenMin';
+  static const ThirtyMin = 'ThirtyMin';
+  static const OneHour = 'OneHour';
+  static const TwoHours = 'TwoHours';
+  static const FiveHours = 'FiveHours';
+  static const TenHours = 'TenHours';
+  static const OneDay = 'OneDay';
+  static const StreakCalendar = 'StreakCalendar';
+  static const NoData = 'NoData';
+  static const Total = 'Total';
+  static const Successful = 'Successful';
+  static const Rate = 'Rate';
+  static const Uncategorized = 'Uncategorized';
+  static const DontForget = 'DontForget';
+  static const SubtaskMarkedAsDone = 'SubtaskMarkedAsDone';
+  static const TaskMarkedAsDone = 'TaskMarkedAsDone';
+  static const TaskMarkedAsCancelled = 'TaskMarkedAsCancelled';
+  static const TaskPinned = 'TaskPinned';
+  static const TaskUnpinned = 'TaskUnpinned';
+  static const CannotPinRoutineTasks = 'CannotPinRoutineTasks';
+  static const KeepScreenOn = 'KeepScreenOn';
+  static const StopTimer = 'StopTimer';
+
 }
