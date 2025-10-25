@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -7,6 +6,7 @@ import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
 import 'package:next_level/Model/user_model.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -29,7 +29,7 @@ class ServerManager {
     if (response.statusCode == 200) {
       // debugPrint(json.encode(response.data));
     } else {
-      debugPrint(response.statusMessage);
+      LogService.error(response.statusMessage ?? 'ServerManager: empty statusMessage');
     }
   }
 
@@ -200,8 +200,8 @@ class ServerManager {
     try {
       return await HiveService().getCategories();
     } catch (e) {
-      debugPrint('⚠️ ServerManager: Error loading categories (possibly data migration issue): $e');
-      debugPrint('🧹 ServerManager: Clearing category box and returning empty list');
+      LogService.error('⚠️ ServerManager: Error loading categories (possibly data migration issue): $e');
+      LogService.debug('🧹 ServerManager: Clearing category box and returning empty list');
 
       // Clear the box if there's a migration error
       await HiveService().clearCategoryBox();

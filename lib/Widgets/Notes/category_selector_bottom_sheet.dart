@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// Kategori seçimi için bottom sheet
 class CategorySelectorBottomSheet extends StatelessWidget {
@@ -240,7 +241,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
     );
 
     if (newCategory != null) {
-      debugPrint('✅ CategorySelectorBottomSheet: New category created: ${newCategory.name}');
+      LogService.debug('✅ CategorySelectorBottomSheet: New category created: ${newCategory.name}');
 
       // Kategori CreateCategoryBottomSheet içinde CategoryProvider'a eklendi
       // Sadece NotesProvider'ın kategoriler listesini güncellememiz gerekiyor

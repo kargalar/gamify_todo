@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/store_item_model.dart';
 
 class StoreProvider with ChangeNotifier {
@@ -55,7 +56,7 @@ class StoreProvider with ChangeNotifier {
       storeItemList = await ServerManager().getItems();
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ StoreProvider: Error loading items: $e');
+      LogService.error('❌ StoreProvider: Error loading items: $e');
     }
   }
 }

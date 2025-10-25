@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/project_model.dart';
 
 /// Projeler için Hive işlemleri
@@ -16,13 +16,13 @@ class ProjectsService {
     try {
       if (!Hive.isBoxOpen(_boxName)) {
         _projectsBox = await Hive.openBox<ProjectModel>(_boxName);
-        debugPrint('✅ ProjectsService: Hive box opened successfully');
+        LogService.debug('✅ ProjectsService: Hive box opened successfully');
       } else {
         _projectsBox = Hive.box<ProjectModel>(_boxName);
-        debugPrint('✅ ProjectsService: Hive box already open');
+        LogService.debug('✅ ProjectsService: Hive box already open');
       }
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error opening Hive box: $e');
+      LogService.error('❌ ProjectsService: Error opening Hive box: $e');
     }
   }
 
@@ -31,7 +31,7 @@ class ProjectsService {
     try {
       await initialize();
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Projects box is null');
+        LogService.error('❌ ProjectsService: Projects box is null');
         return [];
       }
 
@@ -44,10 +44,10 @@ class ProjectsService {
         return b.updatedAt.compareTo(a.updatedAt);
       });
 
-      debugPrint('✅ ProjectsService: Loaded ${projects.length} projects');
+      LogService.debug('✅ ProjectsService: Loaded ${projects.length} projects');
       return projects;
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error getting projects: $e');
+      LogService.error('❌ ProjectsService: Error getting projects: $e');
       return [];
     }
   }
@@ -57,16 +57,16 @@ class ProjectsService {
     try {
       await initialize();
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Cannot add project - box is null');
+        LogService.error('❌ ProjectsService: Cannot add project - box is null');
         return false;
       }
 
-      debugPrint('➕ ProjectsService: Adding new project: ${project.id}');
+      LogService.debug('➕ ProjectsService: Adding new project: ${project.id}');
       await _projectsBox!.put(project.id, project);
-      debugPrint('✅ ProjectsService: Project added successfully');
+      LogService.debug('✅ ProjectsService: Project added successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error adding project: $e');
+      LogService.error('❌ ProjectsService: Error adding project: $e');
       return false;
     }
   }
@@ -76,17 +76,17 @@ class ProjectsService {
     try {
       await initialize();
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Cannot update project - box is null');
+        LogService.error('❌ ProjectsService: Cannot update project - box is null');
         return false;
       }
 
-      debugPrint('🔄 ProjectsService: Updating project: ${project.id}');
+      LogService.debug('🔄 ProjectsService: Updating project: ${project.id}');
       project.updatedAt = DateTime.now();
       await _projectsBox!.put(project.id, project);
-      debugPrint('✅ ProjectsService: Project updated successfully');
+      LogService.debug('✅ ProjectsService: Project updated successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error updating project: $e');
+      LogService.error('❌ ProjectsService: Error updating project: $e');
       return false;
     }
   }
@@ -96,16 +96,16 @@ class ProjectsService {
     try {
       await initialize();
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Cannot delete project - box is null');
+        LogService.error('❌ ProjectsService: Cannot delete project - box is null');
         return false;
       }
 
-      debugPrint('🗑️ ProjectsService: Deleting project: $projectId');
+      LogService.debug('🗑️ ProjectsService: Deleting project: $projectId');
       await _projectsBox!.delete(projectId);
-      debugPrint('✅ ProjectsService: Project deleted successfully');
+      LogService.debug('✅ ProjectsService: Project deleted successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error deleting project: $e');
+      LogService.error('❌ ProjectsService: Error deleting project: $e');
       return false;
     }
   }
@@ -115,24 +115,24 @@ class ProjectsService {
     try {
       await initialize();
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Cannot pin project - box is null');
+        LogService.error('❌ ProjectsService: Cannot pin project - box is null');
         return false;
       }
 
       final project = _projectsBox!.get(projectId);
       if (project == null) {
-        debugPrint('❌ ProjectsService: Project not found: $projectId');
+        LogService.debug('❌ ProjectsService: Project not found: $projectId');
         return false;
       }
 
-      debugPrint('📌 ProjectsService: Toggling pin for project: $projectId');
+      LogService.debug('📌 ProjectsService: Toggling pin for project: $projectId');
       project.isPinned = !project.isPinned;
       project.updatedAt = DateTime.now();
       await _projectsBox!.put(projectId, project);
-      debugPrint('✅ ProjectsService: Project pin toggled - isPinned: ${project.isPinned}');
+      LogService.debug('✅ ProjectsService: Project pin toggled - isPinned: ${project.isPinned}');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error toggling pin: $e');
+      LogService.error('❌ ProjectsService: Error toggling pin: $e');
       return false;
     }
   }
@@ -142,24 +142,24 @@ class ProjectsService {
     try {
       await initialize();
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Cannot archive project - box is null');
+        LogService.error('❌ ProjectsService: Cannot archive project - box is null');
         return false;
       }
 
       final project = _projectsBox!.get(projectId);
       if (project == null) {
-        debugPrint('❌ ProjectsService: Project not found: $projectId');
+        LogService.debug('❌ ProjectsService: Project not found: $projectId');
         return false;
       }
 
-      debugPrint('📦 ProjectsService: Toggling archive for project: $projectId');
+      LogService.debug('📦 ProjectsService: Toggling archive for project: $projectId');
       project.isArchived = !project.isArchived;
       project.updatedAt = DateTime.now();
       await _projectsBox!.put(projectId, project);
-      debugPrint('✅ ProjectsService: Project archive toggled - isArchived: ${project.isArchived}');
+      LogService.debug('✅ ProjectsService: Project archive toggled - isArchived: ${project.isArchived}');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error toggling archive: $e');
+      LogService.error('❌ ProjectsService: Error toggling archive: $e');
       return false;
     }
   }
@@ -168,12 +168,12 @@ class ProjectsService {
   ProjectModel? getProjectById(String projectId) {
     try {
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Cannot get project - box is null');
+        LogService.error('❌ ProjectsService: Cannot get project - box is null');
         return null;
       }
       return _projectsBox!.get(projectId);
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error getting project by ID: $e');
+      LogService.error('❌ ProjectsService: Error getting project by ID: $e');
       return null;
     }
   }
@@ -183,13 +183,13 @@ class ProjectsService {
     try {
       await initialize();
       if (_projectsBox == null) {
-        debugPrint('❌ ProjectsService: Cannot clear projects - box is null');
+        LogService.error('❌ ProjectsService: Cannot clear projects - box is null');
         return;
       }
       await _projectsBox!.clear();
-      debugPrint('✅ ProjectsService: All projects cleared');
+      LogService.debug('✅ ProjectsService: All projects cleared');
     } catch (e) {
-      debugPrint('❌ ProjectsService: Error clearing projects: $e');
+      LogService.error('❌ ProjectsService: Error clearing projects: $e');
     }
   }
 }

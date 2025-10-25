@@ -7,6 +7,7 @@ import 'package:next_level/Service/projects_service.dart';
 import 'package:next_level/Service/project_subtasks_service.dart';
 import 'package:next_level/Service/project_notes_service.dart';
 import 'package:next_level/Provider/category_provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// Projeleri yöneten Provider
 class ProjectsProvider with ChangeNotifier {
@@ -50,22 +51,22 @@ class ProjectsProvider with ChangeNotifier {
   /// Kategorileri yükle
   Future<void> loadCategories() async {
     try {
-      debugPrint('📡 ProjectsProvider: Loading categories');
+      LogService.debug('📡 ProjectsProvider: Loading categories');
       final categoryProvider = CategoryProvider();
       await categoryProvider.initialize();
       _categories.clear();
       _categories.addAll(categoryProvider.categoryList);
-      debugPrint('✅ ProjectsProvider: Loaded ${_categories.length} project categories');
+      LogService.debug('✅ ProjectsProvider: Loaded ${_categories.length} project categories');
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error loading categories: $e');
+      LogService.error('❌ ProjectsProvider: Error loading categories: $e');
     }
   }
 
   /// Kategori filtresi ayarla
   void setSelectedCategory(String? categoryId) {
     _selectedCategoryId = categoryId;
-    debugPrint('🔍 ProjectsProvider: Category filter set to: $categoryId');
+    LogService.debug('🔍 ProjectsProvider: Category filter set to: $categoryId');
     notifyListeners();
   }
 
@@ -90,10 +91,10 @@ class ProjectsProvider with ChangeNotifier {
       // UI'ı hemen güncelle
       notifyListeners();
 
-      debugPrint('✅ ProjectsProvider: Category added successfully');
+      LogService.debug('✅ ProjectsProvider: Category added successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error adding category: $e');
+      LogService.error('❌ ProjectsProvider: Error adding category: $e');
       return false;
     }
   }
@@ -113,10 +114,10 @@ class ProjectsProvider with ChangeNotifier {
       // UI'ı hemen güncelle
       notifyListeners();
 
-      debugPrint('✅ ProjectsProvider: Category updated successfully');
+      LogService.debug('✅ ProjectsProvider: Category updated successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error updating category: $e');
+      LogService.error('❌ ProjectsProvider: Error updating category: $e');
       return false;
     }
   }
@@ -124,12 +125,12 @@ class ProjectsProvider with ChangeNotifier {
   /// Delete category
   Future<bool> deleteCategory(String categoryId) async {
     try {
-      debugPrint('🗑️ ProjectsProvider: Deleting category: $categoryId');
+      LogService.debug('🗑️ ProjectsProvider: Deleting category: $categoryId');
 
       // Bu kategoriye ait projeleri kontrol et
       final projectsInCategory = _projects.where((project) => project.categoryId == categoryId).toList();
       if (projectsInCategory.isNotEmpty) {
-        debugPrint('⚠️ ProjectsProvider: Category has ${projectsInCategory.length} projects, deleting them first');
+        LogService.debug('⚠️ ProjectsProvider: Category has ${projectsInCategory.length} projects, deleting them first');
         // Kategoriye ait tüm projeleri sil
         for (final project in projectsInCategory) {
           await deleteProject(project.id);
@@ -151,14 +152,14 @@ class ProjectsProvider with ChangeNotifier {
         // UI'ı hemen güncelle
         notifyListeners();
 
-        debugPrint('✅ ProjectsProvider: Category deleted successfully');
+        LogService.debug('✅ ProjectsProvider: Category deleted successfully');
         return true;
       } else {
-        debugPrint('❌ ProjectsProvider: Category not found');
+        LogService.debug('❌ ProjectsProvider: Category not found');
         return false;
       }
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error deleting category: $e');
+      LogService.error('❌ ProjectsProvider: Error deleting category: $e');
       return false;
     }
   }
@@ -212,17 +213,17 @@ class ProjectsProvider with ChangeNotifier {
   /// Projeleri yükle
   Future<void> loadProjects() async {
     try {
-      debugPrint('📡 ProjectsProvider: Loading projects from Hive');
+      LogService.debug('📡 ProjectsProvider: Loading projects from Hive');
       _setLoading(true);
       _setError(null);
 
       await _projectsService.initialize();
       _projects = await _projectsService.getProjects();
 
-      debugPrint('✅ ProjectsProvider: Loaded ${_projects.length} projects');
+      LogService.debug('✅ ProjectsProvider: Loaded ${_projects.length} projects');
       _setLoading(false);
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error loading projects: $e');
+      LogService.error('❌ ProjectsProvider: Error loading projects: $e');
       _setError('Projeler yüklenirken hata oluştu: $e');
       _setLoading(false);
     }
@@ -231,15 +232,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Yeni proje ekle
   Future<bool> addProject(ProjectModel project) async {
     try {
-      debugPrint('➕ ProjectsProvider: Adding new project');
+      LogService.debug('➕ ProjectsProvider: Adding new project');
       final success = await _projectsService.addProject(project);
       if (success) {
         await loadProjects();
-        debugPrint('✅ ProjectsProvider: Project added successfully');
+        LogService.debug('✅ ProjectsProvider: Project added successfully');
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error adding project: $e');
+      LogService.error('❌ ProjectsProvider: Error adding project: $e');
       return false;
     }
   }
@@ -247,15 +248,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Projeyi güncelle
   Future<bool> updateProject(ProjectModel project) async {
     try {
-      debugPrint('🔄 ProjectsProvider: Updating project');
+      LogService.debug('🔄 ProjectsProvider: Updating project');
       final success = await _projectsService.updateProject(project);
       if (success) {
         await loadProjects();
-        debugPrint('✅ ProjectsProvider: Project updated successfully');
+        LogService.debug('✅ ProjectsProvider: Project updated successfully');
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error updating project: $e');
+      LogService.error('❌ ProjectsProvider: Error updating project: $e');
       return false;
     }
   }
@@ -263,7 +264,7 @@ class ProjectsProvider with ChangeNotifier {
   /// Projeyi sil (subtask ve notlar ile birlikte)
   Future<bool> deleteProject(String projectId) async {
     try {
-      debugPrint('🗑️ ProjectsProvider: Deleting project and its data');
+      LogService.debug('🗑️ ProjectsProvider: Deleting project and its data');
 
       // Önce subtask ve notları sil
       await _subtasksService.deleteSubtasksByProjectId(projectId);
@@ -273,11 +274,11 @@ class ProjectsProvider with ChangeNotifier {
       final success = await _projectsService.deleteProject(projectId);
       if (success) {
         await loadProjects();
-        debugPrint('✅ ProjectsProvider: Project deleted successfully');
+        LogService.debug('✅ ProjectsProvider: Project deleted successfully');
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error deleting project: $e');
+      LogService.error('❌ ProjectsProvider: Error deleting project: $e');
       return false;
     }
   }
@@ -285,53 +286,53 @@ class ProjectsProvider with ChangeNotifier {
   /// Pin/unpin project
   Future<bool> togglePinProject(String projectId) async {
     try {
-      debugPrint('📌 ProjectsProvider: Toggling project pin');
+      LogService.debug('📌 ProjectsProvider: Toggling project pin');
       final success = await _projectsService.togglePinProject(projectId);
       if (success) {
         await loadProjects();
-        debugPrint('✅ ProjectsProvider: Project pin toggled successfully');
+        LogService.debug('✅ ProjectsProvider: Project pin toggled successfully');
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error toggling pin: $e');
+      LogService.error('❌ ProjectsProvider: Error toggling pin: $e');
       return false;
     }
   }
 
   /// Change archive filter
   void toggleArchivedFilter() {
-    debugPrint('📦 ProjectsProvider: Toggling archived filter - Current: $_showArchivedOnly');
+    LogService.debug('📦 ProjectsProvider: Toggling archived filter - Current: $_showArchivedOnly');
     _showArchivedOnly = !_showArchivedOnly;
-    debugPrint('📦 ProjectsProvider: New archived filter state: $_showArchivedOnly');
+    LogService.debug('📦 ProjectsProvider: New archived filter state: $_showArchivedOnly');
     notifyListeners();
   }
 
   /// Archive/unarchive project
   Future<bool> toggleArchiveProject(String projectId) async {
     try {
-      debugPrint('📦 ProjectsProvider: Toggling project archive');
+      LogService.debug('📦 ProjectsProvider: Toggling project archive');
       final success = await _projectsService.toggleArchiveProject(projectId);
       if (success) {
         await loadProjects();
-        debugPrint('✅ ProjectsProvider: Project archive toggled successfully');
+        LogService.debug('✅ ProjectsProvider: Project archive toggled successfully');
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error toggling archive: $e');
+      LogService.error('❌ ProjectsProvider: Error toggling archive: $e');
       return false;
     }
   }
 
   /// Arama sorgusu güncelle
   void updateSearchQuery(String query) {
-    debugPrint('🔍 ProjectsProvider: Search query updated: $query');
+    LogService.debug('🔍 ProjectsProvider: Search query updated: $query');
     _searchQuery = query;
     notifyListeners();
   }
 
   /// Arama sorgusunu temizle
   void clearSearchQuery() {
-    debugPrint('🔍 ProjectsProvider: Search query cleared');
+    LogService.debug('🔍 ProjectsProvider: Search query cleared');
     _searchQuery = '';
     notifyListeners();
   }
@@ -354,15 +355,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Subtask ekle
   Future<bool> addSubtask(ProjectSubtaskModel subtask) async {
     try {
-      debugPrint('➕ ProjectsProvider: Adding subtask');
+      LogService.debug('➕ ProjectsProvider: Adding subtask');
       final success = await _subtasksService.addSubtask(subtask);
       if (success) {
-        debugPrint('✅ ProjectsProvider: Subtask added successfully');
+        LogService.debug('✅ ProjectsProvider: Subtask added successfully');
         _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error adding subtask: $e');
+      LogService.error('❌ ProjectsProvider: Error adding subtask: $e');
       return false;
     }
   }
@@ -370,15 +371,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Subtask güncelle
   Future<bool> updateSubtask(ProjectSubtaskModel subtask) async {
     try {
-      debugPrint('🔄 ProjectsProvider: Updating subtask');
+      LogService.debug('🔄 ProjectsProvider: Updating subtask');
       final success = await _subtasksService.updateSubtask(subtask);
       if (success) {
-        debugPrint('✅ ProjectsProvider: Subtask updated successfully');
+        LogService.debug('✅ ProjectsProvider: Subtask updated successfully');
         _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error updating subtask: $e');
+      LogService.error('❌ ProjectsProvider: Error updating subtask: $e');
       return false;
     }
   }
@@ -386,15 +387,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Change subtask completion status
   Future<bool> toggleSubtaskCompleted(String subtaskId) async {
     try {
-      debugPrint('✅ ProjectsProvider: Toggling subtask completed');
+      LogService.debug('✅ ProjectsProvider: Toggling subtask completed');
       final success = await _subtasksService.toggleSubtaskCompleted(subtaskId);
       if (success) {
-        debugPrint('✅ ProjectsProvider: Subtask toggled successfully');
+        LogService.debug('✅ ProjectsProvider: Subtask toggled successfully');
         _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error toggling subtask: $e');
+      LogService.error('❌ ProjectsProvider: Error toggling subtask: $e');
       return false;
     }
   }
@@ -402,15 +403,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Subtask sil
   Future<bool> deleteSubtask(String subtaskId) async {
     try {
-      debugPrint('🗑️ ProjectsProvider: Deleting subtask');
+      LogService.debug('🗑️ ProjectsProvider: Deleting subtask');
       final success = await _subtasksService.deleteSubtask(subtaskId);
       if (success) {
-        debugPrint('✅ ProjectsProvider: Subtask deleted successfully');
+        LogService.debug('✅ ProjectsProvider: Subtask deleted successfully');
         _incrementTaskCountVersion();
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error deleting subtask: $e');
+      LogService.error('❌ ProjectsProvider: Error deleting subtask: $e');
       return false;
     }
   }
@@ -418,15 +419,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Proje notu ekle
   Future<bool> addProjectNote(ProjectNoteModel note) async {
     try {
-      debugPrint('➕ ProjectsProvider: Adding project note');
+      LogService.debug('➕ ProjectsProvider: Adding project note');
       final success = await _notesService.addNote(note);
       if (success) {
-        debugPrint('✅ ProjectsProvider: Project note added successfully');
+        LogService.debug('✅ ProjectsProvider: Project note added successfully');
         _incrementNoteCountVersion();
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error adding project note: $e');
+      LogService.error('❌ ProjectsProvider: Error adding project note: $e');
       return false;
     }
   }
@@ -434,15 +435,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Proje notunu güncelle
   Future<bool> updateProjectNote(ProjectNoteModel note) async {
     try {
-      debugPrint('🔄 ProjectsProvider: Updating project note');
+      LogService.debug('🔄 ProjectsProvider: Updating project note');
       final success = await _notesService.updateNote(note);
       if (success) {
-        debugPrint('✅ ProjectsProvider: Project note updated successfully');
+        LogService.debug('✅ ProjectsProvider: Project note updated successfully');
         _incrementNoteCountVersion();
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error updating project note: $e');
+      LogService.error('❌ ProjectsProvider: Error updating project note: $e');
       return false;
     }
   }
@@ -450,15 +451,15 @@ class ProjectsProvider with ChangeNotifier {
   /// Proje notunu sil
   Future<bool> deleteProjectNote(String noteId) async {
     try {
-      debugPrint('🗑️ ProjectsProvider: Deleting project note');
+      LogService.debug('🗑️ ProjectsProvider: Deleting project note');
       final success = await _notesService.deleteNote(noteId);
       if (success) {
-        debugPrint('✅ ProjectsProvider: Project note deleted successfully');
+        LogService.debug('✅ ProjectsProvider: Project note deleted successfully');
         _incrementNoteCountVersion();
       }
       return success;
     } catch (e) {
-      debugPrint('❌ ProjectsProvider: Error deleting project note: $e');
+      LogService.error('❌ ProjectsProvider: Error deleting project note: $e');
       return false;
     }
   }
@@ -511,7 +512,7 @@ class ProjectsProvider with ChangeNotifier {
         'completed': completedSubtaskCount + generalCompletedTaskCount,
       };
     } catch (e) {
-      debugPrint('❌ Error getting project task counts: $e');
+      LogService.error('❌ Error getting project task counts: $e');
       return {'total': 0, 'completed': 0};
     }
   }

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -15,7 +15,7 @@ class DurationCalculator {
   /// Calculate total duration logged for the given date.
   /// Sums up durations from task logs and includes running timers' currentDuration.
   static Duration calculateTotalDurationForDate(DateTime date) {
-    debugPrint('DurationCalculator: Calculating total duration for date: $date');
+    LogService.debug('DurationCalculator: Calculating total duration for date: $date');
 
     // Aggregate from logs
     final logs = TaskLogProvider().taskLogList;
@@ -35,13 +35,13 @@ class DurationCalculator {
 
         if (log.duration != null) {
           total += log.duration!;
-          debugPrint('DurationCalculator: Added log duration: ${log.duration!.compactFormat()} for task ${task.title}');
+          LogService.debug('DurationCalculator: Added log duration: ${log.duration!.compactFormat()} for task ${task.title}');
         } else if (log.count != null && log.count! > 0) {
           if (task.remainingDuration != null) {
             final count = log.count! <= 100 ? log.count! : 5;
             final add = task.remainingDuration! * count;
             total += add;
-            debugPrint('DurationCalculator: Added log count: $count * ${task.remainingDuration!.compactFormat()} = ${add.compactFormat()} for task ${task.title}');
+            LogService.debug('DurationCalculator: Added log count: $count * ${task.remainingDuration!.compactFormat()} = ${add.compactFormat()} for task ${task.title}');
 
             // For counter tasks, accumulate counts for breakdown
             if (task.type == TaskTypeEnum.COUNTER) {
@@ -54,13 +54,13 @@ class DurationCalculator {
           if (!processedTaskDates.contains(key)) {
             if (task.remainingDuration != null) {
               total += task.remainingDuration!;
-              debugPrint('DurationCalculator: Added checkbox duration: ${task.remainingDuration!.compactFormat()} for task ${task.title}');
+              LogService.debug('DurationCalculator: Added checkbox duration: ${task.remainingDuration!.compactFormat()} for task ${task.title}');
             }
             processedTaskDates.add(key);
           }
         }
       } catch (e) {
-        debugPrint('DurationCalculator: Error processing log for task ${log.taskId}: $e');
+        LogService.error('DurationCalculator: Error processing log for task ${log.taskId}: $e');
       }
     }
 
@@ -101,20 +101,20 @@ class DurationCalculator {
         final remaining = current - alreadyLogged;
         if (remaining > Duration.zero) {
           total += remaining;
-          debugPrint('DurationCalculator: Added running timer delta: ${remaining.compactFormat()} for task ${task.title} (current: ${current.compactFormat()}, logged: ${alreadyLogged.compactFormat()})');
+          LogService.debug('DurationCalculator: Added running timer delta: ${remaining.compactFormat()} for task ${task.title} (current: ${current.compactFormat()}, logged: ${alreadyLogged.compactFormat()})');
         } else {
-          debugPrint('DurationCalculator: Skipped running timer for task ${task.title} because currentDuration <= logged (${current.compactFormat()} <= ${alreadyLogged.compactFormat()})');
+          LogService.debug('DurationCalculator: Skipped running timer for task ${task.title} because currentDuration <= logged (${current.compactFormat()} <= ${alreadyLogged.compactFormat()})');
         }
       }
     }
 
-    debugPrint('DurationCalculator: Total duration calculated: ${total.compactFormat()}');
+    LogService.debug('DurationCalculator: Total duration calculated: ${total.compactFormat()}');
     return total;
   }
 
   /// Get breakdown of contributions for the given date: list of maps with title and duration.
   static List<Map<String, dynamic>> getContributionsForDate(DateTime date) {
-    debugPrint('DurationCalculator: Calculating contributions for date: $date');
+    LogService.debug('DurationCalculator: Calculating contributions for date: $date');
 
     final Map<int, Duration> perTask = {};
     final Set<String> processedTaskDates = {};
@@ -174,7 +174,7 @@ class DurationCalculator {
 
     // Sort descending by duration
     list.sort((a, b) => (b['duration'] as Duration).compareTo(a['duration'] as Duration));
-    debugPrint('DurationCalculator: Contributions calculated with ${list.length} items');
+    LogService.debug('DurationCalculator: Contributions calculated with ${list.length} items');
     return list;
   }
 
@@ -186,7 +186,7 @@ class DurationCalculator {
     // Check if vacation mode is active or it's a vacation day
     final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
     final isVacationDayActive = isVacationDay(selectedDate);
-    debugPrint('DurationCalculator: Vacation mode active: $isVacationModeActive, Vacation day: $isVacationDayActive for $selectedDate');
+    LogService.debug('DurationCalculator: Vacation mode active: $isVacationModeActive, Vacation day: $isVacationDayActive for $selectedDate');
 
     for (final t in tasks) {
       if (t.remainingDuration != null) {
@@ -229,7 +229,7 @@ class DurationCalculator {
 
   /// Get streak status for the last 5 days, today, and tomorrow
   static List<Map<String, dynamic>> getStreakStatuses() {
-    debugPrint('DurationCalculator: Getting streak statuses');
+    LogService.debug('DurationCalculator: Getting streak statuses');
     final now = DateTime.now();
     final dates = [
       now.subtract(const Duration(days: 5)),
@@ -245,7 +245,7 @@ class DurationCalculator {
       final isFuture = date.isAfter(now);
       final isVacation = isVacationDay(date);
       final isMet = isFuture || isVacation ? null : calculateStreakStatusForDate(date);
-      debugPrint('DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet');
+      LogService.debug('DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet');
       return {
         'date': date,
         'isMet': isMet,

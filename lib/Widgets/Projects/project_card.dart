@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 import '../../General/app_colors.dart';
 import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
@@ -139,9 +140,9 @@ class ProjectCard extends BaseCard {
                       );
                     }
 
-                    debugPrint('✅ Project updated successfully: $title');
+                    LogService.debug('✅ Project updated successfully: $title');
                   } catch (e) {
-                    debugPrint('❌ Error updating project: $e');
+                    LogService.error('❌ Error updating project: $e');
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -316,9 +317,9 @@ class ProjectCard extends BaseCard {
                                     );
                                   }
 
-                                  debugPrint('✅ Subtask added successfully to project "${project.title}": $title');
+                                  LogService.debug('✅ Subtask added successfully to project "${project.title}": $title');
                                 } catch (e) {
-                                  debugPrint('❌ Error adding subtask: $e');
+                                  LogService.error('❌ Error adding subtask: $e');
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -424,9 +425,9 @@ class ProjectCard extends BaseCard {
                                     );
                                   }
 
-                                  debugPrint('✅ Note added successfully to project "${project.title}": $title');
+                                  LogService.debug('✅ Note added successfully to project "${project.title}": $title');
                                 } catch (e) {
-                                  debugPrint('❌ Error adding note: $e');
+                                  LogService.error('❌ Error adding note: $e');
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(

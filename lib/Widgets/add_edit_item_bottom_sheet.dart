@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 import '../Model/project_model.dart';
 import '../Model/note_model.dart';
 import '../Model/category_model.dart';
@@ -59,7 +60,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
   Future<void> _autoSave() async {
     if (!isEditing || widget.type != ItemType.note || !_hasChanges()) return;
 
-    debugPrint('💾 AddEditItemBottomSheet: Auto-saving changes');
+    LogService.debug('💾 AddEditItemBottomSheet: Auto-saving changes');
 
     try {
       final provider = context.read<NotesProvider>();
@@ -74,7 +75,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
       final success = await provider.updateNote(updatedNote);
 
       if (success) {
-        debugPrint('✅ AddEditItemBottomSheet: Auto-saved successfully');
+        LogService.debug('✅ AddEditItemBottomSheet: Auto-saved successfully');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -84,7 +85,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
           );
         }
       } else {
-        debugPrint('❌ AddEditItemBottomSheet: Auto-save failed');
+        LogService.error('❌ AddEditItemBottomSheet: Auto-save failed');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -95,7 +96,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
         }
       }
     } catch (e) {
-      debugPrint('❌ AddEditItemBottomSheet: Auto-save error: $e');
+      LogService.error('❌ AddEditItemBottomSheet: Auto-save error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -150,7 +151,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
       });
     }
 
-    debugPrint('🔧 AddEditItemBottomSheet: Initialized ${widget.type} ${isEditing ? "edit" : "add"} mode');
+    LogService.debug('🔧 AddEditItemBottomSheet: Initialized ${widget.type} ${isEditing ? "edit" : "add"} mode');
   }
 
   @override
@@ -277,7 +278,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                               if (widget.type == ItemType.note) {
                                 final provider = context.read<NotesProvider>();
                                 await provider.togglePinNote((widget.item as NoteModel).id, _isPinned);
-                                debugPrint('📌 Note pin toggled to: $_isPinned');
+                                LogService.debug('📌 Note pin toggled to: $_isPinned');
                               }
                             },
                             tooltip: _isPinned ? LocaleKeys.Unpin.tr() : LocaleKeys.Pin.tr(),
@@ -372,7 +373,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
               IconButton(
                 icon: const Icon(Icons.fullscreen, size: 20),
                 onPressed: () async {
-                  debugPrint('🔍 AddEditItemBottomSheet: Opening full screen editor');
+                  LogService.debug('🔍 AddEditItemBottomSheet: Opening full screen editor');
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -383,7 +384,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                       ),
                     ),
                   );
-                  debugPrint('✅ AddEditItemBottomSheet: Returned from full screen editor');
+                  LogService.debug('✅ AddEditItemBottomSheet: Returned from full screen editor');
                 },
                 tooltip: 'Tam Ekran',
                 padding: EdgeInsets.zero,
@@ -561,9 +562,9 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
 
   /// Kategori seçici bottom sheet'i göster
   Future<void> _showCategorySelector(BuildContext context, dynamic provider) async {
-    debugPrint('🔍 AddEditItemBottomSheet: Showing category selector for ${widget.type}');
+    LogService.debug('🔍 AddEditItemBottomSheet: Showing category selector for ${widget.type}');
     if (provider == null) {
-      debugPrint('❌ AddEditItemBottomSheet: Provider is null, cannot show category selector');
+      LogService.error('❌ AddEditItemBottomSheet: Provider is null, cannot show category selector');
       return;
     }
     final selected = await showModalBottomSheet<CategoryModel?>(
@@ -576,7 +577,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
               categories: provider.categories,
               categoryType: CategoryType.project,
               onCategoryAdded: (category) async {
-                debugPrint('➕ AddEditItemBottomSheet: New category created ${category.name} for project');
+                LogService.debug('➕ AddEditItemBottomSheet: New category created ${category.name} for project');
                 await provider.loadCategories();
               },
             )
@@ -585,11 +586,11 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
               categories: provider.categories,
               categoryType: CategoryType.note,
               onCategoryAdded: (category) async {
-                debugPrint('➕ AddEditItemBottomSheet: New category created ${category.name}');
+                LogService.debug('➕ AddEditItemBottomSheet: New category created ${category.name}');
                 await provider.loadData();
               },
               onCategoryDeleted: (category) async {
-                debugPrint('🗑️ AddEditItemBottomSheet: Deleting category ${category.name}');
+                LogService.debug('🗑️ AddEditItemBottomSheet: Deleting category ${category.name}');
                 await provider.deleteCategory(category.id);
               },
             ),
@@ -597,7 +598,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
 
     // Proje için yeni kategori kontrolü
     if (widget.type == ItemType.project && selected != null && !provider.categories.any((cat) => cat.id == selected.id)) {
-      debugPrint('🔄 AddEditItemBottomSheet: New category detected, reloading categories');
+      LogService.debug('🔄 AddEditItemBottomSheet: New category detected, reloading categories');
       await provider.loadCategories();
     }
 
@@ -605,7 +606,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
       setState(() {
         _selectedCategory = selected;
       });
-      debugPrint('✅ AddEditItemBottomSheet: Category selected: ${selected?.name ?? "None"}');
+      LogService.debug('✅ AddEditItemBottomSheet: Category selected: ${selected?.name ?? "None"}');
     }
   }
 
@@ -690,14 +691,14 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
             updatedAt: now,
           );
           success = await provider.updateNote(updatedNote);
-          debugPrint('✅ AddEditItemBottomSheet: Note updated');
+          LogService.debug('✅ AddEditItemBottomSheet: Note updated');
         } else {
           success = await provider.addNote(
             title: _titleController.text.trim(),
             content: _contentController.text.trim(),
             categoryId: _selectedCategory?.id,
           );
-          debugPrint('✅ AddEditItemBottomSheet: New note created');
+          LogService.debug('✅ AddEditItemBottomSheet: New note created');
         }
       }
 
@@ -713,7 +714,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
         }
       }
     } catch (e) {
-      debugPrint('❌ AddEditItemBottomSheet: Error saving item: $e');
+      LogService.error('❌ AddEditItemBottomSheet: Error saving item: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

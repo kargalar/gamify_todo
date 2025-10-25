@@ -71,3 +71,12 @@ streak bottom sheete safe are ekle ve alttan boşluk ver
 
 tatil olan günler işaretleniyor mu. streak takviminde nasıl hesaplıyor.
 
+izin gerekli diyor  ama izin isteimoyr.
+
+storage summary yorum satırına al
+
+haftalık streak da no data ekle. ilk task öncesi no data olacak. 
+yıllık streakta bir sütündaki kareyi arttır ve yuvarlaklaştır
+
+proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verlmiş daha kompat yap. gerekirse stack ile yap.
+

@@ -9,6 +9,7 @@ import 'package:next_level/Provider/streak_settings_provider.dart';
 // TaskProvider already used below via import in this file context
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Core/duration_calculator.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// HomeViewModel acts as the mediator between Home views and TaskProvider.
 /// It exposes UI-ready state and commands without requiring BuildContext.
@@ -219,7 +220,7 @@ class HomeViewModel extends ChangeNotifier {
   /// Get streak statuses for last 5 days, today, and tomorrow
   List<Map<String, dynamic>> get streakStatuses {
     final statuses = DurationCalculator.getStreakStatuses();
-    debugPrint('HomeViewModel: Streak statuses: $statuses');
+    LogService.debug('HomeViewModel: Streak statuses: $statuses');
     return statuses;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
@@ -30,13 +31,13 @@ class NoteCard extends BaseCard {
       SlidableAction(
         padding: const EdgeInsets.all(0),
         onPressed: (context) async {
-          debugPrint('📌 Note ${note.id} - Pin toggle: ${note.isPinned} -> ${!note.isPinned}');
+          LogService.debug('📌 Note ${note.id} - Pin toggle: ${note.isPinned} -> ${!note.isPinned}');
           final provider = context.read<NotesProvider>();
           final success = await provider.togglePinNote(note.id, !note.isPinned);
           if (success) {
-            debugPrint('✅ Note ${note.id} - Pin status changed');
+            LogService.debug('✅ Note ${note.id} - Pin status changed');
           } else {
-            debugPrint('❌ Note ${note.id} - Pin operation failed');
+            LogService.error('❌ Note ${note.id} - Pin operation failed');
           }
         },
         backgroundColor: AppColors.yellow,
@@ -47,13 +48,13 @@ class NoteCard extends BaseCard {
       SlidableAction(
         padding: const EdgeInsets.all(0),
         onPressed: (context) async {
-          debugPrint('📦 Note ${note.id} - Archive toggle started');
+          LogService.debug('📦 Note ${note.id} - Archive toggle started');
           final provider = context.read<NotesProvider>();
           final success = await provider.toggleArchiveNote(note.id);
           if (success) {
-            debugPrint('✅ Note ${note.id} - Archive status changed');
+            LogService.debug('✅ Note ${note.id} - Archive status changed');
           } else {
-            debugPrint('❌ Note ${note.id} - Archive operation failed');
+            LogService.error('❌ Note ${note.id} - Archive operation failed');
           }
         },
         backgroundColor: AppColors.orange,
@@ -64,12 +65,12 @@ class NoteCard extends BaseCard {
       SlidableAction(
         padding: const EdgeInsets.all(0),
         onPressed: (context) async {
-          debugPrint('🗑️ Note ${note.id} - Delete operation started');
+          LogService.debug('🗑️ Note ${note.id} - Delete operation started');
           if (onDelete != null) {
             onDelete!();
-            debugPrint('✅ Note ${note.id} - Deleted');
+            LogService.debug('✅ Note ${note.id} - Deleted');
           } else {
-            debugPrint('⚠️ Note ${note.id} - onDelete callback null');
+            LogService.error('⚠️ Note ${note.id} - onDelete callback null');
           }
         },
         backgroundColor: AppColors.red,

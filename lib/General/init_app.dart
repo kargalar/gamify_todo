@@ -9,6 +9,7 @@ import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Service/hive_service.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/server_manager.dart';
@@ -43,7 +44,7 @@ Future<void> initApp() async {
       userCredit: 0,
     );
     await HiveService().addUser(loginUser!);
-    debugPrint('✅ Created default guest user');
+    LogService.debug('✅ Created default guest user');
   } else {
     debugPrint('✅ Loaded existing user: ${loginUser!.username}');
   }

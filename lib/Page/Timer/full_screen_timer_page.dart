@@ -4,6 +4,7 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -30,7 +31,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint('FullScreenTimerPage: initState called for task ${widget.taskModel.id}');
+    LogService.debug('FullScreenTimerPage: initState called for task ${widget.taskModel.id}');
 
     // Başlangıç süresini al
     _currentDuration = widget.taskModel.currentDuration ?? Duration.zero;
@@ -48,7 +49,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
 
   @override
   void dispose() {
-    debugPrint('FullScreenTimerPage: dispose called for task ${widget.taskModel.id}');
+    LogService.debug('FullScreenTimerPage: dispose called for task ${widget.taskModel.id}');
     _updateTimer?.cancel();
     _setKeepScreenOn(false); // Ekran açık tutmayı kapat
     super.dispose();
@@ -64,7 +65,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
   }
 
   void _setKeepScreenOn(bool value) {
-    debugPrint('FullScreenTimerPage: Setting keep screen on to $value');
+    LogService.debug('FullScreenTimerPage: Setting keep screen on to $value');
     if (value) {
       WakelockPlus.enable();
     } else {
@@ -73,7 +74,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
   }
 
   void _startUpdateTimer() {
-    debugPrint('FullScreenTimerPage: Starting update timer');
+    LogService.debug('FullScreenTimerPage: Starting update timer');
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -92,7 +93,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
   }
 
   void _toggleTimer() {
-    debugPrint('FullScreenTimerPage: Toggling timer for task ${widget.taskModel.id}');
+    LogService.debug('FullScreenTimerPage: Toggling timer for task ${widget.taskModel.id}');
     setState(() {
       _isTimerRunning = !_isTimerRunning;
     });
@@ -114,7 +115,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('FullScreenTimerPage: Building UI for task ${widget.taskModel.id}');
+    LogService.debug('FullScreenTimerPage: Building UI for task ${widget.taskModel.id}');
 
     return GestureDetector(
       onTap: () {

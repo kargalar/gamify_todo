@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/notes_service.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Provider/category_provider.dart';
 
 /// Notları ve kategorileri yöneten Provider
@@ -100,7 +101,7 @@ class NotesProvider with ChangeNotifier {
   /// Verileri yükle (notlar ve kategoriler)
   Future<void> loadData() async {
     try {
-      debugPrint('📡 NotesProvider: Loading data from Hive');
+      LogService.debug('📡 NotesProvider: Loading data from Hive');
       _setLoading(true);
       _setError(null);
 
@@ -111,9 +112,9 @@ class NotesProvider with ChangeNotifier {
       // SADECE NOTE TİPİNDEKİ KATEGORİLERİ YÜKLEYELİM
       _categories = CategoryProvider().categoryList.where((cat) => cat.categoryType == CategoryType.note).toList();
 
-      debugPrint('✅ NotesProvider: Loaded ${_notes.length} notes and ${_categories.length} note categories');
+      LogService.debug('✅ NotesProvider: Loaded ${_notes.length} notes and ${_categories.length} note categories');
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error loading data: $e');
+      LogService.error('❌ NotesProvider: Error loading data: $e');
       _setError('Veriler yüklenirken hata oluştu: $e');
     } finally {
       _setLoading(false);
@@ -123,17 +124,17 @@ class NotesProvider with ChangeNotifier {
   /// Notları yükle
   Future<void> loadNotes() async {
     try {
-      debugPrint('📡 NotesProvider: Loading notes from Hive');
+      LogService.debug('📡 NotesProvider: Loading notes from Hive');
       _setLoading(true);
       _setError(null);
 
       await _notesService.initialize();
       _notes = await _notesService.getNotes();
 
-      debugPrint('✅ NotesProvider: Loaded ${_notes.length} notes');
+      LogService.debug('✅ NotesProvider: Loaded ${_notes.length} notes');
       _setLoading(false);
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error loading notes: $e');
+      LogService.error('❌ NotesProvider: Error loading notes: $e');
       _setError('Notlar yüklenirken hata oluştu: $e');
       _setLoading(false);
     }
@@ -141,21 +142,21 @@ class NotesProvider with ChangeNotifier {
 
   /// Kategori seç
   void selectCategory(String? categoryId) {
-    debugPrint('🔖 NotesProvider: Category selected: $categoryId');
+    LogService.debug('🔖 NotesProvider: Category selected: $categoryId');
     _selectedCategoryId = categoryId;
     notifyListeners();
   }
 
   /// Arama sorgusu güncelle
   void updateSearchQuery(String query) {
-    debugPrint('🔍 NotesProvider: Search query updated: $query');
+    LogService.debug('🔍 NotesProvider: Search query updated: $query');
     _searchQuery = query;
     notifyListeners();
   }
 
   /// Arama sorgusunu temizle
   void clearSearchQuery() {
-    debugPrint('🧹 NotesProvider: Search query cleared');
+    LogService.debug('🧹 NotesProvider: Search query cleared');
     _searchQuery = '';
     notifyListeners();
   }
@@ -168,7 +169,7 @@ class NotesProvider with ChangeNotifier {
     int colorIndex = 0,
   }) async {
     try {
-      debugPrint('➕ NotesProvider: Adding new note: $title');
+      LogService.debug('➕ NotesProvider: Adding new note: $title');
       _setError(null);
 
       final now = DateTime.now();
@@ -186,15 +187,15 @@ class NotesProvider with ChangeNotifier {
 
       if (success) {
         await loadData(); // Listeyi yenile
-        debugPrint('✅ NotesProvider: Note added successfully');
+        LogService.debug('✅ NotesProvider: Note added successfully');
       } else {
-        debugPrint('❌ NotesProvider: Failed to add note');
+        LogService.debug('❌ NotesProvider: Failed to add note');
         _setError('Not eklenemedi');
       }
 
       return success;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error adding note: $e');
+      LogService.error('❌ NotesProvider: Error adding note: $e');
       _setError('Not eklenirken hata oluştu: $e');
       return false;
     }
@@ -203,22 +204,22 @@ class NotesProvider with ChangeNotifier {
   /// Notu güncelle
   Future<bool> updateNote(NoteModel note) async {
     try {
-      debugPrint('🔄 NotesProvider: Updating note: ${note.id}');
+      LogService.debug('🔄 NotesProvider: Updating note: ${note.id}');
       _setError(null);
 
       final success = await _notesService.updateNote(note);
 
       if (success) {
         await loadData(); // Listeyi yenile
-        debugPrint('✅ NotesProvider: Note updated successfully');
+        LogService.debug('✅ NotesProvider: Note updated successfully');
       } else {
-        debugPrint('❌ NotesProvider: Failed to update note');
+        LogService.debug('❌ NotesProvider: Failed to update note');
         _setError('Not güncellenemedi');
       }
 
       return success;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error updating note: $e');
+      LogService.error('❌ NotesProvider: Error updating note: $e');
       _setError('Not güncellenirken hata oluştu: $e');
       return false;
     }
@@ -227,22 +228,22 @@ class NotesProvider with ChangeNotifier {
   /// Notu sil
   Future<bool> deleteNote(int noteId) async {
     try {
-      debugPrint('🗑️ NotesProvider: Deleting note: $noteId');
+      LogService.debug('🗑️ NotesProvider: Deleting note: $noteId');
       _setError(null);
 
       final success = await _notesService.deleteNote(noteId);
 
       if (success) {
         await loadData(); // Listeyi yenile
-        debugPrint('✅ NotesProvider: Note deleted successfully');
+        LogService.debug('✅ NotesProvider: Note deleted successfully');
       } else {
-        debugPrint('❌ NotesProvider: Failed to delete note');
+        LogService.debug('❌ NotesProvider: Failed to delete note');
         _setError('Not silinemedi');
       }
 
       return success;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error deleting note: $e');
+      LogService.error('❌ NotesProvider: Error deleting note: $e');
       _setError('Not silinirken hata oluştu: $e');
       return false;
     }
@@ -251,22 +252,22 @@ class NotesProvider with ChangeNotifier {
   /// Notu sabitle/sabitliği kaldır
   Future<bool> togglePinNote(int noteId, bool isPinned) async {
     try {
-      debugPrint('📌 NotesProvider: Toggling pin for note: $noteId to $isPinned');
+      LogService.debug('📌 NotesProvider: Toggling pin for note: $noteId to $isPinned');
       _setError(null);
 
       final success = await _notesService.togglePinNote(noteId, isPinned);
 
       if (success) {
         await loadData(); // Listeyi yenile
-        debugPrint('✅ NotesProvider: Note pin toggled successfully');
+        LogService.debug('✅ NotesProvider: Note pin toggled successfully');
       } else {
-        debugPrint('❌ NotesProvider: Failed to toggle note pin');
+        LogService.debug('❌ NotesProvider: Failed to toggle note pin');
         _setError('Note pin status could not be changed');
       }
 
       return success;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error toggling note pin: $e');
+      LogService.error('❌ NotesProvider: Error toggling note pin: $e');
       _setError('Error changing note pin status: $e');
       return false;
     }
@@ -275,21 +276,21 @@ class NotesProvider with ChangeNotifier {
   /// Tek bir notu getir
   Future<NoteModel?> getNote(int noteId) async {
     try {
-      debugPrint('📖 NotesProvider: Getting note: $noteId');
+      LogService.debug('📖 NotesProvider: Getting note: $noteId');
       _setError(null);
 
       final note = await _notesService.getNote(noteId);
 
       if (note != null) {
-        debugPrint('✅ NotesProvider: Note retrieved successfully');
+        LogService.debug('✅ NotesProvider: Note retrieved successfully');
       } else {
-        debugPrint('⚠️ NotesProvider: Note not found');
+        LogService.debug('⚠️ NotesProvider: Note not found');
         _setError('Not bulunamadı');
       }
 
       return note;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error getting note: $e');
+      LogService.error('❌ NotesProvider: Error getting note: $e');
       _setError('Not getirilirken hata oluştu: $e');
       return null;
     }
@@ -298,7 +299,7 @@ class NotesProvider with ChangeNotifier {
   /// Kategori ekle
   Future<bool> addCategory(CategoryModel category) async {
     try {
-      debugPrint('➕ NotesProvider: Adding category: ${category.title}');
+      LogService.debug('➕ NotesProvider: Adding category: ${category.title}');
       await CategoryProvider().addCategory(category);
 
       // Kategoriyi listeye hemen ekle
@@ -307,10 +308,10 @@ class NotesProvider with ChangeNotifier {
       // UI'ı hemen güncelle
       notifyListeners();
 
-      debugPrint('✅ NotesProvider: Category added successfully');
+      LogService.debug('✅ NotesProvider: Category added successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error adding category: $e');
+      LogService.error('❌ NotesProvider: Error adding category: $e');
       _setError('Kategori eklenirken hata oluştu: $e');
       return false;
     }
@@ -319,7 +320,7 @@ class NotesProvider with ChangeNotifier {
   /// Kategori güncelle
   Future<bool> updateCategory(CategoryModel category) async {
     try {
-      debugPrint('🔄 NotesProvider: Updating category: ${category.id}');
+      LogService.debug('🔄 NotesProvider: Updating category: ${category.id}');
       CategoryProvider().updateCategory(category);
 
       // Kategoriyi listede güncelle
@@ -331,10 +332,10 @@ class NotesProvider with ChangeNotifier {
       // UI'ı hemen güncelle
       notifyListeners();
 
-      debugPrint('✅ NotesProvider: Category updated successfully');
+      LogService.debug('✅ NotesProvider: Category updated successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error updating category: $e');
+      LogService.error('❌ NotesProvider: Error updating category: $e');
       _setError('Kategori güncellenirken hata oluştu: $e');
       return false;
     }
@@ -343,12 +344,12 @@ class NotesProvider with ChangeNotifier {
   /// Kategori sil
   Future<bool> deleteCategory(String categoryId) async {
     try {
-      debugPrint('🗑️ NotesProvider: Deleting category: $categoryId');
+      LogService.debug('🗑️ NotesProvider: Deleting category: $categoryId');
 
       // Bu kategoriye ait notları kontrol et
       final notesInCategory = _notes.where((note) => note.categoryId == categoryId).toList();
       if (notesInCategory.isNotEmpty) {
-        debugPrint('⚠️ NotesProvider: Category has ${notesInCategory.length} notes, deleting them first');
+        LogService.debug('⚠️ NotesProvider: Category has ${notesInCategory.length} notes, deleting them first');
         // Kategoriye ait tüm notları sil
         for (final note in notesInCategory) {
           await _notesService.deleteNote(note.id);
@@ -370,15 +371,15 @@ class NotesProvider with ChangeNotifier {
         // UI'ı hemen güncelle
         notifyListeners();
 
-        debugPrint('✅ NotesProvider: Category deleted successfully');
+        LogService.debug('✅ NotesProvider: Category deleted successfully');
         return true;
       } else {
-        debugPrint('❌ NotesProvider: Category not found');
+        LogService.debug('❌ NotesProvider: Category not found');
         _setError('Kategori bulunamadı');
         return false;
       }
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error deleting category: $e');
+      LogService.error('❌ NotesProvider: Error deleting category: $e');
       _setError('Kategori silinirken hata oluştu: $e');
       return false;
     }
@@ -396,31 +397,31 @@ class NotesProvider with ChangeNotifier {
 
   /// Change archive filter
   void toggleArchivedFilter() {
-    debugPrint('📦 NotesProvider: Toggling archived filter - current: $_showArchivedOnly');
+    LogService.debug('📦 NotesProvider: Toggling archived filter - current: $_showArchivedOnly');
     _showArchivedOnly = !_showArchivedOnly;
     notifyListeners();
-    debugPrint('✅ NotesProvider: Archived filter toggled - new: $_showArchivedOnly');
+    LogService.debug('✅ NotesProvider: Archived filter toggled - new: $_showArchivedOnly');
   }
 
   /// Archive/unarchive note
   Future<bool> toggleArchiveNote(int noteId) async {
     try {
-      debugPrint('📦 NotesProvider: Toggling archive for noteId: $noteId');
+      LogService.debug('📦 NotesProvider: Toggling archive for noteId: $noteId');
       _setError(null);
 
       final success = await _notesService.toggleArchiveNote(noteId);
 
       if (success) {
         await loadData();
-        debugPrint('✅ NotesProvider: Note archive toggled successfully');
+        LogService.debug('✅ NotesProvider: Note archive toggled successfully');
       } else {
-        debugPrint('❌ NotesProvider: Failed to toggle archive note');
+        LogService.debug('❌ NotesProvider: Failed to toggle archive note');
         _setError('Note could not be archived');
       }
 
       return success;
     } catch (e) {
-      debugPrint('❌ NotesProvider: Error toggling archive note - $e');
+      LogService.error('❌ NotesProvider: Error toggling archive note - $e');
       _setError('Error archiving note: $e');
       return false;
     }

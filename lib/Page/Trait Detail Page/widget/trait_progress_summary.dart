@@ -7,6 +7,7 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// Progress summary card for trait details
 class TraitProgressSummary extends StatelessWidget {
@@ -39,7 +40,7 @@ class TraitProgressSummary extends StatelessWidget {
     int totalSessions = 0;
 
     final allLogs = TaskLogProvider().taskLogList;
-    debugPrint('TraitProgressSummary: Total logs ${allLogs.length} for trait ${traitModel.id}');
+    LogService.debug('TraitProgressSummary: Total logs ${allLogs.length} for trait ${traitModel.id}');
 
     for (final log in allLogs) {
       final task = TaskProvider().taskList.firstWhere(
@@ -81,7 +82,7 @@ class TraitProgressSummary extends StatelessWidget {
       }
     }
 
-    debugPrint('TraitProgressSummary: Week $weekDuration, Month $monthDuration, Year $yearDuration, Sessions $totalSessions');
+    LogService.debug('TraitProgressSummary: Week $weekDuration, Month $monthDuration, Year $yearDuration, Sessions $totalSessions');
 
     return {
       'week': weekDuration,

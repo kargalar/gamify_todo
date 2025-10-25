@@ -13,6 +13,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class AddTaskProvider with ChangeNotifier {
   // Widget variables
@@ -73,7 +74,7 @@ class AddTaskProvider with ChangeNotifier {
 
   void updateIsPinned(bool value) {
     isPinned = value;
-    debugPrint('Task pin status updated: ${isPinned ? "pinned" : "unpinned"}');
+    LogService.debug('Task pin status updated: ${isPinned ? "pinned" : "unpinned"}');
     notifyListeners();
   }
 
@@ -299,7 +300,7 @@ class AddTaskProvider with ChangeNotifier {
       final copiedFile = await file.copy(newPath);
       return copiedFile.path;
     } catch (e) {
-      debugPrint('Error copying file: $e');
+      LogService.error('Error copying file: $e');
       rethrow;
     }
   }
@@ -321,7 +322,7 @@ class AddTaskProvider with ChangeNotifier {
             String copiedPath = await _copyFileToAppDirectory(originalPath);
             attachmentPaths.add(copiedPath);
           } catch (e) {
-            debugPrint('Failed to copy file $originalPath: $e');
+            LogService.error('Failed to copy file $originalPath: $e');
             // Kopyalama başarısız olursa orijinal path'i kullan
             attachmentPaths.add(originalPath);
           }
@@ -329,7 +330,7 @@ class AddTaskProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('Error picking files: $e');
+      LogService.error('Error picking files: $e');
     }
   }
 
@@ -349,7 +350,7 @@ class AddTaskProvider with ChangeNotifier {
             String copiedPath = await _copyFileToAppDirectory(originalPath);
             attachmentPaths.add(copiedPath);
           } catch (e) {
-            debugPrint('Failed to copy image $originalPath: $e');
+            LogService.error('Failed to copy image $originalPath: $e');
             // Kopyalama başarısız olursa orijinal path'i kullan
             attachmentPaths.add(originalPath);
           }
@@ -357,7 +358,7 @@ class AddTaskProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('Error picking images: $e');
+      LogService.error('Error picking images: $e');
     }
   }
 
@@ -375,7 +376,7 @@ class AddTaskProvider with ChangeNotifier {
           }
         }
       } catch (e) {
-        debugPrint('Error deleting file: $e');
+        LogService.error('Error deleting file: $e');
       }
 
       attachmentPaths.removeAt(index);
@@ -396,7 +397,7 @@ class AddTaskProvider with ChangeNotifier {
         }
       }
     } catch (e) {
-      debugPrint('Error clearing attachments: $e');
+      LogService.error('Error clearing attachments: $e');
     }
 
     attachmentPaths.clear();
@@ -425,7 +426,7 @@ class AddTaskProvider with ChangeNotifier {
         }
       }
     } catch (e) {
-      debugPrint('Error deleting task attachments: $e');
+      LogService.error('Error deleting task attachments: $e');
     }
   }
 

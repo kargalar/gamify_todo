@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
@@ -16,13 +15,14 @@ import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:alarm/alarm.dart';
 import 'package:alarm/utils/alarm_set.dart';
 import 'dart:typed_data';
+import 'package:next_level/Service/logging_service.dart';
 
 class NotificationService {
   /// Timer taskı durdurulunca çağrılacak örnek fonksiyon
   Future<void> stopTimerTask(int id) async {
     // ...timerı durdurma işlemleri...
     await cancelTimerNotification(id);
-    debugPrint('Timer bildirimi iptal edildi (id: $id)');
+    LogService.debug('Timer bildirimi iptal edildi (id: $id)');
   }
 
   /// Timer bildirimi için kullanılan ID hesaplama fonksiyonu
@@ -67,23 +67,23 @@ class NotificationService {
     final String deviceTimeZone = await _getLocalTimezone();
     final location = tz.getLocation(deviceTimeZone);
     tz.setLocalLocation(location);
-    debugPrint('Timezone initialized. Device timezone: $deviceTimeZone');
+    LogService.debug('Timezone initialized. Device timezone: $deviceTimeZone');
 
     // Initialize alarm package
     await Alarm.init();
 
     // Alarm ringing listener'ı ayarla
     Alarm.ringing.listen((AlarmSet alarmSet) {
-      debugPrint('');
-      debugPrint('🚨🚨🚨 ALARM IS RINGING! 🚨🚨🚨');
+      LogService.debug('');
+      LogService.debug('🚨🚨🚨 ALARM IS RINGING! 🚨🚨🚨');
       for (final alarm in alarmSet.alarms) {
-        debugPrint('🚨 ALARM ID: ${alarm.id}');
-        debugPrint('🚨 ALARM TITLE: ${alarm.notificationSettings.title}');
-        debugPrint('🚨 ALARM BODY: ${alarm.notificationSettings.body}');
+        LogService.debug('🚨 ALARM ID: ${alarm.id}');
+        LogService.debug('🚨 ALARM TITLE: ${alarm.notificationSettings.title}');
+        LogService.debug('🚨 ALARM BODY: ${alarm.notificationSettings.body}');
       }
-      debugPrint('🚨 CURRENT TIME: ${DateTime.now()}');
-      debugPrint('🚨🚨🚨 ALARM IS RINGING! 🚨🚨🚨');
-      debugPrint('');
+      LogService.debug('🚨 CURRENT TIME: ${DateTime.now()}');
+      LogService.debug('🚨🚨🚨 ALARM IS RINGING! 🚨🚨🚨');
+      LogService.debug('');
       // Burada alarm çaldığında yapılacak işlemleri ekleyebilirsin
     });
 
@@ -192,7 +192,7 @@ class NotificationService {
           );
         }
       } catch (e) {
-        debugPrint('Notification payload parsing error: $e');
+        LogService.error('Notification payload parsing error: $e');
       }
     }
   }
@@ -253,24 +253,24 @@ class NotificationService {
   }) async {
     // Bildirim/alarm ID'sini 32-bit integer sınırında tut
     final safeId = id % 2147483647;
-    debugPrint('=== scheduleNotification Debug ===');
-    debugPrint('ID: $id | safeId: $safeId');
-    debugPrint('Title: $title');
-    debugPrint('Scheduled Date: $scheduledDate');
-    debugPrint('Is Alarm: $isAlarm');
-    debugPrint('Early Reminder Minutes: $earlyReminderMinutes');
-    debugPrint('Current DateTime: ${DateTime.now()}');
-    debugPrint('ScheduledDate isAfter now: ${scheduledDate.isAfter(DateTime.now())}');
+    LogService.debug('=== scheduleNotification Debug ===');
+    LogService.debug('ID: $id | safeId: $safeId');
+    LogService.debug('Title: $title');
+    LogService.debug('Scheduled Date: $scheduledDate');
+    LogService.debug('Is Alarm: $isAlarm');
+    LogService.debug('Early Reminder Minutes: $earlyReminderMinutes');
+    LogService.debug('Current DateTime: ${DateTime.now()}');
+    LogService.debug('ScheduledDate isAfter now: ${scheduledDate.isAfter(DateTime.now())}');
 
     // Task ID'sini payload olarak ekle
     final Map<String, dynamic> payload = {'taskId': id};
-    debugPrint('Payload: $payload');
+    LogService.debug('Payload: $payload');
 
     // Eğer erken hatırlatma süresi belirtilmişse, erken hatırlatma bildirimi planla
     if (earlyReminderMinutes != null && earlyReminderMinutes > 0) {
       final DateTime earlyReminderDate = scheduledDate.subtract(Duration(minutes: earlyReminderMinutes));
-      debugPrint('EarlyReminderDate: $earlyReminderDate');
-      debugPrint('EarlyReminderDate isAfter now: ${earlyReminderDate.isAfter(DateTime.now())}');
+      LogService.debug('EarlyReminderDate: $earlyReminderDate');
+      LogService.debug('EarlyReminderDate isAfter now: ${earlyReminderDate.isAfter(DateTime.now())}');
       // Erken hatırlatma zamanı geçmemişse bildirim planla
       if (earlyReminderDate.isAfter(DateTime.now())) {
         String reminderText;
@@ -287,9 +287,9 @@ class NotificationService {
         }
 
         final tz.TZDateTime earlyReminderTZDate = tz.TZDateTime.from(earlyReminderDate, tz.local);
-        debugPrint('earlyReminderTZDate: $earlyReminderTZDate');
+        LogService.debug('earlyReminderTZDate: $earlyReminderTZDate');
         final String earlyPayload = jsonEncode(payload);
-        debugPrint('earlyPayload: $earlyPayload');
+        LogService.debug('earlyPayload: $earlyPayload');
         try {
           final earlyId = (safeId + 300000) % 2147483647;
           await flutterLocalNotificationsPlugin.zonedSchedule(
@@ -302,12 +302,12 @@ class NotificationService {
             matchDateTimeComponents: DateTimeComponents.dateAndTime,
             payload: earlyPayload,
           );
-          debugPrint('✓ Early reminder notification scheduled (earlyId: $earlyId)');
+          LogService.debug('✓ Early reminder notification scheduled (earlyId: $earlyId)');
         } catch (e) {
-          debugPrint('✗ Error scheduling early reminder notification: $e');
+          LogService.error('✗ Error scheduling early reminder notification: $e');
         }
       } else {
-        debugPrint('✗ Early reminder date is not after now, notification not scheduled');
+        LogService.debug('✗ Early reminder date is not after now, notification not scheduled');
       }
     }
 
@@ -315,15 +315,15 @@ class NotificationService {
     try {
       if (isAlarm) {
         // Alarm package kullanarak gerçek alarm planla
-        debugPrint('✓ Scheduling alarm with alarm package...');
-        debugPrint('Alarm DateTime: $scheduledDate');
-        debugPrint('Current DateTime: ${DateTime.now()}');
-        debugPrint('Time difference: ${scheduledDate.difference(DateTime.now()).inMinutes} minutes');
+        LogService.debug('✓ Scheduling alarm with alarm package...');
+        LogService.debug('Alarm DateTime: $scheduledDate');
+        LogService.debug('Current DateTime: ${DateTime.now()}');
+        LogService.debug('Time difference: ${scheduledDate.difference(DateTime.now()).inMinutes} minutes');
 
         // Alarm package için gerekli izinleri kontrol et
         bool hasAlarmPermission = await requestAlarmPermission();
         if (!hasAlarmPermission) {
-          debugPrint('✗ Alarm permission not granted');
+          LogService.debug('✗ Alarm permission not granted');
           return;
         }
 
@@ -351,9 +351,9 @@ class NotificationService {
 
         try {
           await Alarm.set(alarmSettings: alarmSettings);
-          debugPrint('✓ Alarm set called');
+          LogService.debug('✓ Alarm set called');
         } catch (e) {
-          debugPrint('✗ Error calling Alarm.set: $e');
+          LogService.error('✗ Error calling Alarm.set: $e');
         }
 
         // Alarm'ın doğru ayarlandığını doğrula
@@ -361,27 +361,27 @@ class NotificationService {
           final alarms = await Alarm.getAlarms();
           final setAlarm = alarms.where((alarm) => alarm.id == safeId).firstOrNull;
           if (setAlarm != null) {
-            debugPrint('✓ Alarm successfully set and verified');
-            debugPrint('Alarm ID: ${setAlarm.id}');
-            debugPrint('Alarm DateTime: ${setAlarm.dateTime}');
+            LogService.debug('✓ Alarm successfully set and verified');
+            LogService.debug('Alarm ID: ${setAlarm.id}');
+            LogService.debug('Alarm DateTime: ${setAlarm.dateTime}');
           } else {
-            debugPrint('✗ Alarm was not set properly');
+            LogService.debug('✗ Alarm was not set properly');
           }
         } catch (e) {
-          debugPrint('✗ Error verifying alarm: $e');
+          LogService.error('✗ Error verifying alarm: $e');
         }
 
-        debugPrint('✓ Alarm scheduled successfully with alarm package');
+        LogService.debug('✓ Alarm scheduled successfully with alarm package');
 
         // Debug: Alarm'ları kontrol et
         await debugAlarms();
       } else {
         // Normal bildirim için flutter_local_notifications kullan
-        debugPrint('✓ Scheduling notification...');
+        LogService.debug('✓ Scheduling notification...');
         final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
-        debugPrint('scheduledTZDate: $scheduledTZDate');
+        LogService.debug('scheduledTZDate: $scheduledTZDate');
         final String notificationPayload = jsonEncode(payload);
-        debugPrint('notificationPayload: $notificationPayload');
+        LogService.debug('notificationPayload: $notificationPayload');
         try {
           await flutterLocalNotificationsPlugin.zonedSchedule(
             safeId,
@@ -393,13 +393,13 @@ class NotificationService {
             matchDateTimeComponents: DateTimeComponents.dateAndTime,
             payload: notificationPayload,
           );
-          debugPrint('✓ Notification scheduled successfully (safeId: $safeId)');
+          LogService.debug('✓ Notification scheduled successfully (safeId: $safeId)');
         } catch (e) {
-          debugPrint('✗ Error scheduling notification: $e');
+          LogService.error('✗ Error scheduling notification: $e');
         }
       }
     } catch (e) {
-      debugPrint('✗ Error scheduling ${isAlarm ? 'alarm' : 'notification'}: $e');
+      LogService.error('✗ Error scheduling ${isAlarm ? 'alarm' : 'notification'}: $e');
     }
   }
 
@@ -409,7 +409,7 @@ class NotificationService {
     if (!hasPermission) {
       hasPermission = await requestNotificationPermissions();
       if (!hasPermission) {
-        debugPrint('Notification permission denied');
+        LogService.debug('Notification permission denied');
         return;
       }
     }
@@ -435,9 +435,9 @@ class NotificationService {
         ),
         payload: payload,
       );
-      debugPrint('✓ Test bildirimi gönderildi');
+      LogService.debug('✓ Test bildirimi gönderildi');
     } catch (e) {
-      debugPrint('✗ Test bildirimi gönderilemedi: $e');
+      LogService.error('✗ Test bildirimi gönderilemedi: $e');
     }
     // 5 saniye sonra zamanlanmış bildirim gönder
     final tz.TZDateTime scheduledDate = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
@@ -451,9 +451,9 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: payload,
       );
-      debugPrint('✓ Zamanlanmış test bildirimi gönderildi');
+      LogService.debug('✓ Zamanlanmış test bildirimi gönderildi');
     } catch (e) {
-      debugPrint('✗ Zamanlanmış test bildirimi gönderilemedi: $e');
+      LogService.error('✗ Zamanlanmış test bildirimi gönderilemedi: $e');
     }
     // 5 saniye sonra gerçek alarm (alarm package ile)
     final DateTime realAlarmDate = DateTime.now().add(const Duration(seconds: 5));
@@ -482,17 +482,17 @@ class NotificationService {
 
       // Alarm'ın doğru ayarlandığını kontrol et
       final alarms = await Alarm.getAlarms();
-      debugPrint('✓ Total alarms set: ${alarms.length}');
+      LogService.debug('✓ Total alarms set: ${alarms.length}');
       final testAlarm = alarms.where((alarm) => alarm.id == 66666).firstOrNull;
       if (testAlarm != null) {
-        debugPrint('✓ Test alarm found: ID ${testAlarm.id}, DateTime: ${testAlarm.dateTime}');
+        LogService.debug('✓ Test alarm found: ID ${testAlarm.id}, DateTime: ${testAlarm.dateTime}');
       } else {
-        debugPrint('✗ Test alarm not found in alarm list');
+        LogService.debug('✗ Test alarm not found in alarm list');
       }
 
-      debugPrint('✓ Real alarm test scheduled for 5 seconds');
+      LogService.debug('✓ Real alarm test scheduled for 5 seconds');
     } catch (e) {
-      debugPrint('✗ Error setting test alarm: $e');
+      LogService.error('✗ Error setting test alarm: $e');
     }
   }
 
@@ -500,14 +500,14 @@ class NotificationService {
     try {
       await flutterLocalNotificationsPlugin.cancelAll();
     } catch (e) {
-      debugPrint('Error canceling local notifications: $e');
+      LogService.error('Error canceling local notifications: $e');
     }
 
     try {
       // Cancel all alarms from alarm package
       await Alarm.stopAll();
     } catch (e) {
-      debugPrint('Error stopping all alarms: $e');
+      LogService.error('Error stopping all alarms: $e');
       // Alarm paketinde hata olursa devam et
     }
   }
@@ -518,14 +518,14 @@ class NotificationService {
       final safeId = id % 2147483647;
       await flutterLocalNotificationsPlugin.cancel(safeId);
     } catch (e) {
-      debugPrint('Error canceling notification for id $id: $e');
+      LogService.error('Error canceling notification for id $id: $e');
     }
 
     try {
       final safeId = id % 2147483647;
       await Alarm.stop(safeId);
     } catch (e) {
-      debugPrint('Error stopping alarm for id $id: $e');
+      LogService.error('Error stopping alarm for id $id: $e');
       // Alarm paketinde hata olursa devam et
     }
   }
@@ -582,7 +582,7 @@ class NotificationService {
     // Aktif timer bildirimi: tıklayınca navigasyon istemiyoruz
     final String payload = jsonEncode({'taskId': taskId, 'noNavigate': true});
     final int safeTimerId = getTimerNotificationId(id);
-    debugPrint('showTimerNotification: id=$id, safeTimerId=$safeTimerId');
+    LogService.debug('showTimerNotification: id=$id, safeTimerId=$safeTimerId');
 
     await flutterLocalNotificationsPlugin.show(
       safeTimerId,
@@ -617,7 +617,7 @@ class NotificationService {
   /// Timer bildirimi iptal fonksiyonu
   Future<void> cancelTimerNotification(int id) async {
     final int safeTimerId = getTimerNotificationId(id);
-    debugPrint('cancelTimerNotification: id=$id, safeTimerId=$safeTimerId');
+    LogService.debug('cancelTimerNotification: id=$id, safeTimerId=$safeTimerId');
     await flutterLocalNotificationsPlugin.cancel(safeTimerId);
     cancelNotificationOrAlarm(id);
   }
@@ -626,23 +626,23 @@ class NotificationService {
   Future<void> debugAlarms() async {
     try {
       final alarms = await Alarm.getAlarms();
-      debugPrint('=== DEBUG ALARMS ===');
-      debugPrint('Total alarms: ${alarms.length}');
+      LogService.debug('=== DEBUG ALARMS ===');
+      LogService.debug('Total alarms: ${alarms.length}');
 
       if (alarms.isEmpty) {
-        debugPrint('No alarms set');
+        LogService.debug('No alarms set');
       } else {
         for (var alarm in alarms) {
-          debugPrint('Alarm ID: ${alarm.id}');
-          debugPrint('  DateTime: ${alarm.dateTime}');
-          debugPrint('  Title: ${alarm.notificationSettings.title}');
-          debugPrint('  Time until alarm: ${alarm.dateTime.difference(DateTime.now()).inMinutes} minutes');
-          debugPrint('  ---');
+          LogService.debug('Alarm ID: ${alarm.id}');
+          LogService.debug('  DateTime: ${alarm.dateTime}');
+          LogService.debug('  Title: ${alarm.notificationSettings.title}');
+          LogService.debug('  Time until alarm: ${alarm.dateTime.difference(DateTime.now()).inMinutes} minutes');
+          LogService.debug('  ---');
         }
       }
-      debugPrint('=== END DEBUG ALARMS ===');
+      LogService.debug('=== END DEBUG ALARMS ===');
     } catch (e) {
-      debugPrint('Error getting alarms: $e');
+      LogService.error('Error getting alarms: $e');
     }
   }
 }

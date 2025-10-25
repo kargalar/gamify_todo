@@ -10,6 +10,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/home_widget_service.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -130,7 +131,7 @@ class TaskProvider with ChangeNotifier {
 
       if (taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
         // Task date is in the past, mark as overdue only if not already completed
-        debugPrint('Setting newly created task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
+        LogService.debug('Setting newly created task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
         taskModel.status = TaskStatusEnum.OVERDUE;
 
         // Create log for overdue status
@@ -168,11 +169,11 @@ class TaskProvider with ChangeNotifier {
     required TaskModel taskModel,
     required List<int> selectedDays,
   }) async {
-    debugPrint('Editing task: ID=${taskModel.id}, Title=${taskModel.title}');
+    LogService.debug('Editing task: ID=${taskModel.id}, Title=${taskModel.title}');
 
     if (taskModel.routineID != null) {
       // Editing a task that belongs to a routine
-      debugPrint('Task belongs to routine ID=${taskModel.routineID}');
+      LogService.debug('Task belongs to routine ID=${taskModel.routineID}');
 
       // Find the routine in the list
       RoutineModel routine = routineList.firstWhere((element) => element.id == taskModel.routineID);
@@ -207,7 +208,7 @@ class TaskProvider with ChangeNotifier {
           .toList();
 
       // Save the routine to Hive
-      debugPrint('Updating routine in Hive');
+      LogService.debug('Updating routine in Hive');
       ServerManager().updateRoutine(routineModel: routine);
 
       // Update all tasks associated with this routine
@@ -292,7 +293,7 @@ class TaskProvider with ChangeNotifier {
           checkNotification(task);
 
           // Save the task to Hive
-          debugPrint('Updating task in Hive: ID=${task.id}');
+          LogService.debug('Updating task in Hive: ID=${task.id}');
           ServerManager().updateTask(taskModel: task);
         }
       }
@@ -333,19 +334,19 @@ class TaskProvider with ChangeNotifier {
       }
     } else {
       // Editing a standalone task
-      debugPrint('Editing standalone task');
+      LogService.debug('Editing standalone task');
 
       // Find the task in the list and update it to preserve Hive object identity
       final index = taskList.indexWhere((element) => element.id == taskModel.id);
       if (index != -1) {
-        debugPrint('Found task in taskList at index $index: ID=${taskModel.id}');
+        LogService.debug('Found task in taskList at index $index: ID=${taskModel.id}');
 
         // Update the existing task properties to preserve Hive object identity
         final existingTask = taskList[index];
 
         // If user selected repeat days during edit of a standalone task, convert this task into a routine
         if (selectedDays.isNotEmpty && existingTask.routineID == null) {
-          debugPrint('Converting standalone task to routine with days: $selectedDays');
+          LogService.debug('Converting standalone task to routine with days: $selectedDays');
 
           // Validate start date
           final startDate = taskModel.taskDate ?? DateTime.now();
@@ -420,7 +421,7 @@ class TaskProvider with ChangeNotifier {
           final isActiveToday = selectedDays.contains(today.weekday - 1) && !today.isBeforeDay(startDate);
           final hasTodayInstance = taskList.any((t) => t.routineID == newRoutine.id && t.taskDate != null && t.taskDate!.isSameDay(today));
           if (isActiveToday && !hasTodayInstance) {
-            debugPrint('Creating today instance for converted routine');
+            LogService.debug('Creating today instance for converted routine');
             await _createTaskFromRoutine(newRoutine, today);
           }
 
@@ -446,7 +447,7 @@ class TaskProvider with ChangeNotifier {
 
           // Update task status to in progress if not completed
           if (existingTask.status != TaskStatusEnum.DONE) {
-            debugPrint('Resetting task status to null due to dateless change: ID=${existingTask.id}, Title=${existingTask.title}');
+            LogService.debug('Resetting task status to null due to dateless change: ID=${existingTask.id}, Title=${existingTask.title}');
             existingTask.status = null;
 
             // Create log for the status change to null (in progress)
@@ -467,7 +468,7 @@ class TaskProvider with ChangeNotifier {
           if (taskDateTime.isBefore(now)) {
             // Task date is in the past, mark as overdue if not already completed
             if (existingTask.status != TaskStatusEnum.DONE) {
-              debugPrint('Setting task status to overdue due to past date: ID=${existingTask.id}, Title=${existingTask.title}');
+              LogService.debug('Setting task status to overdue due to past date: ID=${existingTask.id}, Title=${existingTask.title}');
               existingTask.status = TaskStatusEnum.OVERDUE;
 
               // Create log for overdue status
@@ -479,7 +480,7 @@ class TaskProvider with ChangeNotifier {
           } else {
             // Task date is in the future or today, reset status to null (in progress) if not completed
             if (existingTask.status != TaskStatusEnum.DONE && existingTask.status != null) {
-              debugPrint('Resetting task status to null due to date change: ID=${existingTask.id}, Title=${existingTask.title}');
+              LogService.debug('Resetting task status to null due to date change: ID=${existingTask.id}, Title=${existingTask.title}');
               existingTask.status = null;
 
               // Create log for the status change to null (in progress)
@@ -515,15 +516,15 @@ class TaskProvider with ChangeNotifier {
 
         // Save the task to Hive with better error handling
         try {
-          debugPrint('Saving existing task to preserve Hive identity: ID=${existingTask.id}');
+          LogService.debug('Saving existing task to preserve Hive identity: ID=${existingTask.id}');
           await ServerManager().updateTask(taskModel: existingTask);
-          debugPrint('Task successfully saved: ID=${existingTask.id}');
+          LogService.debug('Task successfully saved: ID=${existingTask.id}');
         } catch (e) {
-          debugPrint('ERROR saving task: ID=${existingTask.id}, Error: $e');
+          LogService.error('ERROR saving task: ID=${existingTask.id}, Error: $e');
           // Even if save fails, keep the changes in memory for now
         }
       } else {
-        debugPrint('ERROR: Task not found in taskList: ID=${taskModel.id}');
+        LogService.error('ERROR: Task not found in taskList: ID=${taskModel.id}');
       }
     }
 
@@ -594,7 +595,7 @@ class TaskProvider with ChangeNotifier {
 
       if (selectedDateTime.isBefore(now)) {
         // Task date is in the past, mark as overdue
-        debugPrint('Setting task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
+        LogService.debug('Setting task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
         taskModel.status = TaskStatusEnum.OVERDUE;
 
         // Create log for overdue status
@@ -605,7 +606,7 @@ class TaskProvider with ChangeNotifier {
       } else {
         // Task date is in the future or today, reset status to null (in progress)
         if (taskModel.status != null) {
-          debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
+          LogService.debug('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
           taskModel.status = null;
 
           // Create log for the status change to null (in progress)
@@ -618,7 +619,7 @@ class TaskProvider with ChangeNotifier {
     } else {
       // Dateless task, reset status to null
       if (taskModel.status != null) {
-        debugPrint('Resetting task status to null due to dateless change: ID=${taskModel.id}, Title=${taskModel.title}');
+        LogService.debug('Resetting task status to null due to dateless change: ID=${taskModel.id}, Title=${taskModel.title}');
         taskModel.status = null;
 
         // Create log for the status change to null (in progress)
@@ -669,7 +670,7 @@ class TaskProvider with ChangeNotifier {
     required DateTime newDate,
     bool showUndo = true,
   }) {
-    debugPrint('Changing task date without dialog: ID=${taskModel.id}, Title=${taskModel.title}');
+    LogService.debug('Changing task date without dialog: ID=${taskModel.id}, Title=${taskModel.title}');
 
     // Preserve the time if it exists
     if (taskModel.time != null) {
@@ -698,7 +699,7 @@ class TaskProvider with ChangeNotifier {
 
     if (newDateTime.isBefore(now)) {
       // Task date is in the past, mark as overdue
-      debugPrint('Setting task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
+      LogService.debug('Setting task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
       taskModel.status = TaskStatusEnum.OVERDUE;
 
       // Create log for overdue status
@@ -709,7 +710,7 @@ class TaskProvider with ChangeNotifier {
     } else {
       // Task date is in the future or today, reset status to null (in progress)
       if (taskModel.status != null) {
-        debugPrint('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
+        LogService.debug('Resetting task status to null due to date change: ID=${taskModel.id}, Title=${taskModel.title}');
         taskModel.status = null;
 
         // Create log for the status change to null (in progress)
@@ -726,9 +727,9 @@ class TaskProvider with ChangeNotifier {
     // Save the task to ensure changes are persisted
     try {
       taskModel.save();
-      debugPrint('Task saved after date change: ID=${taskModel.id}');
+      LogService.debug('Task saved after date change: ID=${taskModel.id}');
     } catch (e) {
-      debugPrint('ERROR saving task after date change: $e');
+      LogService.error('ERROR saving task after date change: $e');
     }
 
     // Update in storage
@@ -784,20 +785,20 @@ class TaskProvider with ChangeNotifier {
   }
 
   checkNotification(TaskModel taskModel) {
-    debugPrint('=== checkNotification Debug ===');
-    debugPrint('Task: ${taskModel.title} (ID: ${taskModel.id})');
-    debugPrint('Time: ${taskModel.time}');
-    debugPrint('Date: ${taskModel.taskDate}');
-    debugPrint('Notification on: ${taskModel.isNotificationOn}');
-    debugPrint('Alarm on: ${taskModel.isAlarmOn}');
-    debugPrint('Status: ${taskModel.status}');
+    LogService.debug('=== checkNotification Debug ===');
+    LogService.debug('Task: ${taskModel.title} (ID: ${taskModel.id})');
+    LogService.debug('Time: ${taskModel.time}');
+    LogService.debug('Date: ${taskModel.taskDate}');
+    LogService.debug('Notification on: ${taskModel.isNotificationOn}');
+    LogService.debug('Alarm on: ${taskModel.isAlarmOn}');
+    LogService.debug('Status: ${taskModel.status}');
 
     // Önce mevcut bildirimi iptal et
     NotificationService().cancelNotificationOrAlarm(taskModel.id);
 
     // Eğer task tamamlandıysa, iptal edildiyse, başarısız olduysa veya tarihi geçmişse bildirim oluşturma
     if (taskModel.status == TaskStatusEnum.DONE || taskModel.status == TaskStatusEnum.CANCEL || taskModel.status == TaskStatusEnum.FAILED || taskModel.status == TaskStatusEnum.OVERDUE) {
-      debugPrint('Task has done/cancelled/failed/overdue status, not scheduling notification');
+      LogService.debug('Task has done/cancelled/failed/overdue status, not scheduling notification');
       return;
     }
 
@@ -806,12 +807,12 @@ class TaskProvider with ChangeNotifier {
       // Görev zamanı gelecekteyse bildirim planla
       DateTime taskDateTime = taskModel.taskDate!.copyWith(hour: taskModel.time!.hour, minute: taskModel.time!.minute, second: 0);
 
-      debugPrint('Task DateTime: $taskDateTime');
-      debugPrint('Current DateTime: ${DateTime.now()}');
-      debugPrint('Is future: ${taskDateTime.isAfter(DateTime.now())}');
+      LogService.debug('Task DateTime: $taskDateTime');
+      LogService.debug('Current DateTime: ${DateTime.now()}');
+      LogService.debug('Is future: ${taskDateTime.isAfter(DateTime.now())}');
 
       if (taskDateTime.isAfter(DateTime.now())) {
-        debugPrint('✓ Scheduling notification for: $taskDateTime');
+        LogService.debug('✓ Scheduling notification for: $taskDateTime');
         NotificationService().scheduleNotification(
           id: taskModel.id,
           title: taskModel.title,
@@ -821,18 +822,18 @@ class TaskProvider with ChangeNotifier {
           earlyReminderMinutes: taskModel.earlyReminderMinutes,
         );
       } else {
-        debugPrint('✗ Task time is in the past, not scheduling notification');
+        LogService.debug('✗ Task time is in the past, not scheduling notification');
       }
     } else {
-      debugPrint('✗ Notification conditions not met (time: ${taskModel.time}, date: ${taskModel.taskDate}, notif: ${taskModel.isNotificationOn}, alarm: ${taskModel.isAlarmOn})');
+      LogService.debug('✗ Notification conditions not met (time: ${taskModel.time}, date: ${taskModel.taskDate}, notif: ${taskModel.isNotificationOn}, alarm: ${taskModel.isAlarmOn})');
     }
   }
 
   // iptal de kullanıcıya ceza yansıtılmayacak
   cancelTask(TaskModel taskModel) {
-    debugPrint('Canceling task: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
+    LogService.debug('Canceling task: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
     if (taskModel.status == TaskStatusEnum.CANCEL) {
-      debugPrint('Task is already CANCELED, checking date for overdue logic');
+      LogService.debug('Task is already CANCELED, checking date for overdue logic');
       // If already cancelled, check if task should be overdue based on date
       if (taskModel.taskDate != null) {
         final now = DateTime.now();
@@ -842,13 +843,13 @@ class TaskProvider with ChangeNotifier {
           second: 59,
         );
 
-        debugPrint('Now: $now');
-        debugPrint('Task DateTime: $taskDateTime');
-        debugPrint('Is task date before now: ${taskDateTime.isBefore(now)}');
+        LogService.debug('Now: $now');
+        LogService.debug('Task DateTime: $taskDateTime');
+        LogService.debug('Is task date before now: ${taskDateTime.isBefore(now)}');
 
         if (taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
           // Task date is in the past, mark as overdue only if not already completed
-          debugPrint('Task was canceled but date is past, setting to overdue: ID=${taskModel.id}');
+          LogService.debug('Task was canceled but date is past, setting to overdue: ID=${taskModel.id}');
           taskModel.status = TaskStatusEnum.OVERDUE;
 
           // Create log for overdue status
@@ -859,7 +860,7 @@ class TaskProvider with ChangeNotifier {
         } else {
           // Task date is in the future or today, set to in progress
           taskModel.status = null;
-          debugPrint('Task was canceled but date is future/today, setting to in-progress: ID=${taskModel.id}');
+          LogService.debug('Task was canceled but date is future/today, setting to in-progress: ID=${taskModel.id}');
 
           // Create log for the status change to null (in progress)
           TaskLogProvider().addTaskLog(
@@ -870,7 +871,7 @@ class TaskProvider with ChangeNotifier {
       } else {
         // Dateless task, set to in progress
         taskModel.status = null;
-        debugPrint('Task was canceled but dateless, setting to in-progress: ID=${taskModel.id}');
+        LogService.debug('Task was canceled but dateless, setting to in-progress: ID=${taskModel.id}');
 
         // Create log for the status change to null (in progress)
         TaskLogProvider().addTaskLog(
@@ -886,7 +887,7 @@ class TaskProvider with ChangeNotifier {
 
       // Set to cancelled, clearing any other status
       taskModel.status = TaskStatusEnum.CANCEL;
-      debugPrint('Setting task to canceled');
+      LogService.debug('Setting task to canceled');
 
       // Create log for cancelled task
       TaskLogProvider().addTaskLog(
@@ -898,9 +899,9 @@ class TaskProvider with ChangeNotifier {
     // Save the task to ensure changes are persisted
     try {
       taskModel.save();
-      debugPrint('Task saved after status change: ID=${taskModel.id}');
+      LogService.debug('Task saved after status change: ID=${taskModel.id}');
     } catch (e) {
-      debugPrint('ERROR saving task after status change: $e');
+      LogService.error('ERROR saving task after status change: $e');
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -914,9 +915,9 @@ class TaskProvider with ChangeNotifier {
   }
 
   failedTask(TaskModel taskModel) {
-    debugPrint('Marking task as failed: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
+    LogService.debug('Marking task as failed: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
     if (taskModel.status == TaskStatusEnum.FAILED) {
-      debugPrint('Task is already FAILED, checking date for overdue logic');
+      LogService.debug('Task is already FAILED, checking date for overdue logic');
       // If already failed, check if task should be overdue based on date
       if (taskModel.taskDate != null) {
         final now = DateTime.now();
@@ -926,13 +927,13 @@ class TaskProvider with ChangeNotifier {
           second: 59,
         );
 
-        debugPrint('Now: $now');
-        debugPrint('Task DateTime: $taskDateTime');
-        debugPrint('Is task date before now: ${taskDateTime.isBefore(now)}');
+        LogService.debug('Now: $now');
+        LogService.debug('Task DateTime: $taskDateTime');
+        LogService.debug('Is task date before now: ${taskDateTime.isBefore(now)}');
 
         if (taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
           // Task date is in the past, mark as overdue only if not already completed
-          debugPrint('Task was failed but date is past, setting to overdue: ID=${taskModel.id}');
+          LogService.debug('Task was failed but date is past, setting to overdue: ID=${taskModel.id}');
           taskModel.status = TaskStatusEnum.OVERDUE;
 
           // Create log for overdue status
@@ -943,7 +944,7 @@ class TaskProvider with ChangeNotifier {
         } else {
           // Task date is in the future or today, set to in progress
           taskModel.status = null;
-          debugPrint('Task was failed but date is future/today, setting to in-progress: ID=${taskModel.id}');
+          LogService.debug('Task was failed but date is future/today, setting to in-progress: ID=${taskModel.id}');
 
           // Create log for the status change to null (in progress)
           TaskLogProvider().addTaskLog(
@@ -954,7 +955,7 @@ class TaskProvider with ChangeNotifier {
       } else {
         // Dateless task, set to in progress
         taskModel.status = null;
-        debugPrint('Task was failed but dateless, setting to in-progress: ID=${taskModel.id}');
+        LogService.debug('Task was failed but dateless, setting to in-progress: ID=${taskModel.id}');
 
         // Create log for the status change to null (in progress)
         TaskLogProvider().addTaskLog(
@@ -970,7 +971,7 @@ class TaskProvider with ChangeNotifier {
 
       // Set to failed, clearing any other status
       taskModel.status = TaskStatusEnum.FAILED;
-      debugPrint('Setting task to failed');
+      LogService.debug('Setting task to failed');
 
       // Create log for failed task
       TaskLogProvider().addTaskLog(
@@ -982,9 +983,9 @@ class TaskProvider with ChangeNotifier {
     // Save the task to ensure changes are persisted
     try {
       taskModel.save();
-      debugPrint('Task saved after status change: ID=${taskModel.id}');
+      LogService.debug('Task saved after status change: ID=${taskModel.id}');
     } catch (e) {
-      debugPrint('ERROR saving task after status change: $e');
+      LogService.error('ERROR saving task after status change: $e');
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -1031,7 +1032,7 @@ class TaskProvider with ChangeNotifier {
             NotificationService().cancelNotificationOrAlarm(task.id + 200000);
           }
         } catch (e) {
-          debugPrint('Error cancelling notifications for skipped routine task: $e');
+          LogService.error('Error cancelling notifications for skipped routine task: $e');
         }
       }
 
@@ -1041,7 +1042,7 @@ class TaskProvider with ChangeNotifier {
 
       Helper().getMessage(message: LocaleKeys.SkipRoutineSuccess.tr());
     } catch (e) {
-      debugPrint('Error while skipping routines for date $date: $e');
+      LogService.error('Error while skipping routines for date $date: $e');
       Helper().getMessage(message: "${"Error".tr()}: $e");
     }
   }
@@ -1183,7 +1184,7 @@ class TaskProvider with ChangeNotifier {
   // TODO: just for routine
   // ? rutin model mi task model mi
   completeRoutine(TaskModel taskModel) {
-    debugPrint('Completing routine task: ID=${taskModel.id}, Title=${taskModel.title}');
+    LogService.debug('Completing routine task: ID=${taskModel.id}, Title=${taskModel.title}');
 
     // Clear any existing status before setting to DONE
     taskModel.status = TaskStatusEnum.DONE;
@@ -1191,9 +1192,9 @@ class TaskProvider with ChangeNotifier {
     // Save the task to ensure changes are persisted
     try {
       taskModel.save();
-      debugPrint('Task saved after completion: ID=${taskModel.id}');
+      LogService.debug('Task saved after completion: ID=${taskModel.id}');
     } catch (e) {
-      debugPrint('ERROR saving task after completion: $e');
+      LogService.error('ERROR saving task after completion: $e');
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -1238,14 +1239,14 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future<void> toggleShowArchived() async {
-    debugPrint('📦 TaskProvider: Toggling archived filter - Current: $showArchived');
+    LogService.debug('📦 TaskProvider: Toggling archived filter - Current: $showArchived');
     showArchived = !showArchived;
 
     // Değişikliği SharedPreferences'a kaydet
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('show_archived', showArchived);
 
-    debugPrint('✅ TaskProvider: Archived filter toggled - New: $showArchived');
+    LogService.debug('✅ TaskProvider: Archived filter toggled - New: $showArchived');
     notifyListeners();
   }
 
@@ -1256,9 +1257,9 @@ class TaskProvider with ChangeNotifier {
     // Save the task to ensure changes are persisted
     try {
       taskModel.save();
-      debugPrint('Task saved after toggling subtask visibility: ID=${taskModel.id}');
+      LogService.debug('Task saved after toggling subtask visibility: ID=${taskModel.id}');
     } catch (e) {
-      debugPrint('ERROR saving task after toggling subtask visibility: $e');
+      LogService.error('ERROR saving task after toggling subtask visibility: $e');
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -1267,7 +1268,7 @@ class TaskProvider with ChangeNotifier {
 
   // Subtask methods
   void addSubtask(TaskModel taskModel, String subtaskTitle, [String? description]) {
-    debugPrint('Adding subtask to task: ID=${taskModel.id}, Title=${taskModel.title}');
+    LogService.debug('Adding subtask to task: ID=${taskModel.id}, Title=${taskModel.title}');
 
     taskModel.subtasks ??= [];
 
@@ -1288,9 +1289,9 @@ class TaskProvider with ChangeNotifier {
     // Save the task to ensure changes are persisted
     try {
       taskModel.save();
-      debugPrint('Task saved after adding subtask: ID=${taskModel.id}');
+      LogService.debug('Task saved after adding subtask: ID=${taskModel.id}');
     } catch (e) {
-      debugPrint('ERROR saving task after adding subtask: $e');
+      LogService.error('ERROR saving task after adding subtask: $e');
     }
     ServerManager().updateTask(taskModel: taskModel);
 
@@ -1306,13 +1307,13 @@ class TaskProvider with ChangeNotifier {
   void _propagateSubtaskChangesToRoutineInstances(TaskModel sourceTask) {
     if (sourceTask.routineID == null) return;
 
-    debugPrint('Propagating subtask changes for routine ID=${sourceTask.routineID}');
+    LogService.debug('Propagating subtask changes for routine ID=${sourceTask.routineID}');
     final now = DateTime.now();
 
     // First, update the routine template so future ghost routines get the changes
     final routineIndex = routineList.indexWhere((routine) => routine.id == sourceTask.routineID);
     if (routineIndex != -1) {
-      debugPrint('Updating routine template with subtask changes');
+      LogService.debug('Updating routine template with subtask changes');
       routineList[routineIndex].subtasks = sourceTask.subtasks
           ?.map((subtask) => SubTaskModel(
                 id: subtask.id,
@@ -1346,9 +1347,9 @@ class TaskProvider with ChangeNotifier {
         // Save the updated task
         try {
           task.save();
-          debugPrint('Task saved after subtask propagation: ID=${task.id}');
+          LogService.debug('Task saved after subtask propagation: ID=${task.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after subtask propagation: $e');
+          LogService.error('ERROR saving task after subtask propagation: $e');
         }
 
         ServerManager().updateTask(taskModel: task);
@@ -1358,7 +1359,7 @@ class TaskProvider with ChangeNotifier {
 
   void removeSubtask(TaskModel taskModel, SubTaskModel subtask, {bool showUndo = true}) {
     if (taskModel.subtasks != null) {
-      debugPrint('Removing subtask from task: TaskID=${taskModel.id}, SubtaskID=${subtask.id}');
+      LogService.debug('Removing subtask from task: TaskID=${taskModel.id}, SubtaskID=${subtask.id}');
 
       if (showUndo) {
         // Store the subtask for potential undo
@@ -1371,9 +1372,9 @@ class TaskProvider with ChangeNotifier {
         // Save the task to ensure changes are persisted
         try {
           taskModel.save();
-          debugPrint('Task saved after removing subtask: ID=${taskModel.id}');
+          LogService.debug('Task saved after removing subtask: ID=${taskModel.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after removing subtask: $e');
+          LogService.error('ERROR saving task after removing subtask: $e');
         }
         ServerManager().updateTask(taskModel: taskModel);
 
@@ -1403,9 +1404,9 @@ class TaskProvider with ChangeNotifier {
         // Save the task to ensure changes are persisted
         try {
           taskModel.save();
-          debugPrint('Task saved after removing subtask: ID=${taskModel.id}');
+          LogService.debug('Task saved after removing subtask: ID=${taskModel.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after removing subtask: $e');
+          LogService.error('ERROR saving task after removing subtask: $e');
         }
         ServerManager().updateTask(taskModel: taskModel);
 
@@ -1421,7 +1422,7 @@ class TaskProvider with ChangeNotifier {
 
   void clearSubtasks(TaskModel taskModel) {
     if (taskModel.subtasks != null && taskModel.subtasks!.isNotEmpty) {
-      debugPrint('Clearing all subtasks from task: TaskID=${taskModel.id}');
+      LogService.debug('Clearing all subtasks from task: TaskID=${taskModel.id}');
 
       // Clear the list
       taskModel.subtasks!.clear();
@@ -1429,9 +1430,9 @@ class TaskProvider with ChangeNotifier {
       // Save the task to ensure changes are persisted
       try {
         taskModel.save();
-        debugPrint('Task saved after clearing subtasks: ID=${taskModel.id}');
+        LogService.debug('Task saved after clearing subtasks: ID=${taskModel.id}');
       } catch (e) {
-        debugPrint('ERROR saving task after clearing subtasks: $e');
+        LogService.error('ERROR saving task after clearing subtasks: $e');
       }
       ServerManager().updateTask(taskModel: taskModel);
 
@@ -1463,9 +1464,9 @@ class TaskProvider with ChangeNotifier {
       // Save the task to ensure changes are persisted
       try {
         taskModel.save();
-        debugPrint('Task saved after restoring subtask: ID=${taskModel.id}');
+        LogService.debug('Task saved after restoring subtask: ID=${taskModel.id}');
       } catch (e) {
-        debugPrint('ERROR saving task after restoring subtask: $e');
+        LogService.error('ERROR saving task after restoring subtask: $e');
       }
       ServerManager().updateTask(taskModel: taskModel);
 
@@ -1487,14 +1488,14 @@ class TaskProvider with ChangeNotifier {
 
         taskModel.subtasks![index].isCompleted = !wasCompleted;
 
-        debugPrint('Toggling subtask completion: TaskID=${taskModel.id}, SubtaskID=${subtask.id}, Completed=${!wasCompleted}');
+        LogService.debug('Toggling subtask completion: TaskID=${taskModel.id}, SubtaskID=${subtask.id}, Completed=${!wasCompleted}');
 
         // Save the task to ensure changes are persisted
         try {
           taskModel.save();
-          debugPrint('Task saved after toggling subtask: ID=${taskModel.id}');
+          LogService.debug('Task saved after toggling subtask: ID=${taskModel.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after toggling subtask: $e');
+          LogService.error('ERROR saving task after toggling subtask: $e');
         }
         ServerManager().updateTask(taskModel: taskModel);
 
@@ -1531,7 +1532,7 @@ class TaskProvider with ChangeNotifier {
     if (taskModel.subtasks != null) {
       final index = taskModel.subtasks!.indexWhere((s) => s.id == subtask.id);
       if (index != -1) {
-        debugPrint('Updating subtask: TaskID=${taskModel.id}, SubtaskID=${subtask.id}');
+        LogService.debug('Updating subtask: TaskID=${taskModel.id}, SubtaskID=${subtask.id}');
 
         // Update the subtask with new title and description
         taskModel.subtasks![index].title = title;
@@ -1540,9 +1541,9 @@ class TaskProvider with ChangeNotifier {
         // Save the task to ensure changes are persisted
         try {
           taskModel.save();
-          debugPrint('Task saved after updating subtask: ID=${taskModel.id}');
+          LogService.debug('Task saved after updating subtask: ID=${taskModel.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after updating subtask: $e');
+          LogService.error('ERROR saving task after updating subtask: $e');
         }
 
         // Save changes to server
@@ -1609,9 +1610,9 @@ class TaskProvider with ChangeNotifier {
     // Respect showCompleted setting like other task lists
     final pinnedTasks = taskList.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED && (showCompleted || task.status != TaskStatusEnum.DONE)).toList();
 
-    debugPrint('Found ${pinnedTasks.length} pinned tasks (all dates)');
+    LogService.debug('Found ${pinnedTasks.length} pinned tasks (all dates)');
     for (var task in pinnedTasks) {
-      debugPrint('  - Pinned task: ${task.title} (Date: ${task.taskDate})');
+      LogService.debug('  - Pinned task: ${task.title} (Date: ${task.taskDate})');
     }
 
     sortTasksByPriorityAndTime(pinnedTasks);
@@ -1623,7 +1624,7 @@ class TaskProvider with ChangeNotifier {
     try {
       final taskIndex = taskList.indexWhere((task) => task.id == taskId);
       if (taskIndex == -1) {
-        debugPrint('❌ Task not found: ID=$taskId');
+        LogService.error('❌ Task not found: ID=$taskId');
         return;
       }
 
@@ -1631,21 +1632,21 @@ class TaskProvider with ChangeNotifier {
 
       // Only allow pinning for non-routine tasks
       if (task.routineID != null) {
-        debugPrint('⚠️ Cannot pin routine tasks: ID=$taskId');
+        LogService.debug('⚠️ Cannot pin routine tasks: ID=$taskId');
         Helper().getMessage(message: "CannotPinRoutineTasks".tr());
         return;
       }
 
       // Toggle pin status
       task.isPinned = !task.isPinned;
-      debugPrint('📌 Task pin toggled: ID=$taskId, isPinned=${task.isPinned}');
+      LogService.debug('📌 Task pin toggled: ID=$taskId, isPinned=${task.isPinned}');
 
       // Save the task
       try {
         task.save();
-        debugPrint('✅ Task saved after pin toggle: ID=$taskId');
+        LogService.debug('✅ Task saved after pin toggle: ID=$taskId');
       } catch (e) {
-        debugPrint('❌ ERROR saving task after pin toggle: $e');
+        LogService.error('❌ ERROR saving task after pin toggle: $e');
       }
 
       // Update in storage
@@ -1659,7 +1660,7 @@ class TaskProvider with ChangeNotifier {
         message: task.isPinned ? "TaskPinned".tr() : "TaskUnpinned".tr(),
       );
     } catch (e) {
-      debugPrint('❌ Error toggling task pin: $e');
+      LogService.error('❌ Error toggling task pin: $e');
       Helper().getMessage(message: "${"Error".tr()}: $e");
     }
   }
@@ -1838,9 +1839,9 @@ class TaskProvider with ChangeNotifier {
         // Save the task to ensure changes are persisted
         try {
           task.save();
-          debugPrint('Task saved after undoing date change: ID=${task.id}');
+          LogService.debug('Task saved after undoing date change: ID=${task.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after undoing date change: $e');
+          LogService.error('ERROR saving task after undoing date change: $e');
         }
 
         // Update in storage
@@ -1864,7 +1865,7 @@ class TaskProvider with ChangeNotifier {
 
   // Complete a task with undo functionality
   void completeTaskWithUndo(TaskModel taskModel, {bool showUndo = true}) {
-    debugPrint('Completing checkbox task with undo: ID=${taskModel.id}, Title=${taskModel.title}');
+    LogService.debug('Completing checkbox task with undo: ID=${taskModel.id}, Title=${taskModel.title}');
 
     if (showUndo) {
       // Store the previous status for potential undo
@@ -1890,9 +1891,9 @@ class TaskProvider with ChangeNotifier {
     // Save the task to ensure changes are persisted
     try {
       taskModel.save();
-      debugPrint('Task saved after completion: ID=${taskModel.id}');
+      LogService.debug('Task saved after completion: ID=${taskModel.id}');
     } catch (e) {
-      debugPrint('ERROR saving task after completion: $e');
+      LogService.error('ERROR saving task after completion: $e');
     }
 
     ServerManager().updateTask(taskModel: taskModel);
@@ -1952,7 +1953,7 @@ class TaskProvider with ChangeNotifier {
 
             if (taskDateTime.isBefore(now)) {
               // Task date is in the past, mark as overdue
-              debugPrint('Undoing completion but date is past, setting to overdue: ID=${task.id}');
+              LogService.debug('Undoing completion but date is past, setting to overdue: ID=${task.id}');
               task.status = TaskStatusEnum.OVERDUE;
 
               // Create log entry for overdue status
@@ -1999,9 +2000,9 @@ class TaskProvider with ChangeNotifier {
         // Save the task to ensure changes are persisted
         try {
           task.save();
-          debugPrint('Task saved after undoing completion: ID=${task.id}');
+          LogService.debug('Task saved after undoing completion: ID=${task.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after undoing completion: $e');
+          LogService.error('ERROR saving task after undoing completion: $e');
         }
 
         // Update in storage
@@ -2017,7 +2018,7 @@ class TaskProvider with ChangeNotifier {
 
   // Unarchive routine
   Future<void> unarchiveRoutine(int routineID) async {
-    debugPrint('Unarchiving routine: ID=$routineID');
+    LogService.debug('Unarchiving routine: ID=$routineID');
 
     final routineModel = routineList.firstWhere((element) => element.id == routineID);
 
@@ -2043,7 +2044,7 @@ class TaskProvider with ChangeNotifier {
           if (taskDateTime.isBefore(now)) {
             // Task date is in the past, mark as failed (since it's a routine task)
             task.status = TaskStatusEnum.FAILED;
-            debugPrint('Unarchived routine task but date is past, setting to failed: ID=${task.id}');
+            LogService.debug('Unarchived routine task but date is past, setting to failed: ID=${task.id}');
 
             // Create log for the status change to failed
             TaskLogProvider().addTaskLog(
@@ -2053,7 +2054,7 @@ class TaskProvider with ChangeNotifier {
           } else {
             // Task date is in the future or today, set to active state
             task.status = null;
-            debugPrint('Unarchived routine task with future/today date, setting to active: ID=${task.id}');
+            LogService.debug('Unarchived routine task with future/today date, setting to active: ID=${task.id}');
 
             // Create log for the status change to active
             TaskLogProvider().addTaskLog(
@@ -2064,7 +2065,7 @@ class TaskProvider with ChangeNotifier {
         } else {
           // No date set, set to active state
           task.status = null;
-          debugPrint('Unarchived routine task without date, setting to active: ID=${task.id}');
+          LogService.debug('Unarchived routine task without date, setting to active: ID=${task.id}');
 
           // Create log for the status change to active
           TaskLogProvider().addTaskLog(
@@ -2077,24 +2078,24 @@ class TaskProvider with ChangeNotifier {
         if (task.type == TaskTypeEnum.TIMER) {
           if (task.isTimerActive == null) {
             task.isTimerActive = false;
-            debugPrint('Fixed null isTimerActive for timer task: ID=${task.id}');
+            LogService.debug('Fixed null isTimerActive for timer task: ID=${task.id}');
           }
           if (task.currentDuration == null) {
             task.currentDuration = Duration.zero;
-            debugPrint('Fixed null currentDuration for timer task: ID=${task.id}');
+            LogService.debug('Fixed null currentDuration for timer task: ID=${task.id}');
           }
           if (task.remainingDuration == null) {
             task.remainingDuration = const Duration(minutes: 30); // Default 30 minutes
-            debugPrint('Fixed null remainingDuration for timer task: ID=${task.id}');
+            LogService.debug('Fixed null remainingDuration for timer task: ID=${task.id}');
           }
         } else if (task.type == TaskTypeEnum.COUNTER) {
           if (task.currentCount == null) {
             task.currentCount = 0;
-            debugPrint('Fixed null currentCount for counter task: ID=${task.id}');
+            LogService.debug('Fixed null currentCount for counter task: ID=${task.id}');
           }
           if (task.targetCount == null) {
             task.targetCount = 1;
-            debugPrint('Fixed null targetCount for counter task: ID=${task.id}');
+            LogService.debug('Fixed null targetCount for counter task: ID=${task.id}');
           }
         }
 
@@ -2112,7 +2113,7 @@ class TaskProvider with ChangeNotifier {
       final todayTaskExists = taskList.any((task) => task.routineID == routineID && task.taskDate != null && task.taskDate!.year == today.year && task.taskDate!.month == today.month && task.taskDate!.day == today.day);
 
       if (!todayTaskExists) {
-        debugPrint('Creating new task for unarchived routine today: ${routineModel.title}');
+        LogService.debug('Creating new task for unarchived routine today: ${routineModel.title}');
         // Create task for today
         await _createTaskFromRoutine(routineModel, today);
       }
@@ -2163,7 +2164,7 @@ class TaskProvider with ChangeNotifier {
     // Set up notifications if needed
     checkNotification(task);
 
-    debugPrint('Created new task from routine: ID=$newTaskId, Title=${task.title}');
+    LogService.debug('Created new task from routine: ID=$newTaskId, Title=${task.title}');
   }
 
   // Get overdue tasks (only for display purposes, not filtered by date)
@@ -2267,7 +2268,7 @@ class TaskProvider with ChangeNotifier {
 
             if (taskDateTime.isBefore(now)) {
               // Task date is in the past, mark as overdue
-              debugPrint('Undoing failure but date is past, setting to overdue: ID=${task.id}');
+              LogService.debug('Undoing failure but date is past, setting to overdue: ID=${task.id}');
               task.status = TaskStatusEnum.OVERDUE;
 
               // Create log entry for overdue status
@@ -2309,9 +2310,9 @@ class TaskProvider with ChangeNotifier {
         // Save the task
         try {
           task.save();
-          debugPrint('Task saved after undoing failure: ID=${task.id}');
+          LogService.debug('Task saved after undoing failure: ID=${task.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after undoing failure: $e');
+          LogService.error('ERROR saving task after undoing failure: $e');
         }
 
         // Update in storage
@@ -2358,7 +2359,7 @@ class TaskProvider with ChangeNotifier {
 
             if (taskDateTime.isBefore(now)) {
               // Task date is in the past, mark as overdue
-              debugPrint('Undoing cancellation but date is past, setting to overdue: ID=${task.id}');
+              LogService.debug('Undoing cancellation but date is past, setting to overdue: ID=${task.id}');
               task.status = TaskStatusEnum.OVERDUE;
 
               // Create log entry for overdue status
@@ -2400,9 +2401,9 @@ class TaskProvider with ChangeNotifier {
         // Save the task
         try {
           task.save();
-          debugPrint('Task saved after undoing cancellation: ID=${task.id}');
+          LogService.debug('Task saved after undoing cancellation: ID=${task.id}');
         } catch (e) {
-          debugPrint('ERROR saving task after undoing cancellation: $e');
+          LogService.error('ERROR saving task after undoing cancellation: $e');
         }
 
         // Update in storage

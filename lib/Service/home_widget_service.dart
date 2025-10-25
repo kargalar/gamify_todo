@@ -18,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 // Top-level background entry point for AOT
 @pragma('vm:entry-point')
@@ -46,7 +47,7 @@ class HomeWidgetService {
       final now = DateTime.now();
       final nextMidnight = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
       final delay = nextMidnight.difference(now) + const Duration(seconds: 1);
-      debugPrint('Scheduling widget midnight refresh in ${delay.inSeconds}s (at $nextMidnight)');
+      LogService.debug('Scheduling widget midnight refresh in ${delay.inSeconds}s (at $nextMidnight)');
       _midnightTimer = Timer(delay, () async {
         try {
           // Re-schedule for the following day as well
@@ -54,11 +55,11 @@ class HomeWidgetService {
           // Simply recalc and push data; task generation is handled elsewhere on app open
           await updateAllWidgets();
         } catch (e) {
-          debugPrint('Midnight widget refresh failed: $e');
+          LogService.error('Midnight widget refresh failed: $e');
         }
       });
     } catch (e) {
-      debugPrint('scheduleNextMidnightRefresh error: $e');
+      LogService.error('scheduleNextMidnightRefresh error: $e');
     }
   }
 
@@ -75,16 +76,16 @@ class HomeWidgetService {
       if (allTasks.isEmpty) {
         try {
           allTasks = await HiveService().getTasks();
-          debugPrint('Using Hive tasks for widget update, count: ${allTasks.length}');
+          LogService.debug('Using Hive tasks for widget update, count: ${allTasks.length}');
         } catch (e) {
-          debugPrint('Failed to load tasks from Hive for widget update: $e');
+          LogService.error('Failed to load tasks from Hive for widget update: $e');
         }
       }
-      debugPrint('Task list length for widget: ${allTasks.length}');
+      LogService.debug('Task list length for widget: ${allTasks.length}');
 
       // Get today's date
       final today = DateTime.now();
-      debugPrint('Today date: $today');
+      LogService.debug('Today date: $today');
 
       // Read hide flag (default false)
       final hideCompleted = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
@@ -92,7 +93,7 @@ class HomeWidgetService {
       // Check vacation mode from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final isVacationMode = prefs.getBool('vacation_mode_enabled') ?? false;
-      debugPrint('Vacation mode: $isVacationMode');
+      LogService.debug('Vacation mode: $isVacationMode');
 
       // Helper function to check if task should be included
       bool includeTask(TaskModel t, {bool isRoutine = false, bool isOverdue = false}) {
@@ -199,45 +200,45 @@ class HomeWidgetService {
       final todaysAllTasks = allTasks.where((task) => task.taskDate?.isSameDay(today) == true).toList();
       final totalWorkSec = todaysAllTasks.where((t) => t.type == TaskTypeEnum.TIMER && t.currentDuration != null).fold<int>(0, (sum, t) => sum + (t.currentDuration!.inSeconds));
 
-      debugPrint('=== WIDGET DATA ===');
-      debugPrint('Overdue tasks: ${overdueTasks.length}');
-      debugPrint('Pinned tasks: ${pinnedTasks.length}');
-      debugPrint('Today tasks: ${todayTasks.length}');
-      debugPrint('Routine tasks: ${routineTasks.length}');
-      debugPrint('Total incomplete: $incompleteTasks');
-      debugPrint('Task titles: $taskTitles');
+      LogService.debug('=== WIDGET DATA ===');
+      LogService.debug('Overdue tasks: ${overdueTasks.length}');
+      LogService.debug('Pinned tasks: ${pinnedTasks.length}');
+      LogService.debug('Today tasks: ${todayTasks.length}');
+      LogService.debug('Routine tasks: ${routineTasks.length}');
+      LogService.debug('Total incomplete: $incompleteTasks');
+      LogService.debug('Task titles: $taskTitles');
 
       // Save widget data
-      debugPrint('Saving widget data...');
+      LogService.debug('Saving widget data...');
       await HomeWidget.saveWidgetData(taskCountKey, incompleteTasks);
-      debugPrint('Task count saved: $incompleteTasks');
+      LogService.debug('Task count saved: $incompleteTasks');
 
       await HomeWidget.saveWidgetData(taskTitlesKey, jsonEncode(taskTitles));
       await HomeWidget.saveWidgetData(taskDetailsKey, jsonEncode(taskDetails));
       await HomeWidget.saveWidgetData(totalWorkSecKey, totalWorkSec);
       await HomeWidget.saveWidgetData(hideCompletedKey, hideCompleted);
-      debugPrint('Task titles saved: ${jsonEncode(taskTitles)}');
-      debugPrint('Task details saved: ${jsonEncode(taskDetails)}');
-      debugPrint('Total work seconds saved: $totalWorkSec');
+      LogService.debug('Task titles saved: ${jsonEncode(taskTitles)}');
+      LogService.debug('Task details saved: ${jsonEncode(taskDetails)}');
+      LogService.debug('Total work seconds saved: $totalWorkSec');
 
       // Update widget
-      debugPrint('Updating widget...');
+      LogService.debug('Updating widget...');
       await HomeWidget.updateWidget(
         androidName: 'TaskWidgetProvider',
       );
-      debugPrint('Widget update done with real task data');
+      LogService.debug('Widget update done with real task data');
     } catch (e, stackTrace) {
-      debugPrint('=== WIDGET UPDATE ERROR ===');
-      debugPrint('Error updating task count widget: $e');
-      debugPrint('Stack trace: $stackTrace');
+      LogService.debug('=== WIDGET UPDATE ERROR ===');
+      LogService.error('Error updating task count widget: $e');
+      LogService.error('Stack trace: $stackTrace');
 
       // Try to save error state
       try {
         await HomeWidget.saveWidgetData(taskCountKey, -1);
         await HomeWidget.updateWidget(androidName: 'TaskWidgetProvider');
-        debugPrint('Error state saved to widget');
+        LogService.debug('Error state saved to widget');
       } catch (errorSaveError) {
-        debugPrint('Failed to save error state: $errorSaveError');
+        LogService.error('Failed to save error state: $errorSaveError');
       }
     }
   }
@@ -252,7 +253,7 @@ class HomeWidgetService {
       final current = await HomeWidget.getWidgetData<int>(widgetEventSeqKey, defaultValue: 0) ?? 0;
       await HomeWidget.saveWidgetData(widgetEventSeqKey, current + 1);
     } catch (e) {
-      debugPrint('bumpWidgetEventSeq error: $e');
+      LogService.error('bumpWidgetEventSeq error: $e');
     }
   }
 
@@ -268,16 +269,16 @@ class HomeWidgetService {
             return;
           }
           if (seq != _lastEventSeq) {
-            debugPrint('HomeWidget event detected: $_lastEventSeq -> $seq, refreshing tasks');
+            LogService.debug('HomeWidget event detected: $_lastEventSeq -> $seq, refreshing tasks');
             _lastEventSeq = seq;
             // Apply any pending credit delta computed in background isolate
             final pending = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
             if (pending != 0) {
-              debugPrint('Applying pending credit delta (minutes): $pending');
+              LogService.debug('Applying pending credit delta (minutes): $pending');
               try {
                 AppHelper().addCreditByProgress(Duration(minutes: pending));
               } catch (e) {
-                debugPrint('apply pending credit error: $e');
+                LogService.error('apply pending credit error: $e');
               }
               await HomeWidget.saveWidgetData(pendingCreditDeltaKey, 0);
             }
@@ -285,19 +286,19 @@ class HomeWidgetService {
             try {
               final tasks = await HiveService().getTasks();
               TaskProvider().taskList = tasks;
-              debugPrint('✅ Tasks reloaded from Hive: ${tasks.length} tasks');
+              LogService.debug('✅ Tasks reloaded from Hive: ${tasks.length} tasks');
             } catch (e) {
-              debugPrint('❌ Failed to reload tasks: $e');
+              LogService.error('❌ Failed to reload tasks: $e');
             }
             // Update UI
             TaskProvider().updateItems();
           }
         } catch (e) {
-          debugPrint('startWidgetEventListener tick error: $e');
+          LogService.error('startWidgetEventListener tick error: $e');
         }
       });
     } catch (e) {
-      debugPrint('startWidgetEventListener error: $e');
+      LogService.error('startWidgetEventListener error: $e');
     }
   }
 
@@ -311,7 +312,7 @@ class HomeWidgetService {
       try {
         await HomeWidget.setAppGroupId(appGroupId);
       } catch (e) {
-        debugPrint('HomeWidget setAppGroupId failed in background: $e');
+        LogService.error('HomeWidget setAppGroupId failed in background: $e');
       }
       // Initialize Hive once for background isolate with explicit path
       try {
@@ -322,16 +323,16 @@ class HomeWidgetService {
           hive.Hive.init(hivePath);
         } catch (e) {
           // Ignore if already initialized
-          debugPrint('Hive.init may already be called: $e');
+          LogService.debug('Hive.init may already be called: $e');
         }
         try {
           await Helper().registerAdapters();
         } catch (e) {
           // If adapters were already registered, continue
-          debugPrint('registerAdapters warning (continuing): $e');
+          LogService.debug('registerAdapters warning (continuing): $e');
         }
       } catch (e) {
-        debugPrint('Hive init failed in background: $e');
+        LogService.error('Hive init failed in background: $e');
         // Proceed anyway; boxes may still be accessible if already open
       }
 
@@ -339,33 +340,33 @@ class HomeWidgetService {
       try {
         await TaskLogProvider().loadTaskLogs();
       } catch (e) {
-        debugPrint('TaskLogProvider.loadTaskLogs failed in background: $e');
+        LogService.error('TaskLogProvider.loadTaskLogs failed in background: $e');
       }
 
-      debugPrint('=== WIDGET BACKGROUND CALLBACK ===');
-      debugPrint('URI: $uri');
-      debugPrint('Query params: ${uri?.queryParameters}');
+      LogService.debug('=== WIDGET BACKGROUND CALLBACK ===');
+      LogService.debug('URI: $uri');
+      LogService.debug('Query params: ${uri?.queryParameters}');
 
       final action = uri?.queryParameters['action'] ?? '';
-      debugPrint('Action: $action');
+      LogService.debug('Action: $action');
 
       if (action.isEmpty) {
-        debugPrint('⚠️ WARNING: Action is empty! URI might be malformed.');
+        LogService.error('⚠️ WARNING: Action is empty! URI might be malformed.');
         return;
       }
 
       if (action == 'toggleHideCompleted') {
-        debugPrint('Toggling hide completed...');
+        LogService.debug('Toggling hide completed...');
         final current = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
         await HomeWidget.saveWidgetData(hideCompletedKey, !current);
         await updateAllWidgets();
         await _bumpWidgetEventSeq();
-        debugPrint('Hide completed toggled to ${!current}');
+        LogService.debug('Hide completed toggled to ${!current}');
         return;
       }
 
       if (action == 'refresh') {
-        debugPrint('Refreshing widget...');
+        LogService.debug('Refreshing widget...');
         // Explicit refresh requested by native side (e.g., date/time change)
         await updateAllWidgets();
         await _bumpWidgetEventSeq();
@@ -377,7 +378,7 @@ class HomeWidgetService {
       final taskId = taskIdStr != null ? int.tryParse(taskIdStr) : null;
       final titleParam = uri?.queryParameters['title'];
 
-      debugPrint('Task ID: $taskId, Title: $titleParam');
+      LogService.debug('Task ID: $taskId, Title: $titleParam');
 
       // Load the task directly from Hive
       final tasks = await HiveService().getTasks();
@@ -394,15 +395,15 @@ class HomeWidgetService {
         } catch (_) {}
       }
       if (task == null) {
-        debugPrint('HomeWidget background: task not found id=$taskId title=$titleParam');
+        LogService.debug('HomeWidget background: task not found id=$taskId title=$titleParam');
         return;
       }
 
-      debugPrint('✅ Task found: ${task.title} (type: ${task.type})');
+      LogService.debug('✅ Task found: ${task.title} (type: ${task.type})');
 
       switch (action) {
         case 'toggleCheckbox':
-          debugPrint('🔘 Toggling checkbox for task: ${task.title}');
+          LogService.debug('🔘 Toggling checkbox for task: ${task.title}');
           if (task.type.toString().contains('CHECKBOX')) {
             // Toggle completion with date-aware logic and logging similar to TaskActionHandler
             if (task.status == TaskStatusEnum.DONE) {
@@ -448,11 +449,11 @@ class HomeWidgetService {
           }
           break;
         case 'incrementCounter':
-          debugPrint('➕ Incrementing counter for task: ${task.title}');
+          LogService.debug('➕ Incrementing counter for task: ${task.title}');
           if (task.type.toString().contains('COUNTER')) {
             final prev = task.currentCount ?? 0;
             task.currentCount = prev + 1;
-            debugPrint('Counter incremented: $prev -> ${task.currentCount}');
+            LogService.debug('Counter incremented: $prev -> ${task.currentCount}');
             // Log the increment
             await TaskLogProvider().addTaskLog(task, customCount: 1);
             // Queue credit for one increment (mirror app logic)
@@ -478,9 +479,9 @@ class HomeWidgetService {
             try {
               await NotificationService().init();
             } catch (e) {
-              debugPrint('Notification init failed in background: $e');
+              LogService.error('Notification init failed in background: $e');
             }
-            debugPrint('Background: toggling timer for task id=${task.id} title=${task.title}');
+            LogService.debug('Background: toggling timer for task id=${task.id} title=${task.title}');
             GlobalTimer().startStopTimer(taskModel: task);
             await updateAllWidgets();
             await _bumpWidgetEventSeq();
@@ -488,7 +489,7 @@ class HomeWidgetService {
           break;
       }
     } catch (e) {
-      debugPrint('HomeWidget backgroundCallback error: $e');
+      LogService.error('HomeWidget backgroundCallback error: $e');
     }
   }
 
@@ -498,29 +499,29 @@ class HomeWidgetService {
       // ignore: deprecated_member_use
       await HomeWidget.registerBackgroundCallback(homeWidgetBackgroundCallback);
     } catch (e) {
-      debugPrint('HomeWidget registerBackground error: $e');
+      LogService.error('HomeWidget registerBackground error: $e');
     }
   }
 
   static Future<void> setupHomeWidget() async {
     try {
-      debugPrint('Setting up home widget with app group ID: $appGroupId');
+      LogService.debug('Setting up home widget with app group ID: $appGroupId');
       await HomeWidget.setAppGroupId(appGroupId);
       await registerBackground();
-      debugPrint('Home widget setup done successfully');
+      LogService.debug('Home widget setup done successfully');
       // Also schedule a local midnight refresh while the app is alive
       scheduleNextMidnightRefresh();
       // Start lightweight event listener to reflect widget-side changes instantly while app is open
       startWidgetEventListener();
     } catch (e) {
-      debugPrint('Error setting up home widget: $e');
+      LogService.error('Error setting up home widget: $e');
       rethrow;
     }
   }
 
   static Future<void> resetHomeWidget() async {
     try {
-      debugPrint('=== RESETTING HOME WIDGET ===');
+      LogService.debug('=== RESETTING HOME WIDGET ===');
 
       // Clear all widget data
       await HomeWidget.saveWidgetData(taskCountKey, 0);
@@ -529,9 +530,9 @@ class HomeWidgetService {
       // Update widget
       await HomeWidget.updateWidget(androidName: 'TaskWidgetProvider');
 
-      debugPrint('Home widget reset done');
+      LogService.debug('Home widget reset done');
     } catch (e) {
-      debugPrint('Error resetting home widget: $e');
+      LogService.error('Error resetting home widget: $e');
     }
   }
 }

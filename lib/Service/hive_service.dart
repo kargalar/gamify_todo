@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Model/category_model.dart';
@@ -35,6 +34,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class HiveService {
   // TODO: singleton yap ve shared pefi de buradan çağır ??
@@ -131,7 +131,7 @@ class HiveService {
 
   Future<void> updateRoutine(RoutineModel routineModel) async {
     final box = await _routineBox;
-    debugPrint('Updating routine in Hive: ID=${routineModel.id}, Title=${routineModel.title}');
+    LogService.debug('Updating routine in Hive: ID=${routineModel.id}, Title=${routineModel.title}');
 
     try {
       // First save the HiveObject to ensure changes are persisted
@@ -143,12 +143,12 @@ class HiveService {
       // Verify the routine was saved correctly
       final savedRoutine = box.get(routineModel.id);
       if (savedRoutine != null) {
-        debugPrint('Routine successfully saved to Hive: ID=${savedRoutine.id}, Title=${savedRoutine.title}');
+        LogService.debug('Routine successfully saved to Hive: ID=${savedRoutine.id}, Title=${savedRoutine.title}');
       } else {
-        debugPrint('ERROR: Failed to retrieve saved routine from Hive');
+        LogService.error('ERROR: Failed to retrieve saved routine from Hive');
       }
     } catch (e) {
-      debugPrint('ERROR saving routine to Hive: $e');
+      LogService.error('ERROR saving routine to Hive: $e');
       rethrow;
     }
   }
@@ -159,9 +159,9 @@ class HiveService {
 
     // delete success check
     if (!box.containsKey(id)) {
-      debugPrint('Routine with ID $id deleted from Hive storage');
+      LogService.debug('Routine with ID $id deleted from Hive storage');
     } else {
-      debugPrint('Routine with ID $id not deleted from Hive storage');
+      LogService.debug('Routine with ID $id not deleted from Hive storage');
     }
   }
 
@@ -178,23 +178,23 @@ class HiveService {
 
   Future<void> updateTask(TaskModel taskModel) async {
     final box = await _taskBox;
-    debugPrint('Updating task in Hive: ID=${taskModel.id}, Title=${taskModel.title}');
+    LogService.debug('Updating task in Hive: ID=${taskModel.id}, Title=${taskModel.title}');
 
     try {
       // Update the box with the task model
-      debugPrint('Putting task in Hive box: ID=${taskModel.id}');
+      LogService.debug('Putting task in Hive box: ID=${taskModel.id}');
       await box.put(taskModel.id, taskModel);
-      debugPrint('put() done successfully for task: ID=${taskModel.id}');
+      LogService.debug('put() done successfully for task: ID=${taskModel.id}');
 
       // Verify the task was saved correctly
       final savedTask = box.get(taskModel.id);
       if (savedTask != null) {
-        debugPrint('Task successfully saved to Hive: ID=${savedTask.id}, Title=${savedTask.title}');
+        LogService.debug('Task successfully saved to Hive: ID=${savedTask.id}, Title=${savedTask.title}');
       } else {
-        debugPrint('ERROR: Failed to retrieve saved task from Hive');
+        LogService.error('ERROR: Failed to retrieve saved task from Hive');
       }
     } catch (e) {
-      debugPrint('ERROR saving task to Hive: $e');
+      LogService.error('ERROR saving task to Hive: $e');
       rethrow;
     }
   }
@@ -205,9 +205,9 @@ class HiveService {
 
     // delete succes check
     if (!box.containsKey(id)) {
-      debugPrint('Task with ID $id deleted from Hive storage');
+      LogService.debug('Task with ID $id deleted from Hive storage');
     } else {
-      debugPrint('Task with ID $id not deleted from Hive storage');
+      LogService.debug('Task with ID $id not deleted from Hive storage');
     }
   }
 
@@ -231,14 +231,14 @@ class HiveService {
 
   Future<void> deleteCategory(String id) async {
     final box = await _categoryBox;
-    debugPrint('🗑️ HiveService: Deleting category with ID: $id');
+    LogService.debug('🗑️ HiveService: Deleting category with ID: $id');
     await box.delete(id);
 
     // Verify deletion
     if (!box.containsKey(id)) {
-      debugPrint('✅ HiveService: Category $id successfully deleted from Hive');
+      LogService.debug('✅ HiveService: Category $id successfully deleted from Hive');
     } else {
-      debugPrint('❌ HiveService: Category $id still exists in Hive after deletion attempt');
+      LogService.debug('❌ HiveService: Category $id still exists in Hive after deletion attempt');
     }
   }
 
@@ -278,10 +278,10 @@ class HiveService {
     final String? lastLoginDateString = prefs.getString('lastLoginDate');
     final DateTime lastLoginDate = lastLoginDateString != null ? DateTime.parse(lastLoginDateString) : today;
 
-    debugPrint('=== createTasksFromRoutines Debug ===');
-    debugPrint('Today: $today');
-    debugPrint('Last login date: $lastLoginDate');
-    debugPrint('Routine count: ${TaskProvider().routineList.length}');
+    LogService.debug('=== createTasksFromRoutines Debug ===');
+    LogService.debug('Today: $today');
+    LogService.debug('Last login date: $lastLoginDate');
+    LogService.debug('Routine count: ${TaskProvider().routineList.length}');
 
     if (TaskProvider().routineList.isNotEmpty) {
       // Get all existing tasks to find the highest ID
@@ -299,24 +299,24 @@ class HiveService {
       int tasksCreated = 0;
 
       for (DateTime date = lastLoginDate.add(const Duration(days: 1)); date.isBeforeOrSameDay(today); date = date.add(const Duration(days: 1))) {
-        debugPrint('Checking date: $date (weekday: ${date.weekday})');
+        LogService.debug('Checking date: $date (weekday: ${date.weekday})');
 
         for (RoutineModel routine in TaskProvider().routineList) {
-          debugPrint('  Routine: ${routine.title}');
-          debugPrint('    Repeat days: ${routine.repeatDays}');
-          debugPrint('    Start date: ${routine.startDate}');
-          debugPrint('    Is archived: ${routine.isArchived}');
-          debugPrint('    Date weekday-1: ${date.weekday - 1}');
-          debugPrint('    Contains weekday: ${routine.repeatDays.contains(date.weekday - 1)}');
+          LogService.debug('  Routine: ${routine.title}');
+          LogService.debug('    Repeat days: ${routine.repeatDays}');
+          LogService.debug('    Start date: ${routine.startDate}');
+          LogService.debug('    Is archived: ${routine.isArchived}');
+          LogService.debug('    Date weekday-1: ${date.weekday - 1}');
+          LogService.debug('    Contains weekday: ${routine.repeatDays.contains(date.weekday - 1)}');
 
           if (routine.isActiveForThisDate(date)) {
             // Check if a task for this routine on this date already exists (e.g., from import)
             final bool taskAlreadyExists = TaskProvider().taskList.any((existingTask) => existingTask.routineID == routine.id && existingTask.taskDate != null && existingTask.taskDate!.year == date.year && existingTask.taskDate!.month == date.month && existingTask.taskDate!.day == date.day);
 
             if (taskAlreadyExists) {
-              debugPrint('    SKIPPING task creation for routine ${routine.title} on $date as it already exists.');
+              LogService.debug('    SKIPPING task creation for routine ${routine.title} on $date as it already exists.');
             } else {
-              debugPrint('    ✓ Creating task for routine ${routine.title} on $date');
+              LogService.debug('    ✓ Creating task for routine ${routine.title} on $date');
               taskID++;
               tasksCreated++;
 
@@ -346,24 +346,24 @@ class HiveService {
 
               // Bildirim veya alarm ayarla
               if (task.time != null && (task.isNotificationOn || task.isAlarmOn)) {
-                debugPrint('    Setting notification for task: ${task.title}');
+                LogService.debug('    Setting notification for task: ${task.title}');
                 TaskProvider().checkNotification(task);
               }
             }
           } else {
-            debugPrint('    ✗ Routine ${routine.title} not active for $date');
+            LogService.debug('    ✗ Routine ${routine.title} not active for $date');
           }
         }
       }
 
-      debugPrint('Total tasks created: $tasksCreated');
+      LogService.debug('Total tasks created: $tasksCreated');
 
       // Update the last task ID in SharedPreferences if tasks were created
       if (TaskProvider().taskList.isNotEmpty) {
         await prefs.setInt("last_task_id", taskID);
       }
     } else {
-      debugPrint('No routines found to create tasks from');
+      LogService.debug('No routines found to create tasks from');
     }
 
     if (TaskProvider().taskList.isNotEmpty) {
@@ -404,7 +404,7 @@ class HiveService {
     try {
       await NotificationService().cancelAllNotifications();
     } catch (e) {
-      debugPrint('Error canceling notifications during data deletion: $e');
+      LogService.error('Error canceling notifications during data deletion: $e');
       // Devam et, bildirimler iptal edilemese bile veri silinebilir
     }
 
@@ -412,7 +412,7 @@ class HiveService {
     try {
       await FileStorageService.instance.clearAllAttachments();
     } catch (e) {
-      debugPrint('Error clearing attachment files: $e');
+      LogService.error('Error clearing attachment files: $e');
     }
 
     // Clear Hive boxes
@@ -465,7 +465,7 @@ class HiveService {
     await UserProvider().resetCredit();
 
     Helper().getMessage(message: LocaleKeys.DeleteAllDataSuccess.tr());
-    debugPrint('All data deleted successfully, user credits reset');
+    LogService.debug('All data deleted successfully, user credits reset');
   }
 
   Future<String?> exportData() async {
@@ -582,7 +582,7 @@ class HiveService {
         if (category != null) categoryMap[key.toString()] = category.toJson();
       }
       allData[_categoryBoxName] = categoryMap;
-      debugPrint('✅ Exported ${categoryMap.length} categories');
+      LogService.debug('✅ Exported ${categoryMap.length} categories');
 
       // Export projects
       final projects = await ProjectsService().getProjects();
@@ -649,7 +649,7 @@ class HiveService {
       NavigatorService().back();
 
       Helper().getMessage(message: LocaleKeys.backup_created_successfully.tr());
-      debugPrint('Backup created successfully at: $filePath');
+      LogService.debug('Backup created successfully at: $filePath');
 
       return filePath;
     } catch (e) {
@@ -694,7 +694,7 @@ class HiveService {
             await itemBox.put(int.parse(entry.key), item);
             StoreProvider().storeItemList.add(item);
           }
-          debugPrint(TraitProvider().traitList.toString());
+          LogService.debug(TraitProvider().traitList.toString());
           // Import traits
           final traitBox = await _traitBox;
           final traitData = allData[_traitBoxName] as Map<String, dynamic>;
@@ -703,7 +703,7 @@ class HiveService {
             await traitBox.put(int.parse(entry.key), trait);
             TraitProvider().traitList.add(trait);
           }
-          debugPrint(TraitProvider().traitList.toString());
+          LogService.debug(TraitProvider().traitList.toString());
 
           // Import routines
           final routineBox = await _routineBox;
@@ -734,7 +734,7 @@ class HiveService {
               CategoryProvider().categoryList.add(category);
             }
             CategoryProvider().notifyCategoryUpdate();
-            debugPrint('✅ Imported ${categoryData.length} categories');
+            LogService.debug('✅ Imported ${categoryData.length} categories');
           }
 
           // Import task logs if they exist
@@ -830,7 +830,7 @@ class HiveService {
           );
 
           Helper().getMessage(message: LocaleKeys.backup_restored_successfully.tr());
-          debugPrint('Backup restored successfully');
+          LogService.debug('Backup restored successfully');
 
           return true;
         }
@@ -849,7 +849,7 @@ class HiveService {
 
   // Reset all routine progress
   Future<void> resetAllRoutineProgress() async {
-    debugPrint('=== RESETTING ALL ROUTINE PROGRESS ===');
+    LogService.debug('=== RESETTING ALL ROUTINE PROGRESS ===');
 
     final taskProvider = TaskProvider();
     final taskLogProvider = TaskLogProvider();
@@ -881,13 +881,13 @@ class HiveService {
 
     // Delete past routine tasks completely
     for (final task in tasksToDelete) {
-      debugPrint('Deleting past routine task: ${task.title} (ID=${task.id}, Date=${task.taskDate})');
+      LogService.debug('Deleting past routine task: ${task.title} (ID=${task.id}, Date=${task.taskDate})');
       await deleteTask(task.id);
     }
 
     // Reset progress for current routine tasks (today's tasks)
     for (final task in tasksToReset) {
-      debugPrint('Resetting progress for current routine task: ${task.title} (ID=${task.id})');
+      LogService.debug('Resetting progress for current routine task: ${task.title} (ID=${task.id})');
 
       // Reset progress values
       if (task.type == TaskTypeEnum.COUNTER) {
@@ -933,7 +933,7 @@ class HiveService {
     // Update providers
     taskProvider.updateItems();
 
-    debugPrint('Routine progress reset completed. Deleted ${tasksToDelete.length} past tasks, reset ${tasksToReset.length} current tasks, and deleted ${routineLogIds.length} logs.');
+    LogService.debug('Routine progress reset completed. Deleted ${tasksToDelete.length} past tasks, reset ${tasksToReset.length} current tasks, and deleted ${routineLogIds.length} logs.');
 
     // Show success message
     Helper().getMessage(message: LocaleKeys.ResetRoutineProgressSuccess.tr());

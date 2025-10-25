@@ -5,6 +5,7 @@ import '../../Core/helper.dart';
 import '../../General/app_colors.dart';
 import '../../Service/locale_keys.g.dart';
 import 'description_editor.dart';
+import '../../Service/logging_service.dart';
 
 /// Generic dialog for adding/editing items with title and description
 /// Can be used for subtasks, notes, projects, etc.
@@ -281,7 +282,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                             IconButton(
                               icon: const Icon(Icons.fullscreen, size: 18),
                               onPressed: () async {
-                                debugPrint('🔍 AddItemDialog: Opening full screen editor for description');
+                                LogService.debug('🔍 AddItemDialog: Opening full screen editor for description');
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -292,7 +293,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                                     ),
                                   ),
                                 );
-                                debugPrint('✅ AddItemDialog: Returned from full screen editor');
+                                LogService.debug('✅ AddItemDialog: Returned from full screen editor');
                               },
                               tooltip: 'Tam Ekran',
                               padding: EdgeInsets.zero,

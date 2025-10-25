@@ -4,6 +4,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class VacationModeProvider extends ChangeNotifier {
   static final VacationModeProvider _instance = VacationModeProvider._internal();
@@ -25,9 +26,9 @@ class VacationModeProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _isVacationModeEnabled = prefs.getBool(_vacationModeKey) ?? false;
-      debugPrint('Loaded vacation mode setting: $_isVacationModeEnabled');
+      LogService.debug('Loaded vacation mode setting: $_isVacationModeEnabled');
     } catch (e) {
-      debugPrint('Error loading vacation mode settings: $e');
+      LogService.error('Error loading vacation mode settings: $e');
       _isVacationModeEnabled = false;
     }
   }
@@ -37,9 +38,9 @@ class VacationModeProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_vacationModeKey, _isVacationModeEnabled);
-      debugPrint('Saved vacation mode setting: $_isVacationModeEnabled');
+      LogService.debug('Saved vacation mode setting: $_isVacationModeEnabled');
     } catch (e) {
-      debugPrint('Error saving vacation mode settings: $e');
+      LogService.error('Error saving vacation mode settings: $e');
     }
   }
 

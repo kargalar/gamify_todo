@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../General/app_colors.dart';
 import '../../Service/locale_keys.g.dart';
+import '../../Service/logging_service.dart';
 
 /// Reusable description editor component
 /// Can be used for tasks, notes, projects, subtasks, etc.
@@ -75,10 +76,10 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
             duration: const Duration(seconds: 2),
           ),
         );
-        debugPrint('✅ Description copied to clipboard');
+        LogService.debug('✅ Description copied to clipboard');
       }
     } else {
-      debugPrint('⚠️ No description to copy');
+      LogService.error('⚠️ No description to copy');
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// Common category filter widget used across Tasks, Notes, and Projects pages
 class CategoryFilterWidget extends StatelessWidget {
@@ -150,7 +151,7 @@ class CategoryFilterWidget extends StatelessWidget {
       ),
       backgroundColor: AppColors.panelBackground,
       onSelected: (_) async {
-        debugPrint('➕ CategoryFilterWidget: Add category button pressed, type: $categoryType');
+        LogService.debug('➕ CategoryFilterWidget: Add category button pressed, type: $categoryType');
         // Otomatik olarak doğru tip ile kategori oluştur
         final result = await showModalBottomSheet(
           context: context,
@@ -162,7 +163,7 @@ class CategoryFilterWidget extends StatelessWidget {
           ),
         );
 
-        debugPrint('✅ CategoryFilterWidget: Bottom sheet closed, result: $result');
+        LogService.debug('✅ CategoryFilterWidget: Bottom sheet closed, result: $result');
 
         // Kategori eklendikten sonra callback'i çağır
         if (context.mounted) {

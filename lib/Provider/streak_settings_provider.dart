@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class StreakSettingsProvider extends ChangeNotifier {
   static final StreakSettingsProvider _instance = StreakSettingsProvider._internal();
@@ -39,13 +40,13 @@ class StreakSettingsProvider extends ChangeNotifier {
         try {
           _vacationWeekdays.add(int.parse(weekdayStr));
         } catch (e) {
-          debugPrint('Error parsing weekday: $weekdayStr');
+          LogService.error('Error parsing weekday: $weekdayStr');
         }
       }
 
-      debugPrint('Loaded streak settings: minHours=$_streakMinimumHours, vacationWeekdays=$_vacationWeekdays');
+      LogService.debug('Loaded streak settings: minHours=$_streakMinimumHours, vacationWeekdays=$_vacationWeekdays');
     } catch (e) {
-      debugPrint('Error loading streak settings: $e');
+      LogService.error('Error loading streak settings: $e');
       // Set defaults
       _streakMinimumHours = 1.0;
       _vacationWeekdays.clear();
@@ -60,9 +61,9 @@ class StreakSettingsProvider extends ChangeNotifier {
       await prefs.setDouble(_streakMinimumHoursKey, _streakMinimumHours);
       await prefs.setStringList(_vacationDaysKey, _vacationWeekdays.map((e) => e.toString()).toList());
 
-      debugPrint('Saved streak settings: minHours=$_streakMinimumHours, vacationWeekdays=$_vacationWeekdays');
+      LogService.debug('Saved streak settings: minHours=$_streakMinimumHours, vacationWeekdays=$_vacationWeekdays');
     } catch (e) {
-      debugPrint('Error saving streak settings: $e');
+      LogService.error('Error saving streak settings: $e');
     }
   }
 
@@ -119,13 +120,8 @@ class StreakSettingsProvider extends ChangeNotifier {
   }
 
   /// Get weekday name for display
-  String getWeekdayName(int weekday, {bool isEnglish = true}) {
-    if (isEnglish) {
-      const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      return weekdays[weekday];
-    } else {
-      const weekdays = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-      return weekdays[weekday];
-    }
+  String getWeekdayName(int weekday) {
+    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return weekdays[weekday];
   }
 }

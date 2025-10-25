@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 
 /// Proje subtask'ları için Hive işlemleri
@@ -16,13 +16,13 @@ class ProjectSubtasksService {
     try {
       if (!Hive.isBoxOpen(_boxName)) {
         _subtasksBox = await Hive.openBox<ProjectSubtaskModel>(_boxName);
-        debugPrint('✅ ProjectSubtasksService: Hive box opened successfully');
+        LogService.debug('✅ ProjectSubtasksService: Hive box opened successfully');
       } else {
         _subtasksBox = Hive.box<ProjectSubtaskModel>(_boxName);
-        debugPrint('✅ ProjectSubtasksService: Hive box already open');
+        LogService.debug('✅ ProjectSubtasksService: Hive box already open');
       }
     } catch (e) {
-      debugPrint('❌ ProjectSubtasksService: Error opening Hive box: $e');
+      LogService.error('❌ ProjectSubtasksService: Error opening Hive box: $e');
     }
   }
 
@@ -31,7 +31,7 @@ class ProjectSubtasksService {
     try {
       await initialize();
       if (_subtasksBox == null) {
-        debugPrint('❌ ProjectSubtasksService: Subtasks box is null');
+        LogService.error('❌ ProjectSubtasksService: Subtasks box is null');
         return [];
       }
 
@@ -44,10 +44,10 @@ class ProjectSubtasksService {
         return aIndex.compareTo(bIndex);
       });
 
-      debugPrint('✅ ProjectSubtasksService: Loaded ${subtasks.length} subtasks for project: $projectId');
+      LogService.debug('✅ ProjectSubtasksService: Loaded ${subtasks.length} subtasks for project: $projectId');
       return subtasks;
     } catch (e) {
-      debugPrint('❌ ProjectSubtasksService: Error getting subtasks: $e');
+      LogService.error('❌ ProjectSubtasksService: Error getting subtasks: $e');
       return [];
     }
   }
@@ -57,16 +57,16 @@ class ProjectSubtasksService {
     try {
       await initialize();
       if (_subtasksBox == null) {
-        debugPrint('❌ ProjectSubtasksService: Cannot add subtask - box is null');
+        LogService.error('❌ ProjectSubtasksService: Cannot add subtask - box is null');
         return false;
       }
 
-      debugPrint('➕ ProjectSubtasksService: Adding new subtask: ${subtask.id}');
+      LogService.debug('➕ ProjectSubtasksService: Adding new subtask: ${subtask.id}');
       await _subtasksBox!.put(subtask.id, subtask);
-      debugPrint('✅ ProjectSubtasksService: Subtask added successfully');
+      LogService.debug('✅ ProjectSubtasksService: Subtask added successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectSubtasksService: Error adding subtask: $e');
+      LogService.error('❌ ProjectSubtasksService: Error adding subtask: $e');
       return false;
     }
   }
@@ -76,16 +76,16 @@ class ProjectSubtasksService {
     try {
       await initialize();
       if (_subtasksBox == null) {
-        debugPrint('❌ ProjectSubtasksService: Cannot update subtask - box is null');
+        LogService.error('❌ ProjectSubtasksService: Cannot update subtask - box is null');
         return false;
       }
 
-      debugPrint('🔄 ProjectSubtasksService: Updating subtask: ${subtask.id}');
+      LogService.debug('🔄 ProjectSubtasksService: Updating subtask: ${subtask.id}');
       await _subtasksBox!.put(subtask.id, subtask);
-      debugPrint('✅ ProjectSubtasksService: Subtask updated successfully');
+      LogService.debug('✅ ProjectSubtasksService: Subtask updated successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectSubtasksService: Error updating subtask: $e');
+      LogService.error('❌ ProjectSubtasksService: Error updating subtask: $e');
       return false;
     }
   }
@@ -95,23 +95,23 @@ class ProjectSubtasksService {
     try {
       await initialize();
       if (_subtasksBox == null) {
-        debugPrint('❌ ProjectSubtasksService: Cannot toggle subtask - box is null');
+        LogService.error('❌ ProjectSubtasksService: Cannot toggle subtask - box is null');
         return false;
       }
 
       final subtask = _subtasksBox!.get(subtaskId);
       if (subtask == null) {
-        debugPrint('❌ ProjectSubtasksService: Subtask not found: $subtaskId');
+        LogService.debug('❌ ProjectSubtasksService: Subtask not found: $subtaskId');
         return false;
       }
 
-      debugPrint('✅ ProjectSubtasksService: Toggling subtask completed: $subtaskId');
+      LogService.debug('✅ ProjectSubtasksService: Toggling subtask completed: $subtaskId');
       subtask.isCompleted = !subtask.isCompleted;
       await _subtasksBox!.put(subtaskId, subtask);
-      debugPrint('✅ ProjectSubtasksService: Subtask toggled - isCompleted: ${subtask.isCompleted}');
+      LogService.debug('✅ ProjectSubtasksService: Subtask toggled - isCompleted: ${subtask.isCompleted}');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectSubtasksService: Error toggling subtask: $e');
+      LogService.error('❌ ProjectSubtasksService: Error toggling subtask: $e');
       return false;
     }
   }
@@ -121,16 +121,16 @@ class ProjectSubtasksService {
     try {
       await initialize();
       if (_subtasksBox == null) {
-        debugPrint('❌ ProjectSubtasksService: Cannot delete subtask - box is null');
+        LogService.error('❌ ProjectSubtasksService: Cannot delete subtask - box is null');
         return false;
       }
 
-      debugPrint('🗑️ ProjectSubtasksService: Deleting subtask: $subtaskId');
+      LogService.debug('🗑️ ProjectSubtasksService: Deleting subtask: $subtaskId');
       await _subtasksBox!.delete(subtaskId);
-      debugPrint('✅ ProjectSubtasksService: Subtask deleted successfully');
+      LogService.debug('✅ ProjectSubtasksService: Subtask deleted successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectSubtasksService: Error deleting subtask: $e');
+      LogService.error('❌ ProjectSubtasksService: Error deleting subtask: $e');
       return false;
     }
   }
@@ -140,22 +140,22 @@ class ProjectSubtasksService {
     try {
       await initialize();
       if (_subtasksBox == null) {
-        debugPrint('❌ ProjectSubtasksService: Cannot delete subtasks - box is null');
+        LogService.error('❌ ProjectSubtasksService: Cannot delete subtasks - box is null');
         return false;
       }
 
       final subtasksToDelete = _subtasksBox!.values.where((subtask) => subtask.projectId == projectId).toList();
 
-      debugPrint('🗑️ ProjectSubtasksService: Deleting ${subtasksToDelete.length} subtasks for project: $projectId');
+      LogService.debug('🗑️ ProjectSubtasksService: Deleting ${subtasksToDelete.length} subtasks for project: $projectId');
 
       for (var subtask in subtasksToDelete) {
         await _subtasksBox!.delete(subtask.id);
       }
 
-      debugPrint('✅ ProjectSubtasksService: All subtasks deleted for project');
+      LogService.debug('✅ ProjectSubtasksService: All subtasks deleted for project');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectSubtasksService: Error deleting subtasks: $e');
+      LogService.error('❌ ProjectSubtasksService: Error deleting subtasks: $e');
       return false;
     }
   }

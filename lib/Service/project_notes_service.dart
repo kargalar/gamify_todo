@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/project_note_model.dart';
 
 /// Proje notları için Hive işlemleri
@@ -16,13 +16,13 @@ class ProjectNotesService {
     try {
       if (!Hive.isBoxOpen(_boxName)) {
         _notesBox = await Hive.openBox<ProjectNoteModel>(_boxName);
-        debugPrint('✅ ProjectNotesService: Hive box opened successfully');
+        LogService.debug('✅ ProjectNotesService: Hive box opened successfully');
       } else {
         _notesBox = Hive.box<ProjectNoteModel>(_boxName);
-        debugPrint('✅ ProjectNotesService: Hive box already open');
+        LogService.debug('✅ ProjectNotesService: Hive box already open');
       }
     } catch (e) {
-      debugPrint('❌ ProjectNotesService: Error opening Hive box: $e');
+      LogService.error('❌ ProjectNotesService: Error opening Hive box: $e');
     }
   }
 
@@ -31,7 +31,7 @@ class ProjectNotesService {
     try {
       await initialize();
       if (_notesBox == null) {
-        debugPrint('❌ ProjectNotesService: Notes box is null');
+        LogService.error('❌ ProjectNotesService: Notes box is null');
         return [];
       }
 
@@ -40,10 +40,10 @@ class ProjectNotesService {
       // Oluşturulma tarihine göre sırala (yeni önce)
       notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      debugPrint('✅ ProjectNotesService: Loaded ${notes.length} notes for project: $projectId');
+      LogService.debug('✅ ProjectNotesService: Loaded ${notes.length} notes for project: $projectId');
       return notes;
     } catch (e) {
-      debugPrint('❌ ProjectNotesService: Error getting notes: $e');
+      LogService.error('❌ ProjectNotesService: Error getting notes: $e');
       return [];
     }
   }
@@ -53,16 +53,16 @@ class ProjectNotesService {
     try {
       await initialize();
       if (_notesBox == null) {
-        debugPrint('❌ ProjectNotesService: Cannot add note - box is null');
+        LogService.error('❌ ProjectNotesService: Cannot add note - box is null');
         return false;
       }
 
-      debugPrint('➕ ProjectNotesService: Adding new note: ${note.id}');
+      LogService.debug('➕ ProjectNotesService: Adding new note: ${note.id}');
       await _notesBox!.put(note.id, note);
-      debugPrint('✅ ProjectNotesService: Note added successfully');
+      LogService.debug('✅ ProjectNotesService: Note added successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectNotesService: Error adding note: $e');
+      LogService.error('❌ ProjectNotesService: Error adding note: $e');
       return false;
     }
   }
@@ -72,17 +72,17 @@ class ProjectNotesService {
     try {
       await initialize();
       if (_notesBox == null) {
-        debugPrint('❌ ProjectNotesService: Cannot update note - box is null');
+        LogService.error('❌ ProjectNotesService: Cannot update note - box is null');
         return false;
       }
 
-      debugPrint('🔄 ProjectNotesService: Updating note: ${note.id}');
+      LogService.debug('🔄 ProjectNotesService: Updating note: ${note.id}');
       note.updatedAt = DateTime.now();
       await _notesBox!.put(note.id, note);
-      debugPrint('✅ ProjectNotesService: Note updated successfully');
+      LogService.debug('✅ ProjectNotesService: Note updated successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectNotesService: Error updating note: $e');
+      LogService.error('❌ ProjectNotesService: Error updating note: $e');
       return false;
     }
   }
@@ -92,16 +92,16 @@ class ProjectNotesService {
     try {
       await initialize();
       if (_notesBox == null) {
-        debugPrint('❌ ProjectNotesService: Cannot delete note - box is null');
+        LogService.error('❌ ProjectNotesService: Cannot delete note - box is null');
         return false;
       }
 
-      debugPrint('🗑️ ProjectNotesService: Deleting note: $noteId');
+      LogService.debug('🗑️ ProjectNotesService: Deleting note: $noteId');
       await _notesBox!.delete(noteId);
-      debugPrint('✅ ProjectNotesService: Note deleted successfully');
+      LogService.debug('✅ ProjectNotesService: Note deleted successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectNotesService: Error deleting note: $e');
+      LogService.error('❌ ProjectNotesService: Error deleting note: $e');
       return false;
     }
   }
@@ -111,22 +111,22 @@ class ProjectNotesService {
     try {
       await initialize();
       if (_notesBox == null) {
-        debugPrint('❌ ProjectNotesService: Cannot delete notes - box is null');
+        LogService.error('❌ ProjectNotesService: Cannot delete notes - box is null');
         return false;
       }
 
       final notesToDelete = _notesBox!.values.where((note) => note.projectId == projectId).toList();
 
-      debugPrint('🗑️ ProjectNotesService: Deleting ${notesToDelete.length} notes for project: $projectId');
+      LogService.debug('🗑️ ProjectNotesService: Deleting ${notesToDelete.length} notes for project: $projectId');
 
       for (var note in notesToDelete) {
         await _notesBox!.delete(note.id);
       }
 
-      debugPrint('✅ ProjectNotesService: All notes deleted for project');
+      LogService.debug('✅ ProjectNotesService: All notes deleted for project');
       return true;
     } catch (e) {
-      debugPrint('❌ ProjectNotesService: Error deleting notes: $e');
+      LogService.error('❌ ProjectNotesService: Error deleting notes: $e');
       return false;
     }
   }
