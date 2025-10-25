@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const NoArchivedRoutines = 'NoArchivedRoutines';
   static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
   static const Daily = 'Daily';
@@ -173,6 +173,7 @@ abstract class  LocaleKeys {
   static const ShowOnMap = 'ShowOnMap';
   static const AddManualLog = 'AddManualLog';
   static const NoLogsYet = 'NoLogsYet';
+  static const LogsCount = 'LogsCount';
   static const ShowAllRoutineLogs = 'ShowAllRoutineLogs';
   static const AllRoutineTasksLogs = 'AllRoutineTasksLogs';
   static const Date = 'Date';
@@ -622,5 +623,19 @@ abstract class  LocaleKeys {
   static const CannotPinRoutineTasks = 'CannotPinRoutineTasks';
   static const KeepScreenOn = 'KeepScreenOn';
   static const StopTimer = 'StopTimer';
+  static const NoRoutineTasksFound = 'NoRoutineTasksFound';
+  static const Unknown = 'Unknown';
 
+  static const Download = 'Download';
+  static const DownloadSuccess = 'DownloadSuccess';
+  static const DownloadFailed = 'DownloadFailed';
+  static const Share = 'Share';
+  static const ShareFailed = 'ShareFailed';
+  static const FileCannotBeOpenedLocation = 'FileCannotBeOpenedLocation';
+  static const ImageCouldNotLoad = 'ImageCouldNotLoad';
+  static const TapToOpen = 'TapToOpen';
+  static const Open = 'Open';
+
+  static const SelectIcon = 'SelectIcon';
+  static const CategoryCreateFailed = 'CategoryCreateFailed';
 }

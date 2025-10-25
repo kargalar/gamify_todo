@@ -170,6 +170,7 @@
     "ShowOnMap": "Show on map",
     "AddManualLog": "Add Manual Log",
     "NoLogsYet": "No logs yet",
+    "LogsCount": "{} logs",
     "ShowAllRoutineLogs": "Show All Routine Logs",
     "AllRoutineTasksLogs": "All Routine Tasks Logs",
     "Date": "Date",
@@ -637,4 +638,20 @@
     "CannotPinRoutineTasks": "Cannot pin routine tasks",
     "KeepScreenOn": "Keep screen on",
     "StopTimer": "Stop Timer"
+    ,
+    "NoRoutineTasksFound": "No tasks found for this routine",
+    "Unknown": "Unknown",
+
+    "Download": "Download",
+    "DownloadSuccess": "File downloaded: {}",
+    "DownloadFailed": "Download failed",
+    "Share": "Share",
+    "ShareFailed": "Share failed",
+    "FileCannotBeOpenedLocation": "File cannot be opened. Location: {}",
+    "ImageCouldNotLoad": "Image could not be loaded",
+    "TapToOpen": "Tap to open",
+    "Open": "Open",
+
+    "SelectIcon": "Select Icon",
+    "CategoryCreateFailed": "Failed to create category: {}"
 }

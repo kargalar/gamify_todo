@@ -70,7 +70,7 @@ class AllRoutineLogsDialog extends StatelessWidget {
         child: allRoutineTasks.isEmpty
             ? Center(
                 child: Text(
-                  'Bu rutine ait task bulunamadı.',
+                  LocaleKeys.NoRoutineTasksFound.tr(),
                   style: TextStyle(color: Colors.grey.shade600),
                 ),
               )
@@ -98,7 +98,7 @@ class AllRoutineLogsDialog extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              task.taskDate != null ? DateFormat('d MMMM yyyy').format(task.taskDate!) : 'Tarih yok',
+                              task.taskDate != null ? DateFormat('d MMMM yyyy').format(task.taskDate!) : LocaleKeys.NoDate.tr(),
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
@@ -110,7 +110,7 @@ class AllRoutineLogsDialog extends StatelessWidget {
                       subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          '${logs.length} kayıt',
+                          LocaleKeys.LogsCount.tr(args: [logs.length.toString()]),
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade600,
@@ -156,7 +156,7 @@ class AllRoutineLogsDialog extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        log.status?.name ?? 'Unknown',
+                                        log.status?.name ?? LocaleKeys.Unknown.tr(),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 10,
@@ -175,7 +175,7 @@ class AllRoutineLogsDialog extends StatelessWidget {
                                       )
                                     : log.count != null
                                         ? Text(
-                                            'Count: ${log.count}',
+                                            '${LocaleKeys.Count.tr()}: ${log.count}',
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey.shade600,

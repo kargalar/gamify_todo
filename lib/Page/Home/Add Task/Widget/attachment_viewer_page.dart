@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
@@ -66,7 +68,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Dosya indirildi: ${path.basename(filePath)}'),
+              content: Text(LocaleKeys.DownloadSuccess.tr(args: [path.basename(filePath)])),
               backgroundColor: AppColors.green,
             ),
           );
@@ -74,11 +76,11 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
         LogService.debug('Dosya indirildi: $newPath');
       }
     } catch (e) {
-      LogService.error('İndirme hatası: $e');
+      LogService.error('Download error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('İndirme başarısız'),
+          SnackBar(
+            content: Text(LocaleKeys.DownloadFailed.tr()),
             backgroundColor: AppColors.red,
           ),
         );
@@ -93,11 +95,11 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
         await Share.shareXFiles([XFile(filePath)]);
       }
     } catch (e) {
-      LogService.error('Paylaşma hatası: $e');
+      LogService.error('Share error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paylaşma başarısız'),
+          SnackBar(
+            content: Text(LocaleKeys.ShareFailed.tr()),
             backgroundColor: AppColors.red,
           ),
         );
@@ -110,11 +112,11 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
     try {
       final result = await OpenFile.open(filePath);
       if (result.type != ResultType.done) {
-        // Dosya açılamadıysa konumunu göster
+        // If file couldn't be opened, show its location
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Dosya açılamadı. Konum: ${path.dirname(filePath)}'),
+              content: Text(LocaleKeys.FileCannotBeOpenedLocation.tr(args: [path.dirname(filePath)])),
               backgroundColor: AppColors.orange,
               duration: const Duration(seconds: 3),
             ),
@@ -122,11 +124,11 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
         }
       }
     } catch (e) {
-      LogService.error('Dosya açma hatası: $e');
+      LogService.error('Open file error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Dosya açılamadı. Konum: ${path.dirname(filePath)}'),
+            content: Text(LocaleKeys.FileCannotBeOpenedLocation.tr(args: [path.dirname(filePath)])),
             backgroundColor: AppColors.orange,
             duration: const Duration(seconds: 3),
           ),
@@ -165,20 +167,20 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
           IconButton(
             icon: const Icon(Icons.download_rounded, color: Colors.white),
             onPressed: () => _downloadFile(currentFilePath),
-            tooltip: 'İndir',
+            tooltip: LocaleKeys.Download.tr(),
           ),
           // Paylaşma butonu
           IconButton(
             icon: const Icon(Icons.share_rounded, color: Colors.white),
             onPressed: () => _shareFile(currentFilePath),
-            tooltip: 'Paylaş',
+            tooltip: LocaleKeys.Share.tr(),
           ),
           // Dosya varsa açma butonu
           if (!isImage)
             IconButton(
               icon: const Icon(Icons.open_in_new_rounded, color: Colors.white),
               onPressed: () => _openFile(currentFilePath),
-              tooltip: 'Aç',
+              tooltip: LocaleKeys.Open.tr(),
             ),
         ],
       ),
@@ -207,21 +209,21 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
                       child: Image.file(
                         File(filePath),
                         fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
+                          errorBuilder: (context, error, stackTrace) {
                           return Container(
                             padding: const EdgeInsets.all(24),
-                            child: const Column(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.broken_image_rounded,
                                   color: Colors.white54,
                                   size: 64,
                                 ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                                 Text(
-                                  'Görsel yüklenemedi',
-                                  style: TextStyle(
+                                  LocaleKeys.ImageCouldNotLoad.tr(),
+                                  style: const TextStyle(
                                     color: Colors.white54,
                                     fontSize: 16,
                                   ),
@@ -271,9 +273,9 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              'Dokunma ile aç',
-                              style: TextStyle(
+                            Text(
+                              LocaleKeys.TapToOpen.tr(),
+                              style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
                               ),

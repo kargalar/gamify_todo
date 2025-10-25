@@ -153,9 +153,9 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
             const SizedBox(height: 20),
 
             // Icon Picker Label
-            const Text(
-              'Select Icon',
-              style: TextStyle(
+            Text(
+              LocaleKeys.SelectIcon.tr(),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -449,7 +449,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         LogService.error('❌ CreateCategoryBottomSheet: Error adding category: $e');
         if (mounted) {
           Helper().getMessage(
-            message: 'Kategori oluşturulamadı: $e',
+            message: LocaleKeys.CategoryCreateFailed.tr(args: [e.toString()]),
             status: StatusEnum.ERROR,
           );
         }
