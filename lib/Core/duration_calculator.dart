@@ -5,6 +5,7 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 
@@ -146,12 +147,31 @@ class DurationCalculator {
   static Duration calculateTodayTargetDuration(DateTime selectedDate) {
     Duration target = Duration.zero;
     final tasks = TaskProvider().taskList.where((t) => t.taskDate != null && t.taskDate!.isSameDay(selectedDate)).toList();
+
+    // Check if vacation mode is active or it's a vacation day
+    final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
+    final isVacationDayActive = isVacationDay(selectedDate);
+    debugPrint('DurationCalculator: Vacation mode active: $isVacationModeActive, Vacation day: $isVacationDayActive for $selectedDate');
+
     for (final t in tasks) {
       if (t.remainingDuration != null) {
-        if (t.type == TaskTypeEnum.COUNTER && t.targetCount != null) {
-          target += t.remainingDuration! * t.targetCount!;
+        // If vacation mode is active or it's a vacation day, only include tasks (not routines)
+        if (isVacationModeActive || isVacationDayActive) {
+          if (t.routineID == null) {
+            // Only tasks, not routines
+            if (t.type == TaskTypeEnum.COUNTER && t.targetCount != null) {
+              target += t.remainingDuration! * t.targetCount!;
+            } else {
+              target += t.remainingDuration!;
+            }
+          }
         } else {
-          target += t.remainingDuration!;
+          // Normal calculation
+          if (t.type == TaskTypeEnum.COUNTER && t.targetCount != null) {
+            target += t.remainingDuration! * t.targetCount!;
+          } else {
+            target += t.remainingDuration!;
+          }
         }
       }
     }
@@ -188,7 +208,7 @@ class DurationCalculator {
 
     return dates.map((date) {
       final isFuture = date.isAfter(now);
-      final isVacation = _isVacationDay(date);
+      final isVacation = isVacationDay(date);
       final isMet = isFuture || isVacation ? null : calculateStreakStatusForDate(date);
       debugPrint('DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet');
       return {
@@ -199,14 +219,6 @@ class DurationCalculator {
         'isVacation': isVacation,
       };
     }).toList();
-  }
-
-  static bool _isVacationDay(DateTime date) {
-    final vacationWeekdays = StreakSettingsProvider().vacationWeekdays;
-    // weekday: 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
-    // Convert to 0-based index for our Set (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
-    final weekdayIndex = date.weekday - 1;
-    return vacationWeekdays.contains(weekdayIndex);
   }
 
   static String _getDayName(DateTime date) {
