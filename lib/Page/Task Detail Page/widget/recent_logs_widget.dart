@@ -4,8 +4,10 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/add_manual_log_dialog.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/all_routine_logs_dialog.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_log_dialog.dart';
+import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
+import 'package:provider/provider.dart';
 
 class RecentLogsWidget extends StatefulWidget {
   final TaskDetailViewModel viewModel;
@@ -23,9 +25,22 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
   @override
   void initState() {
     super.initState();
-    // Load logs only once during initialization
+    // İlk yüklemede logları güncelle
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.viewModel.loadRecentLogs();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Provider değiştiğinde logları güncelle
+    Provider.of<TaskProvider>(context);
+
+    // Seçili tarih değiştiğinde logları güncelle
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.viewModel.loadRecentLogs();
+      setState(() {}); // Widget'ı güncelle
     });
   }
 

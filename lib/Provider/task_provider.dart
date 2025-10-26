@@ -293,6 +293,7 @@ class TaskProvider with ChangeNotifier {
           checkNotification(task);
 
           // Save the task to Hive
+          LogService.debug('Updating task in Hive: ID=${task.id}');
           ServerManager().updateTask(taskModel: task);
         }
       }
@@ -333,15 +334,20 @@ class TaskProvider with ChangeNotifier {
       }
     } else {
       // Editing a standalone task
+      LogService.debug('Editing standalone task');
 
       // Find the task in the list and update it to preserve Hive object identity
       final index = taskList.indexWhere((element) => element.id == taskModel.id);
       if (index != -1) {
+        LogService.debug('Found task in taskList at index $index: ID=${taskModel.id}');
+
         // Update the existing task properties to preserve Hive object identity
         final existingTask = taskList[index];
 
         // If user selected repeat days during edit of a standalone task, convert this task into a routine
         if (selectedDays.isNotEmpty && existingTask.routineID == null) {
+          LogService.debug('Converting standalone task to routine with days: $selectedDays');
+
           // Validate start date
           final startDate = taskModel.taskDate ?? DateTime.now();
 
@@ -415,6 +421,7 @@ class TaskProvider with ChangeNotifier {
           final isActiveToday = selectedDays.contains(today.weekday - 1) && !today.isBeforeDay(startDate);
           final hasTodayInstance = taskList.any((t) => t.routineID == newRoutine.id && t.taskDate != null && t.taskDate!.isSameDay(today));
           if (isActiveToday && !hasTodayInstance) {
+            LogService.debug('Creating today instance for converted routine');
             await _createTaskFromRoutine(newRoutine, today);
           }
 
@@ -440,6 +447,7 @@ class TaskProvider with ChangeNotifier {
 
           // Update task status to in progress if not completed
           if (existingTask.status != TaskStatusEnum.DONE) {
+            LogService.debug('Resetting task status to null due to dateless change: ID=${existingTask.id}, Title=${existingTask.title}');
             existingTask.status = null;
 
             // Create log for the status change to null (in progress)
@@ -460,6 +468,7 @@ class TaskProvider with ChangeNotifier {
           if (taskDateTime.isBefore(now)) {
             // Task date is in the past, mark as overdue if not already completed
             if (existingTask.status != TaskStatusEnum.DONE) {
+              LogService.debug('Setting task status to overdue due to past date: ID=${existingTask.id}, Title=${existingTask.title}');
               existingTask.status = TaskStatusEnum.OVERDUE;
 
               // Create log for overdue status
@@ -471,6 +480,7 @@ class TaskProvider with ChangeNotifier {
           } else {
             // Task date is in the future or today, reset status to null (in progress) if not completed
             if (existingTask.status != TaskStatusEnum.DONE && existingTask.status != null) {
+              LogService.debug('Resetting task status to null due to date change: ID=${existingTask.id}, Title=${existingTask.title}');
               existingTask.status = null;
 
               // Create log for the status change to null (in progress)
@@ -506,7 +516,9 @@ class TaskProvider with ChangeNotifier {
 
         // Save the task to Hive with better error handling
         try {
+          LogService.debug('Saving existing task to preserve Hive identity: ID=${existingTask.id}');
           await ServerManager().updateTask(taskModel: existingTask);
+          LogService.debug('Task successfully saved: ID=${existingTask.id}');
         } catch (e) {
           LogService.error('ERROR saving task: ID=${existingTask.id}, Error: $e');
           // Even if save fails, keep the changes in memory for now

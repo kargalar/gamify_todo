@@ -15,12 +15,8 @@ class AppHelper {
       return;
     }
 
-    // Hiç ilerleme yoksa loglama yapma (performans için)
-    if (progress == Duration.zero) {
-      return;
-    }
-
-    int oldCredit = loginUser!.userCredit;
+    LogService.debug('💰 AppHelper: Adding progress: ${progress.inMinutes} minutes');
+    LogService.debug('💰 Before: credit=${loginUser!.userCredit}, progress=${loginUser!.creditProgress.inMinutes} minutes');
 
     loginUser!.creditProgress += progress;
 
@@ -28,20 +24,17 @@ class AppHelper {
     while (loginUser!.creditProgress.inHours >= 1) {
       loginUser!.userCredit += 1;
       loginUser!.creditProgress -= const Duration(hours: 1);
+      LogService.debug('💰 Credit increased! New credit: ${loginUser!.userCredit}');
     }
 
     // Handle negative progress
     while (loginUser!.creditProgress.inHours <= -1) {
       loginUser!.userCredit -= 1;
       loginUser!.creditProgress += const Duration(hours: 1);
+      LogService.debug('💰 Credit decreased! New credit: ${loginUser!.userCredit}');
     }
 
-    // Credit değişti mi kontrol et - sadece o zaman loglaysa
-    bool creditChanged = oldCredit != loginUser!.userCredit;
-    if (creditChanged) {
-      LogService.debug('💰 AppHelper: Adding progress: ${progress.inMinutes} minutes');
-      LogService.debug('💰 Credit changed: $oldCredit -> ${loginUser!.userCredit}');
-    }
+    LogService.debug('💰 After: credit=${loginUser!.userCredit}, progress=${loginUser!.creditProgress.inMinutes} minutes');
 
     await ServerManager().updateUser(userModel: loginUser!);
 

@@ -44,6 +44,8 @@ appardaki streaka basınca streaklarıda göstersin son 1 haftanına mode a absa
 
 editteyken sürekli log atması
 
+editteyken sürekli log atması
+
 >>>>>>> parent of 8568bf2 (!!!! unneccesassy log fix)
 en sonra bunkü yapıaln taskalrın listeinin ve o bottomshettin boyuutu n ayalrıyorudm
 
