@@ -58,5 +58,4 @@ proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha
 
 restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 
-
 projeler ve notlar sekmeleri varsayıaln olarak kapalı olsun
