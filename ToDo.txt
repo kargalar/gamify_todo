@@ -38,15 +38,6 @@ privicay policy domain bağla
 
 attachments ve tema geçici oalrak kaldırldı
 
-<<<<<<< HEAD
-=======
-appardaki streaka basınca streaklarıda göstersin son 1 haftanına mode a absarsa takvimden
-
-editteyken sürekli log atması
-
-editteyken sürekli log atması
-
->>>>>>> parent of 8568bf2 (!!!! unneccesassy log fix)
 en sonra bunkü yapıaln taskalrın listeinin ve o bottomshettin boyuutu n ayalrıyorudm
 
 günlük hedef 1 saat streak hedefi 4 saat. ben 2 saat çalışamam rağmen streak durumu gün için ılaşıldı diyro. streaki günlük hedefe göre hesaplıyor. streak ayarlarında ayarladığım hedefe göre hesaplamalı. 
