@@ -8,6 +8,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/user_model.dart';
+import 'package:next_level/Service/default_data_service.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Service/notification_services.dart';
@@ -95,6 +96,9 @@ Future<void> initApp() async {
 
     // Load store items
     await StoreProvider().loadItems();
+
+    // İlk yükleme kontrolü ve varsayılan verileri yükleme
+    await DefaultDataService.checkAndLoadDefaultData();
   }
 
   // Custom Error

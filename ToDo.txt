@@ -52,6 +52,18 @@ profildeki çalışma grafiğinde barlara basınca o barın detaylarına gidlirs
 slitch tasarım geliştirmeleri
 
 tatil olan günler işaretleniyor mu. streak takviminde nasıl hesaplıyor.
+    tatil olan günler streak takviminde işaretleniyor. Eğer bir gün tatilse, o gün için yapılan görevler streak hesaplamasına dahil edilmiyor.
 
-proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verlmiş daha kompat yap. gerekirse stack ile yap.
+proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha kompakt yap. gerekirse stack ile yap.
 
+restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
+
+varsıylan no dates değil all tasks olsun
+
+inbox da today ek filtresi ekle. varsayıaln oalrak aktif olsun
+
+inbox da oluşturulan kategroi projecte de geliyor.
+
+projelerde hiç task olammasına rağmen 1 2 tane var görünüyor neden
+
+yeni oluşturulan kategorilerin hepsi task için oluşturuluyor not ve proje için de oluştur.

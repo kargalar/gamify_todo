@@ -75,14 +75,14 @@ class LanguageSelectionPopupState extends State<LanguageSelectionPopup> {
     switch (locale) {
       case Locales.en:
         return "English";
-      case Locales.de:
-        return "Deutsch";
-      case Locales.fr:
-        return "Français";
-      case Locales.ru:
-        return "русский";
-      case Locales.tr:
-        return "Türkçe";
+      // case Locales.de:
+      //   return "Deutsch";
+      // case Locales.fr:
+      //   return "Français";
+      // case Locales.ru:
+      //   return "русский";
+      // case Locales.tr:
+      //   return "Türkçe";
     }
   }
 
