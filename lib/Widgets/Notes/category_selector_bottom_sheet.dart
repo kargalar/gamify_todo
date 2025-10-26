@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/category_icons.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 import 'package:next_level/Service/logging_service.dart';
 
@@ -111,7 +112,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
     required bool isSelected,
   }) {
     final color = category != null ? Color(category.colorValue) : AppColors.grey;
-    final icon = category != null && category.iconCodePoint != null ? IconData(category.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category_outlined;
+    final icon = category != null && category.iconCodePoint != null ? CategoryIcons.getIconByCodePoint(category.iconCodePoint) ?? Icons.category_outlined : Icons.category_outlined;
     final name = category?.name ?? 'Kategorisiz';
 
     return InkWell(

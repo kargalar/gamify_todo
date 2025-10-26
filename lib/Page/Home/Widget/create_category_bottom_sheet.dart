@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/category_icons.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
@@ -38,7 +39,7 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
       selectedColor = widget.categoryModel!.color;
       selectedCategoryType = widget.categoryModel!.categoryType;
       if (widget.categoryModel!.iconCodePoint != null) {
-        selectedIcon = IconData(widget.categoryModel!.iconCodePoint!, fontFamily: 'MaterialIcons');
+        selectedIcon = CategoryIcons.getIconByCodePoint(widget.categoryModel!.iconCodePoint!) ?? Icons.category;
       }
     } else if (widget.initialCategoryType != null) {
       selectedCategoryType = widget.initialCategoryType!;

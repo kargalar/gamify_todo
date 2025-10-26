@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 import '../../General/app_colors.dart';
+import '../../General/category_icons.dart';
 import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
 import '../../Model/project_subtask_model.dart';
@@ -196,7 +197,7 @@ class ProjectCard extends BaseCard {
                         children: [
                           if (category!.iconCodePoint != null)
                             Icon(
-                              IconData(category!.iconCodePoint!, fontFamily: 'MaterialIcons'),
+                              CategoryIcons.getIconByCodePoint(category!.iconCodePoint) ?? Icons.category,
                               size: 16,
                               color: category!.color,
                             ),

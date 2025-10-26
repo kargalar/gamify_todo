@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/category_icons.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -184,7 +185,7 @@ class CategoryFilterWidget extends StatelessWidget {
         children: [
           if (showIcons && category.iconCodePoint != null) ...[
             Icon(
-              IconData(category.iconCodePoint, fontFamily: 'MaterialIcons'),
+              CategoryIcons.getIconByCodePoint(category.iconCodePoint) ?? Icons.category,
               size: 16,
               color: isSelected ? Colors.white : categoryColor,
             ),

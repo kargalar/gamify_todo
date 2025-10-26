@@ -9,6 +9,7 @@ import '../Provider/projects_provider.dart';
 import '../Provider/notes_provider.dart';
 import '../Service/locale_keys.g.dart';
 import '../General/app_colors.dart';
+import '../General/category_icons.dart';
 import 'Notes/category_selector_bottom_sheet.dart';
 import 'Common/description_editor.dart';
 
@@ -451,7 +452,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
-                            widget.type == ItemType.project ? IconData(_selectedCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : (_selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category),
+                            widget.type == ItemType.project ? CategoryIcons.getIconByCodePoint(_selectedCategory!.iconCodePoint) ?? Icons.category : (CategoryIcons.getIconByCodePoint(_selectedCategory!.iconCodePoint) ?? Icons.category),
                             size: 18,
                             color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : _selectedCategory!.color,
                           ),
@@ -522,7 +523,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
-                            widget.type == ItemType.project ? IconData(_selectedCategory!.iconCodePoint ?? 0xf03d, fontFamily: 'MaterialIcons') : (_selectedCategory!.iconCodePoint != null ? IconData(_selectedCategory!.iconCodePoint!, fontFamily: 'MaterialIcons') : Icons.category),
+                            widget.type == ItemType.project ? CategoryIcons.getIconByCodePoint(_selectedCategory!.iconCodePoint) ?? Icons.category : (CategoryIcons.getIconByCodePoint(_selectedCategory!.iconCodePoint) ?? Icons.category),
                             size: 18,
                             color: widget.type == ItemType.project ? Color(_selectedCategory!.colorValue) : _selectedCategory!.color,
                           ),
