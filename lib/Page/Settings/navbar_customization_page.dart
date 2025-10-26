@@ -108,13 +108,11 @@ class NavbarCustomizationPage extends StatelessWidget {
                         isMainPage: provider.mainPageIndex == 2,
                         onChanged: (value) {
                           provider.toggleCategories();
-                          LogService.debug(
-                              'Navbar: Categories visibility toggled');
+                          LogService.debug('Navbar: Categories visibility toggled');
                         },
                         onSetMain: () {
                           provider.setMainPage(2);
-                          LogService.debug(
-                              'Navbar: Categories set as main page');
+                          LogService.debug('Navbar: Categories set as main page');
                         },
                       ),
                       _buildNavbarToggle(
@@ -142,8 +140,7 @@ class NavbarCustomizationPage extends StatelessWidget {
                         isMainPage: provider.mainPageIndex == 4,
                         onChanged: (value) {
                           provider.toggleProjects();
-                          LogService.debug(
-                              'Navbar: Projects visibility toggled');
+                          LogService.debug('Navbar: Projects visibility toggled');
                         },
                         onSetMain: () {
                           provider.setMainPage(4);
@@ -246,16 +243,13 @@ class NavbarCustomizationPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: isDisabled
-                                  ? AppColors.text.withValues(alpha: 0.3)
-                                  : AppColors.text,
+                              color: isDisabled ? AppColors.text.withValues(alpha: 0.3) : AppColors.text,
                             ),
                           ),
                           if (isMainPage) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColors.main,
                                 borderRadius: BorderRadius.circular(12),
@@ -286,16 +280,12 @@ class NavbarCustomizationPage extends StatelessWidget {
                   ),
                 ),
                 // Set as Main button (only for non-disabled and visible items)
-                if (!isDisabled &&
-                    value &&
-                    onSetMain != null &&
-                    !isMainPage) ...[
+                if (!isDisabled && value && onSetMain != null && !isMainPage) ...[
                   InkWell(
                     onTap: onSetMain,
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.main.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -319,7 +309,7 @@ class NavbarCustomizationPage extends StatelessWidget {
                 Switch.adaptive(
                   value: value,
                   onChanged: onChanged,
-                  activeColor: AppColors.main,
+                  activeThumbColor: AppColors.main,
                   inactiveThumbColor: AppColors.text.withValues(alpha: 0.5),
                 ),
               ],

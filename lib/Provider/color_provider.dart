@@ -53,7 +53,7 @@ class ColorProvider extends ChangeNotifier {
     // ignore: deprecated_member_use
     await prefs.setInt('main_color', newColor.value);
 
-    LogService.debug('ColorProvider: Color changed successfully. New color value: ${newColor.value}');
+    LogService.debug('ColorProvider: Color changed successfully. New color value: ${newColor.toARGB32}');
     notifyListeners();
   }
 

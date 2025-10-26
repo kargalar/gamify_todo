@@ -66,7 +66,7 @@ class ColorSelectionDialog extends StatelessWidget {
   ) {
     return GestureDetector(
       onTap: () {
-        LogService.debug('Color Selection: Color changed to RGB${color.value.toRadixString(16).padLeft(8, '0')}');
+        LogService.debug('Color Selection: Color changed to RGB${color.toARGB32().toRadixString(16).padLeft(8, '0')}');
         colorProvider.changeColor(color);
       },
       child: AnimatedContainer(

@@ -187,7 +187,7 @@ class DefaultDataService {
       final workCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Work',
-        colorValue: AppColors.blue.value,
+        colorValue: AppColors.blue.toARGB32(),
         iconCodePoint: Icons.work.codePoint,
         categoryType: CategoryType.task,
         createdAt: DateTime.now(),
@@ -200,7 +200,7 @@ class DefaultDataService {
       final personalCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Personal',
-        colorValue: AppColors.green.value,
+        colorValue: AppColors.green.toARGB32(),
         iconCodePoint: Icons.person.codePoint,
         categoryType: CategoryType.task,
         createdAt: DateTime.now(),
@@ -213,7 +213,7 @@ class DefaultDataService {
       final healthCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Health',
-        colorValue: AppColors.red.value,
+        colorValue: AppColors.red.toARGB32(),
         iconCodePoint: Icons.favorite.codePoint,
         categoryType: CategoryType.task,
         createdAt: DateTime.now(),
@@ -226,7 +226,7 @@ class DefaultDataService {
       final shoppingCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Shopping',
-        colorValue: AppColors.orange.value,
+        colorValue: AppColors.orange.toARGB32(),
         iconCodePoint: Icons.shopping_cart.codePoint,
         categoryType: CategoryType.task,
         createdAt: DateTime.now(),
@@ -241,7 +241,7 @@ class DefaultDataService {
       final workProjectCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Work',
-        colorValue: AppColors.blue.value,
+        colorValue: AppColors.blue.toARGB32(),
         iconCodePoint: Icons.business_center.codePoint,
         categoryType: CategoryType.project,
         createdAt: DateTime.now(),
@@ -254,7 +254,7 @@ class DefaultDataService {
       final hobbyProjectCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Hobby',
-        colorValue: AppColors.purple.value,
+        colorValue: AppColors.purple.toARGB32(),
         iconCodePoint: Icons.palette.codePoint,
         categoryType: CategoryType.project,
         createdAt: DateTime.now(),
@@ -269,7 +269,7 @@ class DefaultDataService {
       final ideasNoteCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Ideas',
-        colorValue: AppColors.yellow.value,
+        colorValue: AppColors.yellow.toARGB32(),
         iconCodePoint: Icons.emoji_objects.codePoint,
         categoryType: CategoryType.note,
         createdAt: DateTime.now(),
@@ -282,7 +282,7 @@ class DefaultDataService {
       final meetingNoteCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
         title: 'Meetings',
-        colorValue: AppColors.blue.value,
+        colorValue: AppColors.blue.toARGB32(),
         iconCodePoint: Icons.groups.codePoint,
         categoryType: CategoryType.note,
         createdAt: DateTime.now(),
