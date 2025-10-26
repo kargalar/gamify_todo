@@ -141,7 +141,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
                         });
                         _setKeepScreenOn(value);
                       },
-                      activeColor: AppColors.main,
+                      activeThumbColor: AppColors.main,
                       thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
                         (Set<WidgetState> states) {
                           if (states.contains(WidgetState.selected)) {

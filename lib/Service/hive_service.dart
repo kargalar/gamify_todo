@@ -608,12 +608,14 @@ class HiveService {
       final jsonString = jsonEncode(allData);
       await file.writeAsString(jsonString);
 
-      // Share the backup file
-      await Share.shareXFiles(
-        [XFile(filePath)],
-        text: 'Gamify Todo Backup',
-        subject: 'Backup File',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(filePath)],
+          text: 'Gamify Todo Backup',
+          subject: 'Backup File',
+        ),
       );
+      LogService.debug('File Shared: $filePath');
 
       NavigatorService().back();
 

@@ -26,7 +26,7 @@ class PinTaskSwitch extends StatelessWidget {
             onChanged: (value) {
               context.read<AddTaskProvider>().updateIsPinned(value);
             },
-            activeColor: AppColors.main,
+            activeThumbColor: AppColors.main,
             thumbIcon: WidgetStateProperty.resolveWith<Icon?>((Set<WidgetState> states) {
               if (states.contains(WidgetState.selected)) {
                 return const Icon(Icons.push_pin_rounded, color: Colors.white);

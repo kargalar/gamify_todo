@@ -342,7 +342,7 @@ class _ProgressBarChart extends StatelessWidget {
         label = DateFormat('MMM', context.locale.languageCode).format(date);
       }
       return SideTitleWidget(
-        axisSide: meta.axisSide,
+        meta: meta,
         space: period == ProgressPeriod.year ? 14 : 8,
         child: Text(
           label,

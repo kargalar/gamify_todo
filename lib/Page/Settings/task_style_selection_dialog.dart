@@ -43,16 +43,23 @@ class TaskStyleSelectionDialog extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Stil seçenekleri (isim + açıklama, radio button)
-                  ...TaskItemStyle.values.map((style) => RadioListTile<TaskItemStyle>(
-                        value: style,
-                        groupValue: styleProvider.currentStyle,
-                        onChanged: (TaskItemStyle? value) {
-                          if (value != null) styleProvider.changeStyle(value);
-                        },
-                        title: Text(_getStyleName(style)),
-                        subtitle: Text(_getStyleDescription(style)),
-                        activeColor: AppColors.main,
-                      )),
+                  RadioGroup<TaskItemStyle>(
+                    groupValue: styleProvider.currentStyle,
+                    onChanged: (TaskItemStyle? value) {
+                      if (value != null) styleProvider.changeStyle(value);
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: TaskItemStyle.values
+                          .map((style) => RadioListTile<TaskItemStyle>(
+                                value: style,
+                                title: Text(_getStyleName(style)),
+                                subtitle: Text(_getStyleDescription(style)),
+                                activeColor: AppColors.main,
+                              ))
+                          .toList(),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   // Seçili stilin gerçek önizlemesi
                   Text(LocaleKeys.Preview.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),

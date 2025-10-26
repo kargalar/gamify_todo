@@ -129,7 +129,7 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                             }
                           });
                         },
-                        activeColor: AppColors.main,
+                        activeThumbColor: AppColors.main,
                         activeTrackColor: AppColors.main.withValues(alpha: 0.3),
                       ),
                       const SizedBox(width: 8),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -152,7 +153,7 @@ class ProfileViewModel extends ChangeNotifier {
     return topSkillsList;
   }
 
-  Duration _calculateTaskDuration(task) {
+  Duration _calculateTaskDuration(TaskModel task) {
     return task.type == TaskTypeEnum.CHECKBOX
         ? (task.status == TaskStatusEnum.DONE ? task.remainingDuration! : Duration.zero)
         : task.type == TaskTypeEnum.COUNTER

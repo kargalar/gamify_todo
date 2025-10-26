@@ -784,7 +784,7 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
-  checkNotification(TaskModel taskModel) {
+  void checkNotification(TaskModel taskModel) {
     LogService.debug('=== checkNotification Debug ===');
     LogService.debug('Task: ${taskModel.title} (ID: ${taskModel.id})');
     LogService.debug('Time: ${taskModel.time}');
@@ -830,7 +830,7 @@ class TaskProvider with ChangeNotifier {
   }
 
   // iptal de kullanıcıya ceza yansıtılmayacak
-  cancelTask(TaskModel taskModel) {
+  void cancelTask(TaskModel taskModel) {
     LogService.debug('Canceling task: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
     if (taskModel.status == TaskStatusEnum.CANCEL) {
       LogService.debug('Task is already CANCELED, checking date for overdue logic');
@@ -914,7 +914,7 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  failedTask(TaskModel taskModel) {
+  void failedTask(TaskModel taskModel) {
     LogService.debug('Marking task as failed: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
     if (taskModel.status == TaskStatusEnum.FAILED) {
       LogService.debug('Task is already FAILED, checking date for overdue logic');
@@ -1183,7 +1183,7 @@ class TaskProvider with ChangeNotifier {
 
   // TODO: just for routine
   // ? rutin model mi task model mi
-  completeRoutine(TaskModel taskModel) {
+  void completeRoutine(TaskModel taskModel) {
     LogService.debug('Completing routine task: ID=${taskModel.id}, Title=${taskModel.title}');
 
     // Clear any existing status before setting to DONE

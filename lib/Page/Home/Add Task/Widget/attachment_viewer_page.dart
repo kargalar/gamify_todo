@@ -92,7 +92,12 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
     try {
       final file = File(filePath);
       if (await file.exists()) {
-        await Share.shareXFiles([XFile(filePath)]);
+        await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(filePath)],
+          ),
+        );
+        LogService.debug('File Shared: $filePath');
       }
     } catch (e) {
       LogService.error('Share error: $e');
@@ -108,7 +113,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
   }
 
   Future<void> _openFile(String filePath) async {
-    LogService.debug('Dosya açma işlemi başlatıldı: $filePath');
+    LogService.debug('File opening initiated: $filePath');
     try {
       final result = await OpenFile.open(filePath);
       if (result.type != ResultType.done) {
@@ -209,7 +214,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
                       child: Image.file(
                         File(filePath),
                         fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
+                        errorBuilder: (context, error, stackTrace) {
                           return Container(
                             padding: const EdgeInsets.all(24),
                             child: Column(
@@ -239,7 +244,7 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
                   // Dosya için
                   return GestureDetector(
                     onTap: () {
-                      LogService.debug('Dosya tıklandı: $filePath');
+                      LogService.debug('File clicked: $filePath');
                       _openFile(filePath);
                     },
                     child: Center(

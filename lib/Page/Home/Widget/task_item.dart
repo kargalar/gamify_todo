@@ -54,7 +54,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   late Animation<Color?> _cancelBackgroundColorAnimation;
   bool _isAnimationRunning = false; // Track if completion animation is running
   AnimationType _currentAnimationType = AnimationType.completion; // Track current animation type
-  animationDuration() => const Duration(milliseconds: 100);
+  Duration animationDuration() => const Duration(milliseconds: 100);
 
   @override
   void initState() {

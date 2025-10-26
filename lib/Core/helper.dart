@@ -401,7 +401,7 @@ class Helper {
     return selectedColor;
   }
 
-  Future<TimeOfDay?> selectTime(context, {TimeOfDay? initialTime}) async {
+  Future<TimeOfDay?> selectTime(BuildContext context, {TimeOfDay? initialTime}) async {
     final selectedTime = await showTimePicker(
       context: context,
       initialTime: initialTime ?? const TimeOfDay(hour: 12, minute: 0),

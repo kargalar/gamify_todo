@@ -91,7 +91,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                   onChanged: (value) async {
                                     await vacationProvider.toggleVacationMode();
                                   },
-                                  activeColor: Colors.orange,
+                                  activeThumbColor: Colors.orange,
                                   activeTrackColor: Colors.orange.withValues(alpha: 0.3),
                                   inactiveThumbColor: Colors.grey,
                                   inactiveTrackColor: Colors.grey.withValues(alpha: 0.3),

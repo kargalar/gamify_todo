@@ -24,7 +24,7 @@ class LanguageSelectionPopupState extends State<LanguageSelectionPopup> {
     _loadSelectedLanguage();
   }
 
-  _loadSelectedLanguage() async {
+  Future<void> _loadSelectedLanguage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -41,34 +41,32 @@ class LanguageSelectionPopupState extends State<LanguageSelectionPopup> {
         ? const Center(child: CircularProgressIndicator())
         : AlertDialog(
             title: Text(LocaleKeys.SelectLanguage.tr()),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: Locales.values
-                  .map(
-                    (locale) => ListTile(
-                      title: Text(
-                        _getLocaleName(locale),
-                        style: TextStyle(
-                          fontWeight: locale == _selectedLanguage ? FontWeight.bold : FontWeight.normal,
+            content: RadioGroup<Locales>(
+              groupValue: _selectedLanguage,
+              onChanged: (Locales? value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedLanguage = value;
+                  });
+                  _saveSelectedLanguage();
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: Locales.values
+                    .map(
+                      (locale) => RadioListTile<Locales>(
+                        value: locale,
+                        title: Text(
+                          _getLocaleName(locale),
+                          style: TextStyle(
+                            fontWeight: locale == _selectedLanguage ? FontWeight.bold : FontWeight.normal,
+                          ),
                         ),
                       ),
-                      onTap: () {
-                        _selectedLanguage = locale;
-
-                        _saveSelectedLanguage();
-                      },
-                      leading: Radio(
-                        value: locale,
-                        groupValue: _selectedLanguage,
-                        onChanged: (value) {
-                          _selectedLanguage = value as Locales;
-
-                          _saveSelectedLanguage();
-                        },
-                      ),
-                    ),
-                  )
-                  .toList(),
+                    )
+                    .toList(),
+              ),
             ),
           );
   }
