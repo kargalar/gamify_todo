@@ -58,12 +58,4 @@ proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha
 
 restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 
-varsıylan no dates değil all tasks olsun
-
-inbox da today ek filtresi ekle. varsayıaln oalrak aktif olsun
-
-inbox da oluşturulan kategroi projecte de geliyor.
-
-projelerde hiç task olammasına rağmen 1 2 tane var görünüyor neden
-
-yeni oluşturulan kategorilerin hepsi task için oluşturuluyor not ve proje için de oluştur.
+default skills lere read ve meditation ekle.diğerlerini kaldır. creativity attibuteyi kaldır.

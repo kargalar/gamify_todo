@@ -16,7 +16,7 @@ class InboxCategoriesSection extends StatelessWidget {
   final String searchQuery;
   final bool showRoutines;
   final bool showTasks;
-  final bool showPinned;
+  final bool showTodayTasks;
   final DateFilterState dateFilterState;
   final Set<TaskTypeEnum> selectedTaskTypes;
   final Set<TaskStatusEnum> selectedStatuses;
@@ -30,7 +30,7 @@ class InboxCategoriesSection extends StatelessWidget {
     required this.searchQuery,
     required this.showRoutines,
     required this.showTasks,
-    required this.showPinned,
+    required this.showTodayTasks,
     required this.dateFilterState,
     required this.selectedTaskTypes,
     required this.selectedStatuses,
@@ -117,29 +117,33 @@ class InboxCategoriesSection extends StatelessWidget {
       return (isRoutine && showRoutines) || (!isRoutine && showTasks);
     }).toList();
 
-    // Apply pinned filter
-    if (showPinned) {
-      tasks = tasks.where((task) => task.isPinned).toList();
-    }
+    // Apply pinned filter - NOTE: Pin filter now only affects sorting, not filtering
+    // We keep this for backward compatibility but it doesn't filter out tasks
+    // The actual pin sorting happens in inbox_task_list.dart
 
     // Apply task type filter
     tasks = tasks.where((task) => selectedTaskTypes.contains(task.type)).toList();
 
-    // Apply date filter (mirror InboxTaskList grouping: today's dated tasks are not shown, so don't count them)
+    // Apply date filter
     final now = DateTime.now();
     final todayDate = DateTime(now.year, now.month, now.day);
     tasks = tasks.where((task) {
+      // Filter out today's tasks if showTodayTasks is false
+      if (task.taskDate != null) {
+        final taskDateOnly = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+        if (!showTodayTasks && taskDateOnly.isAtSameMomentAs(todayDate)) {
+          return false;
+        }
+      }
+
       switch (dateFilterState) {
         case DateFilterState.all:
-          // Include undated tasks and dated tasks except those dated today
-          if (task.taskDate == null) return true;
-          final d = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
-          return d != todayDate;
+          return true; // Show all tasks (except today if showTodayTasks is false)
         case DateFilterState.withDate:
-          // Include only dated tasks except those dated today
+          // Show tasks with dates (excluding today)
           if (task.taskDate == null) return false;
-          final d = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
-          return d != todayDate;
+          final taskDateOnly = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+          return !taskDateOnly.isAtSameMomentAs(todayDate);
         case DateFilterState.withoutDate:
           // Only undated tasks
           return task.taskDate == null;

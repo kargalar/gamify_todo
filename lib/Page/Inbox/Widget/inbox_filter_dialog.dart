@@ -10,7 +10,7 @@ import 'package:next_level/Service/locale_keys.g.dart';
 class InboxFilterDialog extends StatefulWidget {
   final bool showRoutines;
   final bool showTasks;
-  final bool showPinned;
+  final bool showTodayTasks;
   final DateFilterState dateFilterState;
   final Set<TaskTypeEnum> selectedTaskTypes;
   final Set<TaskStatusEnum> selectedStatuses;
@@ -21,7 +21,7 @@ class InboxFilterDialog extends StatefulWidget {
     super.key,
     required this.showRoutines,
     required this.showTasks,
-    required this.showPinned,
+    required this.showTodayTasks,
     required this.dateFilterState,
     required this.selectedTaskTypes,
     required this.selectedStatuses,
@@ -36,7 +36,7 @@ class InboxFilterDialog extends StatefulWidget {
 class _InboxFilterDialogState extends State<InboxFilterDialog> {
   late bool _showRoutines;
   late bool _showTasks;
-  late bool _showPinned;
+  late bool _showTodayTasks;
   late DateFilterState _dateFilterState;
   late Set<TaskTypeEnum> _selectedTaskTypes;
   late Set<TaskStatusEnum> _selectedStatuses;
@@ -47,7 +47,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
     super.initState();
     _showRoutines = widget.showRoutines;
     _showTasks = widget.showTasks;
-    _showPinned = widget.showPinned;
+    _showTodayTasks = widget.showTodayTasks;
     _dateFilterState = widget.dateFilterState;
     _selectedTaskTypes = Set.from(widget.selectedTaskTypes);
     _selectedStatuses = Set.from(widget.selectedStatuses);
@@ -106,7 +106,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
     widget.onFiltersChanged(
       _showRoutines,
       _showTasks,
-      _showPinned,
+      _showTodayTasks,
       _dateFilterState,
       _selectedTaskTypes,
       _selectedStatuses,
@@ -155,7 +155,9 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
 
           // Date filter section
           _buildSectionTitle("Date Filter"),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               FilterChipWidget(
                 label: LocaleKeys.AllTasks.tr(),
@@ -167,7 +169,6 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
                   _updateFilters();
                 },
               ),
-              const SizedBox(width: 8),
               FilterChipWidget(
                 label: LocaleKeys.WithDate.tr(),
                 icon: Icons.event_rounded,
@@ -178,7 +179,6 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
                   _updateFilters();
                 },
               ),
-              const SizedBox(width: 8),
               FilterChipWidget(
                 label: LocaleKeys.NoDate.tr(),
                 icon: Icons.event_busy_rounded,
@@ -259,23 +259,33 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
           ),
           const SizedBox(height: 16),
 
+          // Other filters section
+          _buildSectionTitle("Other"),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              // Show Today Tasks chip
+              FilterChipWidget(
+                label: LocaleKeys.Today.tr(),
+                icon: Icons.today_rounded,
+                isSelected: _showTodayTasks,
+                selectedColor: AppColors.blue,
+                onTap: () {
+                  setState(() => _showTodayTasks = !_showTodayTasks);
+                  _updateFilters();
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
           // Status filter section
           _buildSectionTitle("Status"),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              // Pinned chip
-              FilterChipWidget(
-                label: "Pinned",
-                icon: Icons.push_pin,
-                isSelected: _showPinned,
-                selectedColor: AppColors.orange,
-                onTap: () {
-                  setState(() => _showPinned = !_showPinned);
-                  _updateFilters();
-                },
-              ),
               // Empty chip for tasks with null status
               FilterChipWidget(
                 label: LocaleKeys.Empty.tr(),

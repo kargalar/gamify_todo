@@ -5,11 +5,9 @@ import 'package:provider/provider.dart';
 import '../../General/app_colors.dart';
 import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
-import '../../Enum/task_status_enum.dart';
 import '../../Provider/navbar_provider.dart';
 import '../../Provider/navbar_visibility_provider.dart';
 import '../../Provider/projects_provider.dart';
-import '../../Provider/task_provider.dart';
 import '../../Service/locale_keys.g.dart';
 import '../../Service/logging_service.dart';
 import '../../Widgets/Common/add_item_dialog.dart';
@@ -62,24 +60,20 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   Future<void> _loadProjectTaskCounts() async {
     final provider = context.read<ProjectsProvider>();
-    final taskProvider = context.read<TaskProvider>();
     final newCounts = <String, Map<String, int>>{};
 
     for (final project in provider.projects) {
-      // Genel task'ları say (categoryId ile)
-      final generalTasks = taskProvider.taskList.where((task) => task.categoryId == project.categoryId).toList();
-      final generalTaskCount = generalTasks.length;
-      final generalCompletedCount = generalTasks.where((task) => task.status == TaskStatusEnum.DONE).length;
-
-      // Subtask'ları say
+      // Sadece subtask'ları say (projelerle ilişkili görevler)
       final subtasks = await provider.getProjectSubtasks(project.id);
       final subtaskCount = subtasks.length;
       final subtaskCompletedCount = subtasks.where((subtask) => subtask.isCompleted).length;
 
       newCounts[project.id] = {
-        'total': generalTaskCount + subtaskCount,
-        'completed': generalCompletedCount + subtaskCompletedCount,
+        'total': subtaskCount,
+        'completed': subtaskCompletedCount,
       };
+
+      LogService.debug('📊 ProjectsPage: Project "${project.title}" has $subtaskCount tasks ($subtaskCompletedCount completed)');
     }
 
     if (mounted) {

@@ -48,15 +48,17 @@ class ProjectsProvider with ChangeNotifier {
   int get taskCountVersion => _taskCountVersion;
   int get noteCountVersion => _noteCountVersion;
 
-  /// Kategorileri yükle
+  /// Kategorileri yükle (sadece project kategorileri)
   Future<void> loadCategories() async {
     try {
       LogService.debug('📡 ProjectsProvider: Loading categories');
       final categoryProvider = CategoryProvider();
       await categoryProvider.initialize();
       _categories.clear();
-      _categories.addAll(categoryProvider.categoryList);
-      LogService.debug('✅ ProjectsProvider: Loaded ${_categories.length} project categories');
+      // Sadece project tipindeki kategorileri al
+      final projectCategories = categoryProvider.categoryList.where((category) => category.categoryType == CategoryType.project).toList();
+      _categories.addAll(projectCategories);
+      LogService.debug('✅ ProjectsProvider: Loaded ${_categories.length} project categories (filtered from ${categoryProvider.categoryList.length} total)');
       notifyListeners();
     } catch (e) {
       LogService.error('❌ ProjectsProvider: Error loading categories: $e');

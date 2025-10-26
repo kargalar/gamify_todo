@@ -30,8 +30,6 @@ class DefaultDataService {
       final prefs = await SharedPreferences.getInstance();
       final isFirstLaunch = prefs.getBool(_firstLaunchKey) ?? true;
 
-      LogService.debug('🔍 DefaultDataService: İlk yükleme kontrolü - isFirstLaunch: $isFirstLaunch');
-
       if (isFirstLaunch) {
         LogService.debug('🎉 DefaultDataService: İlk yükleme tespit edildi, varsayılan veriler yükleniyor...');
         await _loadDefaultData();
@@ -83,9 +81,13 @@ class DefaultDataService {
     final categoryProvider = CategoryProvider();
 
     try {
-      // İş kategorisi
+      int categoryIdBase = DateTime.now().millisecondsSinceEpoch;
+
+      // ============= TASK KATEGORİLERİ =============
+
+      // İş task kategorisi
       final workCategory = CategoryModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: (categoryIdBase++).toString(),
         title: 'Work',
         colorValue: AppColors.blue.value,
         iconCodePoint: Icons.work.codePoint,
@@ -94,11 +96,11 @@ class DefaultDataService {
       );
       await categoryProvider.addCategory(workCategory);
       categories.add(workCategory);
-      LogService.debug('✅ DefaultDataService: İş kategorisi oluşturuldu');
+      LogService.debug('✅ DefaultDataService: İş task kategorisi oluşturuldu');
 
-      // Kişisel kategorisi
+      // Kişisel task kategorisi
       final personalCategory = CategoryModel(
-        id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
+        id: (categoryIdBase++).toString(),
         title: 'Personal',
         colorValue: AppColors.green.value,
         iconCodePoint: Icons.person.codePoint,
@@ -107,11 +109,11 @@ class DefaultDataService {
       );
       await categoryProvider.addCategory(personalCategory);
       categories.add(personalCategory);
-      LogService.debug('✅ DefaultDataService: Kişisel kategorisi oluşturuldu');
+      LogService.debug('✅ DefaultDataService: Kişisel task kategorisi oluşturuldu');
 
-      // Sağlık kategorisi
+      // Sağlık task kategorisi
       final healthCategory = CategoryModel(
-        id: (DateTime.now().millisecondsSinceEpoch + 2).toString(),
+        id: (categoryIdBase++).toString(),
         title: 'Health',
         colorValue: AppColors.red.value,
         iconCodePoint: Icons.favorite.codePoint,
@@ -120,11 +122,11 @@ class DefaultDataService {
       );
       await categoryProvider.addCategory(healthCategory);
       categories.add(healthCategory);
-      LogService.debug('✅ DefaultDataService: Sağlık kategorisi oluşturuldu');
+      LogService.debug('✅ DefaultDataService: Sağlık task kategorisi oluşturuldu');
 
-      // Alışveriş kategorisi
+      // Alışveriş task kategorisi
       final shoppingCategory = CategoryModel(
-        id: (DateTime.now().millisecondsSinceEpoch + 3).toString(),
+        id: (categoryIdBase++).toString(),
         title: 'Shopping',
         colorValue: AppColors.orange.value,
         iconCodePoint: Icons.shopping_cart.codePoint,
@@ -133,8 +135,91 @@ class DefaultDataService {
       );
       await categoryProvider.addCategory(shoppingCategory);
       categories.add(shoppingCategory);
-      LogService.debug('✅ DefaultDataService: Alışveriş kategorisi oluşturuldu');
+      LogService.debug('✅ DefaultDataService: Alışveriş task kategorisi oluşturuldu');
 
+      // ============= PROJECT KATEGORİLERİ =============
+
+      // İş projeleri kategorisi
+      final workProjectCategory = CategoryModel(
+        id: (categoryIdBase++).toString(),
+        title: 'Work Projects',
+        colorValue: AppColors.blue.value,
+        iconCodePoint: Icons.business_center.codePoint,
+        categoryType: CategoryType.project,
+        createdAt: DateTime.now(),
+      );
+      await categoryProvider.addCategory(workProjectCategory);
+      categories.add(workProjectCategory);
+      LogService.debug('✅ DefaultDataService: İş projeleri kategorisi oluşturuldu');
+
+      // Kişisel projeler kategorisi
+      final personalProjectCategory = CategoryModel(
+        id: (categoryIdBase++).toString(),
+        title: 'Personal Projects',
+        colorValue: AppColors.green.value,
+        iconCodePoint: Icons.lightbulb.codePoint,
+        categoryType: CategoryType.project,
+        createdAt: DateTime.now(),
+      );
+      await categoryProvider.addCategory(personalProjectCategory);
+      categories.add(personalProjectCategory);
+      LogService.debug('✅ DefaultDataService: Kişisel projeler kategorisi oluşturuldu');
+
+      // Hobi projeleri kategorisi
+      final hobbyProjectCategory = CategoryModel(
+        id: (categoryIdBase++).toString(),
+        title: 'Hobby Projects',
+        colorValue: AppColors.purple.value,
+        iconCodePoint: Icons.palette.codePoint,
+        categoryType: CategoryType.project,
+        createdAt: DateTime.now(),
+      );
+      await categoryProvider.addCategory(hobbyProjectCategory);
+      categories.add(hobbyProjectCategory);
+      LogService.debug('✅ DefaultDataService: Hobi projeleri kategorisi oluşturuldu');
+
+      // ============= NOTE KATEGORİLERİ =============
+
+      // Genel notlar kategorisi
+      final generalNoteCategory = CategoryModel(
+        id: (categoryIdBase++).toString(),
+        title: 'General Notes',
+        colorValue: AppColors.orange.value,
+        iconCodePoint: Icons.note.codePoint,
+        categoryType: CategoryType.note,
+        createdAt: DateTime.now(),
+      );
+      await categoryProvider.addCategory(generalNoteCategory);
+      categories.add(generalNoteCategory);
+      LogService.debug('✅ DefaultDataService: Genel notlar kategorisi oluşturuldu');
+
+      // Fikirler kategorisi
+      final ideasNoteCategory = CategoryModel(
+        id: (categoryIdBase++).toString(),
+        title: 'Ideas',
+        colorValue: AppColors.yellow.value,
+        iconCodePoint: Icons.emoji_objects.codePoint,
+        categoryType: CategoryType.note,
+        createdAt: DateTime.now(),
+      );
+      await categoryProvider.addCategory(ideasNoteCategory);
+      categories.add(ideasNoteCategory);
+      LogService.debug('✅ DefaultDataService: Fikirler notlar kategorisi oluşturuldu');
+
+      // Toplantı notları kategorisi
+      final meetingNoteCategory = CategoryModel(
+        id: (categoryIdBase++).toString(),
+        title: 'Meetings',
+        colorValue: AppColors.blue.value,
+        iconCodePoint: Icons.groups.codePoint,
+        categoryType: CategoryType.note,
+        createdAt: DateTime.now(),
+      );
+      await categoryProvider.addCategory(meetingNoteCategory);
+      categories.add(meetingNoteCategory);
+      LogService.debug('✅ DefaultDataService: Toplantı notları kategorisi oluşturuldu');
+
+      LogService.debug('✅ DefaultDataService: Toplam ${categories.length} kategori oluşturuldu (4 task, 3 project, 3 note)');
       return categories;
     } catch (e) {
       LogService.error('❌ DefaultDataService: Kategori oluşturma hatası: $e');
@@ -233,7 +318,7 @@ class DefaultDataService {
           title: 'Morning exercise',
           description: '30 minutes cardio workout',
           type: TaskTypeEnum.TIMER,
-          taskDate: today,
+          taskDate: today.subtract(const Duration(days: 2)),
           time: const TimeOfDay(hour: 7, minute: 0),
           isNotificationOn: false,
           isAlarmOn: false,
@@ -347,50 +432,28 @@ class DefaultDataService {
       traits.add(powerAttribute);
       LogService.debug('✅ DefaultDataService: Power attribute oluşturuldu');
 
-      final creativityAttribute = TraitModel(
-        id: traitId++,
-        title: 'Creativity',
-        icon: '🎨',
-        color: AppColors.purple,
-        type: TraitTypeEnum.ATTRIBUTE,
-      );
-      traitProvider.addTrait(creativityAttribute);
-      traits.add(creativityAttribute);
-      LogService.debug('✅ DefaultDataService: Creativity attribute oluşturuldu');
-
       // Skills (Yetenekler)
-      final programmingSkill = TraitModel(
+      final readSkill = TraitModel(
         id: traitId++,
-        title: 'Programming',
-        icon: '💻',
-        color: AppColors.green,
-        type: TraitTypeEnum.SKILL,
-      );
-      traitProvider.addTrait(programmingSkill);
-      traits.add(programmingSkill);
-      LogService.debug('✅ DefaultDataService: Programming skill oluşturuldu');
-
-      final communicationSkill = TraitModel(
-        id: traitId++,
-        title: 'Communication',
-        icon: '💬',
+        title: 'Read',
+        icon: '�',
         color: AppColors.blue,
         type: TraitTypeEnum.SKILL,
       );
-      traitProvider.addTrait(communicationSkill);
-      traits.add(communicationSkill);
-      LogService.debug('✅ DefaultDataService: Communication skill oluşturuldu');
+      traitProvider.addTrait(readSkill);
+      traits.add(readSkill);
+      LogService.debug('✅ DefaultDataService: Read skill oluşturuldu');
 
-      final fitnessSkill = TraitModel(
+      final meditationSkill = TraitModel(
         id: traitId++,
-        title: 'Fitness',
-        icon: '🏋️',
-        color: AppColors.orange,
+        title: 'Meditation',
+        icon: '🧘',
+        color: AppColors.purple,
         type: TraitTypeEnum.SKILL,
       );
-      traitProvider.addTrait(fitnessSkill);
-      traits.add(fitnessSkill);
-      LogService.debug('✅ DefaultDataService: Fitness skill oluşturuldu');
+      traitProvider.addTrait(meditationSkill);
+      traits.add(meditationSkill);
+      LogService.debug('✅ DefaultDataService: Meditation skill oluşturuldu');
 
       return traits;
     } catch (e) {
@@ -454,8 +517,16 @@ class DefaultDataService {
     final now = DateTime.now();
 
     try {
-      // İş kategorisinden proje
-      if (categories.isNotEmpty) {
+      // Proje kategorilerini bul (task kategorilerinden sonra geliyorlar)
+      final projectCategories = categories.where((cat) => cat.categoryType == CategoryType.project).toList();
+
+      if (projectCategories.isEmpty) {
+        LogService.debug('⚠️ DefaultDataService: Proje kategorisi bulunamadı, proje oluşturma atlandı');
+        return;
+      }
+
+      // İş Projeleri kategorisinden proje
+      if (projectCategories.isNotEmpty) {
         final workProject = ProjectModel(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           title: 'Q4 Planning',
@@ -463,10 +534,10 @@ class DefaultDataService {
           createdAt: now,
           updatedAt: now,
           colorIndex: 0,
-          categoryId: categories[0].id,
+          categoryId: projectCategories[0].id, // Work Projects kategorisi
         );
         await projectsProvider.addProject(workProject);
-        LogService.debug('✅ DefaultDataService: Q4 Planning projesi oluşturuldu');
+        LogService.debug('✅ DefaultDataService: Q4 Planning projesi oluşturuldu (${projectCategories[0].title})');
 
         // Q4 Planning projesi için subtask'lar
         await projectsProvider.addSubtask(ProjectSubtaskModel(
@@ -508,8 +579,8 @@ class DefaultDataService {
         LogService.debug('✅ DefaultDataService: Q4 Planning projesine not eklendi');
       }
 
-      // Kişisel kategorisinden proje
-      if (categories.length > 1) {
+      // Kişisel Projeler kategorisinden proje
+      if (projectCategories.length > 1) {
         final personalProject = ProjectModel(
           id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
           title: 'Learning Goals',
@@ -517,11 +588,11 @@ class DefaultDataService {
           createdAt: now.subtract(const Duration(days: 5)),
           updatedAt: now,
           colorIndex: 1,
-          categoryId: categories[1].id,
+          categoryId: projectCategories[1].id, // Personal Projects kategorisi
           isPinned: true,
         );
         await projectsProvider.addProject(personalProject);
-        LogService.debug('✅ DefaultDataService: Learning Goals projesi oluşturuldu');
+        LogService.debug('✅ DefaultDataService: Learning Goals projesi oluşturuldu (${projectCategories[1].title})');
 
         // Learning Goals projesi için subtask'lar
         await projectsProvider.addSubtask(ProjectSubtaskModel(
@@ -555,68 +626,61 @@ class DefaultDataService {
         LogService.debug('✅ DefaultDataService: Learning Goals projesine not eklendi');
       }
 
-      // Sağlık kategorisinden proje
-      if (categories.length > 2) {
-        final healthProject = ProjectModel(
+      // Hobi Projeleri kategorisinden proje
+      if (projectCategories.length > 2) {
+        final hobbyProject = ProjectModel(
           id: (DateTime.now().millisecondsSinceEpoch + 2).toString(),
-          title: 'Fitness Journey',
-          description: 'Track fitness progress and health improvements',
+          title: 'Home Garden',
+          description: 'Create and maintain a beautiful home garden',
           createdAt: now.subtract(const Duration(days: 7)),
           updatedAt: now.subtract(const Duration(hours: 12)),
           colorIndex: 2,
-          categoryId: categories[2].id,
+          categoryId: projectCategories[2].id, // Hobby Projects kategorisi
         );
-        await projectsProvider.addProject(healthProject);
-        LogService.debug('✅ DefaultDataService: Fitness Journey projesi oluşturuldu');
+        await projectsProvider.addProject(hobbyProject);
+        LogService.debug('✅ DefaultDataService: Home Garden projesi oluşturuldu (${projectCategories[2].title})');
 
-        // Fitness Journey projesi için subtask'lar
+        // Home Garden projesi için subtask'lar
         await projectsProvider.addSubtask(ProjectSubtaskModel(
-          id: '${healthProject.id}_task_1',
-          projectId: healthProject.id,
-          title: 'Exercise 3 times per week',
+          id: '${hobbyProject.id}_task_1',
+          projectId: hobbyProject.id,
+          title: 'Buy gardening tools',
           isCompleted: true,
           createdAt: now.subtract(const Duration(days: 7)),
           orderIndex: 0,
         ));
         await projectsProvider.addSubtask(ProjectSubtaskModel(
-          id: '${healthProject.id}_task_2',
-          projectId: healthProject.id,
-          title: 'Track daily water intake',
+          id: '${hobbyProject.id}_task_2',
+          projectId: hobbyProject.id,
+          title: 'Plant spring flowers',
           isCompleted: false,
           createdAt: now.subtract(const Duration(days: 6)),
           orderIndex: 1,
         ));
         await projectsProvider.addSubtask(ProjectSubtaskModel(
-          id: '${healthProject.id}_task_3',
-          projectId: healthProject.id,
-          title: 'Meal prep on Sundays',
+          id: '${hobbyProject.id}_task_3',
+          projectId: hobbyProject.id,
+          title: 'Set up watering system',
           isCompleted: false,
           createdAt: now.subtract(const Duration(days: 5)),
           orderIndex: 2,
         ));
-        LogService.debug('✅ DefaultDataService: Fitness Journey projesine 3 subtask eklendi');
+        LogService.debug('✅ DefaultDataService: Home Garden projesine 3 subtask eklendi');
 
-        // Fitness Journey projesi için notlar
+        // Home Garden projesi için not
         await projectsProvider.addProjectNote(ProjectNoteModel(
-          id: '${healthProject.id}_note_1',
-          projectId: healthProject.id,
-          title: 'Progress Tracking',
-          content: 'Week 1: Lost 1kg\nWeek 2: Feeling more energetic\nWeek 3: Can run 5km without stopping!',
+          id: '${hobbyProject.id}_note_1',
+          projectId: hobbyProject.id,
+          title: 'Plant List',
+          content: 'Spring Plants:\n- Tulips\n- Daffodils\n- Pansies\n\nSummer Plants:\n- Roses\n- Lavender\n- Sunflowers',
           createdAt: now.subtract(const Duration(days: 6)),
           updatedAt: now.subtract(const Duration(days: 1)),
           orderIndex: 0,
         ));
-        await projectsProvider.addProjectNote(ProjectNoteModel(
-          id: '${healthProject.id}_note_2',
-          projectId: healthProject.id,
-          title: 'Meal Ideas',
-          content: 'Breakfast: Oatmeal with fruits\nLunch: Grilled chicken salad\nDinner: Fish with vegetables\nSnacks: Nuts, Greek yogurt',
-          createdAt: now.subtract(const Duration(days: 3)),
-          updatedAt: now.subtract(const Duration(days: 3)),
-          orderIndex: 1,
-        ));
-        LogService.debug('✅ DefaultDataService: Fitness Journey projesine 2 not eklendi');
+        LogService.debug('✅ DefaultDataService: Home Garden projesine not eklendi');
       }
+
+      LogService.debug('✅ DefaultDataService: ${projectCategories.length} proje kategorisi için toplam 3 proje oluşturuldu');
     } catch (e) {
       LogService.error('❌ DefaultDataService: Proje oluşturma hatası: $e');
       rethrow;
@@ -628,53 +692,79 @@ class DefaultDataService {
     final notesProvider = NotesProvider();
 
     try {
-      // İş kategorisinden not (geçmişte oluşturulmuş)
-      if (categories.isNotEmpty) {
+      // Note kategorilerini bul
+      final noteCategories = categories.where((cat) => cat.categoryType == CategoryType.note).toList();
+
+      if (noteCategories.isEmpty) {
+        LogService.debug('⚠️ DefaultDataService: Note kategorisi bulunamadı, not oluşturma atlandı');
+        return;
+      }
+
+      // Toplantı Notları kategorisinden not
+      if (noteCategories.length > 2) {
         await notesProvider.addNote(
-          title: 'Meeting Notes',
-          content: 'Key points from today\'s team meeting:\n- New project timeline\n- Resource allocation\n- Next steps',
-          categoryId: categories[0].id,
+          title: 'Team Meeting Notes',
+          content: 'Key points from today\'s team meeting:\n- New project timeline\n- Resource allocation\n- Next steps\n- Action items for next week',
+          categoryId: noteCategories[2].id, // Meetings kategorisi
           colorIndex: 0,
         );
-        LogService.debug('✅ DefaultDataService: Meeting Notes notu oluşturuldu');
+        LogService.debug('✅ DefaultDataService: Team Meeting Notes notu oluşturuldu (${noteCategories[2].title})');
       }
 
       // Delay ekleyerek notların farklı zamanlarda oluşturulmuş gibi görünmesini sağla
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // Kişisel kategorisinden not (3 gün önce oluşturulmuş)
-      if (categories.length > 1) {
+      // Fikirler kategorisinden not
+      if (noteCategories.length > 1) {
         await notesProvider.addNote(
-          title: 'Reading List',
-          content: 'Books to read:\n1. Atomic Habits\n2. Deep Work\n3. The Pragmatic Programmer',
-          categoryId: categories[1].id,
+          title: 'App Ideas',
+          content: 'New features to consider:\n- Dark mode improvements\n- Social sharing\n- Weekly reports\n- Team collaboration',
+          categoryId: noteCategories[1].id, // Ideas kategorisi
           colorIndex: 1,
         );
-        LogService.debug('✅ DefaultDataService: Reading List notu oluşturuldu');
+        LogService.debug('✅ DefaultDataService: App Ideas notu oluşturuldu (${noteCategories[1].title})');
       }
 
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // Genel not (1 hafta önce oluşturulmuş)
-      await notesProvider.addNote(
-        title: 'Ideas',
-        content: 'Random thoughts and ideas:\n- App feature improvements\n- Weekend plans\n- Gift ideas',
-        colorIndex: 3,
-      );
-      LogService.debug('✅ DefaultDataService: Ideas notu oluşturuldu');
-
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      // Sağlık kategorisinden not (2 gün önce oluşturulmuş)
-      if (categories.length > 2) {
+      // Genel Notlar kategorisinden not
+      if (noteCategories.isNotEmpty) {
         await notesProvider.addNote(
-          title: 'Workout Plan',
-          content: 'Weekly workout schedule:\nMon: Upper body\nWed: Lower body\nFri: Cardio\nSun: Rest',
-          categoryId: categories[2].id,
+          title: 'Reading List',
+          content: 'Books to read this year:\n1. Atomic Habits - James Clear\n2. Deep Work - Cal Newport\n3. The Pragmatic Programmer\n4. Clean Code - Robert Martin',
+          categoryId: noteCategories[0].id, // General Notes kategorisi
           colorIndex: 2,
         );
-        LogService.debug('✅ DefaultDataService: Workout Plan notu oluşturuldu');
+        LogService.debug('✅ DefaultDataService: Reading List notu oluşturuldu (${noteCategories[0].title})');
       }
+
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Fikirler kategorisinden başka bir not
+      if (noteCategories.length > 1) {
+        await notesProvider.addNote(
+          title: 'Weekend Plans',
+          content: 'Things to do this weekend:\n- Visit the farmers market\n- Movie night with family\n- Start reading new book\n- Organize workspace',
+          categoryId: noteCategories[1].id, // Ideas kategorisi
+          colorIndex: 3,
+        );
+        LogService.debug('✅ DefaultDataService: Weekend Plans notu oluşturuldu (${noteCategories[1].title})');
+      }
+
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Genel Notlar kategorisinden başka bir not
+      if (noteCategories.isNotEmpty) {
+        await notesProvider.addNote(
+          title: 'Important Contacts',
+          content: 'Key contacts:\n\nDoctor: Dr. Smith - (555) 123-4567\nPlumber: Joe\'s Plumbing - (555) 234-5678\nElectrician: Bright Electric - (555) 345-6789',
+          categoryId: noteCategories[0].id, // General Notes kategorisi
+          colorIndex: 4,
+        );
+        LogService.debug('✅ DefaultDataService: Important Contacts notu oluşturuldu (${noteCategories[0].title})');
+      }
+
+      LogService.debug('✅ DefaultDataService: ${noteCategories.length} note kategorisi için toplam 5 not oluşturuldu');
     } catch (e) {
       LogService.error('❌ DefaultDataService: Not oluşturma hatası: $e');
       rethrow;
