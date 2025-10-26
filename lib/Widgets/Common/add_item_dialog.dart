@@ -244,7 +244,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 // Title field (if configured)
                 if (widget.titleLabel != null) ...[
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(8),
                     child: TextField(
                       autofocus: true,
                       controller: _titleController,
@@ -271,37 +271,9 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 // Description field (if configured)
                 if (widget.descriptionLabel != null) ...[
                   Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    child: Stack(
                       children: [
-                        // Tam ekran iconu
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.fullscreen, size: 18),
-                              onPressed: () async {
-                                LogService.debug('🔍 AddItemDialog: Opening full screen editor for description');
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => DescriptionEditor(
-                                      controller: _descriptionController,
-                                      onChanged: (value) => setState(() {}),
-                                      title: widget.title,
-                                    ),
-                                  ),
-                                );
-                                LogService.debug('✅ AddItemDialog: Returned from full screen editor');
-                              },
-                              tooltip: 'Tam Ekran',
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
                         TextField(
                           controller: _descriptionController,
                           focusNode: _descriptionFocus,
@@ -320,6 +292,31 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           minLines: widget.descriptionMinLines,
                           keyboardType: TextInputType.multiline,
                           textInputAction: TextInputAction.none,
+                        ),
+                        // Full screen button positioned at top right
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.fullscreen, size: 18),
+                            onPressed: () async {
+                              LogService.debug('🔍 AddItemDialog: Opening full screen editor for description');
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DescriptionEditor(
+                                    controller: _descriptionController,
+                                    onChanged: (value) => setState(() {}),
+                                    title: widget.title,
+                                  ),
+                                ),
+                              );
+                              LogService.debug('✅ AddItemDialog: Returned from full screen editor');
+                            },
+                            tooltip: 'Full Screen',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
                         ),
                       ],
                     ),
@@ -346,7 +343,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       ),
                     ),
                     child: Text(
-                      "Cancel",
+                      LocaleKeys.Cancel.tr(),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppColors.text.withValues(alpha: 0.7),

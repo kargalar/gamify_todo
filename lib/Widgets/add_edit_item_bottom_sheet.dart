@@ -334,7 +334,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
   /// Başlık ve içerik alanları (tek container'da)
   Widget _buildItemFields() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
         borderRadius: BorderRadius.circular(12),
@@ -367,47 +367,50 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
           const SizedBox(height: 12),
           Divider(color: AppColors.panelBackground2, height: 1),
           const SizedBox(height: 12),
-          // İçerik (opsiyonel) - tam ekran iconu
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          // İçerik (opsiyonel) - Stack ile tam ekran iconu
+          Stack(
             children: [
-              IconButton(
-                icon: const Icon(Icons.fullscreen, size: 20),
-                onPressed: () async {
-                  LogService.debug('🔍 AddEditItemBottomSheet: Opening full screen editor');
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DescriptionEditor(
-                        controller: _contentController,
-                        onChanged: (value) => setState(() {}),
-                        title: widget.type == ItemType.project ? LocaleKeys.EditProject.tr() : LocaleKeys.EditNote.tr(),
+              TextFormField(
+                controller: _contentController,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.text,
+                ),
+                decoration: InputDecoration(
+                  hintText: _getContentHint(),
+                  hintStyle: const TextStyle(color: AppColors.grey),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                maxLines: 10,
+                minLines: 5,
+              ),
+              // Full screen button positioned at top right
+              Positioned(
+                top: 0,
+                right: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.fullscreen, size: 20),
+                  onPressed: () async {
+                    LogService.debug('🔍 AddEditItemBottomSheet: Opening full screen editor');
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DescriptionEditor(
+                          controller: _contentController,
+                          onChanged: (value) => setState(() {}),
+                          title: widget.type == ItemType.project ? LocaleKeys.EditProject.tr() : LocaleKeys.EditNote.tr(),
+                        ),
                       ),
-                    ),
-                  );
-                  LogService.debug('✅ AddEditItemBottomSheet: Returned from full screen editor');
-                },
-                tooltip: 'Tam Ekran',
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                    );
+                    LogService.debug('✅ AddEditItemBottomSheet: Returned from full screen editor');
+                  },
+                  tooltip: 'Full Screen',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _contentController,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.text,
-            ),
-            decoration: InputDecoration(
-              hintText: _getContentHint(),
-              hintStyle: const TextStyle(color: AppColors.grey),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
-            maxLines: 10,
-            minLines: 5,
           ),
         ],
       ),

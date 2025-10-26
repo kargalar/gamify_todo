@@ -653,5 +653,10 @@
     "Open": "Open",
 
     "SelectIcon": "Select Icon",
-    "CategoryCreateFailed": "Failed to create category: {}"
+    "CategoryCreateFailed": "Failed to create category: {}",
+
+    "add_task": "Add Task",
+    "enter_task_title": "Enter task title",
+    "enter_task_description": "Enter task description",
+    "description": "Description"
 }
