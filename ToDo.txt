@@ -40,8 +40,6 @@ attachments ve tema geçici oalrak kaldırldı
 
 appardaki streaka basınca streaklarıda göstersin son 1 haftanına mode a absarsa takvimden
 
-editteyken sürekli log atması
-
 en sonra bunkü yapıaln taskalrın listeinin ve o bottomshettin boyuutu n ayalrıyorudm
 
 streak takvime çalışıyor mu bak

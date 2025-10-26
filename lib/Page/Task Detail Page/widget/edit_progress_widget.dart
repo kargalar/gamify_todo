@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -33,6 +34,8 @@ class EditProgressWidget extends StatefulWidget {
 
 class _EditProgressWidgetState extends State<EditProgressWidget> {
   late final TaskProgressViewModel _viewModel;
+  Timer? _timerUpdateTimer;
+  bool _isFirstBuild = true;
 
   @override
   void initState() {
@@ -49,28 +52,46 @@ class _EditProgressWidgetState extends State<EditProgressWidget> {
         setState(() {});
       }
     });
+
+    // Timer aktifse periyodik güncelleme başlat
+    _startTimerUpdateIfNeeded();
+  }
+
+  void _startTimerUpdateIfNeeded() {
+    if (widget.taskModel != null && widget.taskModel!.type == TaskTypeEnum.TIMER && widget.taskModel!.isTimerActive == true) {
+      // Zaten timer varsa kapat
+      _timerUpdateTimer?.cancel();
+      // Yeni timer başlat (her 500ms)
+      _timerUpdateTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
+        if (mounted) {
+          _viewModel.updateProgressFromLogs();
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(EditProgressWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Task değişti ve timer durumu değiştiyse
+    if (oldWidget.taskModel?.isTimerActive != widget.taskModel?.isTimerActive) {
+      _timerUpdateTimer?.cancel();
+      _startTimerUpdateIfNeeded();
+    }
   }
 
   @override
   void dispose() {
+    _timerUpdateTimer?.cancel();
     _viewModel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_viewModel.isTask) {
-      // Timer aktifse periyodik olarak güncelle
-      if (widget.taskModel!.type == TaskTypeEnum.TIMER && widget.taskModel!.isTimerActive == true) {
-        // Her saniye güncelle
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            _viewModel.updateProgressFromLogs();
-          }
-        });
-      }
-
-      // Sayfa yüklendiğinde logları güncelle
+    // Sayfa yüklendiğinde logları güncelle (sadece ilk defa)
+    if (_isFirstBuild && _viewModel.isTask) {
+      _isFirstBuild = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _viewModel.updateProgressFromLogs();
       });

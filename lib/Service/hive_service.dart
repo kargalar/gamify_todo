@@ -179,20 +179,15 @@ class HiveService {
 
   Future<void> updateTask(TaskModel taskModel) async {
     final box = await _taskBox;
-    LogService.debug('Updating task in Hive: ID=${taskModel.id}, Title=${taskModel.title}');
 
     try {
       // Update the box with the task model
-      LogService.debug('Putting task in Hive box: ID=${taskModel.id}');
       await box.put(taskModel.id, taskModel);
-      LogService.debug('put() done successfully for task: ID=${taskModel.id}');
 
       // Verify the task was saved correctly
       final savedTask = box.get(taskModel.id);
-      if (savedTask != null) {
-        LogService.debug('Task successfully saved to Hive: ID=${savedTask.id}, Title=${savedTask.title}');
-      } else {
-        LogService.error('ERROR: Failed to retrieve saved task from Hive');
+      if (savedTask == null) {
+        LogService.error('ERROR: Failed to retrieve saved task from Hive - ID: ${taskModel.id}');
       }
     } catch (e) {
       LogService.error('ERROR saving task to Hive: $e');

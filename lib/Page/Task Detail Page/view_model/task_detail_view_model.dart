@@ -45,30 +45,14 @@ class TaskDetailViewModel with ChangeNotifier {
   int longestStreak = 0;
   List<TaskLog> recentLogs = [];
 
-  // TaskLogProvider'ı dinlemek için
-  late final TaskLogProvider _taskLogProvider = TaskLogProvider();
-
   TaskDetailViewModel(this.taskModel);
 
   void initialize() {
     calculateStatistics();
     loadTraits();
     loadRecentLogs();
-    _taskLogProvider.addListener(_onTaskLogChanged);
-  }
-
-  @override
-  void dispose() {
-    _taskLogProvider.removeListener(_onTaskLogChanged);
-    super.dispose();
-  }
-
-  void _onTaskLogChanged() {
-    // Log değiştiğinde tüm istatistik ve trait progress yeniden hesapla
-    calculateStatistics();
-    refreshTraits();
-    loadRecentLogs();
-    notifyListeners();
+    // Only calculate statistics once during initialization
+    // Don't listen to TaskLogProvider to avoid excessive rebuilds when editing
   }
 
   // Traits'i yeniden hesaplamak için (tarih değişimi vb.) dışarıdan da çağrılabilir
@@ -86,11 +70,9 @@ class TaskDetailViewModel with ChangeNotifier {
     if (taskModel.routineID != null) {
       // Rutin için TÜM RUTIN TASKLAR'ın loglarını al (tarihten bağımsız)
       logs = TaskLogProvider().getLogsByRoutineId(taskModel.routineID!);
-      LogService.debug('✅ Statistics: Rutin için ${logs.length} log bulundu (tüm tasklar)');
     } else {
       // Tek task için logları al
       logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
-      LogService.debug('✅ Statistics: Task için ${logs.length} log bulundu');
     }
 
     // İstatistikleri sıfırla
@@ -209,12 +191,6 @@ class TaskDetailViewModel with ChangeNotifier {
 
     // Her task (rutin olsa bile) sadece KENDİ loglarını gösterir
     logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
-
-    if (taskModel.routineID != null) {
-      LogService.debug('✅ Recent logs: Rutin task (ID: ${taskModel.id}) için ${logs.length} log bulundu');
-    } else {
-      LogService.debug('✅ Recent logs: Normal task için ${logs.length} log bulundu');
-    }
 
     // Sort logs by date (newest first) with precise timestamp comparison including seconds and milliseconds
     logs.sort((a, b) => b.logDate.compareTo(a.logDate));

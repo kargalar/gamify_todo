@@ -156,8 +156,9 @@ class TaskProgressViewModel extends ChangeNotifier {
       // Widget oluşturulduğunda loglardan ilerleme değerlerini al
       updateProgressFromLogs();
 
-      // TaskLogProvider'ı dinle
-      taskLogProvider.addListener(_onTaskLogChanged);
+      // TaskLogProvider'ı dinle - NOT: Bu listener'ı kaldırdık çünkü sürekli re-calculation
+      // performans sorunu oluşturuyordu. UI yenileme gerekirse dialog/widget'tan manuel çağrılacak.
+      // taskLogProvider.addListener(_onTaskLogChanged);
     }
   }
 
@@ -192,8 +193,6 @@ class TaskProgressViewModel extends ChangeNotifier {
     // Task için TÜMLOGS (tarihten bağımsız)
     List<TaskLogModel> logs = taskLogProvider.getLogsByTaskId(taskModel!.id);
 
-    LogService.debug('✅ Progress hesaplama: ${logs.length} log bulundu (tarihten bağımsız)');
-
     // Toplam ilerlemeyi hesapla
     int totalCount = 0;
     Duration totalDuration = Duration.zero;
@@ -206,9 +205,12 @@ class TaskProgressViewModel extends ChangeNotifier {
       // En yeni log (ilk eleman)
       TaskLogModel latestLog = logs.first;
 
-      // Task durumunu güncelle
+      // Task durumunu güncelle ve değişimi loglaysa
+      String oldStatus = taskModel!.status.toString();
       taskModel!.status = latestLog.status;
-      LogService.debug('✅ Checkbox: En son durum = ${latestLog.status}');
+      if (oldStatus != latestLog.status.toString()) {
+        LogService.debug('✅ Checkbox: Durum değişti $oldStatus -> ${latestLog.status}');
+      }
     }
 
     // TÜM logları işle ve toplam değeri hesapla (tarihten bağımsız)
@@ -222,7 +224,10 @@ class TaskProgressViewModel extends ChangeNotifier {
       }
     }
 
-    LogService.debug('✅ Progress: Toplam duration = ${totalDuration.inMinutes} dakika, count = $totalCount');
+    // Değişim olduğunda loglaysa
+    if (totalDuration != previousDuration || totalCount != previousCount) {
+      LogService.debug('✅ Progress: duration=${totalDuration.inMinutes}m, count=$totalCount');
+    }
 
     // Aktif timer varsa, şu anki timer değerini de ekle
     if (taskModel!.type == TaskTypeEnum.TIMER && taskModel!.isTimerActive == true) {
