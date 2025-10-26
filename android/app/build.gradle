@@ -40,17 +40,17 @@ android {
         multiDexEnabled true
     }
 
-    productFlavors {
-        debug {
-            applicationId "app.nextlevel.debug"
-        }
-        release {
-            applicationId "app.nextlevel.release"
-        }
-        googleplay {
-            applicationId "app.nextlevel"
-        }
-    }
+    // productFlavors {
+    //     dev {
+    //         applicationId "app.nextlevel.debug"
+    //     }
+    //     release {
+    //         applicationId "app.nextlevel.release"
+    //     }
+    //     production {
+    //         applicationId "app.nextlevel"
+    //     }
+    // }
 
     signingConfigs {
         release {
