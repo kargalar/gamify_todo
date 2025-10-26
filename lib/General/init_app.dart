@@ -58,7 +58,8 @@ Future<void> initApp() async {
 
   // Notification
   await NotificationService().init();
-  await NotificationService().requestNotificationPermissions();
+  // Bildirim izni kullanıcı tarafından manuel olarak istenir
+  // await NotificationService().requestNotificationPermissions();
   await NotificationService().requestAlarmPermission();
 
   // Desktop Window
