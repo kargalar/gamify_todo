@@ -7,6 +7,7 @@ import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
 import '../../Enum/task_status_enum.dart';
 import '../../Provider/navbar_provider.dart';
+import '../../Provider/navbar_visibility_provider.dart';
 import '../../Provider/projects_provider.dart';
 import '../../Provider/task_provider.dart';
 import '../../Service/locale_keys.g.dart';
@@ -108,11 +109,14 @@ class _ProjectsPageState extends State<ProjectsPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProjectsProvider>();
+    final visibilityProvider = context.read<NavbarVisibilityProvider>();
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (_, __) {
-        context.read<NavbarProvider>().updateIndex(1);
+        // Go to first visible page instead of hardcoded index 1
+        final safeIndex = visibilityProvider.getSafePageIndex(1);
+        context.read<NavbarProvider>().updateIndex(safeIndex);
       },
       child: Scaffold(
         backgroundColor: AppColors.background,

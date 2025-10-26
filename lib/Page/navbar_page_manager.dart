@@ -20,6 +20,7 @@ import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/user_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -41,6 +42,7 @@ class NavbarPageManager extends StatefulWidget {
 
 class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindingObserver {
   bool isLoading = false;
+  bool _isInitialized = false;
 
   final List<BottomNavigationBarItem> navbarItems = [
     BottomNavigationBarItem(
@@ -75,7 +77,6 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     WidgetsBinding.instance.addObserver(this);
 
     getData();
-    context.read<NavbarProvider>().pageController = PageController(initialPage: 1);
   }
 
   @override
@@ -150,6 +151,31 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
   @override
   Widget build(BuildContext context) {
+    // Initialize providers on first build
+    if (!_isInitialized) {
+      final visibilityProvider = context.read<NavbarVisibilityProvider>();
+      final navbarProvider = context.read<NavbarProvider>();
+
+      // Set visibility provider to navbar provider and navigator service
+      navbarProvider.setVisibilityProvider(visibilityProvider);
+      NavigatorService().setVisibilityProvider(visibilityProvider);
+
+      // Get first visible page index
+      final initialPage = visibilityProvider.getFirstVisiblePageIndex();
+      navbarProvider.currentIndex = initialPage;
+
+      // Initialize PageController with safe initial page
+      navbarProvider.pageController = PageController(initialPage: initialPage);
+
+      LogService.debug('Navbar initialized with page index: $initialPage');
+      _isInitialized = true;
+    }
+
+    // Get visible navbar items based on provider settings
+    final visibilityProvider = context.watch<NavbarVisibilityProvider>();
+    final visibleNavbarItems = _getVisibleNavbarItems(visibilityProvider);
+    final visiblePages = _getVisiblePages(visibilityProvider);
+
     return IgnorePointer(
       ignoring: !isLoading,
       child: Scaffold(
@@ -162,17 +188,12 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
             : SizedBox.expand(
                 child: PageView(
                   controller: context.read<NavbarProvider>().pageController,
-                  onPageChanged: (index) {
-                    setState(() => context.read<NavbarProvider>().currentIndex = index);
+                  onPageChanged: (visibleIndex) {
+                    // Convert visible index to actual page index
+                    final pageIndex = visibilityProvider.mapVisibleIndexToPageIndex(visibleIndex);
+                    setState(() => context.read<NavbarProvider>().currentIndex = pageIndex);
                   },
-                  children: const <Widget>[
-                    StorePage(),
-                    HomePage(),
-                    InboxPage(),
-                    NotesPage(),
-                    ProjectsPage(),
-                    ProfilePage(),
-                  ],
+                  children: visiblePages,
                 ),
               ),
         floatingActionButton: floatingActionButtons(),
@@ -183,11 +204,15 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
             highlightColor: AppColors.transparent,
           ),
           child: BottomNavigationBar(
-            currentIndex: context.read<NavbarProvider>().currentIndex,
+            currentIndex: _getSafeVisibleIndex(
+              visibilityProvider,
+              context.read<NavbarProvider>().currentIndex,
+            ),
             onTap: (index) {
-              _onItemTapped(index);
+              final pageIndex = visibilityProvider.mapVisibleIndexToPageIndex(index);
+              _onItemTapped(pageIndex);
             },
-            items: navbarItems,
+            items: visibleNavbarItems,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: AppColors.main,
             unselectedItemColor: AppColors.text.withValues(alpha: 0.5),
@@ -239,6 +264,74 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
   void _onItemTapped(int index) {
     context.read<NavbarProvider>().updateIndex(index);
+  }
+
+  /// Get safe visible index for BottomNavigationBar
+  /// Returns valid index within bounds of visible items
+  int _getSafeVisibleIndex(NavbarVisibilityProvider provider, int pageIndex) {
+    final visibleIndex = provider.mapPageIndexToVisibleIndex(pageIndex);
+
+    // If page is not visible (returns -1) or invalid, return first visible item (0)
+    if (visibleIndex < 0) {
+      return 0;
+    }
+
+    // Ensure index is within bounds of visible items
+    final visibleCount = provider.getVisibleItemsCount();
+    if (visibleIndex >= visibleCount) {
+      return visibleCount - 1; // Return last item
+    }
+
+    return visibleIndex;
+  }
+
+  List<BottomNavigationBarItem> _getVisibleNavbarItems(NavbarVisibilityProvider provider) {
+    List<BottomNavigationBarItem> visibleItems = [];
+
+    if (provider.showStore) {
+      visibleItems.add(navbarItems[0]); // Store
+    }
+    if (provider.showInbox) {
+      visibleItems.add(navbarItems[1]); // Inbox
+    }
+    if (provider.showCategories) {
+      visibleItems.add(navbarItems[2]); // Categories
+    }
+    if (provider.showNotes) {
+      visibleItems.add(navbarItems[3]); // Notes
+    }
+    if (provider.showProjects) {
+      visibleItems.add(navbarItems[4]); // Projects
+    }
+    // Profile is always visible
+    visibleItems.add(navbarItems[5]); // Profile
+
+    return visibleItems;
+  }
+
+  /// Get list of visible pages for PageView
+  List<Widget> _getVisiblePages(NavbarVisibilityProvider provider) {
+    List<Widget> visiblePages = [];
+
+    if (provider.showStore) {
+      visiblePages.add(const StorePage());
+    }
+    if (provider.showInbox) {
+      visiblePages.add(const HomePage());
+    }
+    if (provider.showCategories) {
+      visiblePages.add(const InboxPage());
+    }
+    if (provider.showNotes) {
+      visiblePages.add(const NotesPage());
+    }
+    if (provider.showProjects) {
+      visiblePages.add(const ProjectsPage());
+    }
+    // Profile is always visible
+    visiblePages.add(const ProfilePage());
+
+    return visiblePages;
   }
 
   Widget floatingActionButtons() {

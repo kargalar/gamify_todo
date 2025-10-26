@@ -5,6 +5,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
+import 'package:next_level/Page/Settings/navbar_customization_page.dart';
 import 'package:next_level/Page/Settings/privacy_policy_webview_page.dart';
 import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
@@ -187,6 +188,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                 );
+              },
+            ),
+            // Navbar Customization option
+            _settingsOption(
+              title: LocaleKeys.NavbarCustomization.tr(),
+              subtitle: LocaleKeys.NavbarCustomizationSubtitle.tr(),
+              icon: Icons.view_carousel,
+              onTap: () {
+                NavigatorService().goTo(const NavbarCustomizationPage());
               },
             ),
             // Streak Settings option

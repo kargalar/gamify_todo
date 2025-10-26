@@ -10,6 +10,7 @@ import 'package:next_level/Page/Settings/settings_page.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Profile/Widget/streak_analysis.dart';
@@ -27,14 +28,18 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
+    final visibilityProvider = context.read<NavbarVisibilityProvider>();
+
     return ChangeNotifierProvider(
       create: (_) => ProfileViewModel(),
       child: PopScope(
         canPop: false,
         onPopInvokedWithResult: (_, __) {
-          context.read<NavbarProvider>().currentIndex = 1;
+          // Go to first visible page instead of hardcoded index 1
+          final safeIndex = visibilityProvider.getSafePageIndex(1);
+          context.read<NavbarProvider>().currentIndex = safeIndex;
           context.read<NavbarProvider>().pageController.animateToPage(
-                1,
+                safeIndex,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOut,
               );

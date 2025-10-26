@@ -4,6 +4,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Store/Widget/store_item.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
@@ -30,11 +31,14 @@ class _StorePageState extends State<StorePage> {
   @override
   Widget build(BuildContext context) {
     final storeItems = context.watch<StoreProvider>().storeItemList;
+    final visibilityProvider = context.read<NavbarVisibilityProvider>();
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (_, __) {
-        NavbarProvider().updateIndex(1);
+        // Go to first visible page instead of hardcoded index 1
+        final safeIndex = visibilityProvider.getSafePageIndex(1);
+        NavbarProvider().updateIndex(safeIndex);
       },
       child: Scaffold(
         appBar: AppBar(

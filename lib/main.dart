@@ -9,6 +9,7 @@ import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
@@ -45,10 +46,14 @@ void main() async {
   final streakSettingsProvider = StreakSettingsProvider();
   await streakSettingsProvider.initialize();
 
+  // Initialize NavbarVisibilityProvider
+  final navbarVisibilityProvider = NavbarVisibilityProvider();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ChangeNotifierProvider(create: (context) => NavbarProvider()),
+      ChangeNotifierProvider.value(value: navbarVisibilityProvider),
       ChangeNotifierProvider(create: (context) => TaskProvider()),
       ChangeNotifierProvider.value(value: taskStyleProvider),
       ChangeNotifierProvider.value(value: colorProvider),

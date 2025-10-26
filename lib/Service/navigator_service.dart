@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:get/route_manager.dart';
 
 class NavigatorService {
   static final NavigatorService _instance = NavigatorService._internal();
   factory NavigatorService() => _instance;
   NavigatorService._internal();
+
+  NavbarVisibilityProvider? _visibilityProvider;
+
+  void setVisibilityProvider(NavbarVisibilityProvider provider) {
+    _visibilityProvider = provider;
+  }
 
   Future<dynamic> goTo(
     Widget page, {
@@ -38,12 +45,15 @@ class NavigatorService {
     });
 
     if (isHome) {
-      NavbarProvider().updateIndex(1);
+      // Go to main page (or first visible page if main is not set/visible)
+      int targetIndex = 1; // Default to inbox
+      if (_visibilityProvider != null) {
+        targetIndex = _visibilityProvider!.getFirstVisiblePageIndex();
+      }
+      NavbarProvider().updateIndex(targetIndex);
     }
   }
 }
-
-
 
 // ! veri gönder
 // Get.toNamed('/second', arguments: {

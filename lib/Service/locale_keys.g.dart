@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
   static const NoArchivedRoutines = 'NoArchivedRoutines';
   static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
   static const Daily = 'Daily';
@@ -402,6 +402,16 @@ abstract class LocaleKeys {
   static const PinTaskTooltip = 'PinTaskTooltip';
   static const VacationMode = 'VacationMode';
   static const VacationModeSubtitle = 'VacationModeSubtitle';
+  static const NavbarCustomization = 'NavbarCustomization';
+  static const NavbarCustomizationSubtitle = 'NavbarCustomizationSubtitle';
+  static const ShowStore = 'ShowStore';
+  static const ShowInbox = 'ShowInbox';
+  static const ShowCategories = 'ShowCategories';
+  static const ShowNotes = 'ShowNotes';
+  static const ShowProjects = 'ShowProjects';
+  static const SetAsMain = 'SetAsMain';
+  static const MainPage = 'MainPage';
+  static const MainPageDescription = 'MainPageDescription';
   static const DataSyncTitle = 'DataSyncTitle';
   static const Logout = 'Logout';
   static const LogoutConfirmation = 'LogoutConfirmation';
@@ -435,6 +445,9 @@ abstract class LocaleKeys {
   static const NoteAddSuccess = 'NoteAddSuccess';
   static const NoteAddError = 'NoteAddError';
   static const ProjectDeleteConfirmation = 'ProjectDeleteConfirmation';
+  static const edit_project = 'edit_project';
+  static const ProjectUpdateSuccess = 'ProjectUpdateSuccess';
+  static const ProjectUpdateError = 'ProjectUpdateError';
   static const PleaseEnterTitle = 'PleaseEnterTitle';
   static const ProjectCreated = 'ProjectCreated';
   static const TaskIsNotRoutine = 'TaskIsNotRoutine';
@@ -628,7 +641,6 @@ abstract class LocaleKeys {
   static const StopTimer = 'StopTimer';
   static const NoRoutineTasksFound = 'NoRoutineTasksFound';
   static const Unknown = 'Unknown';
-
   static const Download = 'Download';
   static const DownloadSuccess = 'DownloadSuccess';
   static const DownloadFailed = 'DownloadFailed';
@@ -638,7 +650,11 @@ abstract class LocaleKeys {
   static const ImageCouldNotLoad = 'ImageCouldNotLoad';
   static const TapToOpen = 'TapToOpen';
   static const Open = 'Open';
-
   static const SelectIcon = 'SelectIcon';
   static const CategoryCreateFailed = 'CategoryCreateFailed';
+  static const add_task = 'add_task';
+  static const enter_task_title = 'enter_task_title';
+  static const enter_task_description = 'enter_task_description';
+  static const description = 'description';
+
 }
