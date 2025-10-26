@@ -1610,6 +1610,11 @@ class TaskProvider with ChangeNotifier {
     // Respect showCompleted setting like other task lists
     final pinnedTasks = taskList.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED && (showCompleted || task.status != TaskStatusEnum.DONE)).toList();
 
+    LogService.debug('Found ${pinnedTasks.length} pinned tasks (all dates)');
+    for (var task in pinnedTasks) {
+      LogService.debug('  - Pinned task: ${task.title} (Date: ${task.taskDate})');
+    }
+
     sortTasksByPriorityAndTime(pinnedTasks);
     return pinnedTasks;
   }

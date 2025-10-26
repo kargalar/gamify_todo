@@ -29,9 +29,6 @@ class _TaskListState extends State<TaskList> {
   late DateTime _baseDate; // Flag to track if we're handling a programmatic page change
   bool _isHandlingPageChange = false;
 
-  // Cache for memoizing itemBuilder data to prevent unnecessary recalculations
-  final Map<int, Map<String, dynamic>> _pageDataCache = {};
-
   @override
   void initState() {
     super.initState();
@@ -86,22 +83,6 @@ class _TaskListState extends State<TaskList> {
     }
   }
 
-  // Clean up cache to keep only nearby pages (±3 pages from current)
-  void _cleanupCache(int currentIndex) {
-    const int cacheRadius = 3; // Keep 3 pages before and after
-    final List<int> keysToRemove = [];
-
-    for (final key in _pageDataCache.keys) {
-      if ((key - currentIndex).abs() > cacheRadius) {
-        keysToRemove.add(key);
-      }
-    }
-
-    for (final key in keysToRemove) {
-      _pageDataCache.remove(key);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
@@ -131,32 +112,6 @@ class _TaskListState extends State<TaskList> {
         vm.onPageChanged(pageIndex: index, baseDate: _baseDate, referencePage: _referencePage);
       },
       itemBuilder: (context, index) {
-        // Check cache first to avoid recalculations
-        if (_pageDataCache.containsKey(index)) {
-          final cachedData = _pageDataCache[index]!;
-          final pageDate = cachedData['pageDate'] as DateTime;
-          final isArchived = cachedData['isArchived'] as bool;
-
-          if (isArchived) {
-            final archivedTasks = cachedData['archivedTasks'] as List<TaskModel>;
-            final archivedRoutines = cachedData['archivedRoutines'] as List<dynamic>;
-            return _buildArchivedContent(archivedTasks, archivedRoutines);
-          }
-
-          final selectedDateTaskList = cachedData['tasks'] as List<dynamic>;
-          final selectedDateRutinTaskList = cachedData['routines'] as List<dynamic>;
-          final selectedDateGhostRutinTaskList = cachedData['ghostRoutines'] as List<dynamic>;
-          final pinnedTasks = cachedData['pinnedTasks'] as List<TaskModel>;
-
-          return _buildPageContent(
-            pageDate,
-            selectedDateTaskList,
-            selectedDateRutinTaskList,
-            selectedDateGhostRutinTaskList,
-            pinnedTasks,
-          );
-        }
-
         // Calculate the date for this page via ViewModel helper
         final DateTime pageDate = vm.dateForPage(baseDate: _baseDate, pageIndex: index, referencePage: _referencePage);
 
@@ -164,17 +119,6 @@ class _TaskListState extends State<TaskList> {
         if (vm.showArchived) {
           final archivedTasks = vm.getArchivedTasks();
           final archivedRoutines = vm.getArchivedRoutines();
-
-          // Cache the data
-          _pageDataCache[index] = {
-            'pageDate': pageDate,
-            'isArchived': true,
-            'archivedTasks': archivedTasks,
-            'archivedRoutines': archivedRoutines,
-          };
-
-          // Keep cache size manageable (keep only nearby pages)
-          _cleanupCache(index);
 
           return _buildArchivedContent(archivedTasks, archivedRoutines);
         }
@@ -187,19 +131,6 @@ class _TaskListState extends State<TaskList> {
         // Get pinned tasks only for today
         final isToday = vm.isToday(pageDate);
         final pinnedTasks = isToday ? vm.getPinnedTasksForToday() : <TaskModel>[];
-
-        // Cache the data
-        _pageDataCache[index] = {
-          'pageDate': pageDate,
-          'isArchived': false,
-          'tasks': selectedDateTaskList,
-          'routines': selectedDateRutinTaskList,
-          'ghostRoutines': selectedDateGhostRutinTaskList,
-          'pinnedTasks': pinnedTasks,
-        };
-
-        // Keep cache size manageable (keep only nearby pages)
-        _cleanupCache(index);
 
         // Build the content for this page
         return _buildPageContent(

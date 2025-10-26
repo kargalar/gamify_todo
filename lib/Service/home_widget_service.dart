@@ -65,11 +65,6 @@ class HomeWidgetService {
 
   static Future<void> updateTaskCount() async {
     try {
-      // Skip widget updates on unsupported platforms
-      if (!Platform.isAndroid && !Platform.isIOS) {
-        return;
-      }
-
       LogService.debug('=== HOME WIDGET UPDATE START ===');
 
       // Setup widget first
@@ -255,8 +250,6 @@ class HomeWidgetService {
   // Bump a simple event sequence so the foreground app can detect widget-side changes instantly
   static Future<void> _bumpWidgetEventSeq() async {
     try {
-      if (!Platform.isAndroid && !Platform.isIOS) return;
-
       final current = await HomeWidget.getWidgetData<int>(widgetEventSeqKey, defaultValue: 0) ?? 0;
       await HomeWidget.saveWidgetData(widgetEventSeqKey, current + 1);
     } catch (e) {
@@ -267,17 +260,9 @@ class HomeWidgetService {
   // Poll for widget-side changes and refresh providers when detected
   static void startWidgetEventListener({Duration interval = const Duration(seconds: 1)}) {
     try {
-      if (!Platform.isAndroid && !Platform.isIOS) return;
-
       _eventTimer?.cancel();
       _eventTimer = Timer.periodic(interval, (timer) async {
         try {
-          // Double-check platform in timer callback
-          if (!Platform.isAndroid && !Platform.isIOS) {
-            timer.cancel();
-            return;
-          }
-
           final seq = await HomeWidget.getWidgetData<int>(widgetEventSeqKey, defaultValue: 0) ?? 0;
           if (_lastEventSeq == null) {
             _lastEventSeq = seq;
@@ -510,12 +495,9 @@ class HomeWidgetService {
 
   static Future<void> registerBackground() async {
     try {
-      // Only register background callback on Android and iOS platforms
-      if (Platform.isAndroid || Platform.isIOS) {
-        // Register the top-level entry point to ensure availability in AOT
-        // ignore: deprecated_member_use
-        await HomeWidget.registerBackgroundCallback(homeWidgetBackgroundCallback);
-      }
+      // Register the top-level entry point to ensure availability in AOT
+      // ignore: deprecated_member_use
+      await HomeWidget.registerBackgroundCallback(homeWidgetBackgroundCallback);
     } catch (e) {
       LogService.error('HomeWidget registerBackground error: $e');
     }
@@ -524,12 +506,7 @@ class HomeWidgetService {
   static Future<void> setupHomeWidget() async {
     try {
       LogService.debug('Setting up home widget with app group ID: $appGroupId');
-
-      // Only call setAppGroupId on Android and iOS platforms
-      if (Platform.isAndroid || Platform.isIOS) {
-        await HomeWidget.setAppGroupId(appGroupId);
-      }
-
+      await HomeWidget.setAppGroupId(appGroupId);
       await registerBackground();
       LogService.debug('Home widget setup done successfully');
       // Also schedule a local midnight refresh while the app is alive
@@ -544,11 +521,6 @@ class HomeWidgetService {
 
   static Future<void> resetHomeWidget() async {
     try {
-      // Skip widget updates on unsupported platforms
-      if (!Platform.isAndroid && !Platform.isIOS) {
-        return;
-      }
-
       LogService.debug('=== RESETTING HOME WIDGET ===');
 
       // Clear all widget data
