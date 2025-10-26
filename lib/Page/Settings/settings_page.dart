@@ -10,7 +10,6 @@ import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
-import 'package:next_level/Provider/theme_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _getAppVersion();
+    LogService.debug('Settings Page: Initialized');
   }
 
   Future<void> _getAppVersion() async {
@@ -54,7 +54,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>();
+    // Listen to ColorProvider changes to rebuild the page
+    context.watch<ColorProvider>();
+    LogService.debug('Settings Page: Rebuilding UI due to color change');
 
     return Scaffold(
       appBar: AppBar(

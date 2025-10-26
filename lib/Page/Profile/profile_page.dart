@@ -14,6 +14,8 @@ import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Profile/Widget/streak_analysis.dart';
 import 'package:next_level/Provider/profile_view_model.dart';
+import 'package:next_level/Provider/color_provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -100,6 +102,10 @@ class ProfilePageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to ColorProvider changes to rebuild the page
+    context.watch<ColorProvider>();
+    LogService.debug('Profile Page: Rebuilding UI due to color change');
+
     return const Padding(
       padding: EdgeInsets.all(10),
       child: SingleChildScrollView(

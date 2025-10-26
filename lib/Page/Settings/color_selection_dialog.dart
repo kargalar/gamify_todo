@@ -4,6 +4,7 @@ import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class ColorSelectionDialog extends StatelessWidget {
   const ColorSelectionDialog({super.key});
@@ -65,6 +66,7 @@ class ColorSelectionDialog extends StatelessWidget {
   ) {
     return GestureDetector(
       onTap: () {
+        LogService.debug('Color Selection: Color changed to RGB${color.value.toRadixString(16).padLeft(8, '0')}');
         colorProvider.changeColor(color);
       },
       child: AnimatedContainer(

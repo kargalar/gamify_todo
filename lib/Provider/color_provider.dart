@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class ColorProvider extends ChangeNotifier {
   // Available colors for selection
@@ -52,6 +53,7 @@ class ColorProvider extends ChangeNotifier {
     // ignore: deprecated_member_use
     await prefs.setInt('main_color', newColor.value);
 
+    LogService.debug('ColorProvider: Color changed successfully. New color value: ${newColor.value}');
     notifyListeners();
   }
 
