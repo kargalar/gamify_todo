@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/Handlers/task_action_handler.dart';
 import 'package:next_level/Core/extensions.dart';
@@ -146,30 +145,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     );
   }
 
-  Color _getBaseColorForStyle(TaskItemStyle style) {
-    switch (style) {
-      case TaskItemStyle.card:
-        return AppColors.panelBackground;
-      case TaskItemStyle.minimal:
-      case TaskItemStyle.flat:
-      case TaskItemStyle.glass:
-      case TaskItemStyle.modern:
-        return AppColors.background;
-    }
-  }
-
-  Color _getHighlightColorForStyle(TaskItemStyle style) {
-    switch (style) {
-      case TaskItemStyle.card:
-        return AppColors.panelBackground.withValues(alpha: 0.7);
-      case TaskItemStyle.minimal:
-      case TaskItemStyle.flat:
-      case TaskItemStyle.glass:
-      case TaskItemStyle.modern:
-        return AppColors.background.withValues(alpha: 0.5);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskStyleProvider>(
@@ -193,109 +168,84 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
 
             return Transform.scale(
               scale: _scaleAnimation.value,
-              child: _buildTaskWithShimmer(styleProvider, backgroundColor),
+              child: AnimatedContainer(
+                duration: animationDuration(),
+                margin: _getMarginForStyle(styleProvider.currentStyle),
+                decoration: _getDecorationForStyle(styleProvider.currentStyle, backgroundColor),
+                child: TaskSlideActions(
+                  taskModel: widget.taskModel,
+                  onFailAnimation: _playFailAnimation,
+                  onCancelAnimation: _playCancelAnimation,
+                  child: Opacity(
+                    opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !(widget.taskModel.type == TaskTypeEnum.TIMER && (widget.taskModel.isTimerActive ?? false)) ? 0.75 : 1.0,
+                    child: InkWell(
+                      onTap: () {
+                        // Eğer timer aktifse tam ekran timer sayfasına git
+                        if (widget.taskModel.isTimerActive ?? false) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => FullScreenTimerPage(
+                                taskModel: widget.taskModel,
+                              ),
+                            ),
+                          );
+                        }
+                        // eğer subtask var ise subtask bottom sheet açılır
+                        else if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
+                          _showSubtasksBottomSheet();
+                        }
+                        // eğer description varsa description editor aç
+                        else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
+                          _showDescriptionEditor();
+                        }
+                        // Rutin ise detay sayfasına, task ise edit sayfasına git
+                        else if (widget.taskModel.routineID != null) {
+                          taskLongPressAction(); // Rutinlerde detay sayfası
+                        } else {
+                          taskLongPressAction(); // Tasklarda edit sayfası
+                        }
+                      },
+                      onLongPress: () async {
+                        await taskLongPressAction();
+                      },
+                      borderRadius: _getBorderRadiusForStyle(styleProvider.currentStyle),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: widget.taskModel.type == TaskTypeEnum.TIMER && (widget.taskModel.isTimerActive ?? false) ? null : _getBorderRadiusForStyle(styleProvider.currentStyle),
+                            ),
+                            child: Row(
+                              children: [
+                                taskActionIcon(),
+                                TitleAndDescription(
+                                  taskModel: widget.taskModel,
+                                  displayCount: _isLongPressing ? _displayCount : null,
+                                ),
+                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
+                                    TaskTime(taskModel: widget.taskModel),
+                                    if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
+                          PriorityLine(taskModel: widget.taskModel),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             );
           },
         );
       },
     );
-  }
-
-  Widget _buildTaskWithShimmer(TaskStyleProvider styleProvider, Color? backgroundColor) {
-    final isTimerActive = widget.taskModel.type == TaskTypeEnum.TIMER && (widget.taskModel.isTimerActive ?? false);
-
-    // Debug mesajı
-    if (isTimerActive) {
-      debugPrint('✨ [SHIMMER] Timer aktif - Animasyon başladı: "${widget.taskModel.title}"');
-    }
-
-    final container = AnimatedContainer(
-      duration: animationDuration(),
-      margin: _getMarginForStyle(styleProvider.currentStyle),
-      decoration: _getDecorationForStyle(styleProvider.currentStyle, backgroundColor),
-      child: TaskSlideActions(
-        taskModel: widget.taskModel,
-        onFailAnimation: _playFailAnimation,
-        onCancelAnimation: _playCancelAnimation,
-        child: Opacity(
-          opacity: !(widget.taskModel.status == null || widget.taskModel.status == TaskStatusEnum.OVERDUE) && !isTimerActive ? 0.75 : 1.0,
-          child: InkWell(
-            onTap: () {
-              // Eğer timer aktifse tam ekran timer sayfasına git
-              if (widget.taskModel.isTimerActive ?? false) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => FullScreenTimerPage(
-                      taskModel: widget.taskModel,
-                    ),
-                  ),
-                );
-              }
-              // eğer subtask var ise subtask bottom sheet açılır
-              else if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) {
-                _showSubtasksBottomSheet();
-              }
-              // eğer description varsa description editor aç
-              else if (widget.taskModel.description != null && widget.taskModel.description!.isNotEmpty) {
-                _showDescriptionEditor();
-              }
-              // Rutin ise detay sayfasına, task ise edit sayfasına git
-              else if (widget.taskModel.routineID != null) {
-                taskLongPressAction(); // Rutinlerde detay sayfası
-              } else {
-                taskLongPressAction(); // Tasklarda edit sayfası
-              }
-            },
-            onLongPress: () async {
-              await taskLongPressAction();
-            },
-            borderRadius: _getBorderRadiusForStyle(styleProvider.currentStyle),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: isTimerActive ? null : _getBorderRadiusForStyle(styleProvider.currentStyle),
-                  ),
-                  child: Row(
-                    children: [
-                      taskActionIcon(),
-                      TitleAndDescription(
-                        taskModel: widget.taskModel,
-                        displayCount: _isLongPressing ? _displayCount : null,
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        children: [
-                          TaskTime(taskModel: widget.taskModel),
-                          if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
-                PriorityLine(taskModel: widget.taskModel),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // Timer aktifken shimmer efekti ekle
-    if (isTimerActive) {
-      debugPrint('🌟 [SHIMMER] Stil: ${styleProvider.currentStyle.toString()} - Parlama döngüsü: 2500ms');
-      return Shimmer.fromColors(
-        baseColor: _getBaseColorForStyle(styleProvider.currentStyle),
-        highlightColor: _getHighlightColorForStyle(styleProvider.currentStyle),
-        period: const Duration(milliseconds: 2500),
-        child: container,
-      );
-    }
-
-    debugPrint('⏹️ [SHIMMER] Timer durdu - Animasyon sona erdi: "${widget.taskModel.title}"');
-    return container;
   }
 
   Future<void> taskLongPressAction() async {

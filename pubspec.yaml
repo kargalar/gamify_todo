@@ -99,9 +99,6 @@ dependencies:
   # File Picker
   file_picker: ^10.3.3
 
-  # Shimmer animation
-  shimmer: ^3.0.0
-
   # Share files
   share_plus: ^12.0.1
 
