@@ -13,6 +13,7 @@ import '../../Service/locale_keys.g.dart';
 import '../../Service/logging_service.dart';
 import '../../Widgets/Common/standard_app_bar.dart';
 import '../Home/Widget/create_category_bottom_sheet.dart';
+import 'note_description_editor.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {
@@ -308,7 +309,7 @@ class _NotesPageState extends State<NotesPage> {
   Widget _buildNoteCard(BuildContext context, NotesProvider provider, NoteModel note) {
     return NoteCard(
       note: note,
-      onTap: () => _navigateToEditNote(context, note),
+      onTap: () => _navigateToNoteDescriptionEditor(context, note),
       onLongPress: () => _navigateToEditNote(context, note),
       onDelete: () => _confirmDelete(context, provider, note),
     );
@@ -353,5 +354,15 @@ class _NotesPageState extends State<NotesPage> {
         item: note,
       ),
     );
+  }
+
+  void _navigateToNoteDescriptionEditor(BuildContext context, NoteModel note) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NoteDescriptionEditor(note: note),
+      ),
+    );
+    LogService.debug('📝 Navigating to note description editor for note: ${note.id}');
   }
 }

@@ -19,6 +19,7 @@ import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/default_data_service.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
@@ -260,6 +261,9 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
     isLoading = true;
     setState(() {});
+
+    // İlk yükleme kontrolü - Dialog göster
+    _checkAndShowDefaultDataDialog();
   }
 
   void _onItemTapped(int index) {
@@ -414,5 +418,239 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     } else {
       return const SizedBox();
     }
+  }
+
+  /// İlk yükleme kontrolü yapar ve varsayılan veri yükleme dialog'unu gösterir
+  Future<void> _checkAndShowDefaultDataDialog() async {
+    try {
+      final isFirstLaunch = await DefaultDataService.isFirstLaunch();
+
+      if (isFirstLaunch && mounted) {
+        // Biraz gecikme ekleyelim ki UI tam yüklensin
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (!mounted) return;
+
+        LogService.debug('📱 DefaultDataService: İlk yükleme tespit edildi, dialog gösteriliyor...');
+
+        final result = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: AppColors.background,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.rocket_launch, color: AppColors.main, size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Welcome to Next Level! 🎉',
+                      style: TextStyle(
+                        color: AppColors.text,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Would you like to load sample data to explore the app features?',
+                    style: TextStyle(
+                      color: AppColors.text,
+                      fontSize: 16,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.main.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.main.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Sample data includes:',
+                          style: TextStyle(
+                            color: AppColors.text,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildFeatureItem('✓ Categories & Tasks'),
+                        _buildFeatureItem('✓ Projects with notes'),
+                        _buildFeatureItem('✓ Store items & rewards'),
+                        _buildFeatureItem('✓ Skills & Attributes'),
+                        _buildFeatureItem('✓ Daily routines'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'You can delete these anytime from settings.',
+                    style: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.6),
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: Text(
+                    'Skip',
+                    style: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.7),
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.main,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text(
+                    'Load Sample Data',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+
+        // Dialog'u gördü, ilk yükleme bayrağını işaretle
+        await DefaultDataService.markFirstLaunchSeen();
+
+        // Kullanıcı "Evet" dediyse varsayılan verileri yükle
+        if (result == true && mounted) {
+          LogService.debug('✅ DefaultDataService: Kullanıcı varsayılan verileri yüklemeyi onayladı');
+
+          // Loading göster
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => Center(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: AppColors.main),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Loading sample data...',
+                      style: TextStyle(
+                        color: AppColors.text,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          try {
+            // Varsayılan verileri yükle
+            await DefaultDataService.loadDefaultData();
+
+            // Verileri yeniden yükle
+            if (mounted) {
+              context.read<StoreProvider>().storeItemList = await ServerManager().getItems();
+              context.read<TraitProvider>().traitList = await ServerManager().getTraits();
+              context.read<TaskProvider>().routineList = await ServerManager().getRoutines();
+              context.read<TaskProvider>().taskList = await ServerManager().getTasks();
+              await context.read<TaskProvider>().loadCategories();
+
+              // UI'ı güncelle
+              context.read<TaskProvider>().updateItems();
+
+              // Loading dialog'unu kapat
+              Navigator.of(context).pop();
+
+              // Başarı mesajı göster
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('✅ Sample data loaded successfully!'),
+                  backgroundColor: AppColors.green,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+
+              LogService.debug('✅ DefaultDataService: Varsayılan veriler başarıyla yüklendi ve UI güncellendi');
+            }
+          } catch (e) {
+            LogService.error('❌ DefaultDataService: Varsayılan veri yükleme hatası: $e');
+
+            if (mounted) {
+              // Loading dialog'unu kapat
+              Navigator.of(context).pop();
+
+              // Hata mesajı göster
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('❌ Failed to load sample data: $e'),
+                  backgroundColor: AppColors.red,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          }
+        } else if (result == false) {
+          LogService.debug('ℹ️ DefaultDataService: Kullanıcı varsayılan verileri yüklemeyi reddetti');
+        }
+      }
+    } catch (e) {
+      LogService.error('❌ DefaultDataService: Dialog gösterme hatası: $e');
+    }
+  }
+
+  /// Dialog için feature item widget'ı
+  Widget _buildFeatureItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, top: 4),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: AppColors.text.withValues(alpha: 0.85),
+          fontSize: 14,
+        ),
+      ),
+    );
   }
 }

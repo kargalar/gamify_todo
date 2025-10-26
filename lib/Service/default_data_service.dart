@@ -10,21 +10,74 @@ import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
+import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/General/accessible.dart';
 
 /// İlk yüklemede varsayılan kategoriler ve görevler oluşturan servis
 class DefaultDataService {
   static const String _firstLaunchKey = 'is_first_launch';
+  static const String _defaultDataLoadedKey = 'default_data_loaded';
+
+  /// İlk yükleme olup olmadığını kontrol eder
+  static Future<bool> isFirstLaunch() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isFirstLaunch = prefs.getBool(_firstLaunchKey) ?? true;
+      final defaultDataLoaded = prefs.getBool(_defaultDataLoadedKey) ?? false;
+
+      return isFirstLaunch && !defaultDataLoaded;
+    } catch (e) {
+      LogService.error('❌ DefaultDataService: İlk yükleme kontrolü hatası: $e');
+      return false;
+    }
+  }
+
+  /// İlk yükleme bayrağını false yapar (kullanıcı dialog'u gördü)
+  static Future<void> markFirstLaunchSeen() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_firstLaunchKey, false);
+      LogService.debug('✅ DefaultDataService: İlk yükleme bayrağı işaretlendi');
+    } catch (e) {
+      LogService.error('❌ DefaultDataService: İlk yükleme bayrağı işaretleme hatası: $e');
+    }
+  }
+
+  /// Varsayılan verileri yükler (kullanıcı onayladığında)
+  static Future<void> loadDefaultData() async {
+    try {
+      LogService.debug('🎉 DefaultDataService: Varsayılan veriler yükleniyor...');
+
+      // Bildirim izni iste
+      await _requestNotificationPermission();
+
+      await _loadDefaultData();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_defaultDataLoadedKey, true);
+      await prefs.setBool(_firstLaunchKey, false);
+
+      LogService.debug('✅ DefaultDataService: Varsayılan veriler başarıyla yüklendi');
+    } catch (e) {
+      LogService.error('❌ DefaultDataService: Varsayılan veri yükleme hatası: $e');
+      rethrow;
+    }
+  }
 
   /// İlk yükleme kontrolü yapar ve gerekirse varsayılan verileri yükler
+  /// @deprecated Artık kullanılmıyor. Bunun yerine isFirstLaunch() ve loadDefaultData() kullanın.
+  @Deprecated('Use isFirstLaunch() and loadDefaultData() instead')
   static Future<void> checkAndLoadDefaultData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -32,6 +85,10 @@ class DefaultDataService {
 
       if (isFirstLaunch) {
         LogService.debug('🎉 DefaultDataService: İlk yükleme tespit edildi, varsayılan veriler yükleniyor...');
+
+        // Bildirim izni iste
+        await _requestNotificationPermission();
+
         await _loadDefaultData();
         await prefs.setBool(_firstLaunchKey, false);
         LogService.debug('✅ DefaultDataService: Varsayılan veriler başarıyla yüklendi');
@@ -40,6 +97,23 @@ class DefaultDataService {
       }
     } catch (e) {
       LogService.error('❌ DefaultDataService: Varsayılan veri yükleme hatası: $e');
+    }
+  }
+
+  /// Bildirim izni ister (ilk yüklemede)
+  static Future<void> _requestNotificationPermission() async {
+    try {
+      LogService.debug('🔔 DefaultDataService: Bildirim izni isteniyor...');
+      final notificationService = NotificationService();
+      final granted = await notificationService.requestNotificationPermissions();
+
+      if (granted) {
+        LogService.debug('✅ DefaultDataService: Bildirim izni verildi');
+      } else {
+        LogService.debug('⚠️ DefaultDataService: Bildirim izni reddedildi');
+      }
+    } catch (e) {
+      LogService.error('❌ DefaultDataService: Bildirim izni isteme hatası: $e');
     }
   }
 
@@ -69,9 +143,33 @@ class DefaultDataService {
       // Notlar oluştur
       await _createDefaultNotes(categories);
       LogService.debug('✅ DefaultDataService: Varsayılan notlar oluşturuldu');
+
+      // Rutinler oluştur
+      await _createDefaultRoutines(categories);
+      LogService.debug('✅ DefaultDataService: Varsayılan rutinler oluşturuldu');
+
+      // Kullanıcıya başlangıç kredisi yükle
+      await _addInitialCredit();
+      LogService.debug('✅ DefaultDataService: Başlangıç kredisi yüklendi');
     } catch (e) {
       LogService.error('❌ DefaultDataService: _loadDefaultData hatası: $e');
       rethrow;
+    }
+  }
+
+  /// Kullanıcıya başlangıç kredisi yükler
+  static Future<void> _addInitialCredit() async {
+    try {
+      if (loginUser != null) {
+        loginUser!.userCredit += 10;
+        await ServerManager().updateUser(userModel: loginUser!);
+        UserProvider().setUser(loginUser!);
+        LogService.debug('✅ DefaultDataService: Kullanıcıya 10 kredi eklendi (Toplam: ${loginUser!.userCredit})');
+      } else {
+        LogService.error('❌ DefaultDataService: loginUser null, kredi eklenemedi');
+      }
+    } catch (e) {
+      LogService.error('❌ DefaultDataService: Kredi ekleme hatası: $e');
     }
   }
 
@@ -142,7 +240,7 @@ class DefaultDataService {
       // İş projeleri kategorisi
       final workProjectCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
-        title: 'Work Projects',
+        title: 'Work',
         colorValue: AppColors.blue.value,
         iconCodePoint: Icons.business_center.codePoint,
         categoryType: CategoryType.project,
@@ -152,23 +250,10 @@ class DefaultDataService {
       categories.add(workProjectCategory);
       LogService.debug('✅ DefaultDataService: İş projeleri kategorisi oluşturuldu');
 
-      // Kişisel projeler kategorisi
-      final personalProjectCategory = CategoryModel(
-        id: (categoryIdBase++).toString(),
-        title: 'Personal Projects',
-        colorValue: AppColors.green.value,
-        iconCodePoint: Icons.lightbulb.codePoint,
-        categoryType: CategoryType.project,
-        createdAt: DateTime.now(),
-      );
-      await categoryProvider.addCategory(personalProjectCategory);
-      categories.add(personalProjectCategory);
-      LogService.debug('✅ DefaultDataService: Kişisel projeler kategorisi oluşturuldu');
-
       // Hobi projeleri kategorisi
       final hobbyProjectCategory = CategoryModel(
         id: (categoryIdBase++).toString(),
-        title: 'Hobby Projects',
+        title: 'Hobby',
         colorValue: AppColors.purple.value,
         iconCodePoint: Icons.palette.codePoint,
         categoryType: CategoryType.project,
@@ -179,19 +264,6 @@ class DefaultDataService {
       LogService.debug('✅ DefaultDataService: Hobi projeleri kategorisi oluşturuldu');
 
       // ============= NOTE KATEGORİLERİ =============
-
-      // Genel notlar kategorisi
-      final generalNoteCategory = CategoryModel(
-        id: (categoryIdBase++).toString(),
-        title: 'General Notes',
-        colorValue: AppColors.orange.value,
-        iconCodePoint: Icons.note.codePoint,
-        categoryType: CategoryType.note,
-        createdAt: DateTime.now(),
-      );
-      await categoryProvider.addCategory(generalNoteCategory);
-      categories.add(generalNoteCategory);
-      LogService.debug('✅ DefaultDataService: Genel notlar kategorisi oluşturuldu');
 
       // Fikirler kategorisi
       final ideasNoteCategory = CategoryModel(
@@ -285,7 +357,18 @@ class DefaultDataService {
         final personalCategory = categories[1];
 
         // Kitap okuma
-        final readingTask = TaskModel(id: taskId++, title: 'Read book', type: TaskTypeEnum.TIMER, taskDate: today, isNotificationOn: false, isAlarmOn: false, status: null, priority: 3, categoryId: personalCategory.id, currentCount: 0, remainingDuration: Duration(minutes: 30));
+        final readingTask = TaskModel(
+          id: taskId++,
+          title: 'Read book',
+          type: TaskTypeEnum.TIMER,
+          taskDate: today,
+          isNotificationOn: false,
+          isAlarmOn: false,
+          status: null,
+          priority: 3,
+          currentCount: 0,
+          remainingDuration: Duration(minutes: 30),
+        );
         await ServerManager().addTask(taskModel: readingTask);
         taskProvider.taskList.add(readingTask);
         LogService.debug('✅ DefaultDataService: Kitap okuma görevi oluşturuldu');
@@ -471,10 +554,10 @@ class DefaultDataService {
       final gameHourItem = ItemModel(
         id: DateTime.now().millisecondsSinceEpoch,
         title: 'Gaming',
-        description: 'Reward yourself with gaming time',
+        description: 'Reward yourself with gaming',
         type: TaskTypeEnum.TIMER,
         addDuration: const Duration(hours: 1),
-        currentDuration: Duration.zero,
+        currentDuration: Duration(minutes: 1),
         credit: 6,
       );
       storeProvider.addItem(gameHourItem);
@@ -487,7 +570,7 @@ class DefaultDataService {
         description: 'Enjoy your favorite snack',
         type: TaskTypeEnum.COUNTER,
         addCount: 1,
-        currentCount: 0,
+        currentCount: -1,
         credit: 4,
       );
       storeProvider.addItem(snackItem);
@@ -497,10 +580,10 @@ class DefaultDataService {
       final movieItem = ItemModel(
         id: DateTime.now().millisecondsSinceEpoch + 2,
         title: 'Movie',
-        description: 'Watch a movie or series episode',
         type: TaskTypeEnum.COUNTER,
         addDuration: const Duration(hours: 2),
-        currentDuration: Duration.zero,
+        addCount: 1,
+        currentCount: 2,
         credit: 5,
       );
       storeProvider.addItem(movieItem);
@@ -588,7 +671,6 @@ class DefaultDataService {
           createdAt: now.subtract(const Duration(days: 5)),
           updatedAt: now,
           colorIndex: 1,
-          categoryId: projectCategories[1].id, // Personal Projects kategorisi
           isPinned: true,
         );
         await projectsProvider.addProject(personalProject);
@@ -732,7 +814,6 @@ class DefaultDataService {
         await notesProvider.addNote(
           title: 'Reading List',
           content: 'Books to read this year:\n1. Atomic Habits - James Clear\n2. Deep Work - Cal Newport\n3. The Pragmatic Programmer\n4. Clean Code - Robert Martin',
-          categoryId: noteCategories[0].id, // General Notes kategorisi
           colorIndex: 2,
         );
         LogService.debug('✅ DefaultDataService: Reading List notu oluşturuldu (${noteCategories[0].title})');
@@ -758,7 +839,6 @@ class DefaultDataService {
         await notesProvider.addNote(
           title: 'Important Contacts',
           content: 'Key contacts:\n\nDoctor: Dr. Smith - (555) 123-4567\nPlumber: Joe\'s Plumbing - (555) 234-5678\nElectrician: Bright Electric - (555) 345-6789',
-          categoryId: noteCategories[0].id, // General Notes kategorisi
           colorIndex: 4,
         );
         LogService.debug('✅ DefaultDataService: Important Contacts notu oluşturuldu (${noteCategories[0].title})');
@@ -771,12 +851,83 @@ class DefaultDataService {
     }
   }
 
+  /// Varsayılan rutinleri oluşturur
+  static Future<void> _createDefaultRoutines(List<CategoryModel> categories) async {
+    try {
+      // Task kategorilerini bul
+      final taskCategories = categories.where((cat) => cat.categoryType == CategoryType.task).toList();
+
+      if (taskCategories.isEmpty) {
+        LogService.debug('⚠️ DefaultDataService: Task kategorisi bulunamadı, rutin oluşturma atlandı');
+        return;
+      }
+
+      final now = DateTime.now();
+
+      // Kişisel kategorisi - Read Book Rutini
+      if (taskCategories.length > 1) {
+        final personalCategory = taskCategories[1];
+
+        final readRoutine = RoutineModel(
+          title: 'Read Book',
+          description: 'Daily reading habit - 30 minutes',
+          type: TaskTypeEnum.TIMER,
+          createdDate: now,
+          startDate: now,
+          time: const TimeOfDay(hour: 21, minute: 0), // 9 PM
+          isNotificationOn: true,
+          isAlarmOn: false,
+          remainingDuration: const Duration(minutes: 30),
+          repeatDays: [1, 2, 3, 4, 5, 6, 7], // Her gün
+          isArchived: false,
+          priority: 2,
+          categoryId: personalCategory.id,
+          earlyReminderMinutes: 10,
+        );
+
+        await ServerManager().addRoutine(routineModel: readRoutine);
+        LogService.debug('✅ DefaultDataService: Read Book rutini oluşturuldu (${personalCategory.title})');
+      }
+
+      // Sağlık kategorisi - Meditation Rutini
+      if (taskCategories.length > 2) {
+        final healthCategory = taskCategories[2];
+
+        final meditationRoutine = RoutineModel(
+          title: 'Meditation',
+          description: 'Morning meditation practice',
+          type: TaskTypeEnum.TIMER,
+          createdDate: now,
+          startDate: now,
+          time: const TimeOfDay(hour: 7, minute: 30), // 7:30 AM
+          isNotificationOn: true,
+          isAlarmOn: false,
+          remainingDuration: const Duration(minutes: 15),
+          repeatDays: [1, 2, 3, 4, 5, 6, 7], // Her gün
+          isArchived: false,
+          priority: 1,
+          categoryId: healthCategory.id,
+          earlyReminderMinutes: 5,
+        );
+
+        await ServerManager().addRoutine(routineModel: meditationRoutine);
+        LogService.debug('✅ DefaultDataService: Meditation rutini oluşturuldu (${healthCategory.title})');
+      }
+
+      LogService.debug('✅ DefaultDataService: Toplam 2 rutin oluşturuldu');
+    } catch (e) {
+      LogService.error('❌ DefaultDataService: Rutin oluşturma hatası: $e');
+      rethrow;
+    }
+  }
+
   /// Varsayılan verileri sıfırlamak için (test amaçlı)
   static Future<void> resetFirstLaunchFlag() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_firstLaunchKey, true);
-      LogService.debug('🔄 DefaultDataService: İlk yükleme bayrağı sıfırlandı');
+      await prefs.setBool(_defaultDataLoadedKey, false);
+      LogService.debug('🔄 DefaultDataService: İlk yükleme bayrakları sıfırlandı');
     } catch (e) {
       LogService.error('❌ DefaultDataService: Bayrak sıfırlama hatası: $e');
     }

@@ -71,7 +71,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         });
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Material(
@@ -116,38 +116,54 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
                   ],
                 ),
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    // Header with icon and credit
-                    Row(
+                    // Icon on the left
+                    _buildTypeIcon(),
+                    const SizedBox(width: 16),
+
+                    // Title and Description in the middle
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.storeItemModel.title,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (widget.storeItemModel.description != null && widget.storeItemModel.description!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.storeItemModel.description!,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.grey,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Remaining amount and button on the right
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        _buildTypeIcon(),
-                        const Spacer(),
-                        _buildCreditAmount(),
+                        _buildRemainingAmount(),
+                        const SizedBox(height: 8),
+                        _buildBuyButton(),
                       ],
                     ),
-                    const SizedBox(height: 12),
-
-                    // Title
-                    Text(
-                      widget.storeItemModel.title,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.text,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Progress
-                    _buildProgressIndicator(),
-                    const SizedBox(height: 12),
-
-                    // Buy button
-                    _buildBuyButton(),
                   ],
                 ),
               ),
@@ -201,77 +217,49 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildProgressIndicator() {
+  Widget _buildRemainingAmount() {
     if (widget.storeItemModel.type == TaskTypeEnum.CHECKBOX) {
-      return const SizedBox(height: 0);
+      return const SizedBox();
     }
 
     String valueText;
     Color textColor;
+    IconData iconData;
 
     if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
       valueText = "${widget.storeItemModel.currentCount}";
       textColor = AppColors.text;
+      iconData = Icons.numbers;
     } else {
       // TIMER
       valueText = widget.storeItemModel.currentDuration!.textShortDynamic();
       textColor = (widget.storeItemModel.isTimerActive ?? false) ? AppColors.main : AppColors.text;
+      iconData = Icons.timer;
     }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          widget.storeItemModel.type == TaskTypeEnum.COUNTER ? Icons.numbers : Icons.timer,
-          size: 14,
-          color: AppColors.grey,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          valueText,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: textColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCreditAmount() {
-    if (widget.storeItemModel.credit == 0) return const SizedBox();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.2),
+        color: AppColors.panelBackground2.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.amber.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
+        border: Border.all(color: AppColors.main.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "${widget.storeItemModel.credit}",
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.amber,
-            ),
+          Icon(
+            iconData,
+            size: 14,
+            color: textColor,
           ),
           const SizedBox(width: 4),
-          const Icon(
-            Icons.monetization_on,
-            size: 14,
-            color: Colors.amber,
+          Text(
+            valueText,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
           ),
         ],
       ),
@@ -279,21 +267,21 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
   }
 
   Widget _buildBuyButton() {
-    String buttonText;
+    String actionText;
+    String amountText;
+
+    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
+      amountText = "${widget.storeItemModel.addCount}";
+    } else {
+      amountText = widget.storeItemModel.addDuration?.textLongDynamicWithoutZero() ?? "";
+    }
 
     if (widget.storeItemModel.credit == 0) {
-      if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
-        buttonText = "${LocaleKeys.Add.tr()} ${widget.storeItemModel.addCount}";
-      } else {
-        buttonText = "${LocaleKeys.Add.tr()} ${widget.storeItemModel.addDuration?.textLongDynamicWithoutZero()}";
-      }
+      actionText = LocaleKeys.Add.tr();
     } else {
-      if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
-        buttonText = "${LocaleKeys.Buy.tr()} ${widget.storeItemModel.addCount}";
-      } else {
-        buttonText = "${LocaleKeys.Buy.tr()} ${widget.storeItemModel.addDuration?.textLongDynamicWithoutZero()}";
-      }
+      actionText = LocaleKeys.Buy.tr();
     }
+
     return InkWell(
       borderRadius: AppColors.borderRadiusAll,
       onTap: () async {
@@ -333,8 +321,8 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         StoreProvider().setStateItems();
       },
       child: Container(
-        height: 36,
-        constraints: const BoxConstraints(minWidth: 80),
+        height: 32,
+        constraints: const BoxConstraints(minWidth: 100),
         decoration: BoxDecoration(
           borderRadius: AppColors.borderRadiusAll,
           gradient: LinearGradient(
@@ -350,18 +338,53 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Center(
-          child: Text(
-            buttonText,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Action + Amount
+            Text(
+              "$actionText $amountText",
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+            // Credit amount (if not zero)
+            if (widget.storeItemModel.credit != 0) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "${widget.storeItemModel.credit}",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(
+                      Icons.monetization_on,
+                      size: 12,
+                      color: Color.fromARGB(255, 226, 230, 0),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

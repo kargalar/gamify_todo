@@ -58,4 +58,5 @@ proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha
 
 restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 
-default skills lere read ve meditation ekle.diğerlerini kaldır. creativity attibuteyi kaldır.
+
+projeler ve notlar sekmeleri varsayıaln olarak kapalı olsun

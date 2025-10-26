@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 
 /// Wrapper for the task/store description editor
-/// Uses the shared DescriptionEditor component with timer support
+/// Uses the shared DescriptionEditor component
 class DescriptionEditor extends StatefulWidget {
   const DescriptionEditor({
     super.key,
@@ -32,36 +32,6 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
       _provider = context.read<AddStoreItemProvider>();
     } else {
       _provider = context.read<AddTaskProvider>();
-    }
-
-    // Focus değişikliklerini dinle
-    _provider.descriptionFocus.addListener(_onFocusChanged);
-
-    // Start the timer when the page opens
-    _provider.startDescriptionTimer();
-  }
-
-  @override
-  void dispose() {
-    // Focus listener'ı kaldır
-    _provider.descriptionFocus.removeListener(_onFocusChanged);
-
-    // Pause the timer when leaving the page (time is already being saved every second)
-    _provider.pauseDescriptionTimer();
-    super.dispose();
-  }
-
-  void _onFocusChanged() {
-    if (_provider.descriptionFocus.hasFocus) {
-      // Description alanına focus geldiğinde timer'ı başlat
-      if (!_provider.isDescriptionTimerActive) {
-        _provider.startDescriptionTimer();
-      }
-    } else {
-      // Description alanından focus çıkınca timer'ı durdur
-      if (_provider.isDescriptionTimerActive) {
-        _provider.pauseDescriptionTimer();
-      }
     }
   }
 
@@ -115,12 +85,6 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                 controller: provider.descriptionController,
                 focusNode: provider.descriptionFocus,
                 onChanged: _autoSave,
-                showTimer: true,
-                timerDuration: provider.descriptionTimeSpent,
-                onTimerReset: () {
-                  provider.resetDescriptionTimer();
-                  LogService.debug('✅ Description timer reset for store item');
-                },
               );
             },
           )
@@ -130,8 +94,6 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                 controller: provider.descriptionController,
                 focusNode: provider.descriptionFocus,
                 onChanged: _autoSave,
-                showTimer: true,
-                timerDuration: provider.descriptionTimeSpent,
               );
             },
           );
