@@ -143,6 +143,9 @@ abstract class LocaleKeys {
   static const backup_restored_successfully = 'backup_restored_successfully';
   static const backup_restore_cancelled = 'backup_restore_cancelled';
   static const backup_restore_error = 'backup_restore_error';
+  static const deleting_all_data = 'deleting_all_data';
+  static const restoring_backup = 'restoring_backup';
+  static const please_wait_restarting = 'please_wait_restarting';
   static const task_completed_title = 'task_completed_title';
   static const task_completed_desc = 'task_completed_desc';
   static const item_expired_title = 'item_expired_title';

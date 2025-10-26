@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Model/category_model.dart';
@@ -21,6 +23,7 @@ import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Service/projects_service.dart';
 import 'package:next_level/Service/notes_service.dart';
 import 'package:next_level/Provider/user_provider.dart';
+import 'package:next_level/Widgets/Common/loading_dialog.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:next_level/Model/user_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
@@ -34,7 +37,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/logging_service.dart';
 
 class HiveService {
@@ -400,80 +402,106 @@ class HiveService {
   }
 
   // delete all data
-  Future<void> deleteAllData({bool isLogout = false}) async {
-    // Cancel all notifications first
+  Future<void> deleteAllData({bool isLogout = false, bool isImport = false}) async {
+    // Show loading dialog
+    Get.dialog(
+      LoadingDialog(
+        message: LocaleKeys.deleting_all_data.tr(),
+        subtitle: LocaleKeys.please_wait_restarting.tr(),
+      ),
+      barrierDismissible: false,
+    );
+
     try {
-      await NotificationService().cancelAllNotifications();
+      // Cancel all notifications first
+      try {
+        await NotificationService().cancelAllNotifications();
+      } catch (e) {
+        LogService.error('Error canceling notifications during data deletion: $e');
+        // Devam et, bildirimler iptal edilemese bile veri silinebilir
+      }
+
+      // Clear all attachment files
+      try {
+        await FileStorageService.instance.clearAllAttachments();
+      } catch (e) {
+        LogService.error('Error clearing attachment files: $e');
+      }
+
+      // Clear Hive boxes
+      // final box = await _userBox; // Don't clear user box, just reset credits
+      // await box.clear();
+
+      final box2 = await _itemBox;
+      await box2.clear();
+
+      final box3 = await _traitBox;
+      await box3.clear();
+
+      final box4 = await _routineBox;
+      await box4.clear();
+
+      final box5 = await _taskBox;
+      await box5.clear();
+
+      final box6 = await _taskLogBox;
+      await box6.clear();
+
+      final box7 = await _categoryBox;
+      await box7.clear();
+
+      // Clear SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      // Refresh providers
+      TaskProvider().taskList.clear();
+      TaskProvider().routineList.clear();
+      TaskProvider().updateItems();
+
+      TraitProvider().traitList.clear();
+
+      StoreProvider().storeItemList.clear();
+      // Clear task logs in the provider
+      await TaskLogProvider().clearAllLogs();
+
+      // Clear projects and notes boxes
+      await ProjectsService().clearAllProjects();
+      await NotesService().clearAllNotes();
+
+      // Clear category, notes, projects providers
+      CategoryProvider().clearAllCategories();
+      NotesProvider().clearAllNotes();
+      ProjectsProvider().clearAllProjects();
+
+      // Reset user credits instead of deleting user
+      await UserProvider().resetCredit();
+
+      Helper().getMessage(message: LocaleKeys.DeleteAllDataSuccess.tr());
+      LogService.debug('✅ All data deleted successfully, user credits reset');
+
+      // If this is a logout operation, don't exit the app
+      if (isLogout) {
+        // Close loading dialog
+        Get.back();
+        LogService.debug('📋 Data cleared for logout, app will continue running');
+        return;
+      }
+
+      // For full data reset, restart the app after a delay
+      LogService.debug('🔄 Restarting app after data deletion...');
+      await Future.delayed(const Duration(seconds: 2));
+
+      if (!isImport) {
+        exit(0);
+      }
     } catch (e) {
-      LogService.error('Error canceling notifications during data deletion: $e');
-      // Devam et, bildirimler iptal edilemese bile veri silinebilir
+      // Close loading dialog on error
+      Get.back();
+      LogService.error('❌ Error during data deletion: $e');
+      Helper().getMessage(message: 'Error deleting data: $e');
+      rethrow;
     }
-
-    // Clear all attachment files
-    try {
-      await FileStorageService.instance.clearAllAttachments();
-    } catch (e) {
-      LogService.error('Error clearing attachment files: $e');
-    }
-
-    // Clear Hive boxes
-    // final box = await _userBox; // Don't clear user box, just reset credits
-    // await box.clear();
-
-    final box2 = await _itemBox;
-    await box2.clear();
-
-    final box3 = await _traitBox;
-    await box3.clear();
-
-    final box4 = await _routineBox;
-    await box4.clear();
-
-    final box5 = await _taskBox;
-    await box5.clear();
-
-    final box6 = await _taskLogBox;
-    await box6.clear();
-
-    final box7 = await _categoryBox;
-    await box7.clear();
-
-    // Clear SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
-    // Refresh providers
-    TaskProvider().taskList.clear();
-    TaskProvider().routineList.clear();
-    TaskProvider().updateItems();
-
-    TraitProvider().traitList.clear();
-
-    StoreProvider().storeItemList.clear();
-    // Clear task logs in the provider
-    await TaskLogProvider().clearAllLogs();
-
-    // Clear projects and notes boxes
-    await ProjectsService().clearAllProjects();
-    await NotesService().clearAllNotes();
-
-    // Clear category, notes, projects providers
-    CategoryProvider().clearAllCategories();
-    NotesProvider().clearAllNotes();
-    ProjectsProvider().clearAllProjects();
-
-    // Reset user credits instead of deleting user
-    await UserProvider().resetCredit();
-
-    Helper().getMessage(message: LocaleKeys.DeleteAllDataSuccess.tr());
-    LogService.debug('All data deleted successfully, user credits reset');
-
-    // Restart the app after a short delay to ensure all data is deleted
-    LogService.debug('🔄 Restarting app after data deletion...');
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Exit the app - it will be restarted by the system
-    exit(0);
   }
 
   Future<String?> exportData() async {
@@ -648,11 +676,20 @@ class HiveService {
         final file = File(result.files.single.path!);
 
         if (await file.exists()) {
+          // Show loading dialog
+          Get.dialog(
+            LoadingDialog(
+              message: LocaleKeys.restoring_backup.tr(),
+              subtitle: LocaleKeys.please_wait_restarting.tr(),
+            ),
+            barrierDismissible: false,
+          );
+
           final content = await file.readAsString();
           final Map<String, dynamic> allData = jsonDecode(content);
 
           // Clear existing data first (this will also clear SharedPreferences)
-          await deleteAllData();
+          await deleteAllData(isImport: true);
 
           // Import users
           final userBox = await _userBox;
@@ -701,8 +738,8 @@ class HiveService {
           }
 
           // Import categories if they exist
+          final categoryBox = await _categoryBox;
           if (allData.containsKey(_categoryBoxName)) {
-            final categoryBox = await _categoryBox;
             final categoryData = allData[_categoryBoxName] as Map<String, dynamic>;
             CategoryProvider().categoryList.clear();
             for (var entry in categoryData.entries) {
@@ -715,8 +752,8 @@ class HiveService {
           }
 
           // Import task logs if they exist
+          final taskLogBox = await _taskLogBox;
           if (allData.containsKey(_taskLogBoxName)) {
-            final taskLogBox = await _taskLogBox;
             final taskLogData = allData[_taskLogBoxName] as Map<String, dynamic>;
             for (var entry in taskLogData.entries) {
               final taskLog = TaskLogModel.fromJson(entry.value);
@@ -807,21 +844,45 @@ class HiveService {
           );
 
           Helper().getMessage(message: LocaleKeys.backup_restored_successfully.tr());
-          LogService.debug('Backup restored successfully');
+          LogService.debug('✅ Backup restored successfully');
 
-          // Restart the app after a short delay to ensure all data is restored
+          // Ensure all async operations are completed before restarting
+          LogService.debug('💾 Flushing Hive boxes to ensure data persistence...');
+          await Future.wait([
+            userBox.flush(),
+            itemBox.flush(),
+            traitBox.flush(),
+            routineBox.flush(),
+            taskBox.flush(),
+            taskLogBox.flush(),
+            categoryBox.flush(),
+          ]);
+
+          LogService.debug('✅ All data flushed to disk');
           LogService.debug('🔄 Restarting app after data restore...');
-          await Future.delayed(const Duration(seconds: 1));
+
+          // Give more time for all operations to complete
+          await Future.delayed(const Duration(seconds: 2));
 
           // Exit the app - it will be restarted by the system
+          // Loading dialog will remain visible until exit
+          LogService.debug('👋 Exiting app now...');
           exit(0);
         }
+      }
+      // Close loading dialog if user cancels
+      if (Get.isDialogOpen == true) {
+        Get.back();
       }
       Helper().getMessage(
         message: LocaleKeys.backup_restore_cancelled.tr(),
       );
       return false;
     } catch (e) {
+      // Close loading dialog on error
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
       Helper().getMessage(
         message: LocaleKeys.backup_restore_error.tr(args: [e.toString()]),
       );
