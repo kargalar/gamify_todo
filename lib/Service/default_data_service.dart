@@ -4,6 +4,8 @@ import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/project_model.dart';
+import 'package:next_level/Model/project_note_model.dart';
+import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -465,6 +467,45 @@ class DefaultDataService {
         );
         await projectsProvider.addProject(workProject);
         LogService.debug('✅ DefaultDataService: Q4 Planning projesi oluşturuldu');
+
+        // Q4 Planning projesi için subtask'lar
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${workProject.id}_task_1',
+          projectId: workProject.id,
+          title: 'Review last quarter results',
+          isCompleted: true,
+          createdAt: now.subtract(const Duration(days: 2)),
+          orderIndex: 0,
+        ));
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${workProject.id}_task_2',
+          projectId: workProject.id,
+          title: 'Set Q4 goals',
+          isCompleted: false,
+          createdAt: now.subtract(const Duration(days: 1)),
+          orderIndex: 1,
+        ));
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${workProject.id}_task_3',
+          projectId: workProject.id,
+          title: 'Prepare presentation',
+          isCompleted: false,
+          createdAt: now,
+          orderIndex: 2,
+        ));
+        LogService.debug('✅ DefaultDataService: Q4 Planning projesine 3 subtask eklendi');
+
+        // Q4 Planning projesi için not
+        await projectsProvider.addProjectNote(ProjectNoteModel(
+          id: '${workProject.id}_note_1',
+          projectId: workProject.id,
+          title: 'Key Objectives',
+          content: '- Increase team productivity by 20%\n- Launch new product line\n- Improve customer satisfaction',
+          createdAt: now.subtract(const Duration(hours: 3)),
+          updatedAt: now.subtract(const Duration(hours: 3)),
+          orderIndex: 0,
+        ));
+        LogService.debug('✅ DefaultDataService: Q4 Planning projesine not eklendi');
       }
 
       // Kişisel kategorisinden proje
@@ -473,7 +514,7 @@ class DefaultDataService {
           id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
           title: 'Learning Goals',
           description: 'Personal development and learning objectives',
-          createdAt: now,
+          createdAt: now.subtract(const Duration(days: 5)),
           updatedAt: now,
           colorIndex: 1,
           categoryId: categories[1].id,
@@ -481,6 +522,37 @@ class DefaultDataService {
         );
         await projectsProvider.addProject(personalProject);
         LogService.debug('✅ DefaultDataService: Learning Goals projesi oluşturuldu');
+
+        // Learning Goals projesi için subtask'lar
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${personalProject.id}_task_1',
+          projectId: personalProject.id,
+          title: 'Complete Flutter course',
+          isCompleted: false,
+          createdAt: now.subtract(const Duration(days: 5)),
+          orderIndex: 0,
+        ));
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${personalProject.id}_task_2',
+          projectId: personalProject.id,
+          title: 'Read 2 books per month',
+          isCompleted: false,
+          createdAt: now.subtract(const Duration(days: 4)),
+          orderIndex: 1,
+        ));
+        LogService.debug('✅ DefaultDataService: Learning Goals projesine 2 subtask eklendi');
+
+        // Learning Goals projesi için not
+        await projectsProvider.addProjectNote(ProjectNoteModel(
+          id: '${personalProject.id}_note_1',
+          projectId: personalProject.id,
+          title: 'Resources',
+          content: 'Online Courses:\n- Udemy Flutter Bootcamp\n- Coursera Machine Learning\n\nBooks:\n- Clean Code\n- Design Patterns',
+          createdAt: now.subtract(const Duration(days: 4)),
+          updatedAt: now.subtract(const Duration(days: 2)),
+          orderIndex: 0,
+        ));
+        LogService.debug('✅ DefaultDataService: Learning Goals projesine not eklendi');
       }
 
       // Sağlık kategorisinden proje
@@ -489,13 +561,61 @@ class DefaultDataService {
           id: (DateTime.now().millisecondsSinceEpoch + 2).toString(),
           title: 'Fitness Journey',
           description: 'Track fitness progress and health improvements',
-          createdAt: now,
-          updatedAt: now,
+          createdAt: now.subtract(const Duration(days: 7)),
+          updatedAt: now.subtract(const Duration(hours: 12)),
           colorIndex: 2,
           categoryId: categories[2].id,
         );
         await projectsProvider.addProject(healthProject);
         LogService.debug('✅ DefaultDataService: Fitness Journey projesi oluşturuldu');
+
+        // Fitness Journey projesi için subtask'lar
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${healthProject.id}_task_1',
+          projectId: healthProject.id,
+          title: 'Exercise 3 times per week',
+          isCompleted: true,
+          createdAt: now.subtract(const Duration(days: 7)),
+          orderIndex: 0,
+        ));
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${healthProject.id}_task_2',
+          projectId: healthProject.id,
+          title: 'Track daily water intake',
+          isCompleted: false,
+          createdAt: now.subtract(const Duration(days: 6)),
+          orderIndex: 1,
+        ));
+        await projectsProvider.addSubtask(ProjectSubtaskModel(
+          id: '${healthProject.id}_task_3',
+          projectId: healthProject.id,
+          title: 'Meal prep on Sundays',
+          isCompleted: false,
+          createdAt: now.subtract(const Duration(days: 5)),
+          orderIndex: 2,
+        ));
+        LogService.debug('✅ DefaultDataService: Fitness Journey projesine 3 subtask eklendi');
+
+        // Fitness Journey projesi için notlar
+        await projectsProvider.addProjectNote(ProjectNoteModel(
+          id: '${healthProject.id}_note_1',
+          projectId: healthProject.id,
+          title: 'Progress Tracking',
+          content: 'Week 1: Lost 1kg\nWeek 2: Feeling more energetic\nWeek 3: Can run 5km without stopping!',
+          createdAt: now.subtract(const Duration(days: 6)),
+          updatedAt: now.subtract(const Duration(days: 1)),
+          orderIndex: 0,
+        ));
+        await projectsProvider.addProjectNote(ProjectNoteModel(
+          id: '${healthProject.id}_note_2',
+          projectId: healthProject.id,
+          title: 'Meal Ideas',
+          content: 'Breakfast: Oatmeal with fruits\nLunch: Grilled chicken salad\nDinner: Fish with vegetables\nSnacks: Nuts, Greek yogurt',
+          createdAt: now.subtract(const Duration(days: 3)),
+          updatedAt: now.subtract(const Duration(days: 3)),
+          orderIndex: 1,
+        ));
+        LogService.debug('✅ DefaultDataService: Fitness Journey projesine 2 not eklendi');
       }
     } catch (e) {
       LogService.error('❌ DefaultDataService: Proje oluşturma hatası: $e');
@@ -508,7 +628,7 @@ class DefaultDataService {
     final notesProvider = NotesProvider();
 
     try {
-      // İş kategorisinden not
+      // İş kategorisinden not (geçmişte oluşturulmuş)
       if (categories.isNotEmpty) {
         await notesProvider.addNote(
           title: 'Meeting Notes',
@@ -519,7 +639,10 @@ class DefaultDataService {
         LogService.debug('✅ DefaultDataService: Meeting Notes notu oluşturuldu');
       }
 
-      // Kişisel kategorisinden not
+      // Delay ekleyerek notların farklı zamanlarda oluşturulmuş gibi görünmesini sağla
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Kişisel kategorisinden not (3 gün önce oluşturulmuş)
       if (categories.length > 1) {
         await notesProvider.addNote(
           title: 'Reading List',
@@ -530,7 +653,9 @@ class DefaultDataService {
         LogService.debug('✅ DefaultDataService: Reading List notu oluşturuldu');
       }
 
-      // Genel not (kategori yok)
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Genel not (1 hafta önce oluşturulmuş)
       await notesProvider.addNote(
         title: 'Ideas',
         content: 'Random thoughts and ideas:\n- App feature improvements\n- Weekend plans\n- Gift ideas',
@@ -538,7 +663,9 @@ class DefaultDataService {
       );
       LogService.debug('✅ DefaultDataService: Ideas notu oluşturuldu');
 
-      // Sağlık kategorisinden not
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // Sağlık kategorisinden not (2 gün önce oluşturulmuş)
       if (categories.length > 2) {
         await notesProvider.addNote(
           title: 'Workout Plan',

@@ -61,20 +61,35 @@ Varsayılan verileri yükleyen ana servis dosyası.
 ### 📋 Projeler (3 adet)
 1. **Q4 Planning** - Work kategorisi
    - Quarterly planlama ve hedef belirleme
+   - **3 Subtask:** Review results (✓), Set goals, Prepare presentation
+   - **1 Not:** Key Objectives
+   
 2. **Learning Goals** - Personal kategorisi (sabitlenmiş)
    - Kişisel gelişim ve öğrenme hedefleri
+   - **2 Subtask:** Complete Flutter course, Read 2 books per month
+   - **1 Not:** Resources
+   
 3. **Fitness Journey** - Health kategorisi
    - Fitness gelişimini ve sağlık iyileştirmelerini takip et
+   - **3 Subtask:** Exercise 3x/week (✓), Track water intake, Meal prep
+   - **2 Not:** Progress Tracking, Meal Ideas
 
 ### 📝 Notlar (4 adet)
 1. **Meeting Notes** - Work kategorisi
    - Toplantı notları ve önemli noktalar
+   - *Bugün oluşturuldu*
+   
 2. **Reading List** - Personal kategorisi
    - Okunacak kitaplar listesi
+   - *Farklı zamanda oluşturuldu*
+   
 3. **Ideas** - Kategorisiz
    - Rastgele fikirler ve düşünceler
+   - *Farklı zamanda oluşturuldu*
+   
 4. **Workout Plan** - Health kategorisi
    - Haftalık antrenman programı
+   - *Farklı zamanda oluşturuldu*
 
 ## Nasıl Çalışır?
 
