@@ -467,6 +467,13 @@ class HiveService {
 
     Helper().getMessage(message: LocaleKeys.DeleteAllDataSuccess.tr());
     LogService.debug('All data deleted successfully, user credits reset');
+
+    // Restart the app after a short delay to ensure all data is deleted
+    LogService.debug('🔄 Restarting app after data deletion...');
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Exit the app - it will be restarted by the system
+    exit(0);
   }
 
   Future<String?> exportData() async {
@@ -802,7 +809,12 @@ class HiveService {
           Helper().getMessage(message: LocaleKeys.backup_restored_successfully.tr());
           LogService.debug('Backup restored successfully');
 
-          return true;
+          // Restart the app after a short delay to ensure all data is restored
+          LogService.debug('🔄 Restarting app after data restore...');
+          await Future.delayed(const Duration(seconds: 1));
+
+          // Exit the app - it will be restarted by the system
+          exit(0);
         }
       }
       Helper().getMessage(
