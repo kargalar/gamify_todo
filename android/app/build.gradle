@@ -40,6 +40,18 @@ android {
         multiDexEnabled true
     }
 
+    productFlavors {
+        debug {
+            applicationId "app.nextlevel.debug"
+        }
+        release {
+            applicationId "app.nextlevel.release"
+        }
+        googleplay {
+            applicationId "app.nextlevel"
+        }
+    }
+
     signingConfigs {
         release {
         keyAlias keystoreProperties['keyAlias']
