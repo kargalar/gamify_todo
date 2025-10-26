@@ -283,33 +283,19 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       ),
     );
 
-    // Timer aktifken shimmer efekti sadece arka plana ekle
+    // Timer aktifken shimmer efekti ekle
     if (isTimerActive) {
       debugPrint('🌟 [SHIMMER] Stil: ${styleProvider.currentStyle.toString()} - Parlama döngüsü: 2500ms');
-      return _buildShimmerBackground(styleProvider, container);
+      return Shimmer.fromColors(
+        baseColor: _getBaseColorForStyle(styleProvider.currentStyle),
+        highlightColor: _getHighlightColorForStyle(styleProvider.currentStyle),
+        period: const Duration(milliseconds: 2500),
+        child: container,
+      );
     }
 
     debugPrint('⏹️ [SHIMMER] Timer durdu - Animasyon sona erdi: "${widget.taskModel.title}"');
     return container;
-  }
-
-  Widget _buildShimmerBackground(TaskStyleProvider styleProvider, Widget child) {
-    return Stack(
-      children: [
-        // Arka plana shimmer uygula
-        Shimmer.fromColors(
-          baseColor: _getBaseColorForStyle(styleProvider.currentStyle),
-          highlightColor: _getHighlightColorForStyle(styleProvider.currentStyle),
-          period: const Duration(milliseconds: 2500),
-          child: Container(
-            margin: _getMarginForStyle(styleProvider.currentStyle),
-            decoration: _getDecorationForStyle(styleProvider.currentStyle, null),
-          ),
-        ),
-        // İçerik shimmer'ın üzerine (etkilenmez)
-        child,
-      ],
-    );
   }
 
   Future<void> taskLongPressAction() async {
