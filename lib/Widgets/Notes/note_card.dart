@@ -27,9 +27,9 @@ class NoteCard extends BaseCard {
   }) : super(itemId: note.id.toString());
 
   @override
-  List<SlidableAction> buildActions(BuildContext context) {
+  List<SlidableAction>? buildStartActions(BuildContext context) {
     return [
-      // Edit action
+      // Edit action on the left side (slide right to reveal)
       if (onEdit != null)
         SlidableAction(
           padding: const EdgeInsets.all(0),
@@ -42,6 +42,12 @@ class NoteCard extends BaseCard {
           icon: Icons.edit,
           label: 'Edit'.tr(),
         ),
+    ];
+  }
+
+  @override
+  List<SlidableAction> buildActions(BuildContext context) {
+    return [
       // Pin action
       SlidableAction(
         padding: const EdgeInsets.all(0),

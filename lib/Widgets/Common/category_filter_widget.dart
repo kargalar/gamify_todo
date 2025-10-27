@@ -204,7 +204,7 @@ class CategoryFilterWidget extends StatelessWidget {
               child: Text(
                 '$count',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: isSelected ? Colors.white : categoryColor,
                 ),

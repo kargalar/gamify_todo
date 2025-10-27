@@ -9,9 +9,11 @@ import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/General/date_formatter.dart';
+import 'package:next_level/General/category_icons.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
 import 'package:next_level/Widgets/Common/add_item_dialog.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -448,6 +450,11 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   Widget _buildProjectInfoCard() {
     LogService.debug('🎴 ProjectDetailPage: Building project info card for: ${_currentProject.title}');
 
+    // Get category info
+    final categoryProvider = context.read<CategoryProvider>();
+    final category = categoryProvider.getCategoryById(_currentProject.categoryId);
+    final categoryColor = category?.color ?? AppColors.main;
+
     return InkWell(
       onTap: () {
         // Proje adı ve bilgilerini düzenle
@@ -462,18 +469,18 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.main.withValues(alpha: 0.1),
-              AppColors.main.withValues(alpha: 0.05),
+              categoryColor.withValues(alpha: 0.15),
+              categoryColor.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppColors.main.withValues(alpha: 0.2),
+            color: categoryColor.withValues(alpha: 0.3),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.main.withValues(alpha: 0.1),
+              color: categoryColor.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -482,6 +489,42 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Category info (if exists)
+            if (category != null) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: categoryColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: categoryColor.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (category.iconCodePoint != null)
+                      Icon(
+                        CategoryIcons.getIconByCodePoint(category.iconCodePoint) ?? Icons.category,
+                        size: 16,
+                        color: categoryColor,
+                      ),
+                    const SizedBox(width: 6),
+                    Text(
+                      category.title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: categoryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
             // Açıklama (eğer varsa)
             if (_currentProject.description.isNotEmpty) ...[
               GestureDetector(
@@ -512,7 +555,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                         Icon(
                           Icons.edit,
                           size: 16,
-                          color: AppColors.main,
+                          color: categoryColor,
                         ),
                       ],
                     ),
@@ -537,10 +580,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.main.withValues(alpha: 0.05),
+                    color: categoryColor.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppColors.main.withValues(alpha: 0.1),
+                      color: categoryColor.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Row(
@@ -548,14 +591,14 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       Icon(
                         Icons.add,
                         size: 16,
-                        color: AppColors.main.withValues(alpha: 0.7),
+                        color: categoryColor.withValues(alpha: 0.8),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         LocaleKeys.AddDescription.tr(),
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.main.withValues(alpha: 0.7),
+                          color: categoryColor.withValues(alpha: 0.8),
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -566,7 +609,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             ],
 
             // Oluşturulma tarihi
-            Divider(color: AppColors.main.withValues(alpha: 0.2), height: 24),
+            Divider(color: categoryColor.withValues(alpha: 0.2), height: 24),
             GestureDetector(
               onTap: _selectCreationDate,
               child: Row(
@@ -597,7 +640,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   Icon(
                     Icons.edit,
                     size: 16,
-                    color: AppColors.main,
+                    color: categoryColor,
                   ),
                 ],
               ),

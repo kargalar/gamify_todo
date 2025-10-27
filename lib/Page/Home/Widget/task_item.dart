@@ -253,13 +253,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   }
 
   Widget taskActionIcon() {
-    final priorityColor = (widget.taskModel.priority == 1
-            ? AppColors.red
-            : widget.taskModel.priority == 2
-                ? AppColors.orange2
-                : AppColors.text)
-        .withValues(alpha: 0.9);
-
     return widget.taskModel.type == TaskTypeEnum.COUNTER
         ? GestureDetector(
             onTap: () => taskAction(),
@@ -295,7 +288,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                 child: Icon(
                   Icons.add,
                   size: 27,
-                  color: priorityColor,
+                  color: AppColors.text,
                 ),
               ),
             ),
@@ -320,7 +313,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                           ? Icons.pause
                           : Icons.play_arrow,
                   size: 27,
-                  color: priorityColor,
+                  color: AppColors.text,
                 ),
               ),
             ),

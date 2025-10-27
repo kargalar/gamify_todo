@@ -46,9 +46,6 @@ profildeki çalışma grafiğinde barlara basınca o barın detaylarına gidilir
 
 slitch tasarım geliştirmeleri
 
-tatil olan günler işaretleniyor mu. streak takviminde nasıl hesaplıyor.
-    tatil olan günler streak takviminde işaretleniyor. Eğer bir gün tatilse, o gün için yapılan görevler streak hesaplamasına dahil edilmiyor.
-
 proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha kompakt yap. gerekirse stack ile yap.
 
 restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
@@ -63,12 +60,9 @@ weekly ve yearly streaklar için 5 durum mu olsun.
     5. vacation day
 
 
-streaki doğru hesaplıyorm u bak. vacation güne dikkat et.
-
 vacation mode aktifken otomatik sonraki güne geçince o günü de tatil olarak işaretliyor mu
 
 Weeklydeki ilerlemnin oralara alev eklenmesi güzel olur
-
 
 sıralama modu ile görevleri kaydır
 
@@ -78,12 +72,7 @@ kategroilerin renkelrnii düzenle.
 
 reorder için basılı tutuarak edit modu
 
-
 inbox da kendi tarihleri arasında home page de ise kendi listeleri arasında sıralnabileceklerbelki daha sonra sürükelyerek tarih değiştirme veya liste değiştirme de olabilir.
-
-
-
-pririty ler daha a belirgin olsun.
 
 ganini sorunu çöz. 
 
@@ -92,7 +81,6 @@ alarm düzelt. her yerde. task tamamlayınca falan.
 dünkü rutin tamamalnmaın rağmen başarısız işaretlenimş. yani timer dün başlamış bugün bitmiş!!!!
 
 notlardaki slidable editi sola ekle
-
 
 ayrıca nota veya projeye basılı tutunca task itemlarda olduğu gibi bir efect başlamsını istiyorum
 
@@ -106,3 +94,8 @@ alarm çalınca ekran açılsın vebildirim panelinde görünsün kapanana kadar
 tamamalnınca aniden yok olması kötü
 gün geçişler iappardaki kötü
 
+
+
+descriptiondaki linkler vurgulansın ve tıklanabilsin.
+
+kategori itemlerin yarı transparan tasrımını beğenmedim. yazıları okuymaıyorum gibi oluyor başka daha sade bir tasrım dene.

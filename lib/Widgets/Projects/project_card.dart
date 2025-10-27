@@ -39,6 +39,90 @@ class ProjectCard extends BaseCard {
     this.onDelete,
   });
 
+  void _showEditDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddItemDialog(
+        title: 'edit_project'.tr(),
+        icon: Icons.edit,
+        titleLabel: 'project_title'.tr(),
+        titleHint: 'enter_project_title'.tr(),
+        titleRequired: true,
+        initialTitle: project.title,
+        descriptionLabel: 'description'.tr(),
+        descriptionHint: 'enter_project_description'.tr(),
+        descriptionRequired: false,
+        initialDescription: project.description,
+        descriptionMaxLines: 3,
+        descriptionMinLines: 1,
+        showCancelButton: true,
+        onSave: (title, description) async {
+          if (title != null && title.isNotEmpty) {
+            try {
+              final projectsProvider = Provider.of<ProjectsProvider>(context, listen: false);
+
+              final updatedProject = project.copyWith(
+                title: title,
+                description: description ?? '',
+              );
+
+              final success = await projectsProvider.updateProject(updatedProject);
+
+              if (success && context.mounted) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('ProjectUpdateSuccess'.tr()),
+                    backgroundColor: AppColors.green,
+                  ),
+                );
+              } else if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('ProjectUpdateError'.tr()),
+                    backgroundColor: AppColors.red,
+                  ),
+                );
+              }
+
+              LogService.debug('✅ Project updated successfully: $title');
+            } catch (e) {
+              LogService.error('❌ Error updating project: $e');
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('ProjectUpdateError'.tr()),
+                    backgroundColor: AppColors.red,
+                  ),
+                );
+              }
+            }
+          }
+        },
+        isEditing: true,
+      ),
+    );
+  }
+
+  @override
+  List<SlidableAction>? buildStartActions(BuildContext context) {
+    return [
+      SlidableAction(
+        onPressed: (_) {
+          LogService.debug('✏️ Project ${project.id} - Edit operation started');
+          _showEditDialog(context);
+        },
+        backgroundColor: AppColors.blue,
+        padding: const EdgeInsets.all(0),
+        foregroundColor: AppColors.white,
+        icon: Icons.edit,
+        label: 'edit'.tr(),
+      ),
+    ];
+  }
+
   @override
   List<SlidableAction> buildActions(BuildContext context) {
     return [
@@ -74,92 +158,28 @@ class ProjectCard extends BaseCard {
 
   @override
   Widget buildContent(BuildContext context) {
+    final categoryColor = category?.color ?? AppColors.grey;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: AppColors.borderRadiusAll,
         border: Border.all(
-          color: AppColors.onBackground.withValues(alpha: 0.2),
-          width: 1,
+          color: categoryColor.withValues(alpha: 0.4),
+          width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
+            color: categoryColor.withValues(alpha: 0.15),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: InkWell(
         onTap: onTap,
-        onLongPress: () {
-          // Proje düzenleme dialog'u
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => AddItemDialog(
-              title: 'edit_project'.tr(),
-              icon: Icons.edit,
-              titleLabel: 'project_title'.tr(),
-              titleHint: 'enter_project_title'.tr(),
-              titleRequired: true,
-              initialTitle: project.title,
-              descriptionLabel: 'description'.tr(),
-              descriptionHint: 'enter_project_description'.tr(),
-              descriptionRequired: false,
-              initialDescription: project.description,
-              descriptionMaxLines: 3,
-              descriptionMinLines: 1,
-              showCancelButton: true,
-              onSave: (title, description) async {
-                if (title != null && title.isNotEmpty) {
-                  try {
-                    final projectsProvider = Provider.of<ProjectsProvider>(context, listen: false);
-
-                    final updatedProject = project.copyWith(
-                      title: title,
-                      description: description ?? '',
-                    );
-
-                    final success = await projectsProvider.updateProject(updatedProject);
-
-                    if (success && context.mounted) {
-                      Navigator.of(context).pop(); // Dialog'u kapat
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('ProjectUpdateSuccess'.tr()),
-                          backgroundColor: AppColors.green,
-                        ),
-                      );
-                    } else if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('ProjectUpdateError'.tr()),
-                          backgroundColor: AppColors.red,
-                        ),
-                      );
-                    }
-
-                    LogService.debug('✅ Project updated successfully: $title');
-                  } catch (e) {
-                    LogService.error('❌ Error updating project: $e');
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('ProjectUpdateError'.tr()),
-                          backgroundColor: AppColors.red,
-                        ),
-                      );
-                    }
-                  }
-                }
-              },
-              isEditing: true,
-            ),
-          );
-        },
+        onLongPress: () => _showEditDialog(context),
         borderRadius: AppColors.borderRadiusAll,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -344,7 +364,7 @@ class ProjectCard extends BaseCard {
                           color: AppColors.green.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppColors.green.withValues(alpha: 0.2),
+                            color: AppColors.green.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -452,7 +472,7 @@ class ProjectCard extends BaseCard {
                           color: AppColors.yellow.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppColors.yellow.withValues(alpha: 0.2),
+                            color: AppColors.yellow.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),

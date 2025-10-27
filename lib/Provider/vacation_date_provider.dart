@@ -100,7 +100,7 @@ class VacationDateProvider extends ChangeNotifier {
   /// Check if a date is a vacation day - CENTRALIZED VACATION LOGIC
   /// Returns true if:
   /// 1. The date is specifically marked as vacation in Hive (date-specific vacation)
-  /// 2. Vacation mode is active (ONLY for TODAY, not future dates)
+  /// 2. Vacation mode is active (applies to TODAY and FUTURE dates, not past)
   /// 3. The day is a vacation weekday (e.g., every Saturday) - ONLY for future dates
   bool isVacationDay(DateTime date) {
     final now = DateTime.now();
@@ -114,9 +114,9 @@ class VacationDateProvider extends ChangeNotifier {
     // 1. Check if this specific date is marked as vacation in Hive
     final isSpecificDateVacation = isDateVacation(checkDate);
 
-    // 2. Check if vacation mode is globally enabled (ONLY for TODAY, not future)
+    // 2. Check if vacation mode is globally enabled (for TODAY and FUTURE dates, not past)
     final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
-    final isVacationModeApplicable = isVacationModeActive && isToday; // Only TODAY!
+    final isVacationModeApplicable = isVacationModeActive && (isToday || isFuture); // Today or future!
 
     // 3. Check if this specific weekday is marked as vacation
     // IMPORTANT: Only apply weekday rule for FUTURE dates, not past
