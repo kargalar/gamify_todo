@@ -12,13 +12,9 @@ class CategoryFilterWidget extends StatelessWidget {
   final List<dynamic> categories;
   final dynamic selectedCategoryId; // Can be int? or String?
   final Function(dynamic) onCategorySelected;
-  final bool showAllOption;
   final Map<dynamic, int>? itemCounts; // Optional count display
   final Function(BuildContext, dynamic)? onCategoryLongPress; // Optional long press handler
   final VoidCallback? onCategoryAdded; // Optional callback when a category is added
-  final bool showIcons; // Whether to show category icons
-  final bool showColors; // Whether to show category colors
-  final bool showAddButton; // Whether to show add category button
   final CategoryType? categoryType; // Category type for auto-detection when adding
   final bool showEmptyCategories; // Whether to show categories with 0 items
 
@@ -27,13 +23,9 @@ class CategoryFilterWidget extends StatelessWidget {
     required this.categories,
     required this.selectedCategoryId,
     required this.onCategorySelected,
-    this.showAllOption = true,
     this.itemCounts,
     this.onCategoryLongPress,
     this.onCategoryAdded,
-    this.showIcons = false,
-    this.showColors = false,
-    this.showAddButton = false,
     this.categoryType,
     this.showEmptyCategories = false,
   });
@@ -46,12 +38,10 @@ class CategoryFilterWidget extends StatelessWidget {
       child: Row(
         children: [
           // "All" option
-          if (showAllOption) ...[
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: _buildAllChip(context),
-            ),
-          ],
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: _buildAllChip(context),
+          ),
 
           // Categories
           ...categories.map((category) {
@@ -67,12 +57,10 @@ class CategoryFilterWidget extends StatelessWidget {
           }),
 
           // Add category button
-          if (showAddButton) ...[
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: _buildAddChip(context),
-            ),
-          ],
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: _buildAddChip(context),
+          ),
         ],
       ),
     );
@@ -87,14 +75,12 @@ class CategoryFilterWidget extends StatelessWidget {
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (showIcons) ...[
-            Icon(
-              Icons.all_inclusive,
-              size: 16,
-              color: isSelected ? Colors.black : AppColors.text,
-            ),
-            const SizedBox(width: 6),
-          ],
+          Icon(
+            Icons.all_inclusive,
+            size: 16,
+            color: isSelected ? Colors.black : AppColors.text,
+          ),
+          const SizedBox(width: 6),
           Text(
             LocaleKeys.All.tr(),
             style: TextStyle(
@@ -122,7 +108,7 @@ class CategoryFilterWidget extends StatelessWidget {
           ],
         ],
       ),
-      selectedColor: showColors ? AppColors.text : Theme.of(context).primaryColor.withValues(alpha: 0.2),
+      selectedColor: AppColors.text,
       backgroundColor: AppColors.panelBackground,
       checkmarkColor: Colors.black,
       onSelected: (_) => onCategorySelected(null),
@@ -176,14 +162,14 @@ class CategoryFilterWidget extends StatelessWidget {
 
   Widget _buildCategoryChip(BuildContext context, dynamic category, int count) {
     final isSelected = selectedCategoryId == category.id;
-    final categoryColor = showColors && category.colorValue != null ? Color(category.colorValue) : AppColors.main;
+    final categoryColor = category.colorValue != null ? Color(category.colorValue) : AppColors.main;
 
     final chip = FilterChip(
       selected: isSelected,
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (showIcons && category.iconCodePoint != null) ...[
+          if (category.iconCodePoint != null) ...[
             Icon(
               CategoryIcons.getIconByCodePoint(category.iconCodePoint) ?? Icons.category,
               size: 16,

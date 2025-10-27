@@ -109,36 +109,6 @@ class _NotesPageState extends State<NotesPage> {
               );
             }
 
-            // Notlar yok
-            if (provider.notes.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.note_add, size: 100, color: AppColors.grey),
-                    const SizedBox(height: 16),
-                    Text(
-                      LocaleKeys.NoNotesYet.tr(),
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: AppColors.text,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      LocaleKeys.AddFirstNote.tr(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.grey,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
-            }
-
             return Column(
               children: [
                 // Inline arama barı (arama aktifse göster)
@@ -215,9 +185,6 @@ class _NotesPageState extends State<NotesPage> {
                     // Yeni kategori eklendikten sonra kategorileri yeniden yükle
                     await provider.loadData();
                   },
-                  showIcons: true,
-                  showColors: true,
-                  showAddButton: true,
                   categoryType: CategoryType.note,
                   showEmptyCategories: true, // Boş kategorileri de göster
                 ),

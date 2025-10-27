@@ -43,29 +43,63 @@ class InboxTaskList extends StatelessWidget {
     final taskProvider = context.watch<TaskProvider>();
 
     // Get tasks based on selected category
-    List<TaskModel> tasks;
+    List<TaskModel> allTasks;
     if (selectedCategory != null) {
-      tasks = taskProvider.getTasksByCategoryId(selectedCategory!.id);
+      allTasks = taskProvider.getTasksByCategoryId(selectedCategory!.id);
     } else {
-      tasks = taskProvider.getAllTasks();
+      allTasks = taskProvider.getAllTasks();
     }
 
-    // Apply routine/task filter and exclude archived routines
+    // Exclude archived routines from all tasks (they have their own page)
+    final allTasksWithoutArchived = allTasks.where((task) {
+      bool isArchived = task.status == TaskStatusEnum.ARCHIVED;
+      return !isArchived;
+    }).toList();
+
+    // Check if there are no tasks at all (before any filters)
+    if (allTasksWithoutArchived.isEmpty) {
+      LogService.debug('📭 Inbox: No tasks found at all');
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.inbox, size: 100, color: AppColors.grey),
+            const SizedBox(height: 16),
+            Text(
+              LocaleKeys.NoTasksYet.tr(),
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.text,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              LocaleKeys.AddFirstTask.tr(),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Start with all tasks
+    List<TaskModel> tasks = List.from(allTasksWithoutArchived);
+
+    // Apply routine/task filter
     tasks = tasks.where((task) {
       bool isRoutine = task.routineID != null;
-      bool isArchived = task.status == TaskStatusEnum.ARCHIVED;
 
-      // If it's a routine
+      // For routines
       if (isRoutine) {
-        // Never show archived routines in inbox (they have their own page)
-        if (isArchived) {
-          return false;
-        }
-        // Show non-archived routines based on showRoutines flag
         return showRoutines;
       }
 
-      // For non-routine tasks, use the showTasks flag
+      // For non-routine tasks
       return showTasks;
     }).toList();
 
@@ -131,16 +165,22 @@ class InboxTaskList extends StatelessWidget {
       }).toList();
     }
 
+    // Check if tasks are empty after filters
     if (tasks.isEmpty) {
+      LogService.debug('🔍 Inbox: No tasks found after applying filters');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.task_alt, size: 48, color: Colors.grey[400]),
+            const Icon(Icons.search_off, size: 64, color: AppColors.grey),
             const SizedBox(height: 16),
             Text(
-              selectedCategory != null ? LocaleKeys.NoTasksInCategory.tr() : LocaleKeys.NoTasksYet.tr(),
-              style: const TextStyle(fontSize: 16),
+              LocaleKeys.NoTasksFound.tr(),
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.text,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -207,6 +247,28 @@ class InboxTaskList extends StatelessWidget {
     // 5. Add past tasks (sorted descending - most recent first)
     final pastDates = groupedTasks.keys.where((date) => date.isBefore(todayDate) && date.year > 1970).toList()..sort((a, b) => b.compareTo(a)); // Descending order
     sortedDates.addAll(pastDates);
+
+    // Check if all tasks were filtered out during grouping (e.g., by showTodayTasks filter)
+    if (sortedDates.isEmpty) {
+      LogService.debug('🔍 Inbox: All tasks filtered out during grouping (showTodayTasks: $showTodayTasks)');
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.search_off, size: 64, color: AppColors.grey),
+            const SizedBox(height: 16),
+            Text(
+              LocaleKeys.NoTasksFound.tr(),
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.text,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     // Build list with year separators
     final List<Widget> listChildren = [];

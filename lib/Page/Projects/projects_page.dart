@@ -192,36 +192,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
               );
             }
 
-            // Projeler yok
-            if (provider.projects.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.folder_open, size: 100, color: AppColors.grey),
-                    const SizedBox(height: 16),
-                    Text(
-                      LocaleKeys.NoProjectsYet.tr(),
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: AppColors.text,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      LocaleKeys.AddFirstProject.tr(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.grey,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
-            }
-
             return Column(
               children: [
                 // Kategori filtresi
@@ -250,9 +220,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     await provider.loadCategories();
                     LogService.debug('✅ ProjectsPage: Categories reloaded');
                   },
-                  showIcons: true,
-                  showColors: true,
-                  showAddButton: true,
                   categoryType: CategoryType.project,
                   showEmptyCategories: true, // Boş kategorileri de göster
                 ),

@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const NoArchivedRoutines = 'NoArchivedRoutines';
   static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
   static const Daily = 'Daily';
@@ -203,10 +203,12 @@ abstract class  LocaleKeys {
   static const NoCategoriesYet = 'NoCategoriesYet';
   static const AddCategory = 'AddCategory';
   static const NoTasksInCategory = 'NoTasksInCategory';
+  static const NoTasksFound = 'NoTasksFound';
   static const Tomorrow = 'Tomorrow';
   static const Yesterday = 'Yesterday';
   static const AllTasks = 'AllTasks';
   static const NoTasksYet = 'NoTasksYet';
+  static const AddFirstTask = 'AddFirstTask';
   static const Tasks = 'Tasks';
   static const Close = 'Close';
   static const ShowCompleted = 'ShowCompleted';
@@ -656,5 +658,4 @@ abstract class  LocaleKeys {
   static const enter_task_title = 'enter_task_title';
   static const enter_task_description = 'enter_task_description';
   static const description = 'description';
-
 }
