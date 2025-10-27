@@ -63,6 +63,8 @@ class _InboxPageState extends State<InboxPage> {
       // Load task/routine filter preferences
       _showTasks = prefs.getBool('categories_show_tasks') ?? true;
       _showRoutines = prefs.getBool('categories_show_routines') ?? true;
+      _showTodayTasks = prefs.getBool('categories_show_today_tasks') ?? true;
+      LogService.debug('✅ Inbox: Loaded showTodayTasks filter: $_showTodayTasks');
 
       // Load date filter preference
       final dateFilterIndex = prefs.getInt('categories_date_filter');
@@ -132,6 +134,8 @@ class _InboxPageState extends State<InboxPage> {
     // Save task/routine filter preferences
     await prefs.setBool('categories_show_tasks', _showTasks);
     await prefs.setBool('categories_show_routines', _showRoutines);
+    await prefs.setBool('categories_show_today_tasks', _showTodayTasks);
+    LogService.debug('✅ Inbox: Saved showTodayTasks filter: $_showTodayTasks');
 
     // Save date filter preference
     await prefs.setInt('categories_date_filter', _dateFilterState.index);

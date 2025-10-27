@@ -611,6 +611,7 @@ class HiveService {
       // Export inbox page filter settings with default values
       sharedPrefsMap["categories_show_tasks"] = prefs.getBool('categories_show_tasks') ?? true;
       sharedPrefsMap["categories_show_routines"] = prefs.getBool('categories_show_routines') ?? true;
+      sharedPrefsMap["categories_show_today_tasks"] = prefs.getBool('categories_show_today_tasks') ?? true;
       sharedPrefsMap["categories_date_filter"] = prefs.getInt('categories_date_filter') ?? 0;
       sharedPrefsMap["categories_show_checkbox"] = prefs.getBool('categories_show_checkbox') ?? true;
       sharedPrefsMap["categories_show_counter"] = prefs.getBool('categories_show_counter') ?? true;
@@ -796,6 +797,7 @@ class HiveService {
           // Import inbox page filter settings with proper defaults
           await prefs.setBool('categories_show_tasks', (sharedPrefsMap["categories_show_tasks"] is bool) ? sharedPrefsMap["categories_show_tasks"] : true);
           await prefs.setBool('categories_show_routines', (sharedPrefsMap["categories_show_routines"] is bool) ? sharedPrefsMap["categories_show_routines"] : true);
+          await prefs.setBool('categories_show_today_tasks', (sharedPrefsMap["categories_show_today_tasks"] is bool) ? sharedPrefsMap["categories_show_today_tasks"] : true);
           await prefs.setInt('categories_date_filter', sharedPrefsMap["categories_date_filter"] ?? 0);
           await prefs.setBool('categories_show_checkbox', (sharedPrefsMap["categories_show_checkbox"] is bool) ? sharedPrefsMap["categories_show_checkbox"] : true);
           await prefs.setBool('categories_show_counter', (sharedPrefsMap["categories_show_counter"] is bool) ? sharedPrefsMap["categories_show_counter"] : true);
