@@ -13,7 +13,6 @@ import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:provider/provider.dart';
-import 'package:next_level/Page/Profile/Widget/streak_analysis.dart';
 import 'package:next_level/Provider/profile_view_model.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -119,8 +118,6 @@ class ProfilePageContent extends StatelessWidget {
             LevelProgressCard(),
             SizedBox(height: 20),
             WeeklyTotalProgressChart(),
-            SizedBox(height: 20),
-            StreakAnalysis(),
             SizedBox(height: 20),
             TraitList(isSkill: false),
             SizedBox(height: 20),

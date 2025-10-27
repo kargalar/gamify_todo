@@ -12,8 +12,18 @@ class LevelProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final taskList = TaskProvider().taskList;
+
+    // Calculate statistics
+    final int totalTasks = taskList.length;
+    final int routineTasks = taskList.where((task) => task.routineID != null).length;
+    final int completedTasks = taskList.where((task) => task.status == TaskStatusEnum.DONE).length;
+    final int failedTasks = taskList.where((task) => task.status == TaskStatusEnum.FAILED).length;
+    final int cancelledTasks = taskList.where((task) => task.status == TaskStatusEnum.CANCEL).length;
+    final int activeTasks = taskList.where((task) => task.status != TaskStatusEnum.DONE && task.status != TaskStatusEnum.FAILED && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.ARCHIVED).length;
+
     // Compute total duration from tasks
-    final Duration totalDuration = TaskProvider().taskList.fold(
+    final Duration totalDuration = taskList.fold(
       Duration.zero,
       (previousValue, element) {
         if (element.remainingDuration != null) {
@@ -99,17 +109,87 @@ class LevelProgressCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${TaskProvider().taskList.length} ${LocaleKeys.Tasks.tr()}',
+                    '$totalTasks ${LocaleKeys.Tasks.tr()}',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '$routineTasks ${LocaleKeys.Routines.tr()}',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 11,
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+
+          // Task Statistics Grid
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatItem(
+                        icon: Icons.play_arrow,
+                        label: LocaleKeys.InProgress.tr(),
+                        value: activeTasks.toString(),
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildStatItem(
+                        icon: Icons.check_circle,
+                        label: LocaleKeys.Completed.tr(),
+                        value: completedTasks.toString(),
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatItem(
+                        icon: Icons.cancel,
+                        label: LocaleKeys.Cancelled.tr(),
+                        value: cancelledTasks.toString(),
+                        color: const Color.fromARGB(255, 147, 0, 206),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildStatItem(
+                        icon: Icons.close,
+                        label: LocaleKeys.Failed.tr(),
+                        value: failedTasks.toString(),
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Progress bar
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,6 +261,56 @@ class LevelProgressCard extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white.withValues(alpha: 0.6),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
