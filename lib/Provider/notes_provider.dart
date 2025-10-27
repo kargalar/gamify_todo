@@ -76,16 +76,16 @@ class NotesProvider with ChangeNotifier {
   /// Sabitlenmiş notlar
   List<NoteModel> get pinnedNotes {
     final pinned = filteredNotes.where((note) => note.isPinned).toList();
-    // Oluşturma tarihine göre sırala (yeniden eskiye)
-    pinned.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    // sortOrder'a göre sırala (yüksek değer = üstte)
+    pinned.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
     return pinned;
   }
 
   /// Sabitlenmemiş notlar
   List<NoteModel> get unpinnedNotes {
     final unpinned = filteredNotes.where((note) => !note.isPinned).toList();
-    // Oluşturma tarihine göre sırala (yeniden eskiye)
-    unpinned.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    // sortOrder'a göre sırala (yüksek değer = üstte)
+    unpinned.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
     return unpinned;
   }
 
@@ -173,6 +173,9 @@ class NotesProvider with ChangeNotifier {
       _setError(null);
 
       final now = DateTime.now();
+      // En yüksek sortOrder değerini bul ve 1 ekle (yeni not en üstte olacak)
+      final maxSortOrder = _notes.isEmpty ? 0 : _notes.map((n) => n.sortOrder).reduce((a, b) => a > b ? a : b);
+
       final note = NoteModel(
         title: title,
         content: content,
@@ -181,13 +184,14 @@ class NotesProvider with ChangeNotifier {
         createdAt: now,
         updatedAt: now,
         isPinned: false,
+        sortOrder: maxSortOrder + 1,
       );
 
       final success = await _notesService.addNote(note);
 
       if (success) {
         await loadData(); // Listeyi yenile
-        LogService.debug('✅ NotesProvider: Note added successfully');
+        LogService.debug('✅ NotesProvider: Note added successfully with sortOrder: ${note.sortOrder}');
       } else {
         LogService.debug('❌ NotesProvider: Failed to add note');
         _setError('Not eklenemedi');
@@ -423,6 +427,81 @@ class NotesProvider with ChangeNotifier {
     } catch (e) {
       LogService.error('❌ NotesProvider: Error toggling archive note - $e');
       _setError('Error archiving note: $e');
+      return false;
+    }
+  }
+
+  /// Notların sırasını değiştir (sürükle-bırak için)
+  Future<bool> reorderNotes({
+    required int oldIndex,
+    required int newIndex,
+    required bool isPinnedList,
+  }) async {
+    try {
+      LogService.debug('🔄 NotesProvider: Reordering notes from $oldIndex to $newIndex (pinned: $isPinnedList)');
+      _setError(null);
+
+      // Doğru listeyi al
+      final notesList = List<NoteModel>.from(isPinnedList ? pinnedNotes : unpinnedNotes);
+
+      if (oldIndex >= notesList.length || newIndex >= notesList.length || oldIndex < 0 || newIndex < 0) {
+        LogService.error('❌ NotesProvider: Invalid reorder indices - oldIndex: $oldIndex, newIndex: $newIndex, listLength: ${notesList.length}');
+        return false;
+      }
+
+      // Taşınacak notu listeden çıkar
+      final movedNote = notesList.removeAt(oldIndex);
+
+      // Yeni pozisyona ekle
+      notesList.insert(newIndex, movedNote);
+
+      LogService.debug('  � New order after move:');
+      for (var i = 0; i < notesList.length; i++) {
+        LogService.debug('    $i: Note ${notesList[i].id} - ${notesList[i].title}');
+      }
+
+      // Tüm listeye yeni sortOrder değerleri ata
+      // En üstteki not en yüksek değere sahip olacak
+
+      // Önce tüm notları lokal olarak güncelle (optimistik UI güncellemesi)
+      final updatedNotes = <NoteModel>[];
+      for (int i = 0; i < notesList.length; i++) {
+        final note = notesList[i];
+        final newSortOrder = notesList.length - i; // Tersten sıralama
+
+        if (note.sortOrder != newSortOrder) {
+          final updatedNote = note.copyWith(
+            sortOrder: newSortOrder,
+            updatedAt: DateTime.now(),
+          );
+          updatedNotes.add(updatedNote);
+
+          // Lokal listeyi hemen güncelle
+          final mainIndex = _notes.indexWhere((n) => n.id == note.id);
+          if (mainIndex != -1) {
+            _notes[mainIndex] = updatedNote;
+          }
+
+          LogService.debug('  ✏️ Updated Note ${note.id}: sortOrder ${note.sortOrder} → $newSortOrder');
+        }
+      }
+
+      // UI'ı hemen güncelle (kullanıcı anında değişikliği görsün)
+      notifyListeners();
+      LogService.debug('  🎨 UI updated immediately');
+
+      // Ardından veritabanına kaydet (arka planda)
+      for (final updatedNote in updatedNotes) {
+        await _notesService.updateNote(updatedNote);
+      }
+
+      LogService.debug('✅ NotesProvider: Notes reordered and saved successfully');
+      return true;
+    } catch (e) {
+      LogService.error('❌ NotesProvider: Error reordering notes: $e');
+      _setError('Not sıralaması değiştirilirken hata oluştu: $e');
+      // Hata durumunda listeyi yeniden yükle
+      await loadData();
       return false;
     }
   }

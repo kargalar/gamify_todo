@@ -31,6 +31,9 @@ class NoteModel extends HiveObject {
   @HiveField(8)
   bool isArchived;
 
+  @HiveField(9, defaultValue: 0)
+  int sortOrder; // Sıralama için kullanılır (yüksek değer = üstte)
+
   NoteModel({
     this.id = 0,
     required this.title,
@@ -41,6 +44,7 @@ class NoteModel extends HiveObject {
     required this.updatedAt,
     this.isPinned = false,
     this.isArchived = false,
+    this.sortOrder = 0,
   });
 
   /// Copy with method
@@ -54,6 +58,7 @@ class NoteModel extends HiveObject {
     DateTime? updatedAt,
     bool? isPinned,
     bool? isArchived,
+    int? sortOrder,
   }) {
     return NoteModel(
       id: id ?? this.id,
@@ -65,12 +70,13 @@ class NoteModel extends HiveObject {
       updatedAt: updatedAt ?? this.updatedAt,
       isPinned: isPinned ?? this.isPinned,
       isArchived: isArchived ?? this.isArchived,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 
   @override
   String toString() {
-    return 'NoteModel(id: $id, title: $title, categoryId: $categoryId, isPinned: $isPinned, isArchived: $isArchived)';
+    return 'NoteModel(id: $id, title: $title, categoryId: $categoryId, isPinned: $isPinned, isArchived: $isArchived, sortOrder: $sortOrder)';
   }
 
   Map<String, dynamic> toJson() {
@@ -84,6 +90,7 @@ class NoteModel extends HiveObject {
       'updatedAt': updatedAt.toIso8601String(),
       'isPinned': isPinned,
       'isArchived': isArchived,
+      'sortOrder': sortOrder,
     };
   }
 
@@ -98,6 +105,7 @@ class NoteModel extends HiveObject {
       updatedAt: DateTime.parse(json['updatedAt']),
       isPinned: json['isPinned'] ?? false,
       isArchived: json['isArchived'] ?? false,
+      sortOrder: json['sortOrder'] ?? 0,
     );
   }
 }

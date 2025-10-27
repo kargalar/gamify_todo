@@ -12,22 +12,36 @@ import 'package:next_level/Widgets/Common/base_card.dart';
 class NoteCard extends BaseCard {
   final NoteModel note;
   final VoidCallback onTap;
-  final VoidCallback onLongPress;
   final VoidCallback? onPinToggle;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   NoteCard({
     super.key,
     required this.note,
     required this.onTap,
-    required this.onLongPress,
     this.onPinToggle,
     this.onDelete,
+    this.onEdit,
   }) : super(itemId: note.id.toString());
 
   @override
   List<SlidableAction> buildActions(BuildContext context) {
     return [
+      // Edit action
+      if (onEdit != null)
+        SlidableAction(
+          padding: const EdgeInsets.all(0),
+          onPressed: (context) {
+            LogService.debug('✏️ Note ${note.id} - Edit operation started');
+            onEdit!();
+          },
+          backgroundColor: AppColors.blue,
+          foregroundColor: AppColors.white,
+          icon: Icons.edit,
+          label: 'Edit'.tr(),
+        ),
+      // Pin action
       SlidableAction(
         padding: const EdgeInsets.all(0),
         onPressed: (context) async {
@@ -110,7 +124,6 @@ class NoteCard extends BaseCard {
             color: Colors.transparent,
             child: InkWell(
               onTap: onTap,
-              onLongPress: onLongPress,
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.all(16),

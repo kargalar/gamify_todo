@@ -17,6 +17,9 @@ class NotesService {
       if (!Hive.isBoxOpen(_boxName)) {
         _notesBox = await Hive.openBox<NoteModel>(_boxName);
         LogService.debug('✅ NotesService: Hive box opened successfully');
+
+        // Migration: Mevcut notlara sortOrder ata
+        await _migrateSortOrder();
       } else {
         _notesBox = Hive.box<NoteModel>(_boxName);
         LogService.debug('✅ NotesService: Hive box already open');
@@ -41,6 +44,54 @@ class NotesService {
       } catch (e2) {
         LogService.error('❌ NotesService: Failed to recreate box: $e2');
       }
+    }
+  }
+
+  /// Mevcut notlara sortOrder değeri ata (migration)
+  Future<void> _migrateSortOrder() async {
+    try {
+      if (_notesBox == null) return;
+
+      final notes = _notesBox!.values.toList();
+
+      if (notes.isEmpty) {
+        LogService.debug('✅ NotesService: No notes to migrate');
+        return;
+      }
+
+      bool needsMigration = false;
+
+      // sortOrder 0 olan notları kontrol et
+      for (var note in notes) {
+        if (note.sortOrder == 0) {
+          needsMigration = true;
+          break;
+        }
+      }
+
+      if (!needsMigration) {
+        LogService.debug('✅ NotesService: sortOrder migration not needed');
+        return;
+      }
+
+      LogService.debug('🔄 NotesService: Starting sortOrder migration for ${notes.length} notes');
+
+      // Notları tarihe göre sırala (yeni -> eski)
+      notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      // Her nota sıralı sortOrder değeri ata (en yeni not en yüksek değer alacak)
+      for (int i = 0; i < notes.length; i++) {
+        final note = notes[i];
+        final newSortOrder = notes.length - i; // Tersine sıralama
+        note.sortOrder = newSortOrder;
+        await _notesBox!.put(note.id, note);
+        LogService.debug('  📝 Note ${note.id}: sortOrder set to $newSortOrder');
+      }
+
+      LogService.debug('✅ NotesService: sortOrder migration completed for ${notes.length} notes');
+    } catch (e) {
+      LogService.error('❌ NotesService: Error during sortOrder migration: $e');
+      // Migration hatası uygulamayı durdurmamalı
     }
   }
 

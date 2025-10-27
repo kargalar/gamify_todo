@@ -68,3 +68,12 @@ streaki doğru hesaplıyorm u bak. vacation güne dikkat et.
 vacation mode aktifken otomatik sonraki güne geçince o günü de tatil olarak işaretliyor mu
 
 Weeklydeki ilerlemnin oralara alev eklenmesi güzel olur
+
+
+sıralama modu ile görevleri kaydır
+
+daha iyi oldu ancak basılı tutunca düzenleme seçenğini kaybettim. basılı tutatark düzenleyeyim. sürükleyince de sıralansın.
+
+kategroilerin renkelrnii düzenle.
+
+reorder için basılı tutuarak edit modu

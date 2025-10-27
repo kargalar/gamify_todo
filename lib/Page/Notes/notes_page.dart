@@ -248,7 +248,12 @@ class _NotesPageState extends State<NotesPage> {
               ],
             ),
           ),
-          ...pinnedNotes.map((note) => _buildNoteCard(context, provider, note)),
+          _buildReorderableNotesList(
+            context,
+            provider,
+            pinnedNotes,
+            isPinnedList: true,
+          ),
         ],
 
         // Diğer notlar
@@ -265,7 +270,12 @@ class _NotesPageState extends State<NotesPage> {
                 ),
               ),
             ),
-          ...unpinnedNotes.map((note) => _buildNoteCard(context, provider, note)),
+          _buildReorderableNotesList(
+            context,
+            provider,
+            unpinnedNotes,
+            isPinnedList: false,
+          ),
         ],
 
         const SizedBox(height: 80), // FAB için boşluk
@@ -273,11 +283,65 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 
+  /// Sürüklenebilir notlar listesi
+  Widget _buildReorderableNotesList(BuildContext context, NotesProvider provider, List<NoteModel> notes, {required bool isPinnedList}) {
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      buildDefaultDragHandles: false, // Varsayılan handle icon'unu kaldır
+      proxyDecorator: (child, index, animation) {
+        // Sürükleme sırasında kartın görünümünü özelleştir
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            final animValue = Curves.easeInOut.transform(animation.value);
+            final scale = 1.0 + (animValue * 0.05); // Hafif büyütme efekti
+            final elevation = animValue * 8.0; // Hafif gölge efekti
+
+            return Transform.scale(
+              scale: scale,
+              child: Material(
+                elevation: elevation,
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: child,
+              ),
+            );
+          },
+          child: child,
+        );
+      },
+      itemCount: notes.length,
+      onReorder: (oldIndex, newIndex) async {
+        LogService.debug('🔄 Reordering note from $oldIndex to $newIndex');
+
+        // newIndex düzeltmesi (Flutter ReorderableListView için gerekli)
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+
+        await provider.reorderNotes(
+          oldIndex: oldIndex,
+          newIndex: newIndex,
+          isPinnedList: isPinnedList,
+        );
+      },
+      itemBuilder: (context, index) {
+        final note = notes[index];
+        return ReorderableDragStartListener(
+          key: ValueKey(note.id),
+          index: index,
+          child: _buildNoteCard(context, provider, note),
+        );
+      },
+    );
+  }
+
   Widget _buildNoteCard(BuildContext context, NotesProvider provider, NoteModel note) {
     return NoteCard(
       note: note,
       onTap: () => _navigateToNoteDescriptionEditor(context, note),
-      onLongPress: () => _navigateToEditNote(context, note),
+      onEdit: () => _navigateToEditNote(context, note),
       onDelete: () => _confirmDelete(context, provider, note),
     );
   }
