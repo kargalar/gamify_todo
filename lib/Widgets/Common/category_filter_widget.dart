@@ -181,30 +181,26 @@ class CategoryFilterWidget extends StatelessWidget {
             category.name ?? (category.title ?? ''),
             style: TextStyle(
               color: isSelected ? Colors.white : categoryColor,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-              shadows: isSelected
-                  ? null
-                  : [
-                      Shadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 1,
-                        offset: const Offset(0, 0.5),
-                      ),
-                    ],
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
             ),
           ),
           if (itemCounts != null) ...[
-            const SizedBox(width: 4),
+            const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withValues(alpha: 0.3) : categoryColor.withValues(alpha: 0.2),
+                color: isSelected ? Colors.white.withValues(alpha: 0.25) : AppColors.panelBackground,
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isSelected ? Colors.white.withValues(alpha: 0.3) : categoryColor.withValues(alpha: 0.2),
+                  width: 1,
+                ),
               ),
               child: Text(
                 '$count',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: isSelected ? Colors.white : categoryColor,
                 ),
@@ -214,13 +210,16 @@ class CategoryFilterWidget extends StatelessWidget {
         ],
       ),
       selectedColor: categoryColor,
-      backgroundColor: categoryColor.withValues(alpha: 0.15),
+      backgroundColor: AppColors.panelBackground,
       checkmarkColor: Colors.white,
       side: BorderSide(
-        color: isSelected ? categoryColor : categoryColor.withValues(alpha: 0.3),
-        width: isSelected ? 1.5 : 1,
+        color: categoryColor,
+        width: isSelected ? 2 : 1.5,
       ),
-      onSelected: (_) => onCategorySelected(category.id),
+      onSelected: (_) {
+        LogService.debug('🏷️ CategoryFilterWidget: Category selected - ${category.name ?? category.title}');
+        onCategorySelected(category.id);
+      },
     );
 
     // Add long press handler if provided

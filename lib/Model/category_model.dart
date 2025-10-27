@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 part 'category_model.g.dart';
 
@@ -43,10 +44,21 @@ class CategoryModel extends HiveObject {
   Color get color => Color(colorValue);
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    // Parse color value and ensure it has alpha channel
+    String colorStr = json['color'].toString().replaceAll("#", "");
+    // If color is 6 digits (RGB), add FF prefix for full opacity (ARGB)
+    if (colorStr.length == 6) {
+      colorStr = 'FF$colorStr';
+      LogService.debug('🎨 CategoryModel.fromJson: RGB color converted to ARGB - Original: ${json['color']}, Final: #$colorStr');
+    }
+    final parsedColor = int.parse(colorStr, radix: 16);
+
+    LogService.debug('🎨 CategoryModel.fromJson: ${json['title']} - Color: #$colorStr (int: $parsedColor)');
+
     return CategoryModel(
       id: json['id'].toString(),
       title: json['title'],
-      colorValue: int.parse(json['color'].toString().replaceAll("#", ""), radix: 16),
+      colorValue: parsedColor,
       isArchived: json['is_archived'] ?? false,
       iconCodePoint: json['icon_code_point'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
@@ -55,10 +67,12 @@ class CategoryModel extends HiveObject {
   }
 
   Map<String, dynamic> toJson() {
+    // Export color with full 8 digits (ARGB format)
+    final colorHex = colorValue.toRadixString(16).padLeft(8, '0');
     return {
       'id': id,
       'title': title,
-      'color': '#${colorValue.toRadixString(16).padLeft(8, '0').substring(2)}',
+      'color': '#$colorHex', // Keep full ARGB format for better compatibility
       'is_archived': isArchived,
       'icon_code_point': iconCodePoint,
       'created_at': createdAt?.toIso8601String(),

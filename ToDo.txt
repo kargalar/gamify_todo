@@ -97,5 +97,3 @@ gün geçişler iappardaki kötü
 
 
 descriptiondaki linkler vurgulansın ve tıklanabilsin.
-
-kategori itemlerin yarı transparan tasrımını beğenmedim. yazıları okuymaıyorum gibi oluyor başka daha sade bir tasrım dene.
