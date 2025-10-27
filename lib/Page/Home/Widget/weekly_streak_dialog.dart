@@ -3,8 +3,8 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/streak_calendar_dialog.dart';
+import 'package:next_level/Page/Home/Widget/streak_target_dialog.dart';
 import 'package:next_level/Page/Home/Widget/task_contributions_widget.dart';
-import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Page/Settings/vacation_day_settings_page.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
@@ -154,10 +154,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Close the dialog first
-                                NavigatorService().goTo(const StreakSettingsPage());
-                              },
+                              onPressed: () => _showStreakTargetDialog(context),
                               icon: const Icon(Icons.settings, size: 18),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
@@ -254,5 +251,18 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
       backgroundColor: Colors.transparent,
       builder: (context) => StreakCalendarDialog(vm: widget.vm),
     );
+  }
+
+  Future<void> _showStreakTargetDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => const StreakTargetDialog(),
+    );
+
+    // Refresh the dialog if settings were saved
+    if (result == true && mounted) {
+      debugPrint('Streak target updated, refreshing weekly dialog');
+      setState(() {});
+    }
   }
 }

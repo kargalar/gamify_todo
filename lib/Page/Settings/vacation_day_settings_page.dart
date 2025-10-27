@@ -66,7 +66,6 @@ class _VacationDaySettingsPageState extends State<VacationDaySettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(LocaleKeys.VacationDays.tr()),
-        backgroundColor: AppColors.main,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => NavigatorService().back(),
