@@ -16,6 +16,7 @@ class NoteCard extends BaseCard {
   final VoidCallback? onPinToggle;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
+  final VoidCallback? onLongPress;
 
   NoteCard({
     super.key,
@@ -24,6 +25,7 @@ class NoteCard extends BaseCard {
     this.onPinToggle,
     this.onDelete,
     this.onEdit,
+    this.onLongPress,
   }) : super(itemId: note.id.toString());
 
   @override
@@ -131,6 +133,13 @@ class NoteCard extends BaseCard {
             color: Colors.transparent,
             child: InkWell(
               onTap: onTap,
+              onLongPress: onLongPress ??
+                  (onEdit != null
+                      ? () {
+                          LogService.debug('📝 Note ${note.id} - Long press edit triggered');
+                          onEdit!();
+                        }
+                      : null),
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.all(16),
