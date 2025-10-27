@@ -69,6 +69,9 @@ class TaskModel extends HiveObject {
   // Setter for isPinned
   set isPinned(bool value) => _isPinned = value;
 
+  @HiveField(25, defaultValue: 0)
+  int sortOrder; // Sıralama için kullanılır (yüksek değer = üstte)
+
   TaskModel({
     this.id = 0,
     this.routineID,
@@ -95,6 +98,7 @@ class TaskModel extends HiveObject {
     this.earlyReminderMinutes,
     this.attachmentPaths,
     bool? isPinned,
+    this.sortOrder = 0,
   })  : _showSubtasks = showSubtasks,
         _isPinned = isPinned,
         isTimerActive = type == TaskTypeEnum.TIMER ? (isTimerActive ?? false) : isTimerActive,
@@ -137,6 +141,7 @@ class TaskModel extends HiveObject {
       earlyReminderMinutes: json['early_reminder_minutes'],
       attachmentPaths: json['attachment_paths'] != null ? (json['attachment_paths'] as List).map((i) => i as String).toList() : null,
       isPinned: json['is_pinned'] ?? false,
+      sortOrder: json['sort_order'] ?? 0,
     );
 
     return taskModel;
@@ -181,6 +186,7 @@ class TaskModel extends HiveObject {
       'early_reminder_minutes': earlyReminderMinutes,
       'attachment_paths': attachmentPaths,
       'is_pinned': isPinned,
+      'sort_order': sortOrder,
     };
   }
 }

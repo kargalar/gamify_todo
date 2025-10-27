@@ -1,9 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
+import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 
 class OverdueTasksHeader extends StatefulWidget {
@@ -154,14 +158,50 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
             sizeFactor: _expandAnimation,
             child: Column(
               children: [
-                // Overdue tasks list with minimal spacing
-                ListView.builder(
+                // Overdue tasks list with reordering support
+                ReorderableListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.overdueTasks.length,
                   padding: EdgeInsets.zero,
+                  buildDefaultDragHandles: false,
+                  proxyDecorator: (child, index, animation) {
+                    return AnimatedBuilder(
+                      animation: animation,
+                      builder: (BuildContext context, Widget? child) {
+                        final double animValue = Curves.easeInOut.transform(animation.value);
+                        final double elevation = lerpDouble(0, 6, animValue)!;
+                        final double scale = lerpDouble(1.0, 1.02, animValue)!;
+                        return Transform.scale(
+                          scale: scale,
+                          child: Material(
+                            elevation: elevation,
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: child,
+                    );
+                  },
+                  onReorder: (int oldIndex, int newIndex) {
+                    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+                    taskProvider.reorderTasks(
+                      oldIndex: oldIndex,
+                      newIndex: newIndex,
+                      isPinnedList: false,
+                      isRoutineList: false,
+                      isOverdueList: true,
+                    );
+                  },
                   itemBuilder: (context, index) {
-                    return TaskItem(taskModel: widget.overdueTasks[index]);
+                    final task = widget.overdueTasks[index];
+                    return ReorderableDragStartListener(
+                      key: ValueKey(task.key),
+                      index: index,
+                      child: TaskItem(taskModel: task),
+                    );
                   },
                 ),
               ],

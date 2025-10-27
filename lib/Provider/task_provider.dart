@@ -72,6 +72,8 @@ class TaskProvider with ChangeNotifier {
   TaskProvider._internal() {
     // Uygulama başladığında showCompleted durumunu yükle
     loadShowCompletedState();
+    // Task'lerin sortOrder değerlerini migrate et
+    _migrateSortOrder();
   }
 
   List<RoutineModel> routineList = [];
@@ -116,6 +118,12 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future<void> addTask(TaskModel taskModel) async {
+    // En yüksek sortOrder değerini bul ve 1 ekle (yeni task en üstte olacak)
+    final maxSortOrder = taskList.isEmpty ? 0 : taskList.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b);
+    if (taskModel.sortOrder == 0) {
+      taskModel.sortOrder = maxSortOrder + 1;
+    }
+
     final int taskId = await ServerManager().addTask(taskModel: taskModel);
 
     taskModel.id = taskId;
@@ -1599,7 +1607,8 @@ class TaskProvider with ChangeNotifier {
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: false, isCompleted: false)).toList();
     }
 
-    sortTasksByPriorityAndTime(tasks);
+    // sortOrder'a göre sırala (yüksek değer = üstte)
+    tasks.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
     return tasks;
   }
 
@@ -1615,7 +1624,8 @@ class TaskProvider with ChangeNotifier {
       LogService.debug('  - Pinned task: ${task.title} (Date: ${task.taskDate})');
     }
 
-    sortTasksByPriorityAndTime(pinnedTasks);
+    // sortOrder'a göre sırala (yüksek değer = üstte)
+    pinnedTasks.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
     return pinnedTasks;
   }
 
@@ -1665,6 +1675,130 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
+  /// Taskların sırasını değiştir (sürükle-bırak için)
+  Future<bool> reorderTasks({
+    required int oldIndex,
+    required int newIndex,
+    required bool isPinnedList,
+    required bool isRoutineList,
+    required bool isOverdueList,
+  }) async {
+    try {
+      LogService.debug('🔄 TaskProvider: Reordering tasks from $oldIndex to $newIndex (pinned: $isPinnedList, routine: $isRoutineList, overdue: $isOverdueList)');
+
+      // ReorderableListView'in klasik sorunu - düzeltme yap
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+
+      // Doğru listeyi al
+      final today = DateTime.now();
+      List<TaskModel> tasksList;
+
+      if (isPinnedList) {
+        tasksList = List<TaskModel>.from(getPinnedTasksForToday());
+      } else if (isRoutineList) {
+        tasksList = List<TaskModel>.from(getRoutineTasksForDate(today));
+      } else if (isOverdueList) {
+        tasksList = List<TaskModel>.from(getOverdueTasks());
+      } else {
+        tasksList = List<TaskModel>.from(getTasksForDate(today));
+      }
+
+      if (oldIndex >= tasksList.length || newIndex >= tasksList.length || oldIndex < 0 || newIndex < 0) {
+        LogService.error('❌ TaskProvider: Invalid reorder indices - oldIndex: $oldIndex, newIndex: $newIndex, listLength: ${tasksList.length}');
+        return false;
+      }
+
+      // Taşınacak task'ı listeden çıkar
+      final movedTask = tasksList.removeAt(oldIndex);
+
+      // Yeni pozisyona ekle
+      tasksList.insert(newIndex, movedTask);
+
+      LogService.debug('  📋 New order after move:');
+      for (var i = 0; i < tasksList.length; i++) {
+        LogService.debug('    $i: Task ${tasksList[i].id} - ${tasksList[i].title}');
+      }
+
+      // Önce tüm task'ları lokal olarak güncelle (optimistik UI güncellemesi)
+      final updatedTasks = <TaskModel>[];
+      for (int i = 0; i < tasksList.length; i++) {
+        final task = tasksList[i];
+        final newSortOrder = tasksList.length - i; // Tersten sıralama
+
+        if (task.sortOrder != newSortOrder) {
+          task.sortOrder = newSortOrder;
+          updatedTasks.add(task);
+
+          LogService.debug('  ✏️ Updated Task ${task.id}: sortOrder → $newSortOrder');
+        }
+      }
+
+      // UI'ı hemen güncelle (kullanıcı anında değişikliği görsün)
+      notifyListeners();
+      LogService.debug('  🎨 UI updated immediately');
+
+      // Ardından veritabanına kaydet (arka planda)
+      for (final updatedTask in updatedTasks) {
+        try {
+          await updatedTask.save();
+          await ServerManager().updateTask(taskModel: updatedTask);
+        } catch (e) {
+          LogService.error('❌ Error saving task ${updatedTask.id}: $e');
+        }
+      }
+
+      LogService.debug('✅ TaskProvider: Tasks reordered and saved successfully');
+      return true;
+    } catch (e) {
+      LogService.error('❌ TaskProvider: Error reordering tasks: $e');
+      // Hata durumunda listeyi yeniden yükle
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Mevcut task'lerin sortOrder değerlerini migrate et
+  Future<void> _migrateSortOrder() async {
+    try {
+      LogService.debug('🔄 TaskProvider: Starting sortOrder migration...');
+
+      // Tüm task'leri ServerManager'dan yükle
+      final allTasks = await ServerManager().getTasks();
+
+      // sortOrder değeri 0 olan task'leri bul
+      final tasksWithoutSortOrder = allTasks.where((task) => task.sortOrder == 0).toList();
+
+      if (tasksWithoutSortOrder.isEmpty) {
+        LogService.debug('✅ TaskProvider: All tasks already have sortOrder values');
+        return;
+      }
+
+      LogService.debug('  📋 Found ${tasksWithoutSortOrder.length} tasks without sortOrder');
+
+      // Her task'a sıra numarası ata (en yeniden başlayarak)
+      int sortOrder = allTasks.length;
+      for (final task in tasksWithoutSortOrder) {
+        task.sortOrder = sortOrder;
+        sortOrder--;
+
+        try {
+          await task.save();
+          await ServerManager().updateTask(taskModel: task);
+          LogService.debug('  ✅ Migrated Task ${task.id}: sortOrder → ${task.sortOrder}');
+        } catch (e) {
+          LogService.error('  ❌ Error migrating task ${task.id}: $e');
+        }
+      }
+
+      LogService.debug('✅ TaskProvider: sortOrder migration completed');
+      notifyListeners();
+    } catch (e) {
+      LogService.error('❌ TaskProvider: Error during sortOrder migration: $e');
+    }
+  }
+
   List<TaskModel> getRoutineTasksForDate(DateTime date) {
     List<TaskModel> tasks;
 
@@ -1690,7 +1824,8 @@ class TaskProvider with ChangeNotifier {
       LogService.debug('🏖️ Vacation day filter applied: ${tasks.length} active routines on vacation');
     }
 
-    sortTasksByPriorityAndTime(tasks);
+    // sortOrder'a göre sırala (yüksekten düşüğe)
+    tasks.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
     return tasks;
   }
 
@@ -2183,7 +2318,8 @@ class TaskProvider with ChangeNotifier {
         .where((task) => task.status == TaskStatusEnum.OVERDUE && task.routineID == null && !task.isPinned) // Exclude pinned tasks from overdue section
         .toList();
 
-    sortTasksByPriorityAndTime(overdueTasks);
+    // sortOrder'a göre sırala (yüksekten düşüğe)
+    overdueTasks.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
     return overdueTasks;
   }
 
