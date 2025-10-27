@@ -38,21 +38,15 @@ class _VacationDaySettingsPageState extends State<VacationDaySettingsPage> {
     LogService.debug('VacationDaySettingsPage: Toggled weekday $index');
   }
 
-  void _toggleRoutine(int routineId) {
+  void _toggleRoutine(int routineId) async {
     final taskProvider = context.read<TaskProvider>();
 
-    // Find the routine and toggle its isActiveOnVacationDays value
+    // Find the routine to get current status
     final routineModel = taskProvider.routineList.firstWhere((routine) => routine.id == routineId);
+    final newStatus = !routineModel.isActiveOnVacationDays;
 
-    // Toggle the value
-    routineModel.isActiveOnVacationDays = !routineModel.isActiveOnVacationDays;
-
-    // Save the routine (this will trigger Hive save)
-    routineModel.save();
-
-    setState(() {}); // Rebuild UI
-
-    LogService.debug('VacationDaySettingsPage: Toggled routine $routineId to ${routineModel.isActiveOnVacationDays}');
+    // Update through TaskProvider to ensure proper notification
+    await taskProvider.updateRoutineVacationStatus(routineId, newStatus);
   }
 
   @override
@@ -60,8 +54,8 @@ class _VacationDaySettingsPageState extends State<VacationDaySettingsPage> {
     final taskProvider = context.watch<TaskProvider>();
     final streakProvider = context.watch<StreakSettingsProvider>();
 
-    // Get all routines
-    final allRoutines = taskProvider.taskList.where((task) => task.routineID != null).toList();
+    // Get all routines (not tasks with routineID, but actual routines)
+    final allRoutines = taskProvider.routineList;
 
     return Scaffold(
       appBar: AppBar(
@@ -229,14 +223,9 @@ class _VacationDaySettingsPageState extends State<VacationDaySettingsPage> {
 
   Widget _buildRoutinesList(List routines) {
     return Column(
-      children: routines.map((task) {
-        final routineId = task.routineID;
-        if (routineId == null) return const SizedBox.shrink();
-
-        // Find the routine model to check isActiveOnVacationDays
-        final taskProvider = context.read<TaskProvider>();
-        final routineModel = taskProvider.routineList.firstWhere((routine) => routine.id == routineId);
-        final isSelected = routineModel.isActiveOnVacationDays;
+      children: routines.map((routine) {
+        final routineId = routine.id;
+        final isSelected = routine.isActiveOnVacationDays;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 8),
@@ -252,15 +241,15 @@ class _VacationDaySettingsPageState extends State<VacationDaySettingsPage> {
             value: isSelected,
             onChanged: (value) => _toggleRoutine(routineId),
             title: Text(
-              task.title ?? 'Untitled Routine',
+              routine.title ?? 'Untitled Routine',
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
               ),
             ),
-            subtitle: task.description != null && task.description!.isNotEmpty
+            subtitle: routine.description != null && routine.description!.isNotEmpty
                 ? Text(
-                    task.description!,
+                    routine.description!,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

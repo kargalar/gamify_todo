@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/date_formatter.dart';
 import 'package:next_level/Widgets/Common/base_card.dart';
 
 /// Compact and simple note card widget (with Slidable actions)
@@ -186,41 +187,31 @@ class NoteCard extends BaseCard {
                     ],
                     // Zaman damgası
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: AppColors.text.withValues(alpha: 0.65),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatDate(note.createdAt),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.text.withValues(alpha: 0.65),
-                          ),
-                        ),
-                        if (note.isArchived) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.orange.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              'Archived',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: AppColors.orange,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                    Text(
+                      _formatDate(note.createdAt),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.text.withValues(alpha: 0.65),
+                      ),
                     ),
+                    if (note.isArchived) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.orange.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Archived',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppColors.orange,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -238,11 +229,11 @@ class NoteCard extends BaseCard {
     if (difference.inDays == 0) {
       return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     } else if (difference.inDays == 1) {
-      return 'Dün';
+      return 'Yesterday';
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} gün önce';
+      return '${difference.inDays} days ago';
     } else {
-      return '${date.day}/${date.month}/${date.year}';
+      return DateFormatter.formatDate(date);
     }
   }
 }

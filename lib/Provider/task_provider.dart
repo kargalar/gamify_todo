@@ -117,6 +117,19 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Update routine and notify listeners
+  Future<void> updateRoutineVacationStatus(int routineId, bool isActiveOnVacationDays) async {
+    try {
+      final routineModel = routineList.firstWhere((routine) => routine.id == routineId);
+      routineModel.isActiveOnVacationDays = isActiveOnVacationDays;
+      await routineModel.save();
+      notifyListeners();
+      LogService.debug('✅ TaskProvider: Updated routine $routineId vacation status to $isActiveOnVacationDays');
+    } catch (e) {
+      LogService.error('❌ TaskProvider: Error updating routine vacation status: $e');
+    }
+  }
+
   Future<void> addTask(TaskModel taskModel) async {
     // En yüksek sortOrder değerini bul ve 1 ekle (yeni task en üstte olacak)
     final maxSortOrder = taskList.isEmpty ? 0 : taskList.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b);

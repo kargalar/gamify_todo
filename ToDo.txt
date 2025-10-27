@@ -97,3 +97,12 @@ notlardaki slidable editi sola ekle
 ayrıca nota veya projeye basılı tutunca task itemlarda olduğu gibi bir efect başlamsını istiyorum
 
 projelerde hem basılı tutaarak sıralyabiliyorum hem de basılı tutunca longpress acitonu tetikleyebiliyorum notlarda sırlama özelliğini ekleyince longpress action özelliğini kaybetmiştik tekrar ekleyebilir miyiz.
+
+
+ALARM ALARM ALARM.
+3 tane alarm sesi ekle.
+alarm çalınca ekran açılsın vebildirim panelinde görünsün kapanana kadar. yani bildirim paneli açmadn da görünsün. ayrıca telefon sessizdeyse falan aptal gibi çalmamalıçalmamalı.
+
+tamamalnınca aniden yok olması kötü
+gün geçişler iappardaki kötü
+

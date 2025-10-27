@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/date_formatter.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 
 class InboxDateHeader extends StatelessWidget {
@@ -35,7 +36,7 @@ class InboxDateHeader extends StatelessWidget {
     } else if (date.isAtSameMomentAs(yesterday)) {
       dateText = LocaleKeys.Yesterday.tr();
     } else {
-      dateText = "${date.day}/${date.month}/${date.year}";
+      dateText = DateFormatter.formatDate(date);
     }
 
     return Container(

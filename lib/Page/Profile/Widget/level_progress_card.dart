@@ -15,12 +15,14 @@ class LevelProgressCard extends StatelessWidget {
     final taskList = TaskProvider().taskList;
 
     // Calculate statistics
-    final int totalTasks = taskList.length;
+    final int totalTasks = taskList.where((task) => task.routineID == null).length;
     final int routineTasks = taskList.where((task) => task.routineID != null).length;
-    final int completedTasks = taskList.where((task) => task.status == TaskStatusEnum.DONE).length;
-    final int failedTasks = taskList.where((task) => task.status == TaskStatusEnum.FAILED).length;
-    final int cancelledTasks = taskList.where((task) => task.status == TaskStatusEnum.CANCEL).length;
-    final int activeTasks = taskList.where((task) => task.status != TaskStatusEnum.DONE && task.status != TaskStatusEnum.FAILED && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.ARCHIVED).length;
+
+    // !! Geçici olarak kaplatıldı
+    // final int completedTasks = taskList.where((task) => task.status == TaskStatusEnum.DONE).length;
+    // final int failedTasks = taskList.where((task) => task.status == TaskStatusEnum.FAILED).length;
+    // final int cancelledTasks = taskList.where((task) => task.status == TaskStatusEnum.CANCEL).length;
+    // final int activeTasks = taskList.where((task) => task.status != TaskStatusEnum.DONE && task.status != TaskStatusEnum.FAILED && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.ARCHIVED).length;
 
     // Compute total duration from tasks
     final Duration totalDuration = taskList.fold(
@@ -129,66 +131,67 @@ class LevelProgressCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Task Statistics Grid
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatItem(
-                        icon: Icons.play_arrow,
-                        label: LocaleKeys.InProgress.tr(),
-                        value: activeTasks.toString(),
-                        color: Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildStatItem(
-                        icon: Icons.check_circle,
-                        label: LocaleKeys.Completed.tr(),
-                        value: completedTasks.toString(),
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatItem(
-                        icon: Icons.cancel,
-                        label: LocaleKeys.Cancelled.tr(),
-                        value: cancelledTasks.toString(),
-                        color: const Color.fromARGB(255, 147, 0, 206),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildStatItem(
-                        icon: Icons.close,
-                        label: LocaleKeys.Failed.tr(),
-                        value: failedTasks.toString(),
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+          // !!! Tasarımı beğenmedim geçici olarak kapatıldı
+          // // Task Statistics Grid
+          // Container(
+          //   padding: const EdgeInsets.all(12),
+          //   decoration: BoxDecoration(
+          //     color: Colors.white.withValues(alpha: 0.1),
+          //     borderRadius: BorderRadius.circular(12),
+          //     border: Border.all(
+          //       color: Colors.white.withValues(alpha: 0.2),
+          //       width: 1,
+          //     ),
+          //   ),
+          //   child: Column(
+          //     children: [
+          //       Row(
+          //         children: [
+          //           Expanded(
+          //             child: _buildStatItem(
+          //               icon: Icons.play_arrow,
+          //               label: LocaleKeys.InProgress.tr(),
+          //               value: activeTasks.toString(),
+          //               color: Colors.blue,
+          //             ),
+          //           ),
+          //           const SizedBox(width: 8),
+          //           Expanded(
+          //             child: _buildStatItem(
+          //               icon: Icons.check_circle,
+          //               label: LocaleKeys.Completed.tr(),
+          //               value: completedTasks.toString(),
+          //               color: Colors.green,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //       const SizedBox(height: 8),
+          //       Row(
+          //         children: [
+          //           Expanded(
+          //             child: _buildStatItem(
+          //               icon: Icons.cancel,
+          //               label: LocaleKeys.Cancelled.tr(),
+          //               value: cancelledTasks.toString(),
+          //               color: const Color.fromARGB(255, 147, 0, 206),
+          //             ),
+          //           ),
+          //           const SizedBox(width: 8),
+          //           Expanded(
+          //             child: _buildStatItem(
+          //               icon: Icons.close,
+          //               label: LocaleKeys.Failed.tr(),
+          //               value: failedTasks.toString(),
+          //               color: Colors.red,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // const SizedBox(height: 16),
 
           // Progress bar
           Column(
@@ -267,6 +270,8 @@ class LevelProgressCard extends StatelessWidget {
     );
   }
 
+  // !! Geçici olarak kaplatıldı
+  // ignore: unused_element
   Widget _buildStatItem({
     required IconData icon,
     required String label,

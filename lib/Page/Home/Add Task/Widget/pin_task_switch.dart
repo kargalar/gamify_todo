@@ -31,7 +31,7 @@ class PinTaskSwitch extends StatelessWidget {
               if (states.contains(WidgetState.selected)) {
                 return const Icon(Icons.push_pin_rounded, color: Colors.white);
               }
-              return const Icon(Icons.push_pin_rounded, color: Colors.grey);
+              return const Icon(Icons.push_pin_rounded, color: Colors.white);
             }),
           ),
         ),

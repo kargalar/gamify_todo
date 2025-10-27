@@ -298,7 +298,7 @@ class _InboxTaskListState extends State<InboxTaskList> {
             child: Text(
               date.year.toString(),
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: AppColors.main,
                 letterSpacing: 1.1,

@@ -11,6 +11,7 @@ import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/date_formatter.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
 import 'package:next_level/Widgets/Common/add_item_dialog.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -586,7 +587,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   ),
                   const Spacer(),
                   Text(
-                    DateFormat('dd/MM/yyyy').format(_currentProject.createdAt),
+                    DateFormatter.formatDate(_currentProject.createdAt),
                     style: TextStyle(
                       fontSize: 13,
                       color: AppColors.text.withValues(alpha: 0.8),

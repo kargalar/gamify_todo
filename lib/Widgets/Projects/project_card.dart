@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 import '../../General/app_colors.dart';
 import '../../General/category_icons.dart';
+import '../../General/date_formatter.dart';
 import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
 import '../../Model/project_subtask_model.dart';
@@ -486,7 +487,7 @@ class ProjectCard extends BaseCard {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${'created'.tr()}: ${DateFormat('dd/MM/yyyy').format(project.createdAt)}',
+                    DateFormatter.formatDate(project.createdAt),
                     style: TextStyle(
                       fontSize: 10,
                       color: AppColors.onBackground.withValues(alpha: 0.5),
