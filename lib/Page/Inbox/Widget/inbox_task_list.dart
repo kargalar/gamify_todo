@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
@@ -12,9 +14,10 @@ import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Service/server_manager.dart';
 import 'package:provider/provider.dart';
 
-class InboxTaskList extends StatelessWidget {
+class InboxTaskList extends StatefulWidget {
   final CategoryModel? selectedCategory;
   final String searchQuery;
   final bool showRoutines;
@@ -39,13 +42,18 @@ class InboxTaskList extends StatelessWidget {
   });
 
   @override
+  State<InboxTaskList> createState() => _InboxTaskListState();
+}
+
+class _InboxTaskListState extends State<InboxTaskList> {
+  @override
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
 
     // Get tasks based on selected category
     List<TaskModel> allTasks;
-    if (selectedCategory != null) {
-      allTasks = taskProvider.getTasksByCategoryId(selectedCategory!.id);
+    if (widget.selectedCategory != null) {
+      allTasks = taskProvider.getTasksByCategoryId(widget.selectedCategory!.id);
     } else {
       allTasks = taskProvider.getAllTasks();
     }
@@ -96,21 +104,21 @@ class InboxTaskList extends StatelessWidget {
 
       // For routines
       if (isRoutine) {
-        return showRoutines;
+        return widget.showRoutines;
       }
 
       // For non-routine tasks
-      return showTasks;
+      return widget.showTasks;
     }).toList();
 
     // Apply task type filter
-    tasks = tasks.where((task) => selectedTaskTypes.contains(task.type)).toList();
+    tasks = tasks.where((task) => widget.selectedTaskTypes.contains(task.type)).toList();
 
     // Apply date filter
-    LogService.debug('📅 InboxTaskList: Applying date filter: $dateFilterState');
+    LogService.debug('📅 InboxTaskList: Applying date filter: ${widget.dateFilterState}');
 
     tasks = tasks.where((task) {
-      switch (dateFilterState) {
+      switch (widget.dateFilterState) {
         case DateFilterState.all:
           return true; // Show all tasks
         case DateFilterState.withDate:
@@ -128,17 +136,17 @@ class InboxTaskList extends StatelessWidget {
       bool matchesStatus = false;
 
       // Check if task matches selected statuses
-      if (selectedStatuses.isNotEmpty && selectedStatuses.contains(task.status)) {
+      if (widget.selectedStatuses.isNotEmpty && widget.selectedStatuses.contains(task.status)) {
         matchesStatus = true;
       }
 
       // Check if task matches empty status filter
-      if (showEmptyStatus && task.status == null) {
+      if (widget.showEmptyStatus && task.status == null) {
         matchesStatus = true;
       }
 
       // If no filters are selected, show nothing
-      if (selectedStatuses.isEmpty && !showEmptyStatus) {
+      if (widget.selectedStatuses.isEmpty && !widget.showEmptyStatus) {
         return false;
       }
 
@@ -146,9 +154,9 @@ class InboxTaskList extends StatelessWidget {
     }).toList();
 
     // Apply search filter if search query is not empty
-    if (searchQuery.isNotEmpty) {
+    if (widget.searchQuery.isNotEmpty) {
       tasks = tasks.where((task) {
-        final lowerQuery = searchQuery.toLowerCase();
+        final lowerQuery = widget.searchQuery.toLowerCase();
 
         // Search in task title and description
         bool matchesTask = task.title.toLowerCase().contains(lowerQuery) || (task.description?.toLowerCase().contains(lowerQuery) ?? false);
@@ -205,7 +213,7 @@ class InboxTaskList extends StatelessWidget {
         final date = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
 
         // Filter out today's tasks if showTodayTasks is false
-        if (!showTodayTasks && date == todayDate) {
+        if (!widget.showTodayTasks && date == todayDate) {
           debugPrint('🔍 [Inbox Filter] Today task filtered out: ${task.title}');
           continue;
         }
@@ -250,7 +258,7 @@ class InboxTaskList extends StatelessWidget {
 
     // Check if all tasks were filtered out during grouping (e.g., by showTodayTasks filter)
     if (sortedDates.isEmpty) {
-      LogService.debug('🔍 Inbox: All tasks filtered out during grouping (showTodayTasks: $showTodayTasks)');
+      LogService.debug('🔍 Inbox: All tasks filtered out during grouping (showTodayTasks: ${widget.showTodayTasks})');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -277,8 +285,8 @@ class InboxTaskList extends StatelessWidget {
     for (final date in sortedDates) {
       final tasksForDate = groupedTasks[date]!;
 
-      // Sort tasks by priority and time
-      taskProvider.sortTasksByPriorityAndTime(tasksForDate);
+      // sortOrder'a göre sırala (yüksekten düşüğe)
+      tasksForDate.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
 
       final bool isRealDate = date.year > 1970; // skip sentinel years 1969 (overdue) & 1970 (no date)
       if (isRealDate && lastPrintedYear != date.year && date.year != currentYear) {
@@ -306,7 +314,15 @@ class InboxTaskList extends StatelessWidget {
           child: InboxDateHeader(date: date),
         ),
       );
-      listChildren.addAll(tasksForDate.map((task) => TaskItem(taskModel: task)));
+
+      // Her tarih grubu için ReorderableListView
+      listChildren.add(
+        _buildReorderableTaskGroup(
+          tasks: tasksForDate,
+          groupDate: date,
+          taskProvider: taskProvider,
+        ),
+      );
     }
 
     return PopScope(
@@ -316,5 +332,116 @@ class InboxTaskList extends StatelessWidget {
         children: listChildren,
       ),
     );
+  }
+
+  Widget _buildReorderableTaskGroup({
+    required List<TaskModel> tasks,
+    required DateTime groupDate,
+    required TaskProvider taskProvider,
+  }) {
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: tasks.length,
+      padding: EdgeInsets.zero,
+      buildDefaultDragHandles: false,
+      proxyDecorator: (child, index, animation) {
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (BuildContext context, Widget? child) {
+            final double animValue = Curves.easeInOut.transform(animation.value);
+            final double elevation = lerpDouble(0, 6, animValue)!;
+            final double scale = lerpDouble(1.0, 1.02, animValue)!;
+            return Transform.scale(
+              scale: scale,
+              child: Material(
+                elevation: elevation,
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: child,
+              ),
+            );
+          },
+          child: child,
+        );
+      },
+      onReorder: (int oldIndex, int newIndex) {
+        _handleTaskReorder(
+          tasks: tasks,
+          groupDate: groupDate,
+          oldIndex: oldIndex,
+          newIndex: newIndex,
+          taskProvider: taskProvider,
+        );
+      },
+      itemBuilder: (context, index) {
+        final task = tasks[index];
+        return ReorderableDragStartListener(
+          key: ValueKey(task.key),
+          index: index,
+          child: TaskItem(taskModel: task),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleTaskReorder({
+    required List<TaskModel> tasks,
+    required DateTime groupDate,
+    required int oldIndex,
+    required int newIndex,
+    required TaskProvider taskProvider,
+  }) async {
+    try {
+      LogService.debug('🔄 Inbox: Reordering task from $oldIndex to $newIndex in group ${DateFormat('dd/MM/yyyy').format(groupDate)}');
+
+      // ReorderableListView'in klasik sorunu - düzeltme yap
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+
+      if (oldIndex >= tasks.length || newIndex >= tasks.length || oldIndex < 0 || newIndex < 0) {
+        LogService.error('❌ Inbox: Invalid reorder indices - oldIndex: $oldIndex, newIndex: $newIndex, listLength: ${tasks.length}');
+        return;
+      }
+
+      // Taşınacak task'ı listeden çıkar
+      final movedTask = tasks.removeAt(oldIndex);
+
+      // Yeni pozisyona ekle
+      tasks.insert(newIndex, movedTask);
+
+      // Tüm task'lara yeni sortOrder değerlerini ata
+      final updatedTasks = <TaskModel>[];
+      for (int i = 0; i < tasks.length; i++) {
+        final task = tasks[i];
+        final newSortOrder = tasks.length - i;
+
+        if (task.sortOrder != newSortOrder) {
+          task.sortOrder = newSortOrder;
+          updatedTasks.add(task);
+          LogService.debug('  ✏️ Updated Task ${task.id}: sortOrder → $newSortOrder');
+        }
+      }
+
+      // UI'ı hemen güncelle
+      setState(() {});
+      LogService.debug('  🎨 UI updated immediately');
+
+      // Veritabanına kaydet (arka planda)
+      for (final updatedTask in updatedTasks) {
+        try {
+          await updatedTask.save();
+          await ServerManager().updateTask(taskModel: updatedTask);
+        } catch (e) {
+          LogService.error('❌ Error saving task ${updatedTask.id}: $e');
+        }
+      }
+
+      LogService.debug('✅ Inbox: Tasks reordered and saved successfully');
+    } catch (e) {
+      LogService.error('❌ Inbox: Error reordering tasks: $e');
+      setState(() {});
+    }
   }
 }

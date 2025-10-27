@@ -92,3 +92,8 @@ alarm düzelt. her yerde. task tamamlayınca falan.
 dünkü rutin tamamalnmaın rağmen başarısız işaretlenimş. yani timer dün başlamış bugün bitmiş!!!!
 
 notlardaki slidable editi sola ekle
+
+
+ayrıca nota veya projeye basılı tutunca task itemlarda olduğu gibi bir efect başlamsını istiyorum
+
+projelerde hem basılı tutaarak sıralyabiliyorum hem de basılı tutunca longpress acitonu tetikleyebiliyorum notlarda sırlama özelliğini ekleyince longpress action özelliğini kaybetmiştik tekrar ekleyebilir miyiz.
