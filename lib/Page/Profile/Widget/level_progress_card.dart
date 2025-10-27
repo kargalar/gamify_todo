@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
@@ -33,9 +32,9 @@ class LevelProgressCard extends StatelessWidget {
     );
 
     final int totalHours = totalDuration.inHours;
-    final int currentLevel = totalHours ~/ 20; // Her 20 saat = 1 level
-    final int hoursInCurrentLevel = totalHours % 20;
-    final double progressPercentage = hoursInCurrentLevel / 20;
+    final int currentLevel = totalHours ~/ 10; // Her 10 saat = 1 level
+    final int hoursInCurrentLevel = totalHours % 10;
+    final double progressPercentage = hoursInCurrentLevel / 10;
 
     return Container(
       width: double.infinity,
@@ -100,14 +99,6 @@ class LevelProgressCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    totalDuration.toLevel(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
                     '${TaskProvider().taskList.length} ${LocaleKeys.Tasks.tr()}',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
@@ -135,7 +126,7 @@ class LevelProgressCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '$hoursInCurrentLevel / 20 ${LocaleKeys.Hour.tr()}',
+                    '$hoursInCurrentLevel / 10 ${LocaleKeys.Hour.tr()}',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 13,
@@ -183,7 +174,7 @@ class LevelProgressCard extends StatelessWidget {
               const SizedBox(height: 8),
               // Next level info
               Text(
-                '${20 - hoursInCurrentLevel} ${LocaleKeys.Hour.tr()} ${LocaleKeys.ToNextLevel.tr()}',
+                '${10 - hoursInCurrentLevel} ${LocaleKeys.Hour.tr()} ${LocaleKeys.ToNextLevel.tr()}',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 11,

@@ -96,7 +96,7 @@ abstract class LocaleKeys {
   static const StreakStatus = 'StreakStatus';
   static const ShowAll = 'ShowAll';
   static const DailyTargetLabel = 'DailyTargetLabel';
-  static const StreakLabel = 'StreakLabel';
+  static const TargetStreak = 'TargetStreak';
   static const Reached = 'Reached';
   static const Missed = 'Missed';
   static const Vacation = 'Vacation';

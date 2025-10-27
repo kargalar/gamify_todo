@@ -62,7 +62,7 @@ class ProgressChip extends StatelessWidget {
             child: GestureDetector(
               onTap: () => _showWeeklyStreakDialog(context, vm),
               child: Container(
-                height: 32,
+                height: 42,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [mainColor.withValues(alpha: 0.18), mainColor.withValues(alpha: 0.08)]),
@@ -86,7 +86,7 @@ class ProgressChip extends StatelessWidget {
                               backgroundColor: mainColor.withValues(alpha: 0.12),
                             ),
                           ),
-                          Text('${(percent * 100).round()}%', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: mainColor)),
+                          Text('${(percent * 100).round()}%', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: mainColor)),
                         ],
                       ),
                     ),

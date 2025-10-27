@@ -71,3 +71,9 @@ weekly ve yearly streaklar için 5 durum mu olsun.
 streaki doğru hesaplıyorm u bak. vacation güne dikkat et.
 
 vacation mode aktifken otomatik sonraki güne geçince o günü de tatil olarak işaretliyor mu
+
+lvl her zmaan 10 saatolmasın gittikçe altsın. level progressı String toLevel() { den alalım
+
+Weeklydeki ilerlemnin oralara alev eklenmesi güzel olur
+
+profildkei süt kıma kaç task kaç rutin göster. kaçı başarılı kaçı cancel giib şeyler de eklemek isityorum.
