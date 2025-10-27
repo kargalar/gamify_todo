@@ -211,6 +211,7 @@ class InboxTaskList extends StatelessWidget {
     // Build list with year separators
     final List<Widget> listChildren = [];
     int? lastPrintedYear;
+    final currentYear = DateTime.now().year;
     for (final date in sortedDates) {
       final tasksForDate = groupedTasks[date]!;
 
@@ -218,8 +219,8 @@ class InboxTaskList extends StatelessWidget {
       taskProvider.sortTasksByPriorityAndTime(tasksForDate);
 
       final bool isRealDate = date.year > 1970; // skip sentinel years 1969 (overdue) & 1970 (no date)
-      if (isRealDate && lastPrintedYear != date.year) {
-        // Insert year header
+      if (isRealDate && lastPrintedYear != date.year && date.year != currentYear) {
+        // Insert year header (skip current year)
         lastPrintedYear = date.year;
         listChildren.add(
           Padding(

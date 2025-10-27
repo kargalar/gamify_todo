@@ -24,8 +24,8 @@ class InboxDateHeader extends StatelessWidget {
 
     if (date.year == 1969 && date.month == 1 && date.day == 1) {
       dateText = "Overdue"; // Special case for overdue tasks
-      backgroundColor = AppColors.red.withValues(alpha: 0.1);
-      textColor = AppColors.red;
+      backgroundColor = const Color.fromARGB(255, 214, 121, 0).withValues(alpha: 0.1);
+      textColor = const Color.fromARGB(255, 255, 123, 0);
     } else if (date.year == 1970 && date.month == 1 && date.day == 1) {
       dateText = "Inbox"; // Special case for tasks without dates
     } else if (date.isAtSameMomentAs(today)) {

@@ -256,11 +256,7 @@ class _InboxPageState extends State<InboxPage> {
                 });
               },
             ),
-            Divider(
-              color: AppColors.text.withValues(alpha: 0.1),
-              height: 1,
-              thickness: 1,
-            ),
+
             Expanded(
               child: InboxTaskList(
                 selectedCategory: _selectedCategory,
