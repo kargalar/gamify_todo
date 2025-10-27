@@ -27,13 +27,14 @@ class ProjectModelAdapter extends TypeAdapter<ProjectModel> {
       colorIndex: fields[7] as int,
       categoryId: fields[8] as String?,
       showOnlyIncompleteTasks: fields[9] as bool?,
+      sortOrder: fields[10] == null ? 0 : fields[10] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProjectModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class ProjectModelAdapter extends TypeAdapter<ProjectModel> {
       ..writeByte(8)
       ..write(obj.categoryId)
       ..writeByte(9)
-      ..write(obj.showOnlyIncompleteTasks);
+      ..write(obj.showOnlyIncompleteTasks)
+      ..writeByte(10)
+      ..write(obj.sortOrder);
   }
 
   @override

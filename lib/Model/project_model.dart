@@ -34,6 +34,9 @@ class ProjectModel extends HiveObject {
   @HiveField(9)
   bool? showOnlyIncompleteTasks;
 
+  @HiveField(10, defaultValue: 0)
+  int sortOrder; // Sıralama için kullanılır (yüksek değer = üstte)
+
   ProjectModel({
     required this.id,
     required this.title,
@@ -45,6 +48,7 @@ class ProjectModel extends HiveObject {
     this.colorIndex = 0,
     this.categoryId,
     this.showOnlyIncompleteTasks,
+    this.sortOrder = 0,
   });
 
   /// Copy with method
@@ -59,6 +63,7 @@ class ProjectModel extends HiveObject {
     int? colorIndex,
     String? categoryId,
     bool? showOnlyIncompleteTasks,
+    int? sortOrder,
   }) {
     return ProjectModel(
       id: id ?? this.id,
@@ -71,12 +76,13 @@ class ProjectModel extends HiveObject {
       colorIndex: colorIndex ?? this.colorIndex,
       categoryId: categoryId ?? this.categoryId,
       showOnlyIncompleteTasks: showOnlyIncompleteTasks ?? this.showOnlyIncompleteTasks,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 
   @override
   String toString() {
-    return 'ProjectModel(id: $id, title: $title, description: $description, isPinned: $isPinned, isArchived: $isArchived, categoryId: $categoryId)';
+    return 'ProjectModel(id: $id, title: $title, description: $description, isPinned: $isPinned, isArchived: $isArchived, categoryId: $categoryId, sortOrder: $sortOrder)';
   }
 
   Map<String, dynamic> toJson() {
@@ -91,6 +97,7 @@ class ProjectModel extends HiveObject {
       'colorIndex': colorIndex,
       'categoryId': categoryId,
       'showOnlyIncompleteTasks': showOnlyIncompleteTasks,
+      'sortOrder': sortOrder,
     };
   }
 
@@ -106,6 +113,7 @@ class ProjectModel extends HiveObject {
       colorIndex: json['colorIndex'] ?? 0,
       categoryId: json['categoryId'],
       showOnlyIncompleteTasks: json['showOnlyIncompleteTasks'],
+      sortOrder: json['sortOrder'] ?? 0,
     );
   }
 }

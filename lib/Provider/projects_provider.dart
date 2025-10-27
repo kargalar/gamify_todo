@@ -204,12 +204,18 @@ class ProjectsProvider with ChangeNotifier {
 
   /// Sabitlenmiş projeler
   List<ProjectModel> get pinnedProjects {
-    return filteredProjects.where((project) => project.isPinned).toList();
+    final pinned = filteredProjects.where((project) => project.isPinned).toList();
+    // sortOrder'a göre sırala (yüksek değer = üstte)
+    pinned.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
+    return pinned;
   }
 
   /// Sabitlenmemiş projeler
   List<ProjectModel> get unpinnedProjects {
-    return filteredProjects.where((project) => !project.isPinned).toList();
+    final unpinned = filteredProjects.where((project) => !project.isPinned).toList();
+    // sortOrder'a göre sırala (yüksek değer = üstte)
+    unpinned.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
+    return unpinned;
   }
 
   /// Projeleri yükle
@@ -321,6 +327,78 @@ class ProjectsProvider with ChangeNotifier {
       return success;
     } catch (e) {
       LogService.error('❌ ProjectsProvider: Error toggling archive: $e');
+      return false;
+    }
+  }
+
+  /// Projelerin sırasını değiştir (sürükle-bırak için)
+  Future<bool> reorderProjects({
+    required int oldIndex,
+    required int newIndex,
+    required bool isPinnedList,
+  }) async {
+    try {
+      LogService.debug('🔄 ProjectsProvider: Reordering projects from $oldIndex to $newIndex (pinned: $isPinnedList)');
+      _setError(null);
+
+      // Doğru listeyi al
+      final projectsList = List<ProjectModel>.from(isPinnedList ? pinnedProjects : unpinnedProjects);
+
+      if (oldIndex >= projectsList.length || newIndex >= projectsList.length || oldIndex < 0 || newIndex < 0) {
+        LogService.error('❌ ProjectsProvider: Invalid reorder indices - oldIndex: $oldIndex, newIndex: $newIndex, listLength: ${projectsList.length}');
+        return false;
+      }
+
+      // Taşınacak projeyi listeden çıkar
+      final movedProject = projectsList.removeAt(oldIndex);
+
+      // Yeni pozisyona ekle
+      projectsList.insert(newIndex, movedProject);
+
+      LogService.debug('  📋 New order after move:');
+      for (var i = 0; i < projectsList.length; i++) {
+        LogService.debug('    $i: Project ${projectsList[i].id} - ${projectsList[i].title}');
+      }
+
+      // Önce tüm projeleri lokal olarak güncelle (optimistik UI güncellemesi)
+      final updatedProjects = <ProjectModel>[];
+      for (int i = 0; i < projectsList.length; i++) {
+        final project = projectsList[i];
+        final newSortOrder = projectsList.length - i; // Tersten sıralama
+
+        if (project.sortOrder != newSortOrder) {
+          final updatedProject = project.copyWith(
+            sortOrder: newSortOrder,
+            updatedAt: DateTime.now(),
+          );
+          updatedProjects.add(updatedProject);
+
+          // Lokal listeyi hemen güncelle
+          final mainIndex = _projects.indexWhere((p) => p.id == project.id);
+          if (mainIndex != -1) {
+            _projects[mainIndex] = updatedProject;
+          }
+
+          LogService.debug('  ✏️ Updated Project ${project.id}: sortOrder ${project.sortOrder} → $newSortOrder');
+        }
+      }
+
+      // UI'ı hemen güncelle (kullanıcı anında değişikliği görsün)
+      notifyListeners();
+      LogService.debug('  🎨 UI updated immediately');
+
+      // Ardından veritabanına kaydet (arka planda)
+      for (final updatedProject in updatedProjects) {
+        await _projectsService.updateProject(updatedProject);
+      }
+
+      LogService.debug('✅ ProjectsProvider: Projects reordered and saved successfully');
+      return true;
+    } catch (e) {
+      LogService.error('❌ ProjectsProvider: Error reordering projects: $e');
+      _setError('Proje sıralaması değiştirilirken hata oluştu: $e');
+      // Hata durumunda listeyi yeniden yükle
+      await loadProjects();
       return false;
     }
   }

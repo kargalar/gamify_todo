@@ -17,12 +17,63 @@ class ProjectsService {
       if (!Hive.isBoxOpen(_boxName)) {
         _projectsBox = await Hive.openBox<ProjectModel>(_boxName);
         LogService.debug('✅ ProjectsService: Hive box opened successfully');
+
+        // Migration: Mevcut projelere sortOrder ata
+        await _migrateSortOrder();
       } else {
         _projectsBox = Hive.box<ProjectModel>(_boxName);
         LogService.debug('✅ ProjectsService: Hive box already open');
       }
     } catch (e) {
       LogService.error('❌ ProjectsService: Error opening Hive box: $e');
+    }
+  }
+
+  /// Mevcut projelere sortOrder değeri ata (migration)
+  Future<void> _migrateSortOrder() async {
+    try {
+      if (_projectsBox == null) return;
+
+      final projects = _projectsBox!.values.toList();
+
+      if (projects.isEmpty) {
+        LogService.debug('✅ ProjectsService: No projects to migrate');
+        return;
+      }
+
+      bool needsMigration = false;
+
+      // sortOrder 0 olan projeleri kontrol et
+      for (var project in projects) {
+        if (project.sortOrder == 0) {
+          needsMigration = true;
+          break;
+        }
+      }
+
+      if (!needsMigration) {
+        LogService.debug('✅ ProjectsService: sortOrder migration not needed');
+        return;
+      }
+
+      LogService.debug('🔄 ProjectsService: Starting sortOrder migration for ${projects.length} projects');
+
+      // Projeleri tarihe göre sırala (yeni -> eski)
+      projects.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      // Her projeye sıralı sortOrder değeri ata (en yeni proje en yüksek değer alacak)
+      for (int i = 0; i < projects.length; i++) {
+        final project = projects[i];
+        final newSortOrder = projects.length - i; // Tersine sıralama
+        project.sortOrder = newSortOrder;
+        await _projectsBox!.put(project.id, project);
+        LogService.debug('  📝 Project ${project.id}: sortOrder set to $newSortOrder');
+      }
+
+      LogService.debug('✅ ProjectsService: sortOrder migration completed for ${projects.length} projects');
+    } catch (e) {
+      LogService.error('❌ ProjectsService: Error during sortOrder migration: $e');
+      // Migration hatası uygulamayı durdurmamalı
     }
   }
 
@@ -61,7 +112,16 @@ class ProjectsService {
         return false;
       }
 
-      LogService.debug('➕ ProjectsService: Adding new project: ${project.id}');
+      // En yüksek sortOrder değerini bul ve 1 ekle (yeni proje en üstte olacak)
+      final allProjects = _projectsBox!.values.toList();
+      final maxSortOrder = allProjects.isEmpty ? 0 : allProjects.map((p) => p.sortOrder).reduce((a, b) => a > b ? a : b);
+
+      // Eğer sortOrder henüz atanmamışsa, yeni değeri ata
+      if (project.sortOrder == 0) {
+        project = project.copyWith(sortOrder: maxSortOrder + 1);
+      }
+
+      LogService.debug('➕ ProjectsService: Adding new project: ${project.id} with sortOrder: ${project.sortOrder}');
       await _projectsBox!.put(project.id, project);
       LogService.debug('✅ ProjectsService: Project added successfully');
       return true;

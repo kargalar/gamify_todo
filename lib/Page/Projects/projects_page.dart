@@ -334,7 +334,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
               ],
             ),
           ),
-          ...pinnedProjects.map((project) => _buildProjectCard(context, provider, project)),
+          _buildReorderableProjectsList(context, provider, pinnedProjects, isPinnedList: true),
         ],
 
         // Diğer projeler
@@ -352,11 +352,65 @@ class _ProjectsPageState extends State<ProjectsPage> {
                 ),
               ),
             ),
-          ...unpinnedProjects.map((project) => _buildProjectCard(context, provider, project)),
+          _buildReorderableProjectsList(context, provider, unpinnedProjects, isPinnedList: false),
         ],
 
         const SizedBox(height: 80), // FAB için boşluk
       ],
+    );
+  }
+
+  /// Sürüklenebilir projeler listesi
+  Widget _buildReorderableProjectsList(BuildContext context, ProjectsProvider provider, List<ProjectModel> projects, {required bool isPinnedList}) {
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      buildDefaultDragHandles: false, // Varsayılan handle icon'unu kaldır
+      proxyDecorator: (child, index, animation) {
+        // Sürükleme sırasında kartın görünümünü özelleştir
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            final animValue = Curves.easeInOut.transform(animation.value);
+            final scale = 1.0 + (animValue * 0.05); // Hafif büyütme efekti
+            final elevation = animValue * 8.0; // Hafif gölge efekti
+
+            return Transform.scale(
+              scale: scale,
+              child: Material(
+                elevation: elevation,
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: child,
+              ),
+            );
+          },
+          child: child,
+        );
+      },
+      itemCount: projects.length,
+      onReorder: (oldIndex, newIndex) async {
+        LogService.debug('🔄 Reordering project from $oldIndex to $newIndex');
+
+        // newIndex düzeltmesi (Flutter ReorderableListView için gerekli)
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+
+        await provider.reorderProjects(
+          oldIndex: oldIndex,
+          newIndex: newIndex,
+          isPinnedList: isPinnedList,
+        );
+      },
+      itemBuilder: (context, index) {
+        final project = projects[index];
+        return ReorderableDragStartListener(
+          key: ValueKey(project.id),
+          index: index,
+          child: _buildProjectCard(context, provider, project),
+        );
+      },
     );
   }
 
