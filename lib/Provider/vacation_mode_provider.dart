@@ -50,12 +50,16 @@ class VacationModeProvider extends ChangeNotifier {
     _isVacationModeEnabled = !_isVacationModeEnabled;
     await _saveVacationModeSettings();
 
-    // When enabling vacation mode, mark today as vacation date
-    // When disabling, today's vacation status remains in history
+    final today = DateTime.now();
+
     if (_isVacationModeEnabled) {
-      final today = DateTime.now();
+      // When enabling vacation mode, mark today as vacation date
       await VacationDateProvider().setDateVacation(today, true);
-      LogService.debug('VacationMode: Marked today as vacation date');
+      LogService.debug('VacationMode: Enabled and marked today as vacation date');
+    } else {
+      // When disabling vacation mode, remove today from vacation dates
+      await VacationDateProvider().setDateVacation(today, false);
+      LogService.debug('VacationMode: Disabled and removed today from vacation dates');
     }
 
     // Show feedback message to user

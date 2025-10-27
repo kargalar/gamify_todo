@@ -7,10 +7,8 @@ import 'package:next_level/Page/Settings/contact_us_dialog.dart';
 import 'package:next_level/Page/Settings/file_storage_management_page.dart';
 import 'package:next_level/Page/Settings/navbar_customization_page.dart';
 import 'package:next_level/Page/Settings/privacy_policy_webview_page.dart';
-import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
-import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
@@ -153,43 +151,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               },
             ),
-            // Vacation Mode option
-            Consumer<VacationModeProvider>(
-              builder: (context, vacationModeProvider, child) {
-                return _settingsOption(
-                  title: LocaleKeys.VacationMode.tr(),
-                  subtitle: LocaleKeys.VacationModeSubtitle.tr(),
-                  icon: Icons.beach_access,
-                  onTap: () {
-                    vacationModeProvider.toggleVacationMode();
-                  },
-                  trailing: Switch.adaptive(
-                    value: vacationModeProvider.isVacationModeEnabled,
-                    thumbIcon: vacationModeProvider.isVacationModeEnabled
-                        ? WidgetStateProperty.all(
-                            const Icon(
-                              Icons.beach_access,
-                              color: AppColors.white,
-                              size: 16,
-                            ),
-                          )
-                        : WidgetStateProperty.all(
-                            const Icon(
-                              Icons.work,
-                              color: AppColors.white,
-                              size: 16,
-                            ),
-                          ),
-                    trackOutlineColor: vacationModeProvider.isVacationModeEnabled ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
-                    inactiveThumbColor: AppColors.dirtyRed,
-                    inactiveTrackColor: AppColors.white,
-                    onChanged: (_) {
-                      vacationModeProvider.toggleVacationMode();
-                    },
-                  ),
-                );
-              },
-            ),
             // Navbar Customization option
             _settingsOption(
               title: LocaleKeys.NavbarCustomization.tr(),
@@ -197,15 +158,6 @@ class _SettingsPageState extends State<SettingsPage> {
               icon: Icons.view_carousel,
               onTap: () {
                 NavigatorService().goTo(const NavbarCustomizationPage());
-              },
-            ),
-            // Streak Settings option
-            _settingsOption(
-              title: LocaleKeys.StreakSettings.tr(),
-              subtitle: LocaleKeys.StreakMinimumHoursDesc.tr(),
-              icon: Icons.local_fire_department,
-              onTap: () {
-                NavigatorService().goTo(const StreakSettingsPage());
               },
             ),
             // _settingsOption(

@@ -100,35 +100,38 @@ class VacationDateProvider extends ChangeNotifier {
   /// Check if a date is a vacation day - CENTRALIZED VACATION LOGIC
   /// Returns true if:
   /// 1. The date is specifically marked as vacation in Hive (date-specific vacation)
-  /// 2. Vacation mode is active (for today and future only)
-  /// 3. The day is a vacation weekday (e.g., every Saturday)
+  /// 2. Vacation mode is active (ONLY for TODAY, not future dates)
+  /// 3. The day is a vacation weekday (e.g., every Saturday) - ONLY for future dates
   bool isVacationDay(DateTime date) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final checkDate = DateTime(date.year, date.month, date.day);
 
     final isToday = checkDate.isAtSameMomentAs(today);
+    final isPast = checkDate.isBefore(today);
+    final isFuture = checkDate.isAfter(today);
 
     // 1. Check if this specific date is marked as vacation in Hive
     final isSpecificDateVacation = isDateVacation(checkDate);
 
-    // 2. Check if vacation mode is globally enabled (only for today and future dates)
+    // 2. Check if vacation mode is globally enabled (ONLY for TODAY, not future)
     final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
-    final isVacationModeApplicable = isVacationModeActive && !checkDate.isBefore(today);
+    final isVacationModeApplicable = isVacationModeActive && isToday; // Only TODAY!
 
     // 3. Check if this specific weekday is marked as vacation
+    // IMPORTANT: Only apply weekday rule for FUTURE dates, not past
     final vacationWeekdays = StreakSettingsProvider().vacationWeekdays;
     // weekday: 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
     // Convert to 0-based index for our Set (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
     final weekdayIndex = date.weekday - 1;
-    final isVacationWeekday = vacationWeekdays.contains(weekdayIndex);
+    final isVacationWeekday = vacationWeekdays.contains(weekdayIndex) && isFuture; // Only for future!
 
     final result = isSpecificDateVacation || isVacationModeApplicable || isVacationWeekday;
 
     if (isToday) {
       LogService.debug('🏖️ VacationDateProvider.isVacationDay TODAY: result=$result, specificDate=$isSpecificDateVacation, vacationMode=$isVacationModeApplicable (active=$isVacationModeActive), weekday=$isVacationWeekday (index=$weekdayIndex, vacationWeekdays=$vacationWeekdays)');
     } else {
-      LogService.debug('VacationDateProvider: isVacationDay for ${date.toIso8601String()}: $result (specificDate: $isSpecificDateVacation, vacationMode: $isVacationModeApplicable, weekday: $isVacationWeekday)');
+      LogService.debug('VacationDateProvider: isVacationDay for ${date.toIso8601String()}: $result (specificDate: $isSpecificDateVacation, vacationMode: $isVacationModeApplicable, weekday: $isVacationWeekday, isPast: $isPast, isFuture: $isFuture)');
     }
 
     return result;

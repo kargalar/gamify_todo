@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Debug/vacation_dates_list_page.dart';
+import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/widget_debug_service.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 
@@ -191,6 +193,23 @@ class _WidgetDebugPageState extends State<WidgetDebugPage> {
               label: const Text('Remove Test Tasks'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.red,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // View Vacation Dates
+            ElevatedButton.icon(
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                      NavigatorService().goTo(const VacationDatesListPage());
+                    },
+              icon: const Icon(Icons.beach_access),
+              label: const Text('View Vacation Dates'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),

@@ -4,8 +4,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/streak_calendar_dialog.dart';
 import 'package:next_level/Page/Home/Widget/task_contributions_widget.dart';
+import 'package:next_level/Page/Settings/streak_settings_page.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:next_level/Service/navigator_service.dart';
 import 'package:provider/provider.dart';
 
 class WeeklyStreakDialog extends StatefulWidget {
@@ -90,12 +92,19 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                   value: vacationProvider.isVacationModeEnabled,
                                   onChanged: (value) async {
                                     await vacationProvider.toggleVacationMode();
+                                    // Trigger rebuild to update streak status
+                                    setState(() {});
                                   },
                                   activeThumbColor: Colors.orange,
                                   activeTrackColor: Colors.orange.withValues(alpha: 0.3),
                                   inactiveThumbColor: Colors.grey,
                                   inactiveTrackColor: Colors.grey.withValues(alpha: 0.3),
-                                  thumbIcon: vacationProvider.isVacationModeEnabled ? const WidgetStatePropertyAll(Icon(Icons.beach_access, color: Colors.white, size: 16)) : null,
+                                  thumbIcon: WidgetStateProperty.resolveWith((states) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return const Icon(Icons.beach_access, color: Colors.white, size: 16);
+                                    }
+                                    return const Icon(Icons.work, color: Colors.white, size: 16);
+                                  }),
                                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 );
                               },
@@ -125,9 +134,25 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('StreakStatus'.tr(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                        TextButton(
-                          onPressed: () => _showFullStreakCalendar(context),
-                          child: Text('ShowAll'.tr(), style: const TextStyle(fontSize: 12)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog first
+                                NavigatorService().goTo(const StreakSettingsPage());
+                              },
+                              icon: const Icon(Icons.settings, size: 18),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              visualDensity: VisualDensity.compact,
+                              tooltip: 'StreakSettings'.tr(),
+                            ),
+                            TextButton(
+                              onPressed: () => _showFullStreakCalendar(context),
+                              child: Text('ShowAll'.tr(), style: const TextStyle(fontSize: 12)),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -140,13 +165,20 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                         final isFuture = status['isFuture'] as bool;
                         final isVacation = status['isVacation'] as bool? ?? false;
                         final isToday = dayName == 'Today'.tr();
+                        final isTomorrow = dayName == 'Tomorrow'.tr();
 
-                        // Önce vacation kontrolü yap, sonra future
+                        // Renk mantığı:
+                        // 1. Vacation günleri (geçmişte gerçekten tatil olanlar veya gelecekte weekday/mode'dan tatil olanlar): turuncu
+                        // 2. Tomorrow ve vacation mode aktifse: mavi (weekday kontrolüne bakılmaz)
+                        // 3. Diğer future günler: mavi
+                        // 4. Geçmiş günler: yeşil (başarılı) veya kırmızı (başarısız)
                         final color = isVacation
-                            ? Colors.orange // Vacation günleri (geçmiş, bugün, gelecek)
-                            : isFuture
-                                ? Colors.blue // Vacation olmayan gelecek günler
-                                : (isMet == null ? Colors.grey : (isMet == true ? Colors.green : Colors.red));
+                            ? Colors.orange // Gerçek vacation günleri
+                            : isTomorrow
+                                ? Colors.blue // Tomorrow her zaman mavi (vacation mode aktif olsa bile)
+                                : isFuture
+                                    ? Colors.blue // Diğer future günler
+                                    : (isMet == null ? Colors.grey : (isMet == true ? Colors.green : Colors.red));
 
                         return Column(
                           children: [
@@ -163,9 +195,9 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                               ),
                               child: Icon(
                                 isVacation
-                                    ? Icons.beach_access // Vacation icon for all vacation days
+                                    ? Icons.beach_access // Vacation icon
                                     : isFuture
-                                        ? Icons.schedule // Future icon for non-vacation future days
+                                        ? Icons.schedule // Future icon (tomorrow dahil)
                                         : (isMet == null ? Icons.help_outline : (isMet == true ? Icons.check : Icons.close)),
                                 size: 16,
                                 color: color,

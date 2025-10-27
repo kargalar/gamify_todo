@@ -68,6 +68,8 @@ weekly ve yearly streaklar için 5 durum mu olsun.
     5. vacation day
 
 
-    streaki doğru hesaplıyorm u bak. vacation güne dikkat et.
+streaki doğru hesaplıyorm u bak. vacation güne dikkat et.
 
-    vacation datelerde gizelenecek rutinler seçilsin. bazı rutinleri tatilde de yapmak isteyebilir.
+vacation datelerde gizelenecek rutinler seçilsin. bazı rutinleri tatilde de yapmak isteyebilir.
+
+vacation mode aktifken otomatik sonraki güne geçnice o günü de tatil oalrak işaretliyor mu
