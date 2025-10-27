@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/home_view_model.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Home/Widget/weekly_streak_dialog.dart';
-import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 void _showWeeklyStreakDialog(BuildContext context, HomeViewModel vm) {
   showModalBottomSheet(
@@ -25,19 +26,33 @@ class ProgressChip extends StatelessWidget {
         final percent = vm.todayProgressPercent;
         final hasReachedDaily = percent >= 1.0;
         final hasReachedStreak = vm.todayTotalDuration >= vm.streakDuration;
-        final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
 
-        // Determine color based on new rules
+        // Check if today is vacation (vacation mode, vacation weekday, or specific date)
+        final today = DateTime.now();
+        final isTodayVacation = VacationDateProvider().isVacationDay(today);
+
+        // Determine color based on four states
         Color mainColor;
+        String statusMessage;
         if (!hasReachedDaily && !hasReachedStreak) {
-          mainColor = Colors.grey; // Renksiz (grey)
-        } else if (hasReachedDaily && hasReachedStreak) {
-          mainColor = Colors.red; // Kırmızı
-        } else if (hasReachedStreak) {
-          mainColor = Colors.orange; // Turuncu
+          // 1. Durum: Ne daily ne streak - Renksiz (grey)
+          mainColor = Colors.grey;
+          statusMessage = 'Neither daily nor streak goals have been reached yet';
+        } else if (hasReachedStreak && !hasReachedDaily) {
+          // 2. Durum: Streak var ama daily yok - Turuncu
+          mainColor = Colors.orange;
+          statusMessage = 'Streak goal has been reached but daily goal has not been reached';
+        } else if (hasReachedDaily && !hasReachedStreak) {
+          // 3. Durum: Daily var ama streak yok - Yeşil
+          mainColor = Colors.green;
+          statusMessage = 'Daily goal has been reached but streak goal has not been reached';
         } else {
-          mainColor = Colors.green; // Yeşil
+          // 4. Durum: Hem daily hem streak - Kırmızı
+          mainColor = Colors.red;
+          statusMessage = 'Both daily and streak goals have been reached! 🔥';
         }
+
+        LogService.debug('📊 Progress Chip Status: $statusMessage (Daily: ${(percent * 100).round()}%, Streak: ${vm.todayTotalDuration.inMinutes}/${vm.streakDuration.inMinutes}min, Vacation: $isTodayVacation)');
 
         return TweenAnimationBuilder<double>(
           duration: const Duration(milliseconds: 350),
@@ -77,7 +92,7 @@ class ProgressChip extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(vm.todayTotalText, style: TextStyle(fontSize: 12, color: AppColors.text)),
-                    if (isVacationModeActive) ...[
+                    if (isTodayVacation) ...[
                       const SizedBox(width: 4),
                       const Icon(Icons.beach_access, size: 16, color: Colors.orange),
                     ],

@@ -10,6 +10,7 @@ import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 
 /// A centralized handler for task-related actions
@@ -28,26 +29,30 @@ class TaskActionHandler {
       int previousCount = taskModel.currentCount!;
       taskModel.currentCount = previousCount + batchChange;
 
+      // Hedefe ulaşıp ulaşmadığını kontrol et
+      bool willComplete = taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted;
+
+      LogService.debug('📊 Counter batch change: ${taskModel.title} - Change: $batchChange, New count: ${taskModel.currentCount}, Target: ${taskModel.targetCount}, Will complete: $willComplete');
+
       // Create a single batch log for the total change
       TaskLogProvider().addTaskLog(
         taskModel,
         customCount: batchChange, // Log the total batch change
+        // Eğer bu artışla task tamamlanıyorsa, statusu DONE olarak logla
+        customStatus: willComplete ? TaskStatusEnum.DONE : null,
       );
+
+      if (willComplete) {
+        LogService.debug('✅ Counter task completed via batch change: ${taskModel.title}');
+      }
 
       // Calculate credit for the batch change
       Duration creditPerIncrement = taskModel.remainingDuration! ~/ taskModel.targetCount!;
       AppHelper().addCreditByProgress(creditPerIncrement * batchChange);
 
-      if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
+      if (willComplete) {
         // Clear any existing status before setting to COMPLETED
         taskModel.status = TaskStatusEnum.DONE;
-
-        // Create log for completed counter task
-        TaskLogProvider().addTaskLog(
-          taskModel,
-          customStatus: TaskStatusEnum.DONE,
-        );
-
         HomeWidgetService.updateAllWidgets();
       }
 
@@ -116,28 +121,30 @@ class TaskActionHandler {
       int previousCount = taskModel.currentCount!;
       taskModel.currentCount = previousCount + 1;
 
+      // Hedefe ulaşıp ulaşmadığını kontrol et
+      bool willComplete = taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted;
+
+      LogService.debug('📊 Counter increment: ${taskModel.title} - Count: $previousCount → ${taskModel.currentCount}/${taskModel.targetCount}, Will complete: $willComplete');
+
       // Create log for counter increment (unless logging is skipped)
       if (!skipLogging) {
         TaskLogProvider().addTaskLog(
           taskModel,
           customCount: 1, // Log the increment amount
+          // Eğer bu artışla task tamamlanıyorsa, statusu DONE olarak logla
+          customStatus: willComplete ? TaskStatusEnum.DONE : null,
         );
+      }
+
+      if (willComplete) {
+        LogService.debug('✅ Counter task completed: ${taskModel.title}');
       }
 
       AppHelper().addCreditByProgress(taskModel.remainingDuration);
 
-      if (taskModel.currentCount! >= taskModel.targetCount! && !wasCompleted) {
+      if (willComplete) {
         // Clear any existing status before setting to COMPLETED
         taskModel.status = TaskStatusEnum.DONE;
-
-        // Create log for completed counter task (unless logging is skipped)
-        if (!skipLogging) {
-          TaskLogProvider().addTaskLog(
-            taskModel,
-            customStatus: TaskStatusEnum.DONE,
-          );
-        }
-
         HomeWidgetService.updateAllWidgets();
       }
     } else if (taskModel.type == TaskTypeEnum.TIMER) {

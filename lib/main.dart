@@ -12,6 +12,7 @@ import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/navbar_visibility_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -42,6 +43,10 @@ void main() async {
   final vacationModeProvider = VacationModeProvider();
   await vacationModeProvider.initialize();
 
+  // Initialize VacationDateProvider
+  final vacationDateProvider = VacationDateProvider();
+  await vacationDateProvider.initialize();
+
   // Initialize StreakSettingsProvider
   final streakSettingsProvider = StreakSettingsProvider();
   await streakSettingsProvider.initialize();
@@ -58,6 +63,7 @@ void main() async {
       ChangeNotifierProvider.value(value: taskStyleProvider),
       ChangeNotifierProvider.value(value: colorProvider),
       ChangeNotifierProvider.value(value: vacationModeProvider),
+      ChangeNotifierProvider.value(value: vacationDateProvider),
       ChangeNotifierProvider.value(value: streakSettingsProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),

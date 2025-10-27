@@ -139,11 +139,15 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                         final dayName = status['dayName'] as String;
                         final isFuture = status['isFuture'] as bool;
                         final isVacation = status['isVacation'] as bool? ?? false;
-                        final color = isFuture
-                            ? Colors.blue
-                            : isVacation
-                                ? Colors.orange
+                        final isToday = dayName == 'Today'.tr();
+
+                        // Önce vacation kontrolü yap, sonra future
+                        final color = isVacation
+                            ? Colors.orange // Vacation günleri (geçmiş, bugün, gelecek)
+                            : isFuture
+                                ? Colors.blue // Vacation olmayan gelecek günler
                                 : (isMet == null ? Colors.grey : (isMet == true ? Colors.green : Colors.red));
+
                         return Column(
                           children: [
                             Container(
@@ -154,11 +158,15 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                 color: color.withValues(alpha: 0.2),
                                 border: Border.all(
                                   color: color,
-                                  width: 2,
+                                  width: isToday ? 3 : 2, // Today için daha kalın border
                                 ),
                               ),
                               child: Icon(
-                                isFuture ? Icons.schedule : (isVacation ? Icons.beach_access : (isMet == null ? Icons.help_outline : (isMet == true ? Icons.check : Icons.close))),
+                                isVacation
+                                    ? Icons.beach_access // Vacation icon for all vacation days
+                                    : isFuture
+                                        ? Icons.schedule // Future icon for non-vacation future days
+                                        : (isMet == null ? Icons.help_outline : (isMet == true ? Icons.check : Icons.close)),
                                 size: 16,
                                 color: color,
                               ),
@@ -166,7 +174,11 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                             const SizedBox(height: 4),
                             Text(
                               dayName,
-                              style: TextStyle(fontSize: 10, color: AppColors.text),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: isToday ? AppColors.text : AppColors.text.withAlpha(180),
+                                fontWeight: isToday ? FontWeight.bold : FontWeight.normal, // Today için bold
+                              ),
                             ),
                           ],
                         );

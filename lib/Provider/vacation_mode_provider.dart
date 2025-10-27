@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/logging_service.dart';
 
@@ -48,6 +49,14 @@ class VacationModeProvider extends ChangeNotifier {
   Future<void> toggleVacationMode() async {
     _isVacationModeEnabled = !_isVacationModeEnabled;
     await _saveVacationModeSettings();
+
+    // When enabling vacation mode, mark today as vacation date
+    // When disabling, today's vacation status remains in history
+    if (_isVacationModeEnabled) {
+      final today = DateTime.now();
+      await VacationDateProvider().setDateVacation(today, true);
+      LogService.debug('VacationMode: Marked today as vacation date');
+    }
 
     // Show feedback message to user
     Helper().getMessage(

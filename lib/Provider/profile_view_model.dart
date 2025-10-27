@@ -5,6 +5,7 @@ import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/trait_model.dart';
@@ -219,7 +220,7 @@ class ProfileViewModel extends ChangeNotifier {
       // Check if this day counts for streak
       bool dayCountsForStreak = false;
 
-      if (streakSettings.isVacationDay(dateOnly)) {
+      if (VacationDateProvider().isVacationDay(dateOnly)) {
         // Vacation days always count for streak
         dayCountsForStreak = true;
       } else if (vacationMode.isVacationModeEnabled) {
@@ -255,7 +256,7 @@ class ProfileViewModel extends ChangeNotifier {
           final yesterday = DateTime.now().subtract(const Duration(days: 1));
           final yesterdayOnly = DateTime(yesterday.year, yesterday.month, yesterday.day);
 
-          if (streakSettings.isVacationDay(yesterdayOnly) || vacationMode.isVacationModeEnabled) {
+          if (VacationDateProvider().isVacationDay(yesterdayOnly) || vacationMode.isVacationModeEnabled) {
             currentStreak = tempStreak;
           }
         }

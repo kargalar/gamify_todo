@@ -454,20 +454,30 @@ class HomeWidgetService {
             final prev = task.currentCount ?? 0;
             task.currentCount = prev + 1;
             LogService.debug('Counter incremented: $prev -> ${task.currentCount}');
-            // Log the increment
-            await TaskLogProvider().addTaskLog(task, customCount: 1);
+
+            // Hedefe ulaşıp ulaşmadığını kontrol et
+            final target = task.targetCount ?? 0;
+            bool willComplete = target > 0 && (task.currentCount ?? 0) >= target && task.status != TaskStatusEnum.DONE;
+
+            // Log the increment with DONE status if completing
+            await TaskLogProvider().addTaskLog(
+              task,
+              customCount: 1,
+              customStatus: willComplete ? TaskStatusEnum.DONE : null,
+            );
+
             // Queue credit for one increment (mirror app logic)
             final incMins = task.remainingDuration?.inMinutes ?? 0;
             if (incMins != 0) {
               final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
               await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur + incMins);
             }
-            // If reached target, mark as done and log completion
-            final target = task.targetCount ?? 0;
-            if (target > 0 && (task.currentCount ?? 0) >= target && task.status != TaskStatusEnum.DONE) {
+
+            // If reached target, mark as done (log already created above)
+            if (willComplete) {
               task.status = TaskStatusEnum.DONE;
-              await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.DONE);
             }
+
             await ServerManager().updateTask(taskModel: task);
             await updateAllWidgets();
             await _bumpWidgetEventSeq();

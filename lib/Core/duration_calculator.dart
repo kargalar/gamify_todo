@@ -6,6 +6,7 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 
@@ -36,9 +37,10 @@ class DurationCalculator {
         if (log.duration != null) {
           total += log.duration!;
           LogService.debug('DurationCalculator: Added log duration: ${log.duration!.compactFormat()} for task ${task.title}');
-        } else if (log.count != null && log.count! > 0) {
+        } else if (log.count != null && log.count! != 0) {
+          // Counter logları: hem pozitif (+1, +2) hem negatif (-1, -2) değerleri hesaba kat
           if (task.remainingDuration != null) {
-            final count = log.count! <= 100 ? log.count! : 5;
+            final count = log.count!.abs() <= 100 ? log.count! : (log.count! > 0 ? 5 : -5);
             final add = task.remainingDuration! * count;
             total += add;
             LogService.debug('DurationCalculator: Added log count: $count * ${task.remainingDuration!.compactFormat()} = ${add.compactFormat()} for task ${task.title}');
@@ -78,15 +80,16 @@ class DurationCalculator {
         Duration add = Duration.zero;
         if (log.duration != null) {
           add = log.duration!;
-        } else if (log.count != null && log.count! > 0 && task.remainingDuration != null) {
-          final count = log.count! <= 100 ? log.count! : 5;
+        } else if (log.count != null && log.count! != 0 && task.remainingDuration != null) {
+          // Counter logları: hem pozitif hem negatif değerleri hesaba kat
+          final count = log.count!.abs() <= 100 ? log.count! : (log.count! > 0 ? 5 : -5);
           add = task.remainingDuration! * count;
         } else if (log.status == TaskStatusEnum.DONE && task.remainingDuration != null) {
           // For checkbox DONE entries, ensure we count the remainingDuration once.
           add = task.remainingDuration!;
         }
 
-        if (add > Duration.zero) {
+        if (add != Duration.zero) {
           loggedPerTask[taskId] = (loggedPerTask[taskId] ?? Duration.zero) + add;
         }
       } catch (_) {
@@ -133,9 +136,10 @@ class DurationCalculator {
       Duration add = Duration.zero;
       if (log.duration != null) {
         add = log.duration!;
-      } else if (log.count != null && log.count! > 0) {
+      } else if (log.count != null && log.count! != 0) {
+        // Counter logları: hem pozitif hem negatif değerleri hesaba kat
         final per = task.remainingDuration ?? Duration.zero;
-        final count = log.count! <= 100 ? log.count! : 5;
+        final count = log.count!.abs() <= 100 ? log.count! : (log.count! > 0 ? 5 : -5);
         add = per * count;
 
         if (task.type == TaskTypeEnum.COUNTER) {
@@ -152,7 +156,7 @@ class DurationCalculator {
         }
       }
 
-      if (add > Duration.zero) {
+      if (add != Duration.zero) {
         perTask[taskId] = (perTask[taskId] ?? Duration.zero) + add;
       }
     }
@@ -185,7 +189,7 @@ class DurationCalculator {
 
     // Check if vacation mode is active or it's a vacation day
     final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
-    final isVacationDayActive = isVacationDay(selectedDate);
+    final isVacationDayActive = VacationDateProvider().isVacationDay(selectedDate);
     LogService.debug('DurationCalculator: Vacation mode active: $isVacationModeActive, Vacation day: $isVacationDayActive for $selectedDate');
 
     for (final t in tasks) {
@@ -223,15 +227,23 @@ class DurationCalculator {
   /// Calculate if the streak target was met for a given date
   static bool? calculateStreakStatusForDate(DateTime date) {
     final totalDuration = calculateTotalDurationForDate(date);
-    final targetDuration = calculateTodayTargetDuration(date);
+
+    // Get streak duration from settings
+    final double hours = StreakSettingsProvider().streakMinimumHours;
+    final streakDuration = hours > 0 ? Duration(minutes: (hours * 60).toInt()) : const Duration(hours: 1);
+
+    LogService.debug('DurationCalculator: Streak status for ${date.toIso8601String()}: totalDuration=${totalDuration.inMinutes}min, streakDuration=${streakDuration.inMinutes}min');
 
     // If no logs for this date, return null (no data)
     final hasLogs = TaskLogProvider().taskLogList.any((log) => log.logDate.isSameDay(date));
     if (!hasLogs) {
+      LogService.debug('DurationCalculator: No logs found for date, returning null');
       return null;
     }
 
-    return totalDuration >= targetDuration;
+    final result = totalDuration >= streakDuration;
+    LogService.debug('DurationCalculator: Streak ${result ? "MET ✅" : "NOT MET ❌"}');
+    return result;
   }
 
   /// Get streak status for the last 5 days, today, and tomorrow
@@ -250,7 +262,7 @@ class DurationCalculator {
 
     return dates.map((date) {
       final isFuture = date.isAfter(now);
-      final isVacation = isVacationDay(date);
+      final isVacation = VacationDateProvider().isVacationDay(date);
       final isMet = isFuture || isVacation ? null : calculateStreakStatusForDate(date);
       LogService.debug('DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet');
       return {
@@ -273,14 +285,5 @@ class DurationCalculator {
       final weekdays = ['Mon'.tr(), 'Tue'.tr(), 'Wed'.tr(), 'Thu'.tr(), 'Fri'.tr(), 'Sat'.tr(), 'Sun'.tr()];
       return weekdays[date.weekday - 1];
     }
-  }
-
-  /// Check if a date is a vacation day.
-  static bool isVacationDay(DateTime date) {
-    final vacationWeekdays = StreakSettingsProvider().vacationWeekdays;
-    // weekday: 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
-    // Convert to 0-based index for our Set (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
-    final weekdayIndex = date.weekday - 1;
-    return vacationWeekdays.contains(weekdayIndex);
   }
 }

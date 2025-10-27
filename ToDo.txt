@@ -59,3 +59,15 @@ proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha
 restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 
 projeler ve notlar sekmeleri varsayıaln olarak kapalı olsun
+
+weekly ve yearly streaklar için 5 durum mu olsun.
+    1. boş
+    2. daily reached
+    3. streak reached
+    4. both reached
+    5. vacation day
+
+
+    streaki doğru hesaplıyorm u bak. vacation güne dikkat et.
+
+    vacation datelerde gizelenecek rutinler seçilsin. bazı rutinleri tatilde de yapmak isteyebilir.

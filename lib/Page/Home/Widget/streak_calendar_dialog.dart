@@ -3,7 +3,9 @@ import 'package:next_level/Core/duration_calculator.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 class StreakCalendarDialog extends StatefulWidget {
   final HomeViewModel vm;
@@ -184,29 +186,46 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
       itemBuilder: (context, index) {
         final date = DateTime(year.year, 1, 1).add(Duration(days: index));
         final now = DateTime.now();
-        final isFuture = date.isAfter(DateTime(now.year, now.month, now.day));
-        final isVacation = DurationCalculator.isVacationDay(date);
-        final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
-        final isBeforeMinDate = date.isBefore(_minDate);
+        final today = DateTime(now.year, now.month, now.day);
+        final checkDate = DateTime(date.year, date.month, date.day);
+        final isFuture = checkDate.isAfter(today);
+        final isVacation = VacationDateProvider().isVacationDay(checkDate);
+        final isToday = checkDate.isAtSameMomentAs(today);
+        final isBeforeMinDate = checkDate.isBefore(_minDate);
+
+        if (isToday) {
+          LogService.debug('🏖️ StreakCalendar TODAY: checkDate=$checkDate, isFuture=$isFuture, isVacation=$isVacation, isBeforeMinDate=$isBeforeMinDate');
+        }
 
         Color statusColor;
 
-        if (isBeforeMinDate) {
-          statusColor = Colors.grey;
-        } else if (isFuture) {
-          statusColor = Colors.blue;
+        if (isBeforeMinDate && !isToday) {
+          statusColor = const Color.fromARGB(255, 129, 129, 129);
         } else if (isVacation) {
+          // Vacation günleri (geçmiş, bugün, gelecek) - öncelik vacation'da
           statusColor = Colors.orange;
+          if (isToday) {
+            LogService.debug('✅ StreakCalendar: Today is vacation (orange)');
+          }
+        } else if (isFuture) {
+          // Vacation olmayan gelecek günler
+          statusColor = const Color.fromARGB(255, 60, 135, 197);
         } else {
           try {
-            final isMet = DurationCalculator.calculateStreakStatusForDate(date);
+            final isMet = DurationCalculator.calculateStreakStatusForDate(checkDate); // checkDate kullan
             if (isMet == null) {
               statusColor = Colors.grey;
             } else {
               statusColor = isMet ? Colors.green : Colors.red;
             }
+            if (isToday) {
+              LogService.debug('StreakCalendar: Today status - isMet: $isMet, color: ${statusColor == Colors.green ? "green" : statusColor == Colors.red ? "red" : "grey"}');
+            }
           } catch (e) {
             statusColor = Colors.grey;
+            if (isToday) {
+              LogService.error('StreakCalendar: Error calculating today status: $e');
+            }
           }
         }
 
@@ -214,9 +233,9 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: isToday ? AppColors.green : statusColor.withValues(alpha: 0.8),
+            color: statusColor,
             borderRadius: BorderRadius.circular(1),
-            border: isToday ? Border.all(color: AppColors.white, width: 1) : null,
+            border: isToday ? Border.all(color: AppColors.white, width: 1.5) : null,
           ),
         );
       },
@@ -235,7 +254,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
       final date = startOfYear.add(Duration(days: day));
       if (date.isAfter(DateTime(now.year, now.month, now.day)) || date.isBefore(_minDate)) continue;
 
-      final isVacation = DurationCalculator.isVacationDay(date);
+      final isVacation = VacationDateProvider().isVacationDay(date);
       if (isVacation) continue; // Tatil günlerini istatistiklere dahil etme
 
       totalDays++;

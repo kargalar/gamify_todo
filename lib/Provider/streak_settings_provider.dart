@@ -100,13 +100,6 @@ class StreakSettingsProvider extends ChangeNotifier {
     );
   }
 
-  /// Check if a date is a vacation day (based on weekday)
-  bool isVacationDay(DateTime date) {
-    // Convert DateTime weekday (1=Monday, 7=Sunday) to our format (0=Monday, 6=Sunday)
-    int weekday = date.weekday - 1;
-    return _vacationWeekdays.contains(weekday);
-  }
-
   /// Clear all vacation weekdays
   Future<void> clearVacationWeekdays() async {
     _vacationWeekdays.clear();
