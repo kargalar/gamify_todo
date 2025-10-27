@@ -10,6 +10,7 @@ import 'package:next_level/Page/Settings/privacy_policy_webview_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/app_launch_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -213,6 +214,113 @@ class _SettingsPageState extends State<SettingsPage> {
             //     NavigatorService().logout();
             //   },
             // ),
+
+            // Development mode: Review test button
+            if (kDebugMode) ...[
+              const SizedBox(height: 20),
+              const Divider(),
+              const SizedBox(height: 10),
+              const Center(
+                child: Text(
+                  'Developer Options',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              _settingsOption(
+                title: 'Test App Review',
+                subtitle: 'Reset all review data and test system',
+                icon: Icons.bug_report,
+                color: AppColors.dirtyRed,
+                onTap: () async {
+                  final appLaunchService = AppLaunchService();
+                  await appLaunchService.resetLaunchCount();
+                  final count = await appLaunchService.getLaunchCount();
+                  LogService.debug('Settings: All review data reset, launch count: $count');
+
+                  if (mounted) {
+                    // ignore: use_build_context_synchronously
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Review data reset! Restart app to test.\nWill ask at: 5, 20, 40, 60 launches.'),
+                        duration: Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                },
+              ),
+              _settingsOption(
+                title: 'Show Launch Info',
+                subtitle: 'Display current app launch and review status',
+                icon: Icons.info_outline,
+                onTap: () async {
+                  final appLaunchService = AppLaunchService();
+                  final count = await appLaunchService.getLaunchCount();
+                  final lastReviewRequest = await appLaunchService.getLastReviewRequestCount();
+                  final reviewCompleted = await appLaunchService.isReviewCompleted();
+                  final thresholds = appLaunchService.getReviewThresholds();
+
+                  LogService.debug('Settings: Count: $count, Last request: $lastReviewRequest, Completed: $reviewCompleted');
+
+                  // Sonraki eşiği hesapla
+                  int? nextThreshold;
+                  for (int threshold in thresholds) {
+                    if (count < threshold) {
+                      nextThreshold = threshold;
+                      break;
+                    }
+                  }
+
+                  if (mounted) {
+                    showDialog(
+                      // ignore: use_build_context_synchronously
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Launch & Review Info'),
+                        content: Text(
+                          'Current launch count: $count\n'
+                          'Last review request at: ${lastReviewRequest > 0 ? lastReviewRequest : "None"}\n'
+                          'Review completed: ${reviewCompleted ? "Yes" : "No"}\n'
+                          'Next review at: ${nextThreshold ?? "No more"}\n'
+                          '\nThresholds: ${thresholds.join(", ")}',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+              _settingsOption(
+                title: 'Mark Review as Completed',
+                subtitle: 'Tell app you have reviewed (stops asking)',
+                icon: Icons.check_circle_outline,
+                color: AppColors.deepGreen,
+                onTap: () async {
+                  final appLaunchService = AppLaunchService();
+                  await appLaunchService.markReviewAsCompleted();
+                  LogService.debug('Settings: Review marked as completed');
+
+                  if (mounted) {
+                    // ignore: use_build_context_synchronously
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Review marked as completed! App will not ask again.'),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+
             // App Version at the bottom
             const SizedBox(height: 5),
             Center(

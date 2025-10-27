@@ -36,18 +36,13 @@ NOTE: bildirimleri de bunne göre güncellemelisin
 
 privicay policy domain bağla
 
-attachments ve tema geçici oalrak kaldırldı
+attachments ve tema geçici olarak kaldırıldı
 
-en sonra bunkü yapıaln taskalrın listeinin ve o bottomshettin boyuutu n ayalrıyorudm
-
-günlük hedef 1 saat streak hedefi 4 saat. ben 2 saat çalışamam rağmen streak durumu gün için ılaşıldı diyro. streaki günlük hedefe göre hesaplıyor. streak ayarlarında ayarladığım hedefe göre hesaplamalı. 
-streak hedef ayarlarını ayarlardan kaldır ve haftalık streak alanında düzenle iconuyla gidilebilir yap.
-
-bugünün ilerlemesi kısmındaki task itemların tarmı güncelle.
+bugünün ilerlemesi kısmındaki task itemların tasarımı güncelle.
 
 günlük özet bildirimleri
 
-profildeki çalışma grafiğinde barlara basınca o barın detaylarına gidlirsin
+profildeki çalışma grafiğinde barlara basınca o barın detaylarına gidilir.
 
 slitch tasarım geliştirmeleri
 
@@ -71,7 +66,5 @@ weekly ve yearly streaklar için 5 durum mu olsun.
 streaki doğru hesaplıyorm u bak. vacation güne dikkat et.
 
 vacation mode aktifken otomatik sonraki güne geçince o günü de tatil olarak işaretliyor mu
-
-lvl her zmaan 10 saatolmasın gittikçe altsın. level progressı String toLevel() { den alalım
 
 Weeklydeki ilerlemnin oralara alev eklenmesi güzel olur

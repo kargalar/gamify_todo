@@ -5,6 +5,7 @@ import 'package:next_level/General/app_theme.dart';
 import 'package:next_level/General/init_app.dart';
 import 'package:next_level/Page/navbar_page_manager.dart';
 import 'package:next_level/Service/product_localization.dart';
+import 'package:next_level/Service/app_launch_service.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
@@ -53,6 +54,10 @@ void main() async {
 
   // Initialize NavbarVisibilityProvider
   final navbarVisibilityProvider = NavbarVisibilityProvider();
+
+  // Initialize AppLaunchService and increment launch count
+  final appLaunchService = AppLaunchService();
+  await appLaunchService.incrementLaunchCountAndRequestReview();
 
   runApp(MultiProvider(
     providers: [
