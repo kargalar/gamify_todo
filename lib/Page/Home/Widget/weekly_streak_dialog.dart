@@ -5,6 +5,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/streak_calendar_dialog.dart';
 import 'package:next_level/Page/Home/Widget/task_contributions_widget.dart';
 import 'package:next_level/Page/Settings/streak_settings_page.dart';
+import 'package:next_level/Page/Settings/vacation_day_settings_page.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -88,24 +89,39 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                             ),
                             Consumer<VacationModeProvider>(
                               builder: (context, vacationProvider, child) {
-                                return Switch(
-                                  value: vacationProvider.isVacationModeEnabled,
-                                  onChanged: (value) async {
-                                    await vacationProvider.toggleVacationMode();
-                                    // Trigger rebuild to update streak status
-                                    setState(() {});
-                                  },
-                                  activeThumbColor: Colors.orange,
-                                  activeTrackColor: Colors.orange.withValues(alpha: 0.3),
-                                  inactiveThumbColor: Colors.grey,
-                                  inactiveTrackColor: Colors.grey.withValues(alpha: 0.3),
-                                  thumbIcon: WidgetStateProperty.resolveWith((states) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return const Icon(Icons.beach_access, color: Colors.white, size: 16);
-                                    }
-                                    return const Icon(Icons.work, color: Colors.white, size: 16);
-                                  }),
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                return Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(); // Close the dialog first
+                                        NavigatorService().goTo(const VacationDaySettingsPage());
+                                      },
+                                      icon: const Icon(Icons.settings, size: 18),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      visualDensity: VisualDensity.compact,
+                                      tooltip: 'Vacation Days',
+                                    ),
+                                    Switch(
+                                      value: vacationProvider.isVacationModeEnabled,
+                                      onChanged: (value) async {
+                                        await vacationProvider.toggleVacationMode();
+                                        // Trigger rebuild to update streak status
+                                        setState(() {});
+                                      },
+                                      activeThumbColor: Colors.orange,
+                                      activeTrackColor: Colors.orange.withValues(alpha: 0.3),
+                                      inactiveThumbColor: Colors.grey,
+                                      inactiveTrackColor: Colors.grey.withValues(alpha: 0.3),
+                                      thumbIcon: WidgetStateProperty.resolveWith((states) {
+                                        if (states.contains(WidgetState.selected)) {
+                                          return const Icon(Icons.beach_access, color: Colors.white, size: 16);
+                                        }
+                                        return const Icon(Icons.work, color: Colors.white, size: 16);
+                                      }),
+                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ],
                                 );
                               },
                             ),

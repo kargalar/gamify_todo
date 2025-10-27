@@ -313,6 +313,12 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
     addTaskProvider.taskNameController.text = addTaskProvider.taskNameController.text.trim();
     addTaskProvider.descriptionController.text = addTaskProvider.descriptionController.text.trim();
     addTaskProvider.locationController.text = addTaskProvider.locationController.text.trim();
+
+    LogService.debug('AddTask: Starting task/routine creation');
+    LogService.debug('AddTask: Task name: ${addTaskProvider.taskNameController.text}');
+    LogService.debug('AddTask: Selected days: ${addTaskProvider.selectedDays}');
+    LogService.debug('AddTask: Selected date: ${addTaskProvider.selectedDate}');
+
     if (addTaskProvider.taskNameController.text.isEmpty) {
       addTaskProvider.taskNameController.clear();
 
@@ -320,6 +326,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
         message: LocaleKeys.TraitNameEmpty.tr(),
         status: StatusEnum.WARNING,
       );
+      LogService.error('AddTask: Task name is empty');
       return;
     }
 
@@ -329,6 +336,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
         message: LocaleKeys.RoutineStartDateError.tr(),
         status: StatusEnum.WARNING,
       );
+      LogService.error('AddTask: Routine creation failed - no start date selected');
       return;
     }
 
@@ -338,6 +346,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
         message: LocaleKeys.RoutineStartDateError.tr(),
         status: StatusEnum.WARNING,
       );
+      LogService.error('AddTask: Routine creation failed - start date is in the past');
       return;
     }
 
@@ -346,6 +355,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
     isLoadign = true;
 
     if (addTaskProvider.selectedDays.isEmpty) {
+      LogService.debug('AddTask: Creating standalone task');
       await taskProvider.addTask(
         TaskModel(
           title: addTaskProvider.taskNameController.text,
@@ -371,7 +381,9 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
           isPinned: addTaskProvider.isPinned,
         ),
       );
+      LogService.debug('AddTask: Standalone task created successfully');
     } else {
+      LogService.debug('AddTask: Creating routine with repeat days: ${addTaskProvider.selectedDays}');
       await taskProvider.addRoutine(
         RoutineModel(
           title: addTaskProvider.taskNameController.text,
@@ -394,8 +406,10 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
           subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
         ),
       );
+      LogService.debug('AddTask: Routine created successfully: ${taskProvider.routineList.last.id}');
 
       if (addTaskProvider.selectedDays.contains(DateTime.now().weekday - 1) && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeOrSameDay(DateTime.now())) {
+        LogService.debug('AddTask: Creating today\'s task from routine');
         await taskProvider.addTask(
           TaskModel(
             title: addTaskProvider.taskNameController.text,
@@ -421,11 +435,14 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
             attachmentPaths: addTaskProvider.attachmentPaths.isNotEmpty ? List.from(addTaskProvider.attachmentPaths) : null,
           ),
         );
+        LogService.debug('AddTask: Today\'s task created from routine');
       } else {
+        LogService.debug('AddTask: No task created for today (not in selected days or future start date)');
         taskProvider.updateItems();
       }
     }
 
+    LogService.debug('AddTask: Task/Routine creation completed successfully');
     NavigatorService().goBackNavbar();
   }
 

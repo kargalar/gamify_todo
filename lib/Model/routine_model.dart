@@ -43,6 +43,8 @@ class RoutineModel extends HiveObject {
   int? earlyReminderMinutes; // erken hatırlatma süresi (dakika cinsinden)
   @HiveField(18)
   List<SubTaskModel>? subtasks; // alt görevler
+  @HiveField(19)
+  bool isActiveOnVacationDays; // tatil günlerinde aktif mi
 
   RoutineModel({
     this.id = 0,
@@ -64,6 +66,7 @@ class RoutineModel extends HiveObject {
     this.categoryId,
     this.earlyReminderMinutes,
     this.subtasks,
+    this.isActiveOnVacationDays = false, // default: tatilde aktif değil
   });
 
   factory RoutineModel.fromJson(Map<String, dynamic> json) {
@@ -94,6 +97,7 @@ class RoutineModel extends HiveObject {
       categoryId: json['category_id'],
       earlyReminderMinutes: json['early_reminder_minutes'],
       subtasks: json['subtasks'] != null ? (json['subtasks'] as List).map((i) => SubTaskModel.fromJson(i)).toList() : null,
+      isActiveOnVacationDays: json['is_active_on_vacation_days'] ?? false,
     );
   }
 
@@ -126,6 +130,7 @@ class RoutineModel extends HiveObject {
       'category_id': categoryId,
       'early_reminder_minutes': earlyReminderMinutes,
       'subtasks': subtasks?.map((i) => i.toJson()).toList(),
+      'is_active_on_vacation_days': isActiveOnVacationDays,
     };
   }
 }
@@ -167,13 +172,14 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       categoryId: fields[16] is int ? (fields[16] as int).toString() : fields[16] as String?,
       earlyReminderMinutes: fields[17] as int?,
       subtasks: (fields[18] as List?)?.cast<SubTaskModel>(),
+      isActiveOnVacationDays: fields[19] as bool? ?? false,
     );
   }
 
   @override
   void write(BinaryWriter writer, RoutineModel obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(20) // Changed from 19 to 20
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -211,6 +217,8 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(17)
       ..write(obj.earlyReminderMinutes)
       ..writeByte(18)
-      ..write(obj.subtasks);
+      ..write(obj.subtasks)
+      ..writeByte(19)
+      ..write(obj.isActiveOnVacationDays);
   }
 }

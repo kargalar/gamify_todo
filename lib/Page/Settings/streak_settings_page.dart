@@ -126,8 +126,6 @@ class _StreakSettingsPageState extends State<StreakSettingsPage> with TickerProv
           const SizedBox(height: 24),
           _buildMinimumHoursSection(viewModel),
           const SizedBox(height: 24),
-          _buildVacationDaysSection(viewModel),
-          const SizedBox(height: 24),
           _buildInfoSection(),
           const SizedBox(height: 100), // Space for FAB
         ],
@@ -303,128 +301,6 @@ class _StreakSettingsPageState extends State<StreakSettingsPage> with TickerProv
           ],
         ],
       ),
-    );
-  }
-
-  Widget _buildVacationDaysSection(StreakSettingsViewModel viewModel) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.panelBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.text.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.beach_access_rounded,
-                color: AppColors.main,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                LocaleKeys.VacationDays.tr(),
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.text,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            LocaleKeys.SelectWeekdaysForVacation.tr(),
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.text.withValues(alpha: 0.7),
-            ),
-          ),
-          const SizedBox(height: 20),
-          _buildWeekdaySelector(viewModel),
-          if (viewModel.streakSettings.vacationWeekdays.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.main.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.check_circle_outline_rounded,
-                    color: AppColors.main,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      "${viewModel.streakSettings.vacationWeekdays.length} vacation day(s) selected",
-                      style: TextStyle(
-                        color: AppColors.main,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWeekdaySelector(StreakSettingsViewModel viewModel) {
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
-      children: List.generate(7, (index) {
-        final isSelected = viewModel.isWeekdaySelected(index);
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          child: InkWell(
-            onTap: () => viewModel.toggleVacationWeekday(index),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.main : AppColors.background,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.2),
-                  width: 1,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppColors.main.withValues(alpha: 0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Text(
-                viewModel.weekdayNames[index],
-                style: TextStyle(
-                  color: isSelected ? AppColors.white : AppColors.text,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
-        );
-      }),
     );
   }
 

@@ -18,7 +18,7 @@ import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
-import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Helper class to store task date change data for undo functionality
@@ -1666,11 +1666,6 @@ class TaskProvider with ChangeNotifier {
   }
 
   List<TaskModel> getRoutineTasksForDate(DateTime date) {
-    // Check if vacation mode is enabled
-    if (VacationModeProvider().isVacationModeEnabled) {
-      return [];
-    }
-
     List<TaskModel> tasks;
 
     // Only apply showCompleted filter for today's date, not for historical dates
@@ -1685,16 +1680,21 @@ class TaskProvider with ChangeNotifier {
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: true, isCompleted: false)).toList();
     }
 
+    // If this is a vacation day, filter to only show routines with isActiveOnVacationDays = true
+    if (VacationDateProvider().isVacationDay(date)) {
+      tasks = tasks.where((task) {
+        if (task.routineID == null) return true; // Non-routine tasks always show
+        final routine = routineList.firstWhere((r) => r.id == task.routineID, orElse: () => routineList.first);
+        return routine.isActiveOnVacationDays;
+      }).toList();
+      LogService.debug('🏖️ Vacation day filter applied: ${tasks.length} active routines on vacation');
+    }
+
     sortTasksByPriorityAndTime(tasks);
     return tasks;
   }
 
   List<TaskModel> getGhostRoutineTasksForDate(DateTime date) {
-    // Check if vacation mode is enabled
-    if (VacationModeProvider().isVacationModeEnabled) {
-      return [];
-    }
-
     if (date.isBeforeOrSameDay(DateTime.now())) {
       return [];
     }
@@ -1722,6 +1722,16 @@ class TaskProvider with ChangeNotifier {
               subtasks: routine.subtasks,
             ))
         .toList();
+
+    // If this is a vacation day, filter to only show routines with isActiveOnVacationDays = true
+    if (VacationDateProvider().isVacationDay(date)) {
+      tasks = tasks.where((task) {
+        if (task.routineID == null) return true;
+        final routine = routineList.firstWhere((r) => r.id == task.routineID, orElse: () => routineList.first);
+        return routine.isActiveOnVacationDays;
+      }).toList();
+      LogService.debug('🏖️ Ghost vacation day filter applied: ${tasks.length} active ghost routines on vacation');
+    }
 
     sortTasksByPriorityAndTime(tasks);
     return tasks;
