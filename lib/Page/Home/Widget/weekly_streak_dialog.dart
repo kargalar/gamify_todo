@@ -61,24 +61,23 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
               Builder(
                 builder: (context) {
                   // Calculate dynamic color based on daily and streak progress (same as ProgressChip)
-                  final percent = widget.vm.todayProgressPercent;
-                  final hasReachedDaily = percent >= 1.0;
+                  final hasReachedDaily = widget.vm.todayTotalDuration >= widget.vm.todayTargetDuration;
                   final hasReachedStreak = widget.vm.todayTotalDuration >= widget.vm.streakDuration;
 
                   // Determine color based on four states
                   Color mainColor;
                   if (!hasReachedDaily && !hasReachedStreak) {
-                    // 1. Durum: Ne daily ne streak - Grey
-                    mainColor = Colors.grey;
+                    // 1. Durum: Ne daily ne streak - Neutral highlight
+                    mainColor = AppColors.dirtyWhite;
                   } else if (hasReachedStreak && !hasReachedDaily) {
                     // 2. Durum: Streak var ama daily yok - Orange
-                    mainColor = Colors.orange;
+                    mainColor = AppColors.orange;
                   } else if (hasReachedDaily && !hasReachedStreak) {
                     // 3. Durum: Daily var ama streak yok - Green
-                    mainColor = Colors.green;
+                    mainColor = AppColors.green;
                   } else {
                     // 4. Durum: Hem daily hem streak - Red 🔥
-                    mainColor = Colors.red;
+                    mainColor = AppColors.red;
                   }
 
                   return Container(
@@ -116,6 +115,12 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                   Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+                                      if (hasReachedStreak)
+                                        Icon(
+                                          Icons.local_fire_department,
+                                          color: mainColor,
+                                          size: 18,
+                                        ),
                                       Text(
                                         '${(widget.vm.todayProgressPercent * 100).round()}%',
                                         style: TextStyle(
@@ -210,7 +215,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                   color: AppColors.panelBackground2,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: hasReachedDaily ? Colors.green.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.3),
+                                    color: hasReachedDaily ? AppColors.green.withValues(alpha: 0.3) : AppColors.dirtyWhite.withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Row(
@@ -219,7 +224,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                     Icon(
                                       hasReachedDaily ? Icons.flag : Icons.close,
                                       size: 16,
-                                      color: hasReachedDaily ? Colors.green : Colors.grey,
+                                      color: hasReachedDaily ? AppColors.green : AppColors.dirtyWhite,
                                     ),
                                     const SizedBox(width: 6),
                                     Flexible(
@@ -230,7 +235,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                             'DailyTargetLabel'.tr(),
                                             style: TextStyle(
                                               fontSize: 11,
-                                              color: hasReachedDaily ? Colors.green.withValues(alpha: 0.7) : Colors.grey.withValues(alpha: 0.7),
+                                              color: hasReachedDaily ? AppColors.green.withValues(alpha: 0.7) : AppColors.dirtyWhite.withValues(alpha: 0.7),
                                             ),
                                           ),
                                           Text(
@@ -238,7 +243,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.bold,
-                                              color: hasReachedDaily ? Colors.green : Colors.grey,
+                                              color: hasReachedDaily ? AppColors.green : AppColors.dirtyWhite,
                                             ),
                                           ),
                                         ],
@@ -257,7 +262,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                   color: AppColors.panelBackground2,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: hasReachedStreak ? Colors.red.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.3),
+                                    color: hasReachedStreak ? AppColors.orange.withValues(alpha: 0.3) : AppColors.dirtyWhite.withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Row(
@@ -266,7 +271,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                     Icon(
                                       hasReachedStreak ? Icons.local_fire_department : Icons.close,
                                       size: 16,
-                                      color: hasReachedStreak ? Colors.red : Colors.grey,
+                                      color: hasReachedStreak ? AppColors.orange : AppColors.dirtyWhite,
                                     ),
                                     const SizedBox(width: 6),
                                     Flexible(
@@ -277,7 +282,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                             'TargetStreak'.tr(),
                                             style: TextStyle(
                                               fontSize: 11,
-                                              color: hasReachedStreak ? Colors.red.withValues(alpha: 0.7) : Colors.grey.withValues(alpha: 0.7),
+                                              color: hasReachedStreak ? AppColors.orange.withValues(alpha: 0.7) : AppColors.dirtyWhite.withValues(alpha: 0.7),
                                             ),
                                           ),
                                           Text(
@@ -285,7 +290,7 @@ class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.bold,
-                                              color: hasReachedStreak ? Colors.red : Colors.grey,
+                                              color: hasReachedStreak ? AppColors.orange : AppColors.dirtyWhite,
                                             ),
                                           ),
                                         ],

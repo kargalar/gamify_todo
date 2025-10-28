@@ -64,14 +64,6 @@ vacation mode aktifken otomatik sonraki güne geçince o günü de tatil olarak 
 
 Weeklydeki ilerlemnin oralara alev eklenmesi güzel olur
 
-sıralama modu ile görevleri kaydır
-
-daha iyi oldu ancak basılı tutunca düzenleme seçenğini kaybettim. basılı tutatark düzenleyeyim. sürükleyince de sıralansın.
-
-kategroilerin renkelrnii düzenle.
-
-reorder için basılı tutuarak edit modu
-
 inbox da kendi tarihleri arasında home page de ise kendi listeleri arasında sıralnabileceklerbelki daha sonra sürükelyerek tarih değiştirme veya liste değiştirme de olabilir.
 
 ganini sorunu çöz. 

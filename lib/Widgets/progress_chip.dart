@@ -11,7 +11,7 @@ void _showWeeklyStreakDialog(BuildContext context, HomeViewModel vm) {
     context: context,
     isScrollControlled: true,
     isDismissible: true,
-    backgroundColor: Colors.transparent,
+    backgroundColor: AppColors.transparent,
     builder: (context) => WeeklyStreakDialog(vm: vm),
   );
 }
@@ -24,7 +24,7 @@ class ProgressChip extends StatelessWidget {
     return Consumer<HomeViewModel>(
       builder: (context, vm, child) {
         final percent = vm.todayProgressPercent;
-        final hasReachedDaily = percent >= 1.0;
+        final hasReachedDaily = vm.todayTotalDuration >= vm.todayTargetDuration;
         final hasReachedStreak = vm.todayTotalDuration >= vm.streakDuration;
 
         // Check if today is vacation (vacation mode, vacation weekday, or specific date)
@@ -35,20 +35,20 @@ class ProgressChip extends StatelessWidget {
         Color mainColor;
         String statusMessage;
         if (!hasReachedDaily && !hasReachedStreak) {
-          // 1. Durum: Ne daily ne streak - Renksiz (grey)
-          mainColor = Colors.grey;
+          // 1. Durum: Ne daily ne streak - Neutral highlight
+          mainColor = AppColors.dirtyWhite;
           statusMessage = 'Neither daily nor streak goals have been reached yet';
         } else if (hasReachedStreak && !hasReachedDaily) {
           // 2. Durum: Streak var ama daily yok - Turuncu
-          mainColor = Colors.orange;
+          mainColor = AppColors.orange;
           statusMessage = 'Streak goal has been reached but daily goal has not been reached';
         } else if (hasReachedDaily && !hasReachedStreak) {
           // 3. Durum: Daily var ama streak yok - Yeşil
-          mainColor = Colors.green;
+          mainColor = AppColors.green;
           statusMessage = 'Daily goal has been reached but streak goal has not been reached';
         } else {
           // 4. Durum: Hem daily hem streak - Kırmızı
-          mainColor = Colors.red;
+          mainColor = AppColors.red;
           statusMessage = 'Both daily and streak goals have been reached! 🔥';
         }
 
@@ -94,11 +94,11 @@ class ProgressChip extends StatelessWidget {
                     Text(vm.todayTotalText, style: TextStyle(fontSize: 12, color: AppColors.text)),
                     if (isTodayVacation) ...[
                       const SizedBox(width: 4),
-                      const Icon(Icons.beach_access, size: 16, color: Colors.orange),
+                      const Icon(Icons.beach_access, size: 16, color: AppColors.orange),
                     ],
                     if (hasReachedStreak) ...[
                       const SizedBox(width: 4),
-                      const Icon(Icons.whatshot, size: 16, color: Colors.red),
+                      Icon(Icons.whatshot, size: 16, color: mainColor),
                     ],
                   ],
                 ),
