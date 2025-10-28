@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:get/get.dart';
 import 'package:next_level/Core/Handlers/task_action_handler.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
@@ -46,7 +48,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
     return ActionPane(
       motion: const ScrollMotion(),
-      extentRatio: 0.5,
+      extentRatio: 0.4,
       closeThreshold: 0.1,
       openThreshold: 0.1,
       dismissible: DismissiblePane(
@@ -72,7 +74,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
     return ActionPane(
       motion: const ScrollMotion(),
-      extentRatio: canPin ? 0.65 : 0.5,
+      extentRatio: canPin ? 0.6 : 0.3,
       closeThreshold: 0.1,
       openThreshold: 0.1,
       dismissible: DismissiblePane(
@@ -91,6 +93,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         onDismissed: () {},
       ),
       children: [
+        if (canPin) editAction(),
         if (canPin) pinAction(),
         deleteAction(),
         if (widget.taskModel.routineID == null) changeDateAction(),
@@ -177,6 +180,23 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       backgroundColor: AppColors.red,
       icon: Icons.delete,
       // label: LocaleKeys.Delete.tr(),
+      padding: actionItemPadding,
+    );
+  }
+
+  SlidableAction editAction() {
+    return SlidableAction(
+      onPressed: (context) {
+        LogService.debug('✏️ Task ${widget.taskModel.id} - Edit operation started');
+        Get.to(() => AddTaskPage(editTask: widget.taskModel))?.then((_) {
+          LogService.debug('✅ Task ${widget.taskModel.id} - Edit completed');
+          taskProvider.updateItems();
+        });
+      },
+      backgroundColor: AppColors.blue,
+      icon: Icons.edit,
+      foregroundColor: AppColors.white,
+      // label: LocaleKeys.Edit.tr(),
       padding: actionItemPadding,
     );
   }

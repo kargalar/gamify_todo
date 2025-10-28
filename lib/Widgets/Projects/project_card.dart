@@ -182,10 +182,6 @@ class ProjectCard extends BaseCard {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          onLongPress: () {
-            LogService.debug('🔒 Project ${project.id} - Long press: Opening edit dialog');
-            _showEditDialog(context);
-          },
           borderRadius: AppColors.borderRadiusAll,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

@@ -328,7 +328,7 @@ class _NotesPageState extends State<NotesPage> {
       },
       itemBuilder: (context, index) {
         final note = notes[index];
-        return ReorderableDragStartListener(
+        return ReorderableDelayedDragStartListener(
           key: ValueKey(note.id),
           index: index,
           child: _buildNoteCard(context, provider, note),
@@ -342,10 +342,6 @@ class _NotesPageState extends State<NotesPage> {
       note: note,
       onTap: () => _navigateToNoteDescriptionEditor(context, note),
       onEdit: () => _navigateToEditNote(context, note),
-      onLongPress: () {
-        LogService.debug('🔒 Note ${note.id} - Long press: Opening edit dialog');
-        _navigateToEditNote(context, note);
-      },
       onDelete: () => _confirmDelete(context, provider, note),
     );
   }

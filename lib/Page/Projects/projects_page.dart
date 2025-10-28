@@ -405,7 +405,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       },
       itemBuilder: (context, index) {
         final project = projects[index];
-        return ReorderableDragStartListener(
+        return ReorderableDelayedDragStartListener(
           key: ValueKey(project.id),
           index: index,
           child: _buildProjectCard(context, provider, project),

@@ -1023,7 +1023,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   ),
                 ),
                 // Drag handle for reordering
-                ReorderableDragStartListener(
+                ReorderableDelayedDragStartListener(
                   index: index,
                   child: Icon(
                     Icons.drag_handle_rounded,

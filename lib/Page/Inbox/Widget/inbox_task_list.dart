@@ -376,7 +376,7 @@ class _InboxTaskListState extends State<InboxTaskList> {
       },
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return ReorderableDragStartListener(
+        return ReorderableDelayedDragStartListener(
           key: ValueKey(task.key),
           index: index,
           child: TaskItem(taskModel: task),

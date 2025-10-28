@@ -204,9 +204,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                           taskLongPressAction(); // Tasklarda edit sayfası
                         }
                       },
-                      onLongPress: () async {
-                        await taskLongPressAction();
-                      },
                       borderRadius: _getBorderRadiusForStyle(styleProvider.currentStyle),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

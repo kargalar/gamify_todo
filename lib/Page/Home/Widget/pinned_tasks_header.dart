@@ -263,7 +263,7 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
       },
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return ReorderableDragStartListener(
+        return ReorderableDelayedDragStartListener(
           key: ValueKey(task.key),
           index: index,
           child: TaskItem(taskModel: task),

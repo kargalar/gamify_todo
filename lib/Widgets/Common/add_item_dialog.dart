@@ -251,7 +251,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       focusNode: _titleFocus,
                       textCapitalization: TextCapitalization.sentences,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: AppColors.text,
                       ),
@@ -279,7 +279,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                           focusNode: _descriptionFocus,
                           textCapitalization: TextCapitalization.sentences,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             color: AppColors.text,
                           ),
                           decoration: InputDecoration(

@@ -197,7 +197,7 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
                   },
                   itemBuilder: (context, index) {
                     final task = widget.overdueTasks[index];
-                    return ReorderableDragStartListener(
+                    return ReorderableDelayedDragStartListener(
                       key: ValueKey(task.key),
                       index: index,
                       child: TaskItem(taskModel: task),
