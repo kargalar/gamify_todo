@@ -105,6 +105,8 @@ class NotificationService {
       enableLights: true,
       sound: RawResourceAndroidNotificationSound('alarm'),
       showBadge: true,
+      // Alarm ses kanalını kullan (telefon sessizdeyken respektlenecek)
+      audioAttributesUsage: AudioAttributesUsage.alarm,
     );
 
     const AndroidNotificationChannel scheduleChannel = AndroidNotificationChannel(
@@ -334,12 +336,13 @@ class NotificationService {
           loopAudio: true,
           vibrate: true,
           warningNotificationOnKill: true, // Uygulama öldürüldüğünde uyarı
-          // androidFullScreenIntent kapatıldı: ekran açılınca uygulamanın otomatik açılmasını engellemek için
-          androidFullScreenIntent: false,
-          volumeSettings: VolumeSettings.fade(
-            volume: 0.8,
-            fadeDuration: const Duration(seconds: 3),
-            volumeEnforced: false, // Prevent volume control UI from appearing
+          // Ekran kapalıysa ekranı uyandır
+          androidFullScreenIntent: true,
+          // Sistem alarm ses seviyesini kullan, otomatik yükseltme yok
+          // fadeDuration: 1ms - Minimal fade, neredeyse direkt ses
+          // volumeEnforced: false - Ses otomatik yükseltilmez
+          volumeSettings: VolumeSettings.fixed(
+            volumeEnforced: false, // Otomatik ses yükseltme yok
           ),
           notificationSettings: NotificationSettings(
             title: '🚨 $title',
@@ -465,10 +468,11 @@ class NotificationService {
         loopAudio: true,
         vibrate: true,
         warningNotificationOnKill: true,
-        // Tam ekran intent test alarmında da kapatıldı (otomatik açılmayı engellemek için)
-        androidFullScreenIntent: false,
-        volumeSettings: VolumeSettings.fade(
-          fadeDuration: const Duration(seconds: 3),
+        // Ekran kapalıysa uyandır
+        androidFullScreenIntent: true,
+        // Sistem alarm ses seviyesi kullan
+        volumeSettings: VolumeSettings.fixed(
+          volumeEnforced: false,
         ),
         notificationSettings: const NotificationSettings(
           title: '⏰ Gerçek Alarm Testi',
@@ -545,9 +549,21 @@ class NotificationService {
         vibrationPattern: isAlarm ? Int64List.fromList([0, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800, 400, 800]) : null,
         ongoing: isAlarm, // Only alarms stay visible, notifications can be swiped away
         autoCancel: false, // Prevent auto-dismissal when notification panel is opened/closed
-        // fullScreenIntent kapatıldı: alarm çalarken ekran açıldığında uygulamanın otomatik açılmasını istemiyoruz
-        fullScreenIntent: false,
+        // fullScreenIntent: true - Alarm için ekran kapalıysa uyandır
+        // Bildirim ekranda kapanana kadar görünür kalacak
+        fullScreenIntent: isAlarm, // Alarm çaldığında ekranı uyandır
         category: isAlarm ? AndroidNotificationCategory.alarm : AndroidNotificationCategory.reminder,
+        // Alarm her zaman genişletilmiş (expanded) şekilde göster
+        styleInformation: isAlarm
+            ? const BigTextStyleInformation(
+                '',
+                htmlFormatBigText: true,
+                contentTitle: '', // Title büyük yazılacak
+                htmlFormatContentTitle: true,
+                summaryText: '',
+                htmlFormatSummaryText: true,
+              )
+            : null,
         actions: isAlarm
             ? [
                 const AndroidNotificationAction(
@@ -558,8 +574,12 @@ class NotificationService {
                 ),
               ]
             : null,
-        onlyAlertOnce: false,
-        timeoutAfter: null, // Ensures no timeout for notifications
+        onlyAlertOnce: false, // Her zaman ses çıkar
+        timeoutAfter: null, // Asla zaman aşımına uğramasın
+        when: null, // Zaman gösterme (heads-up'ın kaybolmasını engeller)
+        usesChronometer: false, // Kronometre kullanma
+        chronometerCountDown: false,
+        showWhen: false, // Zaman gösterme
         audioAttributesUsage: isAlarm ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
         playSound: true,
         ticker: isAlarm ? 'Alarm is active' : null,

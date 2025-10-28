@@ -34,8 +34,6 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 ○ Repeat days dal all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. O tasklar ya en yakın diğer gund egisterilwin ya da gisterilmesin
 
-○ alarmı güncelle.
-    telefon sessizseyken cakmasin mesela veya çalarken ekrana gelsin direkt.su şekliyle iyi olmuyir
 
  rutin gün seçimi kısmında Repeat days ın oraya all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. ne yapılabilir
@@ -53,7 +51,6 @@ slitch tasarım geliştirmeleri
 
 proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha kompakt yap. gerekirse stack ile yap.
 
-restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 
 projeler ve notlar sekmeleri varsayıaln olarak kapalı olsun
 
@@ -71,15 +68,32 @@ inbox da kendi tarihleri arasında home page de ise kendi listeleri arasında s�
 
 ganini sorunu çöz. 
 
-alarm düzelt. her yerde. task tamamlayınca falan.
 
 dünkü rutin tamamalnmaın rağmen başarısız işaretlenimş. yani timer dün başlamış bugün bitmiş!!!!
 
-ALARM ALARM ALARM.
-3 tane alarm sesi ekle.
-alarm çalınca ekran açılsın vebildirim panelinde görünsün kapanana kadar. yani bildirim paneli açmadn da görünsün. ayrıca telefon sessizdeyse falan aptal gibi çalmamalıçalmamalı.
+
 
 tamamalnınca aniden yok olması kötü
 gün geçişler iappardaki kötü
 
 analitics. hangi sayfaya tıklamış falan.
+
+restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
+
+
+
+○ alarmı güncelle.
+    telefon sessizseyken cakmasin mesela veya çalarken ekrana gelsin direkt.su şekliyle iyi olmuyir
+ALARM ALARM ALARM.
+3 tane alarm sesi ekle.
+alarm çalınca ekran açılsın vebildirim panelinde görünsün kapanana kadar. yani bildirim paneli açmadn da görünsün. ayrıca telefon sessizdeyse falan aptal gibi çalmamalıçalmamalı.
+alarm düzelt. her yerde. task tamamlayınca falan.
+
+
+şuraları diğer alrm ve bildirimler ile test et
+   onlyAlertOnce: false, // Her zaman ses çıkar
+        timeoutAfter: null, // Asla zaman aşımına uğramasın
+        when: null, // Zaman gösterme (heads-up'ın kaybolmasını engeller)
+        usesChronometer: false, // Kronometre kullanma
+        chronometerCountDown: false,
+        showWhen: false, // Zaman gösterme
