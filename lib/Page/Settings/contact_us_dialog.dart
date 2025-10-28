@@ -19,11 +19,11 @@ class ContactUsDialog extends StatelessWidget {
           _contactOption(
             icon: Icons.email,
             title: LocaleKeys.Email.tr(),
-            subtitle: "support@gamifytodo.com",
+            subtitle: "gamifytodo@gmail.com",
             onTap: () async {
               final Uri emailUri = Uri(
                 scheme: 'mailto',
-                path: 'support@gamifytodo.com',
+                path: 'gamifytodo@gmail.com',
                 queryParameters: {
                   'subject': 'Gamify Todo App Support',
                 },
@@ -32,7 +32,7 @@ class ContactUsDialog extends StatelessWidget {
                 await launchUrl(emailUri);
               } else {
                 await Clipboard.setData(
-                  const ClipboardData(text: 'support@gamifytodo.com'),
+                  const ClipboardData(text: 'gamifytodo@gmail.com'),
                 );
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -45,30 +45,30 @@ class ContactUsDialog extends StatelessWidget {
               }
             },
           ),
-          const SizedBox(height: 8),
-          _contactOption(
-            icon: Icons.web,
-            title: LocaleKeys.Website.tr(),
-            subtitle: "www.gamifytodo.com",
-            onTap: () async {
-              final Uri url = Uri.parse('https://www.gamifytodo.com');
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
-              } else {
-                await Clipboard.setData(
-                  const ClipboardData(text: 'www.gamifytodo.com'),
-                );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Website URL copied to clipboard'),
-                      backgroundColor: AppColors.main,
-                    ),
-                  );
-                }
-              }
-            },
-          ),
+          // const SizedBox(height: 8),
+          // _contactOption(
+          //   icon: Icons.web,
+          //   title: LocaleKeys.Website.tr(),
+          //   subtitle: "www.gamifytodo.com",
+          //   onTap: () async {
+          //     final Uri url = Uri.parse('https://www.gamifytodo.com');
+          //     if (await canLaunchUrl(url)) {
+          //       await launchUrl(url, mode: LaunchMode.externalApplication);
+          //     } else {
+          //       await Clipboard.setData(
+          //         const ClipboardData(text: 'www.gamifytodo.com'),
+          //       );
+          //       if (context.mounted) {
+          //         ScaffoldMessenger.of(context).showSnackBar(
+          //           SnackBar(
+          //             content: const Text('Website URL copied to clipboard'),
+          //             backgroundColor: AppColors.main,
+          //           ),
+          //         );
+          //       }
+          //     }
+          //   },
+          // ),
           const SizedBox(height: 8),
           _contactOption(
             icon: Icons.bug_report,
@@ -77,7 +77,7 @@ class ContactUsDialog extends StatelessWidget {
             onTap: () async {
               final Uri emailUri = Uri(
                 scheme: 'mailto',
-                path: 'bugs@gamifytodo.com',
+                path: 'gamifytodo@gmail.com',
                 queryParameters: {
                   'subject': 'Bug Report - Gamify Todo App',
                   'body': 'Please describe the bug you encountered:\n\n'
@@ -96,7 +96,7 @@ class ContactUsDialog extends StatelessWidget {
                 await launchUrl(emailUri);
               } else {
                 await Clipboard.setData(
-                  const ClipboardData(text: 'bugs@gamifytodo.com'),
+                  const ClipboardData(text: 'gamifytodo@gmail.com'),
                 );
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(

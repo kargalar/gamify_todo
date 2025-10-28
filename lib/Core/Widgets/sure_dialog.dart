@@ -30,7 +30,7 @@ class _CustomDialogWidgetState extends State<CustomDialogWidget> {
   final String _title = LocaleKeys.Warning.tr();
   final String _declineButton = LocaleKeys.No.tr();
 
-  int count = 3;
+  int count = 2;
   late bool withTimer = widget.withTimer;
   // default accept button text
   late String acceptButtonText = widget.acceptButtonText ?? _acceptButton;

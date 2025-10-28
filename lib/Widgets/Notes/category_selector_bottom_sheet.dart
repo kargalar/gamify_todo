@@ -113,7 +113,7 @@ class CategorySelectorBottomSheet extends StatelessWidget {
   }) {
     final color = category != null ? Color(category.colorValue) : AppColors.grey;
     final icon = category != null && category.iconCodePoint != null ? CategoryIcons.getIconByCodePoint(category.iconCodePoint) ?? Icons.category_outlined : Icons.category_outlined;
-    final name = category?.name ?? 'Kategorisiz';
+    final name = category?.name ?? 'Uncateogorized'.tr();
 
     return InkWell(
       onTap: () {

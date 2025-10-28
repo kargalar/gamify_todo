@@ -187,7 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
               subtitle: LocaleKeys.PrivacyPolicySubtitle.tr(),
               icon: Icons.privacy_tip,
               onTap: () async {
-                const url = 'https://gamifytodo-lvl.web.app/'; // TODO: Update with actual URL
+                const url = 'https://kargalar.github.io/nextlevel_privacy2/';
                 LogService.debug('Settings: Opening Privacy Policy');
 
                 // Check if webview is supported on this platform

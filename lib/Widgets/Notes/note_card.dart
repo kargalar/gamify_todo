@@ -8,6 +8,7 @@ import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/General/date_formatter.dart';
 import 'package:next_level/Widgets/Common/base_card.dart';
+import 'package:next_level/Widgets/Common/linkify_text.dart';
 
 /// Compact and simple note card widget (with Slidable actions)
 class NoteCard extends BaseCard {
@@ -163,8 +164,8 @@ class NoteCard extends BaseCard {
                         ],
                         // Title
                         Expanded(
-                          child: Text(
-                            note.title.isNotEmpty ? note.title : 'UntitledNote'.tr(),
+                          child: LinkifyText(
+                            text: note.title.isNotEmpty ? note.title : 'UntitledNote'.tr(),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -189,8 +190,8 @@ class NoteCard extends BaseCard {
                     // İçerik önizlemesi
                     if (note.content.isNotEmpty) ...[
                       const SizedBox(height: 8),
-                      Text(
-                        note.content,
+                      LinkifyText(
+                        text: note.content,
                         style: TextStyle(
                           fontSize: 14,
                           color: AppColors.text,

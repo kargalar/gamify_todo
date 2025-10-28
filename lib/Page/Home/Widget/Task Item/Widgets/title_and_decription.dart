@@ -1,9 +1,9 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/progress_text.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_category.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Widgets/Common/linkify_text.dart';
 
 class TitleAndDescription extends StatelessWidget {
   const TitleAndDescription({
@@ -32,15 +32,20 @@ class TitleAndDescription extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: AutoSizeText(
-                  taskModel.title,
+                child: LinkifyText(
+                  text: taskModel.title,
                   maxLines: 2,
-                  minFontSize: 13,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: priorityColor,
+                  ),
+                  linkStyle: TextStyle(
+                    fontSize: 15,
+                    color: AppColors.blue,
+                    decoration: TextDecoration.none,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -56,13 +61,19 @@ class TitleAndDescription extends StatelessWidget {
             ],
           ),
           if (taskModel.description != null && taskModel.description!.isNotEmpty)
-            Text(
-              taskModel.description!,
+            LinkifyText(
+              text: taskModel.description!,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
                 color: priorityColor.withValues(alpha: 0.7),
+              ),
+              linkStyle: TextStyle(
+                fontSize: 12,
+                color: AppColors.blue,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w700,
               ),
             ),
           Wrap(

@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:linkify/linkify.dart';
 import '../../General/app_colors.dart';
 import '../../Service/locale_keys.g.dart';
 import '../../Service/logging_service.dart';
+import 'linkify_text.dart';
 
 /// Reusable description editor component
 /// Can be used for tasks, notes, projects, subtasks, etc.
@@ -34,6 +36,8 @@ class DescriptionEditor extends StatefulWidget {
 }
 
 class _DescriptionEditorState extends State<DescriptionEditor> {
+  bool _showLinkPreview = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +47,19 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
         widget.focusNode!.requestFocus();
       });
     }
+  }
+
+  List<LinkableElement> _extractLinks(String value) {
+    final elements = linkify(
+      value,
+      options: const LinkifyOptions(
+        humanize: false,
+        looseUrl: true,
+        removeWww: false,
+      ),
+    );
+
+    return elements.whereType<LinkableElement>().where((link) => link.url.isNotEmpty).toList();
   }
 
   void _copyDescription() {
@@ -127,6 +144,9 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final linkElements = _extractLinks(widget.controller.text);
+    final linkPreviewText = linkElements.map((link) => link.url).join('\n');
+
     return Scaffold(
       appBar: AppBar(
         leading: InkWell(
@@ -158,37 +178,122 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                     ),
                   ],
                 ),
-                child: TextField(
-                  controller: widget.controller,
-                  focusNode: widget.focusNode,
-                  autofocus: widget.focusNode == null, // Auto-focus if no focus node provided
-                  textCapitalization: TextCapitalization.sentences,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: LocaleKeys.EnterDescription.tr(),
-                    hintStyle: TextStyle(
-                      color: AppColors.text.withValues(alpha: 0.4),
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: widget.controller,
+                        focusNode: widget.focusNode,
+                        autofocus: widget.focusNode == null,
+                        textCapitalization: TextCapitalization.sentences,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: LocaleKeys.EnterDescription.tr(),
+                          hintStyle: TextStyle(
+                            color: AppColors.text.withValues(alpha: 0.4),
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.only(
+                            left: 16,
+                            top: 10,
+                            bottom: 12,
+                          ),
+                        ),
+                        maxLines: null,
+                        expands: true,
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.none,
+                        onChanged: (value) {
+                          setState(() {}); // Update UI to reflect changes
+                          widget.onChanged(value); // Trigger callback
+                        },
+                      ),
                     ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.only(
-                      left: 16,
-                      top: 10,
-                      bottom: 12,
-                    ),
-                  ),
-                  maxLines: null,
-                  expands: true,
-                  keyboardType: TextInputType.multiline,
-                  textInputAction: TextInputAction.none,
-                  onChanged: (value) {
-                    setState(() {}); // Update UI to reflect changes
-                    widget.onChanged(value); // Trigger callback
-                  },
+                    if (linkElements.isNotEmpty) ...[
+                      Divider(
+                        color: AppColors.text.withValues(alpha: 0.08),
+                        height: 1,
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.panelBackground.withValues(alpha: 0.4),
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () {
+                                setState(() {
+                                  _showLinkPreview = !_showLinkPreview;
+                                });
+                                LogService.debug(
+                                  '🔗 Description link list toggled: ${_showLinkPreview ? "expanded" : "collapsed"}',
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Links (${linkElements.length})',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.text.withValues(alpha: 0.65),
+                                      ),
+                                    ),
+                                    Icon(
+                                      _showLinkPreview ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                                      size: 18,
+                                      color: AppColors.text.withValues(alpha: 0.6),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            AnimatedCrossFade(
+                              firstChild: const SizedBox.shrink(),
+                              secondChild: Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    constraints: const BoxConstraints(maxHeight: 140),
+                                    padding: const EdgeInsets.all(8),
+                                    color: AppColors.panelBackground.withValues(alpha: 0.5),
+                                    child: SingleChildScrollView(
+                                      child: LinkifyText(
+                                        text: linkPreviewText,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              crossFadeState: _showLinkPreview ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                              duration: const Duration(milliseconds: 200),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),

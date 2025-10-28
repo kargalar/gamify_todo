@@ -22,6 +22,7 @@ class DataManagementDialog extends StatelessWidget {
           _dialogButton(
             icon: Icons.upload_file,
             title: LocaleKeys.ExportData.tr(),
+            color: const Color.fromARGB(255, 9, 190, 33),
             onTap: () async {
               await HiveService().exportData();
             },
@@ -30,6 +31,7 @@ class DataManagementDialog extends StatelessWidget {
           _dialogButton(
             icon: Icons.download,
             title: LocaleKeys.ImportData.tr(),
+            color: const Color.fromARGB(255, 10, 116, 238),
             onTap: () async {
               await HiveService().importData();
             },
@@ -47,7 +49,6 @@ class DataManagementDialog extends StatelessWidget {
                   await HiveService().resetAllRoutineProgress();
                 },
                 acceptButtonText: LocaleKeys.Yes.tr(),
-                title: "Hurra?",
               );
             },
           ),
@@ -69,7 +70,6 @@ class DataManagementDialog extends StatelessWidget {
                   // loginUser remains, credits reset
                 },
                 acceptButtonText: LocaleKeys.Yes.tr(),
-                title: "Hurra?",
               );
             },
           ),

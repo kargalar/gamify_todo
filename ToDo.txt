@@ -87,6 +87,12 @@ alarm çalınca ekran açılsın vebildirim panelinde görünsün kapanana kadar
 tamamalnınca aniden yok olması kötü
 gün geçişler iappardaki kötü
 
-
-
 descriptiondaki linkler vurgulansın ve tıklanabilsin.
+
+data managementttlri renkler sabiy olacak.
+
+contact us privacy policy
+
+slidable pin mavi
+
+analitics. hangi sayfaya tıklamış falan.

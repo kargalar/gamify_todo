@@ -13,6 +13,7 @@ import '../../Model/project_note_model.dart';
 import '../../Provider/projects_provider.dart';
 import '../Common/base_card.dart';
 import '../Common/add_item_dialog.dart';
+import '../Common/linkify_text.dart';
 
 class ProjectCard extends BaseCard {
   final ProjectModel project;
@@ -195,8 +196,8 @@ class ProjectCard extends BaseCard {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        project.title,
+                      child: LinkifyText(
+                        text: project.title,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -245,8 +246,8 @@ class ProjectCard extends BaseCard {
 
                 // Description
                 if (project.description.isNotEmpty) ...[
-                  Text(
-                    project.description,
+                  LinkifyText(
+                    text: project.description,
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.onBackground.withValues(alpha: 0.7),
