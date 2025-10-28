@@ -80,3 +80,6 @@ analitics. hangi sayfaya tıklamış falan.
 restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 
 bildirim icon
+
+sıralamak için basılı tutu
+liknkfy olan yerde text büyüdü

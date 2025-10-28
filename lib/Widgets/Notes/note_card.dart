@@ -167,8 +167,8 @@ class NoteCard extends BaseCard {
                           child: LinkifyText(
                             text: note.title.isNotEmpty ? note.title : 'UntitledNote'.tr(),
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.text,
                               decoration: note.isArchived ? TextDecoration.lineThrough : null,
                             ),
@@ -193,7 +193,7 @@ class NoteCard extends BaseCard {
                       LinkifyText(
                         text: note.content,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 11,
                           color: AppColors.text,
                           decoration: note.isArchived ? TextDecoration.lineThrough : null,
                         ),

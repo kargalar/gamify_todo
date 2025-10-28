@@ -37,12 +37,12 @@ class TitleAndDescription extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: priorityColor,
                   ),
                   linkStyle: TextStyle(
-                    fontSize: 15,
+                    fontSize: 13,
                     color: AppColors.blue,
                     decoration: TextDecoration.none,
                     fontWeight: FontWeight.w700,

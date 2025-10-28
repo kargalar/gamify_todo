@@ -268,21 +268,18 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                             ),
                             AnimatedCrossFade(
                               firstChild: const SizedBox.shrink(),
-                              secondChild: Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    constraints: const BoxConstraints(maxHeight: 140),
-                                    padding: const EdgeInsets.all(8),
-                                    color: AppColors.panelBackground.withValues(alpha: 0.5),
-                                    child: SingleChildScrollView(
-                                      child: LinkifyText(
-                                        text: linkPreviewText,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          height: 1.4,
-                                        ),
+                              secondChild: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  constraints: const BoxConstraints(maxHeight: 140),
+                                  padding: const EdgeInsets.all(6),
+                                  color: AppColors.panelBackground.withValues(alpha: 0.5),
+                                  child: SingleChildScrollView(
+                                    child: LinkifyText(
+                                      text: linkPreviewText,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        height: 1.4,
                                       ),
                                     ),
                                   ),

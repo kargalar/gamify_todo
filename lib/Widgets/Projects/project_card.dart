@@ -199,7 +199,7 @@ class ProjectCard extends BaseCard {
                       child: LinkifyText(
                         text: project.title,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppColors.onBackground,
                         ),
@@ -249,7 +249,7 @@ class ProjectCard extends BaseCard {
                   LinkifyText(
                     text: project.description,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 11,
                       color: AppColors.onBackground.withValues(alpha: 0.7),
                       height: 1.3,
                     ),
