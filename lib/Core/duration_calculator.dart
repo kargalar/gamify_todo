@@ -262,7 +262,10 @@ class DurationCalculator {
 
     return dates.map((date) {
       final isFuture = date.isAfter(now);
-      final isVacation = VacationDateProvider().isVacationDay(date);
+      final isVacation = VacationDateProvider().isVacationDay(
+        date,
+        includeFutureVacationMode: !isFuture,
+      );
       final isMet = isFuture || isVacation ? null : calculateStreakStatusForDate(date);
       LogService.debug('DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet');
       return {

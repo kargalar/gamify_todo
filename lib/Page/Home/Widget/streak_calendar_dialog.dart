@@ -189,7 +189,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
         final today = DateTime(now.year, now.month, now.day);
         final checkDate = DateTime(date.year, date.month, date.day);
         final isFuture = checkDate.isAfter(today);
-        final isVacation = VacationDateProvider().isVacationDay(checkDate);
+        final isVacation = VacationDateProvider().isVacationDay(checkDate, includeFutureVacationMode: false);
         final isToday = checkDate.isAtSameMomentAs(today);
         final isBeforeMinDate = checkDate.isBefore(_minDate);
 
@@ -254,7 +254,7 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
       final date = startOfYear.add(Duration(days: day));
       if (date.isAfter(DateTime(now.year, now.month, now.day)) || date.isBefore(_minDate)) continue;
 
-      final isVacation = VacationDateProvider().isVacationDay(date);
+      final isVacation = VacationDateProvider().isVacationDay(date, includeFutureVacationMode: false);
       if (isVacation) continue; // Tatil günlerini istatistiklere dahil etme
 
       totalDays++;

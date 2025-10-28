@@ -62,8 +62,6 @@ weekly ve yearly streaklar için 5 durum mu olsun.
 
 vacation mode aktifken otomatik sonraki güne geçince o günü de tatil olarak işaretliyor mu
 
-Weeklydeki ilerlemnin oralara alev eklenmesi güzel olur
-
 inbox da kendi tarihleri arasında home page de ise kendi listeleri arasında sıralnabileceklerbelki daha sonra sürükelyerek tarih değiştirme veya liste değiştirme de olabilir.
 
 ganini sorunu çöz. 
