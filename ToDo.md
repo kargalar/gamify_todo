@@ -1,3 +1,10 @@
+attachments ve tema geçici olarak kaldırıldı
+
+
+---------------
+
+
+
 botomsheet tam ekran olabilsin
 
 subtaskları birleştir
@@ -35,8 +42,6 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 NOTE: bildirimleri de bunne göre güncellemelisin
 
 privicay policy domain bağla
-
-attachments ve tema geçici olarak kaldırıldı
 
 bugünün ilerlemesi kısmındaki task itemların tasarımı güncelle.
 
