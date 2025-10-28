@@ -30,6 +30,9 @@ dependencies:
   timezone: ^0.10.0
   alarm: ^5.1.4
 
+  # Audio player for sound preview
+  just_audio: ^0.9.40
+
   # Save Data
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -140,7 +143,6 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   flutter_launcher_icons: ^0.14.2
-
 
 
 

@@ -72,7 +72,6 @@ ganini sorunu çöz.
 dünkü rutin tamamalnmaın rağmen başarısız işaretlenimş. yani timer dün başlamış bugün bitmiş!!!!
 
 
-
 tamamalnınca aniden yok olması kötü
 gün geçişler iappardaki kötü
 
@@ -80,20 +79,4 @@ analitics. hangi sayfaya tıklamış falan.
 
 restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 
-
-
-○ alarmı güncelle.
-    telefon sessizseyken cakmasin mesela veya çalarken ekrana gelsin direkt.su şekliyle iyi olmuyir
-ALARM ALARM ALARM.
-3 tane alarm sesi ekle.
-alarm çalınca ekran açılsın vebildirim panelinde görünsün kapanana kadar. yani bildirim paneli açmadn da görünsün. ayrıca telefon sessizdeyse falan aptal gibi çalmamalıçalmamalı.
-alarm düzelt. her yerde. task tamamlayınca falan.
-
-
-şuraları diğer alrm ve bildirimler ile test et
-   onlyAlertOnce: false, // Her zaman ses çıkar
-        timeoutAfter: null, // Asla zaman aşımına uğramasın
-        when: null, // Zaman gösterme (heads-up'ın kaybolmasını engeller)
-        usesChronometer: false, // Kronometre kullanma
-        chronometerCountDown: false,
-        showWhen: false, // Zaman gösterme
+bildirim icon

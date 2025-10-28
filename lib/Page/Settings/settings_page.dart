@@ -8,6 +8,7 @@ import 'package:next_level/Page/Settings/file_storage_management_page.dart';
 import 'package:next_level/Page/Settings/navbar_customization_page.dart';
 import 'package:next_level/Page/Settings/privacy_policy_webview_page.dart';
 import 'package:next_level/Page/Settings/task_style_selection_dialog.dart';
+import 'package:next_level/Page/Settings/alarm_sound_selection_dialog.dart';
 import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/app_launch_service.dart';
@@ -123,6 +124,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   context: context,
                   builder: (context) => const TaskStyleSelectionDialog(),
                 );
+              },
+            ),
+            _settingsOption(
+              title: 'Alarm Sound Selection',
+              subtitle: 'Configure alarm sounds for different task types',
+              icon: Icons.music_note,
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  builder: (context) => const AlarmSoundSelectionDialog(),
+                );
+                LogService.debug('Settings: Alarm sound dialog closed');
               },
             ),
             Consumer<ColorProvider>(

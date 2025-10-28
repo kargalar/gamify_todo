@@ -187,7 +187,7 @@ Bu uygulama, kullanıcıların görevlerini yönetmelerine ve bu görevleri tama
   - en.json: İngilizce çeviriler
   - tr.json: Türkçe çeviriler
 - **sounds/**: Uygulama sesleri
-  - alarm.mp3: Alarm sesi
+  - alarm1.mp3: Alarm sesi
 - **logo/**: Uygulama logo ve splash resimleri
 
 ### Home & Routine Detail

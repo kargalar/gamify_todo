@@ -16,8 +16,11 @@ import 'package:alarm/alarm.dart';
 import 'package:alarm/utils/alarm_set.dart';
 import 'dart:typed_data';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Service/alarm_sound_service.dart';
 
 class NotificationService {
+  final AlarmSoundService _alarmSoundService = AlarmSoundService();
+
   /// Timer taskı durdurulunca çağrılacak örnek fonksiyon
   Future<void> stopTimerTask(int id) async {
     // ...timerı durdurma işlemleri...
@@ -252,6 +255,7 @@ class NotificationService {
     required DateTime scheduledDate,
     required bool isAlarm,
     int? earlyReminderMinutes,
+    AlarmType alarmType = AlarmType.scheduled, // Default: scheduled task alarm
   }) async {
     // Bildirim/alarm ID'sini 32-bit integer sınırında tut
     final safeId = id % 2147483647;
@@ -329,10 +333,14 @@ class NotificationService {
           return;
         }
 
+        // Seçili alarm sesini al
+        final selectedSoundPath = await _alarmSoundService.getSelectedSoundPath(alarmType);
+        LogService.debug('✓ Selected alarm sound for ${alarmType.name}: $selectedSoundPath');
+
         final alarmSettings = AlarmSettings(
           id: safeId,
           dateTime: scheduledDate,
-          assetAudioPath: 'assets/sounds/alarm.mp3',
+          assetAudioPath: selectedSoundPath, // Kullanıcının seçtiği ses
           loopAudio: true,
           vibrate: true,
           warningNotificationOnKill: true, // Uygulama öldürüldüğünde uyarı
@@ -461,10 +469,13 @@ class NotificationService {
     // 5 saniye sonra gerçek alarm (alarm package ile)
     final DateTime realAlarmDate = DateTime.now().add(const Duration(seconds: 5));
     try {
+      // Test alarmı için seçili sesi kullan (scheduled type for testing)
+      final selectedSoundPath = await _alarmSoundService.getSelectedSoundPath(AlarmType.scheduled);
+
       final alarmSettings = AlarmSettings(
         id: 66666, // Gerçek alarm test için farklı bir ID
         dateTime: realAlarmDate,
-        assetAudioPath: 'assets/sounds/alarm.mp3',
+        assetAudioPath: selectedSoundPath, // Seçili alarm sesi
         loopAudio: true,
         vibrate: true,
         warningNotificationOnKill: true,
