@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// !!!!!!!!!!!!!!!!!!!!
+// ignore: depend_on_referenced_packages
 import 'package:linkify/linkify.dart';
 import '../../General/app_colors.dart';
 import '../../Service/locale_keys.g.dart';

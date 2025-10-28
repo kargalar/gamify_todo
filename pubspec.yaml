@@ -114,7 +114,7 @@ dependencies:
   url_launcher: ^6.3.1
 
   # Linkify
-  # flutter_linkify: ^6.0.0
+  flutter_linkify: ^6.0.0
 
   # WebView
   webview_flutter: ^4.13.0
@@ -124,7 +124,6 @@ dependencies:
 
   # Wakelock
   wakelock_plus: ^1.2.8
-  linkfy_text: ^1.1.6
   
 
 
