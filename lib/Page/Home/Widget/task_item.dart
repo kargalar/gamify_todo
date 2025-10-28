@@ -9,7 +9,6 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/description_editor.dart';
 import 'package:next_level/Page/Timer/full_screen_timer_page.dart';
-import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/priority_line.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/subtasks_bottom_sheet.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_location.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_time.dart';
@@ -234,7 +233,6 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                             ),
                           ),
                           if (widget.taskModel.subtasks != null && widget.taskModel.subtasks!.isNotEmpty) _buildSubtasksButton(),
-                          PriorityLine(taskModel: widget.taskModel),
                         ],
                       ),
                     ),
