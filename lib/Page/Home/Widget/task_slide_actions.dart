@@ -1,10 +1,8 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Core/Handlers/task_action_handler.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
@@ -31,7 +29,7 @@ class TaskSlideActions extends StatefulWidget {
 
 class _TaskSlideActionsState extends State<TaskSlideActions> {
   late final taskProvider = context.read<TaskProvider>();
-  final actionItemPadding = const EdgeInsets.symmetric(horizontal: 5);
+  final actionItemPadding = const EdgeInsets.symmetric(horizontal: 20);
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +119,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       },
       backgroundColor: AppColors.purple,
       icon: Icons.block,
-      label: LocaleKeys.Cancel.tr(),
+      // label: LocaleKeys.Cancel.tr(),
       padding: actionItemPadding,
     );
   }
@@ -147,7 +145,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       },
       backgroundColor: AppColors.red,
       icon: Icons.close,
-      label: LocaleKeys.Failed.tr(),
+      // label: LocaleKeys.Failed.tr(),
       padding: actionItemPadding,
     );
   }
@@ -162,7 +160,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       },
       backgroundColor: AppColors.orange,
       icon: Icons.calendar_month,
-      label: LocaleKeys.ChangeDate.tr(),
+      // label: LocaleKeys.ChangeDate.tr(),
       padding: actionItemPadding,
     );
   }
@@ -178,7 +176,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       },
       backgroundColor: AppColors.red,
       icon: Icons.delete,
-      label: LocaleKeys.Delete.tr(),
+      // label: LocaleKeys.Delete.tr(),
       padding: actionItemPadding,
     );
   }
@@ -192,9 +190,10 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         LogService.debug('📌 Task ${widget.taskModel.id} - Pin toggle: $isPinned -> ${!isPinned}');
         await taskProvider.toggleTaskPin(widget.taskModel.id);
       },
-      backgroundColor: isPinned ? AppColors.grey : AppColors.main,
+      backgroundColor: isPinned ? AppColors.grey : AppColors.green,
       icon: isPinned ? Icons.push_pin_outlined : Icons.push_pin,
-      label: isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.PinTask.tr(),
+      foregroundColor: AppColors.white,
+      // label: isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.PinTask.tr(),
       padding: actionItemPadding,
     );
   }

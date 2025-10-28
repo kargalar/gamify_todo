@@ -130,7 +130,7 @@ class ProjectCard extends BaseCard {
       if (onPin != null)
         SlidableAction(
           onPressed: (_) => onPin!(),
-          backgroundColor: AppColors.yellow,
+          backgroundColor: AppColors.green,
           padding: const EdgeInsets.all(0),
           foregroundColor: AppColors.white,
           icon: project.isPinned ? Icons.push_pin : Icons.push_pin_outlined,

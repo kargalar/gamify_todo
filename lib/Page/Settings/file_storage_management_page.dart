@@ -428,7 +428,7 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                 child: _dataActionButton(
                   icon: Icons.upload_file,
                   label: LocaleKeys.ExportData.tr(),
-                  color: AppColors.main,
+                  color: AppColors.green,
                   onTap: () async => HiveService().exportData(),
                 ),
               ),
@@ -437,7 +437,7 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                 child: _dataActionButton(
                   icon: Icons.download,
                   label: LocaleKeys.ImportData.tr(),
-                  color: AppColors.main.withValues(alpha: 0.85),
+                  color: AppColors.blue,
                   onTap: () async => HiveService().importData(),
                 ),
               ),

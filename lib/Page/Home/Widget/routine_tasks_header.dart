@@ -128,7 +128,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.main.withValues(alpha: 0.15),
+                      color: AppColors.blue.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(

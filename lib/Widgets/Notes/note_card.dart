@@ -64,7 +64,7 @@ class NoteCard extends BaseCard {
             LogService.error('❌ Note ${note.id} - Pin operation failed');
           }
         },
-        backgroundColor: AppColors.yellow,
+        backgroundColor: AppColors.green,
         foregroundColor: AppColors.white,
         icon: note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
         label: note.isPinned ? 'unpin'.tr() : 'pin'.tr(),
