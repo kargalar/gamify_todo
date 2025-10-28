@@ -124,7 +124,7 @@ class VacationDateProvider extends ChangeNotifier {
     // weekday: 1 = Monday, 2 = Tuesday, ..., 7 = Sunday
     // Convert to 0-based index for our Set (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
     final weekdayIndex = date.weekday - 1;
-    final isVacationWeekday = vacationWeekdays.contains(weekdayIndex) && isFuture; // Only for future!
+    final isVacationWeekday = vacationWeekdays.contains(weekdayIndex) && (isFuture || isToday);
 
     final result = isSpecificDateVacation || isVacationModeApplicable || isVacationWeekday;
 
