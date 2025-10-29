@@ -82,3 +82,5 @@ restore veya delete yapıldığında aktif bildirimler ve alarm sıfırlansın.
 bildirim icon
 
 hide done kısmında hide pinned ikizi butonu ekle. kaitf olduğunda pinlen task sadece pinde gösterilsin. aynı taskalrda gösterilmesin.
+
+task item title botuut düşür ??
