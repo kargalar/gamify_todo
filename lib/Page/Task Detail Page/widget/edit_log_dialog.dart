@@ -130,9 +130,18 @@ class _EditLogDialogState extends State<EditLogDialog> {
                     icon: Icons.access_time,
                     child: InkWell(
                       onTap: () async {
-                        final time = await Helper().selectTime(context, initialTime: selectedTime);
-                        if (time != null) {
-                          setState(() => selectedTime = time);
+                        final result = await Helper().selectTime(context, initialTime: selectedTime);
+                        if (result != null) {
+                          final TimeOfDay time = result['time'] as TimeOfDay;
+                          final bool dateChanged = result['dateChanged'] as bool;
+
+                          setState(() {
+                            selectedTime = time;
+                            // Update date if needed
+                            if (dateChanged) {
+                              selectedDate = selectedDate.add(const Duration(days: 1));
+                            }
+                          });
                         }
                       },
                       child: _Pill(value: selectedTime.format(context)),

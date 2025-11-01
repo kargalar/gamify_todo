@@ -211,7 +211,9 @@ class _NotificationStatusState extends State<NotificationStatus> {
       // Check if widget is still mounted before proceeding
       if (!mounted) return;
 
-      final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
+      final result = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
+      final TimeOfDay? selectedTime = result?['time'] as TimeOfDay?;
+      final bool dateChanged = result?['dateChanged'] as bool? ?? false;
 
       // Check again if widget is still mounted
       if (!mounted) return;
@@ -223,6 +225,11 @@ class _NotificationStatusState extends State<NotificationStatus> {
         } else {
           addTaskProvider.isNotificationOn = false;
           addTaskProvider.isAlarmOn = false;
+        }
+
+        // Update date if needed
+        if (dateChanged && addTaskProvider.selectedDate != null) {
+          addTaskProvider.selectedDate = addTaskProvider.selectedDate!.add(const Duration(days: 1));
         }
       } else {
         addTaskProvider.isNotificationOn = false;

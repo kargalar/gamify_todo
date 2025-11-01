@@ -403,14 +403,384 @@ class Helper {
     return selectedColor;
   }
 
-  Future<TimeOfDay?> selectTime(BuildContext context, {TimeOfDay? initialTime}) async {
-    final selectedTime = await showTimePicker(
-      context: context,
-      initialTime: initialTime ?? const TimeOfDay(hour: 12, minute: 0),
-      initialEntryMode: TimePickerEntryMode.dialOnly,
-    );
+  Future<Map<String, dynamic>?> selectTime(
+    BuildContext context, {
+    TimeOfDay? initialTime,
+    DateTime? referenceDate,
+  }) async {
+    TimeOfDay selectedTime = initialTime ?? TimeOfDay.now();
+    bool dateChanged = false;
+    late FixedExtentScrollController hourController;
+    late FixedExtentScrollController minuteController;
 
-    return selectedTime;
+    return await showDialog<Map<String, dynamic>?>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            // Initialize controllers
+            hourController = FixedExtentScrollController(initialItem: selectedTime.hour);
+            minuteController = FixedExtentScrollController(initialItem: selectedTime.minute);
+
+            return AlertDialog(
+              insetPadding: const EdgeInsets.all(18),
+              contentPadding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Time Display
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.main.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.main,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (dateChanged)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.red.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '📅 +1 Day',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.red,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Direct Time Picker Wheel
+                    Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.main.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Hour Picker
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Hour',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.text.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: ListWheelScrollView.useDelegate(
+                                    controller: hourController,
+                                    itemExtent: 50,
+                                    perspective: 0.005,
+                                    diameterRatio: 1.2,
+                                    physics: const FixedExtentScrollPhysics(),
+                                    onSelectedItemChanged: (index) {
+                                      setState(() {
+                                        selectedTime = TimeOfDay(
+                                          hour: index,
+                                          minute: selectedTime.minute,
+                                        );
+                                        dateChanged = false;
+                                      });
+                                    },
+                                    childDelegate: ListWheelChildBuilderDelegate(
+                                      childCount: 24,
+                                      builder: (context, index) {
+                                        final isSelected = index == selectedTime.hour;
+                                        return Center(
+                                          child: Text(
+                                            index.toString().padLeft(2, '0'),
+                                            style: TextStyle(
+                                              fontSize: isSelected ? 32 : 24,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                              color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Separator
+                          Container(
+                            width: 2,
+                            height: 150,
+                            color: AppColors.main.withValues(alpha: 0.2),
+                          ),
+
+                          // Minute Picker
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Minute',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.text.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: ListWheelScrollView.useDelegate(
+                                    controller: minuteController,
+                                    itemExtent: 50,
+                                    perspective: 0.005,
+                                    diameterRatio: 1.2,
+                                    physics: const FixedExtentScrollPhysics(),
+                                    onSelectedItemChanged: (index) {
+                                      setState(() {
+                                        selectedTime = TimeOfDay(
+                                          hour: selectedTime.hour,
+                                          minute: index,
+                                        );
+                                        dateChanged = false;
+                                      });
+                                    },
+                                    childDelegate: ListWheelChildBuilderDelegate(
+                                      childCount: 60,
+                                      builder: (context, index) {
+                                        final isSelected = index == selectedTime.minute;
+                                        return Center(
+                                          child: Text(
+                                            index.toString().padLeft(2, '0'),
+                                            style: TextStyle(
+                                              fontSize: isSelected ? 32 : 24,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                              color: isSelected ? AppColors.main : AppColors.text.withValues(alpha: 0.5),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    // Quick time buttons
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            'Quick Selection',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.text.withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ),
+                        GridView.count(
+                          crossAxisCount: 3,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                          childAspectRatio: 2.5,
+                          children: [
+                            _buildQuickTimeDialogButton(
+                              context,
+                              null,
+                              (time, changed) {
+                                setState(() {
+                                  selectedTime = time;
+                                  dateChanged = changed;
+                                  hourController.animateToItem(
+                                    time.hour,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                  minuteController.animateToItem(
+                                    time.minute,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                });
+                              },
+                            ),
+                            _buildQuickTimeDialogButton(
+                              context,
+                              15,
+                              (time, changed) {
+                                setState(() {
+                                  selectedTime = time;
+                                  dateChanged = changed;
+                                  hourController.animateToItem(
+                                    time.hour,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                  minuteController.animateToItem(
+                                    time.minute,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                });
+                              },
+                            ),
+                            _buildQuickTimeDialogButton(
+                              context,
+                              60,
+                              (time, changed) {
+                                setState(() {
+                                  selectedTime = time;
+                                  dateChanged = changed;
+                                  hourController.animateToItem(
+                                    time.hour,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                  minuteController.animateToItem(
+                                    time.minute,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, null),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: AppColors.text.withValues(alpha: 0.6)),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(
+                    context,
+                    {
+                      'time': selectedTime,
+                      'dateChanged': dateChanged,
+                    },
+                  ),
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(color: AppColors.main, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildQuickTimeDialogButton(
+    BuildContext context,
+    int? addMinutes,
+    Function(TimeOfDay, bool) onSelect,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          int newHour = DateTime.now().hour;
+          int newMinute = DateTime.now().minute;
+          bool dayChanged = false;
+
+          if (addMinutes != null && addMinutes > 0) {
+            // Şu anki saat + eklenen dakika
+            int now = DateTime.now().hour * 60 + DateTime.now().minute;
+            int totalMinutes = now + addMinutes;
+
+            // Eğer ertesi güne geçerse
+            if (totalMinutes >= 24 * 60) {
+              dayChanged = true;
+              totalMinutes = totalMinutes % (24 * 60);
+            }
+
+            newHour = totalMinutes ~/ 60;
+            newMinute = totalMinutes % 60;
+          }
+
+          final newTime = TimeOfDay(hour: newHour, minute: newMinute);
+          onSelect(newTime, dayChanged);
+          debugPrint('✅ Quick time selected: ${newHour.toString().padLeft(2, '0')}:${newMinute.toString().padLeft(2, '0')} ${dayChanged ? '(+1 Day)' : ''}');
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.panelBackground.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.main.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          child: Center(
+            child: Text(
+              addMinutes == null
+                  ? 'Now'
+                  : addMinutes == 15
+                      ? 'In 15 Min'
+                      : 'In 1 Hour',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: AppColors.main,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<DateTime?> selectDate({

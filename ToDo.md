@@ -92,9 +92,6 @@ quick task butonu task ekleyince kapanmasın
 
 rutinlerin istaitislikler kısmı hatalı
 
-saat seçme kımında dafult olarak şuanki saat gelsin
-ayrıca 15 dk sonra 1 saat sonra dite butonlar da olsun hızlı seçmek için
-
 quick add bottomsheeti geliştir. her şey olacak
 
 store itemlar sıralanabilsin

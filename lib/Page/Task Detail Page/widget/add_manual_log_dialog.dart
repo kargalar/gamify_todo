@@ -157,11 +157,14 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
         );
         if (date != null && context.mounted) {
           // Sonra saat seç
-          final time = await Helper().selectTime(
+          final result = await Helper().selectTime(
             context,
             initialTime: TimeOfDay.fromDateTime(selectedDateTime),
           );
-          if (time != null) {
+          if (result != null) {
+            final TimeOfDay time = result['time'] as TimeOfDay;
+            final bool dateChanged = result['dateChanged'] as bool;
+
             setState(() {
               selectedDateTime = DateTime(
                 date.year,
@@ -170,8 +173,13 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
                 time.hour,
                 time.minute,
               );
+
+              // Eğer tarih değiştiyse +1 gün ekle
+              if (dateChanged) {
+                selectedDateTime = selectedDateTime.add(const Duration(days: 1));
+              }
             });
-            LogService.debug('✅ Manuel log: Tarih ve saat seçildi - ${DateFormat('d MMMM yyyy HH:mm').format(selectedDateTime)}');
+            LogService.debug('✅ Manuel log: Tarih ve saat seçildi - ${DateFormat('d MMMM yyyy HH:mm').format(selectedDateTime)}${dateChanged ? ' (+1 gün)' : ''}');
           }
         }
       },

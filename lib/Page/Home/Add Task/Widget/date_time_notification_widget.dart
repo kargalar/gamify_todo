@@ -650,12 +650,18 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
     // Check if widget is still mounted before proceeding
     if (!mounted) return;
 
-    final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
+    // If no time selected, use current time as default
+    final initialTime = addTaskProvider.selectedTime ?? TimeOfDay.now();
+
+    final result = await Helper().selectTime(context, initialTime: initialTime);
 
     // Check again if widget is still mounted
     if (!mounted) return;
 
-    if (selectedTime != null) {
+    if (result != null) {
+      final TimeOfDay selectedTime = result['time'] as TimeOfDay;
+      final bool dateChanged = result['dateChanged'] as bool;
+
       if (await NotificationService().requestNotificationPermissions()) {
         if (!addTaskProvider.isAlarmOn) {
           addTaskProvider.isNotificationOn = true;
@@ -664,12 +670,21 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
         addTaskProvider.isNotificationOn = false;
         addTaskProvider.isAlarmOn = false;
       }
+
+      // Update date if needed
+      if (dateChanged && addTaskProvider.selectedDate != null) {
+        addTaskProvider.selectedDate = addTaskProvider.selectedDate!.add(const Duration(days: 1));
+        debugPrint('📅 Date updated: ${addTaskProvider.selectedDate}');
+      }
+
+      debugPrint('✅ Time selected: ${selectedTime.hour}:${selectedTime.minute.toString().padLeft(2, '0')}');
     } else {
       addTaskProvider.isNotificationOn = false;
       addTaskProvider.isAlarmOn = false;
+      debugPrint('⚠️ Time selection cancelled');
     }
 
-    addTaskProvider.updateTime(selectedTime);
+    addTaskProvider.updateTime(result?['time'] as TimeOfDay?);
 
     // Force UI update
     setState(() {});
@@ -684,12 +699,15 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
       // Check if widget is still mounted before proceeding
       if (!mounted) return;
 
-      final TimeOfDay? selectedTime = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
+      final result = await Helper().selectTime(context, initialTime: addTaskProvider.selectedTime);
 
       // Check again if widget is still mounted
       if (!mounted) return;
 
-      if (selectedTime != null) {
+      if (result != null) {
+        final TimeOfDay selectedTime = result['time'] as TimeOfDay;
+        final bool dateChanged = result['dateChanged'] as bool;
+
         if (await NotificationService().requestNotificationPermissions()) {
           if (!addTaskProvider.isAlarmOn) {
             addTaskProvider.isNotificationOn = true;
@@ -698,12 +716,17 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
           addTaskProvider.isNotificationOn = false;
           addTaskProvider.isAlarmOn = false;
         }
+
+        // Update date if needed
+        if (dateChanged && addTaskProvider.selectedDate != null) {
+          addTaskProvider.selectedDate = addTaskProvider.selectedDate!.add(const Duration(days: 1));
+        }
+
+        addTaskProvider.updateTime(selectedTime);
       } else {
         addTaskProvider.isNotificationOn = false;
         addTaskProvider.isAlarmOn = false;
       }
-
-      addTaskProvider.updateTime(selectedTime);
 
       setState(() {});
     } else {
