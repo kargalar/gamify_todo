@@ -27,6 +27,9 @@ class ProjectNotesSection extends StatefulWidget {
 
 class _ProjectNotesSectionState extends State<ProjectNotesSection> {
   late List<ProjectNoteModel> _notes;
+  ProjectNoteModel? _deletedNote;
+  // ignore: unused_field
+  int? _deletedNoteIndex;
 
   @override
   void initState() {
@@ -227,11 +230,63 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
       key: ValueKey(note.id),
       index: index,
       child: Slidable(
+        key: ValueKey(note.id),
         endActionPane: ActionPane(
           motion: const DrawerMotion(),
+          dismissible: DismissiblePane(
+            dismissThreshold: 0.3,
+            closeOnCancel: true,
+            confirmDismiss: () async {
+              return true;
+            },
+            onDismissed: () async {
+              // Store deleted note for undo
+              _deletedNote = note;
+              _deletedNoteIndex = _notes.indexOf(note);
+
+              final provider = context.read<ProjectsProvider>();
+              await provider.deleteProjectNote(note.id);
+              widget.onNotesChanged();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Note deleted'),
+                    backgroundColor: AppColors.red,
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      textColor: AppColors.white,
+                      onPressed: () async {
+                        if (_deletedNote != null) {
+                          final provider = context.read<ProjectsProvider>();
+                          await provider.addProjectNote(_deletedNote!);
+                          widget.onNotesChanged();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Note restored'),
+                                backgroundColor: AppColors.green,
+                              ),
+                            );
+                          }
+                          LogService.debug('↩️ Note restored: ${_deletedNote!.title}');
+                          _deletedNote = null;
+                          _deletedNoteIndex = null;
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }
+              LogService.debug('🗑️ Note deleted: ${note.title}');
+            },
+          ),
           children: [
             SlidableAction(
               onPressed: (_) async {
+                // Store deleted note for undo
+                _deletedNote = note;
+                _deletedNoteIndex = _notes.indexOf(note);
+
                 final provider = context.read<ProjectsProvider>();
                 await provider.deleteProjectNote(note.id);
                 widget.onNotesChanged();
@@ -240,6 +295,28 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
                     SnackBar(
                       content: Text('Note deleted'),
                       backgroundColor: AppColors.red,
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        textColor: AppColors.white,
+                        onPressed: () async {
+                          if (_deletedNote != null) {
+                            final provider = context.read<ProjectsProvider>();
+                            await provider.addProjectNote(_deletedNote!);
+                            widget.onNotesChanged();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Note restored'),
+                                  backgroundColor: AppColors.green,
+                                ),
+                              );
+                            }
+                            LogService.debug('↩️ Note restored: ${_deletedNote!.title}');
+                            _deletedNote = null;
+                            _deletedNoteIndex = null;
+                          }
+                        },
+                      ),
                     ),
                   );
                 }

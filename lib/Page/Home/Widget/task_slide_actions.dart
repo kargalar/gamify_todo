@@ -56,7 +56,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       closeThreshold: 0.1,
       openThreshold: 0.1,
       dismissible: DismissiblePane(
-        dismissThreshold: 0.01,
+        dismissThreshold: 0.1,
         closeOnCancel: true,
         confirmDismiss: () async {
           // Sola fazla kaydırınca edit işlemi yap

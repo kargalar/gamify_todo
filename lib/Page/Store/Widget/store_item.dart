@@ -64,7 +64,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         key: ValueKey(widget.storeItemModel.id),
         startActionPane: ActionPane(
           dismissible: DismissiblePane(
-            dismissThreshold: 0.01,
+            dismissThreshold: 0.3,
             closeOnCancel: true,
             confirmDismiss: () async {
               await NavigatorService()

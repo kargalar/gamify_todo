@@ -7,28 +7,61 @@ import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/General/date_formatter.dart';
-import 'package:next_level/Widgets/Common/base_card.dart';
 import 'package:next_level/Widgets/Common/linkify_text.dart';
 
 /// Compact and simple note card widget (with Slidable actions)
-class NoteCard extends BaseCard {
+class NoteCard extends StatelessWidget {
   final NoteModel note;
   final VoidCallback onTap;
   final VoidCallback? onPinToggle;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
 
-  NoteCard({
+  const NoteCard({
     super.key,
     required this.note,
     required this.onTap,
     this.onPinToggle,
     this.onDelete,
     this.onEdit,
-  }) : super(itemId: note.id.toString());
+  });
 
   @override
-  List<SlidableAction>? buildStartActions(BuildContext context) {
+  Widget build(BuildContext context) {
+    final startActions = _buildStartActions(context);
+    final endActions = _buildEndActions(context);
+
+    return Slidable(
+      key: ValueKey(note.id),
+      startActionPane: startActions != null && startActions.isNotEmpty
+          ? ActionPane(
+              motion: const ScrollMotion(),
+              extentRatio: 0.3,
+              dismissible: DismissiblePane(
+                dismissThreshold: 0.5,
+                closeOnCancel: true,
+                confirmDismiss: () async {
+                  LogService.debug('✏️ Note ${note.id} - Edit via dismissible');
+                  if (onEdit != null) {
+                    onEdit!();
+                  }
+                  return false;
+                },
+                onDismissed: () {},
+              ),
+              children: startActions,
+            )
+          : null,
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        extentRatio: 0.6,
+        children: endActions,
+      ),
+      child: _buildContent(context),
+    );
+  }
+
+  List<SlidableAction>? _buildStartActions(BuildContext context) {
     return [
       // Edit action on the left side (slide right to reveal)
       if (onEdit != null)
@@ -46,8 +79,7 @@ class NoteCard extends BaseCard {
     ];
   }
 
-  @override
-  List<SlidableAction> buildActions(BuildContext context) {
+  List<SlidableAction> _buildEndActions(BuildContext context) {
     return [
       // Pin action
       SlidableAction(
@@ -103,8 +135,7 @@ class NoteCard extends BaseCard {
     ];
   }
 
-  @override
-  Widget buildContent(BuildContext context) {
+  Widget _buildContent(BuildContext context) {
     return Consumer<NotesProvider>(
       builder: (context, provider, child) {
         // Kategori bilgisini Provider'dan al

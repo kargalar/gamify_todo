@@ -28,6 +28,9 @@ class ProjectTasksSection extends StatefulWidget {
 
 class _ProjectTasksSectionState extends State<ProjectTasksSection> {
   late List<ProjectSubtaskModel> _subtasks;
+  ProjectSubtaskModel? _deletedTask;
+  // ignore: unused_field
+  int? _deletedTaskIndex;
 
   @override
   void initState() {
@@ -281,19 +284,79 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
       key: ValueKey(task.id),
       index: index,
       child: Slidable(
+        key: ValueKey(task.id),
         endActionPane: ActionPane(
           motion: const DrawerMotion(),
+          dismissible: DismissiblePane(
+            dismissThreshold: 0.3,
+            closeOnCancel: true,
+            confirmDismiss: () async {
+              return true;
+            },
+            onDismissed: () async {
+              // Store deleted task for undo
+              _deletedTask = task;
+              _deletedTaskIndex = _subtasks.indexOf(task);
+
+              final provider = context.read<ProjectsProvider>();
+              await provider.deleteSubtask(task.id);
+              widget.onTasksChanged();
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Task deleted'),
+                    backgroundColor: AppColors.red,
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      textColor: AppColors.white,
+                      onPressed: () async {
+                        if (_deletedTask != null) {
+                          final provider = context.read<ProjectsProvider>();
+                          await provider.addSubtask(_deletedTask!);
+                          widget.onTasksChanged();
+
+                          _deletedTask = null;
+                          _deletedTaskIndex = null;
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }
+              LogService.debug('🗑️ Task deleted: ${task.title}');
+            },
+          ),
           children: [
             SlidableAction(
               onPressed: (_) async {
+                // Store deleted task for undo
+                _deletedTask = task;
+                _deletedTaskIndex = _subtasks.indexOf(task);
+
                 final provider = context.read<ProjectsProvider>();
                 await provider.deleteSubtask(task.id);
                 widget.onTasksChanged();
+
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Task deleted'),
                       backgroundColor: AppColors.red,
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        textColor: AppColors.white,
+                        onPressed: () async {
+                          if (_deletedTask != null) {
+                            final provider = context.read<ProjectsProvider>();
+                            await provider.addSubtask(_deletedTask!);
+                            widget.onTasksChanged();
+
+                            _deletedTask = null;
+                            _deletedTaskIndex = null;
+                          }
+                        },
+                      ),
                     ),
                   );
                 }

@@ -181,6 +181,7 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
 
   Widget _buildHeader(BuildContext context, Color categoryColor) {
     return Slidable(
+      key: ValueKey(widget.project.id),
       endActionPane: ActionPane(
         motion: const DrawerMotion(),
         children: [
@@ -216,7 +217,7 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
       startActionPane: ActionPane(
         motion: const DrawerMotion(),
         dismissible: DismissiblePane(
-          dismissThreshold: 0.01,
+          dismissThreshold: 0.3,
           closeOnCancel: true,
           confirmDismiss: () async {
             _showEditProjectBottomSheet();
