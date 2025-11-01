@@ -196,7 +196,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-              if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) const PinTaskSwitch(),
+              const PinTaskSwitch(),
             ],
           ),
           body: SingleChildScrollView(

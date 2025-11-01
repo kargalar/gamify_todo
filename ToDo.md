@@ -85,8 +85,7 @@ hide done kısmında hide pinned ikizi butonu ekle. kaitf olduğunda pinlen task
 
 tasklar oluşturulurken pin gizlenmesin ve taskalr pinlenmiş olarak oluşturulabilsin
 
-projelerin taskları sırlamak için icon olmasın basılı tutup sıralayalım
-ayrıca onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamamlandığını
+projelerin taskları onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamamlandığını
 
 quick task butonu task ekleyince kapanmasın
 
