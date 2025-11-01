@@ -46,24 +46,36 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
   ActionPane? startPane() {
     if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isSameDay(DateTime.now()))) return null;
 
+    // Sadece non-routine tasklar için edit action göster
+    final bool canEdit = widget.taskModel.routineID == null;
+    final double extentRatio = canEdit ? 0.6 : 0.3;
+
     return ActionPane(
       motion: const ScrollMotion(),
-      extentRatio: 0.4,
+      extentRatio: extentRatio,
       closeThreshold: 0.1,
       openThreshold: 0.1,
       dismissible: DismissiblePane(
         dismissThreshold: 0.01,
         closeOnCancel: true,
         confirmDismiss: () async {
-          TaskActionHandler.handleTaskFailure(widget.taskModel);
-          taskProvider.updateItems();
+          // Sola fazla kaydırınca edit işlemi yap
+          if (widget.taskModel.routineID == null) {
+            LogService.debug('✏️ Task ${widget.taskModel.id} - Edit operation started (swipe dismissed)');
+            Get.to(() => AddTaskPage(editTask: widget.taskModel))?.then((_) {
+              LogService.debug('✅ Task ${widget.taskModel.id} - Edit completed');
+              taskProvider.updateItems();
+            });
+          }
           return false;
         },
         onDismissed: () {},
       ),
       children: [
+        if (canEdit) editAction(),
         failedAction(),
-        cancelAction(),
+        // Cancel seçeneği - Disiplin sistemi gelene kadar devre dışı
+        // cancelAction(),
       ],
     );
   }
@@ -74,7 +86,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
     return ActionPane(
       motion: const ScrollMotion(),
-      extentRatio: canPin ? 0.6 : 0.3,
+      extentRatio: canPin ? 0.5 : 0.3,
       closeThreshold: 0.1,
       openThreshold: 0.1,
       dismissible: DismissiblePane(
@@ -93,7 +105,6 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         onDismissed: () {},
       ),
       children: [
-        if (canPin) editAction(),
         if (canPin) pinAction(),
         deleteAction(),
         if (widget.taskModel.routineID == null) changeDateAction(),
