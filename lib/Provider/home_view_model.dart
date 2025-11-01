@@ -10,6 +10,10 @@ import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Core/duration_calculator.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Page/Inbox/Widget/date_filter_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// HomeViewModel acts as the mediator between Home views and TaskProvider.
 /// It exposes UI-ready state and commands without requiring BuildContext.
@@ -19,6 +23,19 @@ class HomeViewModel extends ChangeNotifier {
   late final VoidCallback _taskLogListener;
 
   Duration? _todayTotalDuration;
+
+  // Filter states (similar to Inbox filters)
+  bool _showRoutines = true;
+  bool _showTasks = true;
+  bool _showTodayTasks = true;
+  DateFilterState _dateFilterState = DateFilterState.all;
+  final Set<TaskTypeEnum> _selectedTaskTypes = {
+    TaskTypeEnum.CHECKBOX,
+    TaskTypeEnum.COUNTER,
+    TaskTypeEnum.TIMER,
+  };
+  final Set<TaskStatusEnum> _selectedStatuses = {};
+  bool _showEmptyStatus = true;
 
   HomeViewModel() {
     // Re-emit TaskProvider changes to rebuild Home views
@@ -41,6 +58,7 @@ class HomeViewModel extends ChangeNotifier {
     TaskLogProvider().addListener(_taskLogListener);
 
     _updateTodayTotalDuration();
+    _loadFilterPreferences();
   }
 
   @override
@@ -95,51 +113,112 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void skipRoutinesForSelectedDate() {
-    TaskProvider().skipRoutinesForDate(selectedDate);
-  }
-
   void goToday() => changeSelectedDate(DateTime.now());
+
+  // Helper method to apply filters to a list of tasks
+  List<dynamic> _applyFilters(List<dynamic> tasks) {
+    // Apply routine/task filter
+    tasks = tasks.where((task) {
+      bool isRoutine = task.routineID != null;
+      return (isRoutine && _showRoutines) || (!isRoutine && _showTasks);
+    }).toList();
+
+    // Apply task type filter
+    tasks = tasks.where((task) => _selectedTaskTypes.contains(task.type)).toList();
+
+    // Apply today tasks filter
+    final now = DateTime.now();
+    final todayDate = DateTime(now.year, now.month, now.day);
+    tasks = tasks.where((task) {
+      if (task.taskDate != null) {
+        final taskDateOnly = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+        if (!_showTodayTasks && taskDateOnly.isAtSameMomentAs(todayDate)) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    // Apply date filter
+    tasks = tasks.where((task) {
+      switch (_dateFilterState) {
+        case DateFilterState.all:
+          return true;
+        case DateFilterState.withDate:
+          if (task.taskDate == null) return false;
+          final taskDateOnly = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
+          return !taskDateOnly.isAtSameMomentAs(todayDate);
+        case DateFilterState.withoutDate:
+          return task.taskDate == null;
+      }
+    }).toList();
+
+    // Apply status filtering
+    tasks = tasks.where((task) {
+      bool matchesStatus = false;
+
+      if (_selectedStatuses.isNotEmpty && _selectedStatuses.contains(task.status)) {
+        matchesStatus = true;
+      }
+
+      if (_showEmptyStatus && task.status == null) {
+        matchesStatus = true;
+      }
+
+      if (_selectedStatuses.isEmpty && !_showEmptyStatus) {
+        return false;
+      }
+
+      return matchesStatus;
+    }).toList();
+
+    return tasks;
+  }
 
   // Queries
   List<TaskModel> getOverdueTasks() {
     final overdueTasks = TaskProvider().getOverdueTasks();
     if (selectedCategoryId == null) {
-      return overdueTasks;
+      return _applyFilters(overdueTasks).cast<TaskModel>();
     }
-    return overdueTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+    final filtered = overdueTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+    return _applyFilters(filtered).cast<TaskModel>();
   }
 
   List<dynamic> getTasksForDate(DateTime date) {
     final tasks = TaskProvider().getTasksForDate(date);
     if (selectedCategoryId == null) {
-      return tasks;
+      return _applyFilters(tasks);
     }
-    return tasks.where((task) => task.categoryId == selectedCategoryId).toList();
+    final filtered = tasks.where((task) => task.categoryId == selectedCategoryId).toList();
+    return _applyFilters(filtered);
   }
 
   List<TaskModel> getPinnedTasksForToday() {
     final pinnedTasks = TaskProvider().getPinnedTasksForToday();
     if (selectedCategoryId == null) {
-      return pinnedTasks;
+      return _applyFilters(pinnedTasks).cast<TaskModel>();
     }
-    return pinnedTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+    final filtered = pinnedTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+    return _applyFilters(filtered).cast<TaskModel>();
   }
 
   List<dynamic> getRoutineTasksForDate(DateTime date) {
     final routines = TaskProvider().getRoutineTasksForDate(date);
     if (selectedCategoryId == null) {
-      return routines;
+      return _applyFilters(routines);
     }
-    return routines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+    final filtered = routines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+    return _applyFilters(filtered);
   }
 
   List<dynamic> getGhostRoutineTasksForDate(DateTime date) {
     final ghostRoutines = TaskProvider().getGhostRoutineTasksForDate(date);
     if (selectedCategoryId == null) {
-      return ghostRoutines;
+      return _applyFilters(ghostRoutines);
     }
-    return ghostRoutines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+    final filtered = ghostRoutines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+    return _applyFilters(filtered);
   }
 
   List<TaskModel> getArchivedTasks() {
@@ -222,5 +301,109 @@ class HomeViewModel extends ChangeNotifier {
     final statuses = DurationCalculator.getStreakStatuses();
     LogService.debug('HomeViewModel: Streak statuses: $statuses');
     return statuses;
+  }
+
+  // Filter getters
+  bool get showRoutines => _showRoutines;
+  bool get showTasks => _showTasks;
+  bool get showTodayTasks => _showTodayTasks;
+  DateFilterState get dateFilterState => _dateFilterState;
+  Set<TaskTypeEnum> get selectedTaskTypes => _selectedTaskTypes;
+  Set<TaskStatusEnum> get selectedStatuses => _selectedStatuses;
+  bool get showEmptyStatus => _showEmptyStatus;
+
+  // Load filter preferences from SharedPreferences
+  Future<void> _loadFilterPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    _showTasks = prefs.getBool('home_show_tasks') ?? true;
+    _showRoutines = prefs.getBool('home_show_routines') ?? true;
+    _showTodayTasks = prefs.getBool('home_show_today_tasks') ?? true;
+    LogService.debug('✅ Home: Loaded filters - Tasks: $_showTasks, Routines: $_showRoutines, TodayTasks: $_showTodayTasks');
+
+    // Load date filter preference
+    final dateFilterIndex = prefs.getInt('home_date_filter');
+    if (dateFilterIndex != null && dateFilterIndex >= 0 && dateFilterIndex < DateFilterState.values.length) {
+      _dateFilterState = DateFilterState.values[dateFilterIndex];
+    }
+    LogService.debug('Loaded date filter: $_dateFilterState (index: $dateFilterIndex)');
+
+    // Load task type filter preferences
+    final hasCheckbox = prefs.getBool('home_show_checkbox') ?? true;
+    final hasCounter = prefs.getBool('home_show_counter') ?? true;
+    final hasTimer = prefs.getBool('home_show_timer') ?? true;
+
+    _selectedTaskTypes.clear();
+    if (hasCheckbox) _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+    if (hasCounter) _selectedTaskTypes.add(TaskTypeEnum.COUNTER);
+    if (hasTimer) _selectedTaskTypes.add(TaskTypeEnum.TIMER);
+
+    if (_selectedTaskTypes.isEmpty) {
+      _selectedTaskTypes.add(TaskTypeEnum.CHECKBOX);
+    }
+
+    // Load status filter preferences
+    final statusIndices = prefs.getStringList('home_selected_statuses') ?? [];
+    _selectedStatuses.clear();
+    for (var index in statusIndices) {
+      final idx = int.tryParse(index);
+      if (idx != null && idx >= 0 && idx < TaskStatusEnum.values.length) {
+        _selectedStatuses.add(TaskStatusEnum.values[idx]);
+      }
+    }
+
+    _showEmptyStatus = prefs.getBool('home_show_empty_status') ?? true;
+    LogService.debug('✅ Home: Loaded all filter preferences');
+
+    notifyListeners();
+  }
+
+  // Save filter preferences to SharedPreferences
+  Future<void> _saveFilterPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool('home_show_tasks', _showTasks);
+    await prefs.setBool('home_show_routines', _showRoutines);
+    await prefs.setBool('home_show_today_tasks', _showTodayTasks);
+    LogService.debug('✅ Home: Saved showTodayTasks filter: $_showTodayTasks');
+
+    await prefs.setInt('home_date_filter', _dateFilterState.index);
+    LogService.debug('Saved date filter: $_dateFilterState (index: ${_dateFilterState.index})');
+
+    await prefs.setBool('home_show_checkbox', _selectedTaskTypes.contains(TaskTypeEnum.CHECKBOX));
+    await prefs.setBool('home_show_counter', _selectedTaskTypes.contains(TaskTypeEnum.COUNTER));
+    await prefs.setBool('home_show_timer', _selectedTaskTypes.contains(TaskTypeEnum.TIMER));
+    LogService.debug('Saved task type filters: $_selectedTaskTypes');
+
+    final statusIndices = _selectedStatuses.map((status) => status.index.toString()).toList();
+    await prefs.setStringList('home_selected_statuses', statusIndices);
+    LogService.debug('Saved status filters: ${statusIndices.length} statuses');
+
+    await prefs.setBool('home_show_empty_status', _showEmptyStatus);
+  }
+
+  // Update filters
+  Future<void> updateFilters(
+    bool showRoutines,
+    bool showTasks,
+    bool showTodayTasks,
+    DateFilterState dateFilterState,
+    Set<TaskTypeEnum> selectedTaskTypes,
+    Set<TaskStatusEnum> selectedStatuses,
+    bool showEmptyStatus,
+  ) async {
+    _showRoutines = showRoutines;
+    _showTasks = showTasks;
+    _showTodayTasks = showTodayTasks;
+    _dateFilterState = dateFilterState;
+    _selectedTaskTypes.clear();
+    _selectedTaskTypes.addAll(selectedTaskTypes);
+    _selectedStatuses.clear();
+    _selectedStatuses.addAll(selectedStatuses);
+    _showEmptyStatus = showEmptyStatus;
+
+    await _saveFilterPreferences();
+    notifyListeners();
+    LogService.debug('🔄 Home: Filters updated');
   }
 }

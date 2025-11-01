@@ -7,7 +7,7 @@ import 'package:next_level/Page/Inbox/Widget/date_filter_state.dart';
 import 'package:next_level/Page/Inbox/Widget/filter_chip_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 
-class InboxFilterDialog extends StatefulWidget {
+class HomeFilterDialog extends StatefulWidget {
   final bool showRoutines;
   final bool showTasks;
   final bool showTodayTasks;
@@ -17,7 +17,7 @@ class InboxFilterDialog extends StatefulWidget {
   final bool showEmptyStatus;
   final Function(bool, bool, bool, DateFilterState, Set<TaskTypeEnum>, Set<TaskStatusEnum>, bool) onFiltersChanged;
 
-  const InboxFilterDialog({
+  const HomeFilterDialog({
     super.key,
     required this.showRoutines,
     required this.showTasks,
@@ -30,10 +30,10 @@ class InboxFilterDialog extends StatefulWidget {
   });
 
   @override
-  State<InboxFilterDialog> createState() => _InboxFilterDialogState();
+  State<HomeFilterDialog> createState() => _HomeFilterDialogState();
 }
 
-class _InboxFilterDialogState extends State<InboxFilterDialog> {
+class _HomeFilterDialogState extends State<HomeFilterDialog> {
   late bool _showRoutines;
   late bool _showTasks;
   late bool _showTodayTasks;
@@ -86,7 +86,6 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
     }
   }
 
-  // Get status label based on TaskStatusEnum
   String _getStatusLabel(TaskStatusEnum status) {
     switch (status) {
       case TaskStatusEnum.DONE:
@@ -98,7 +97,7 @@ class _InboxFilterDialogState extends State<InboxFilterDialog> {
       case TaskStatusEnum.ARCHIVED:
         return LocaleKeys.Archived.tr();
       case TaskStatusEnum.OVERDUE:
-        return LocaleKeys.Overdue.tr(); // TODO: Add to localization
+        return LocaleKeys.Overdue.tr();
     }
   }
 

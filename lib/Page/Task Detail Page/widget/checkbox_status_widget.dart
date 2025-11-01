@@ -74,11 +74,6 @@ class _CheckboxStatusWidgetState extends State<CheckboxStatusWidget> {
                 status: TaskStatusEnum.FAILED,
                 color: AppColors.red,
               ),
-              _buildStatusButton(
-                label: LocaleKeys.Cancelled.tr(),
-                status: TaskStatusEnum.CANCEL,
-                color: AppColors.purple,
-              ),
             ],
           ),
         ],

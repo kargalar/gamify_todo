@@ -83,4 +83,24 @@ bildirim icon
 
 hide done kısmında hide pinned ikizi butonu ekle. kaitf olduğunda pinlen task sadece pinde gösterilsin. aynı taskalrda gösterilmesin.
 
-task item title botuut düşür ??
+tasklar oluşturulurken pin gizlenmesin ve taskalr pinlenmiş olarak oluşturulabilsin
+
+projelerin taskları sırlamak için icon olmasın basılı tutup sıralayalım
+ayrıca onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamamlandığını
+
+quick task butonu task ekleyince kapanmasın
+
+rutinlerin istaitislikler kısmı hatalı
+
+saat seçme kımında dafult olarak şuanki saat gelsin
+ayrıca 15 dk sonra 1 saat sonra dite butonlar da olsun hızlı seçmek için
+
+quick add bottomsheeti geliştir. her şey olacak
+
+store itemlar sıralanabilsin
+
+target streak değişince streakta da güncellenmeli
+
+projelerde notlar ve tasklar diğerleri giib oalcak. basınca düzenle, basılı tutunca deit vb.....
+
+home daki headerlar da basılı tutarak sıralanabilsin

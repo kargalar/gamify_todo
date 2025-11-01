@@ -66,6 +66,9 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
               LogService.debug('✅ Task ${widget.taskModel.id} - Edit completed');
               taskProvider.updateItems();
             });
+          } else {
+            TaskActionHandler.handleTaskFailure(widget.taskModel);
+            taskProvider.updateItems();
           }
           return false;
         },
