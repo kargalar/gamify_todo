@@ -212,6 +212,11 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
               await provider.updateProjectNote(_notes[i]);
             }
 
+            if (mounted) {
+              setState(() {});
+              widget.onNotesChanged();
+            }
+
             LogService.debug('✅ Notes reordered in ${widget.project.title}');
           },
           children: _notes.asMap().entries.map((entry) {

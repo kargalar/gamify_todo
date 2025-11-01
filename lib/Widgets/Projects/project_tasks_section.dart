@@ -249,7 +249,12 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
           proxyDecorator: (child, index, animation) {
             return Material(
               color: Colors.transparent,
-              child: child,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 1.0, end: 1.05).animate(
+                  CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+                ),
+                child: child,
+              ),
             );
           },
           onReorder: (oldIndex, newIndex) async {
@@ -264,6 +269,11 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
             for (int i = 0; i < _subtasks.length; i++) {
               _subtasks[i].orderIndex = i;
               await provider.updateSubtask(_subtasks[i]);
+            }
+
+            if (mounted) {
+              setState(() {});
+              widget.onTasksChanged();
             }
 
             LogService.debug('✅ Tasks reordered in ${widget.project.title}');
