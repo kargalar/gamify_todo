@@ -25,6 +25,8 @@ class ItemModel extends HiveObject {
   int? addCount;
   @HiveField(9)
   final String? description;
+  @HiveField(10)
+  int order; // itemlerin sırasını belirtmek için
 
   ItemModel({
     this.id = 0,
@@ -37,6 +39,7 @@ class ItemModel extends HiveObject {
     this.isTimerActive,
     required this.credit,
     this.description,
+    this.order = 0,
   });
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +61,7 @@ class ItemModel extends HiveObject {
       credit: json['credit'],
       addCount: json['add_count'],
       description: json['description'],
+      order: json['order'] ?? 0,
     );
   }
 
@@ -81,6 +85,7 @@ class ItemModel extends HiveObject {
       'is_timer_active': isTimerActive,
       'add_count': addCount,
       'description': description,
+      'order': order,
     };
   }
 }

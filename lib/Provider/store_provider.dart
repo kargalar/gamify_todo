@@ -59,4 +59,22 @@ class StoreProvider with ChangeNotifier {
       LogService.error('❌ StoreProvider: Error loading items: $e');
     }
   }
+
+  Future<void> reorderItems(List<ItemModel> reorderedItems) async {
+    try {
+      // Her item'e order index'ini ata
+      for (int i = 0; i < reorderedItems.length; i++) {
+        reorderedItems[i].order = i;
+        LogService.debug('🔢 Item ${reorderedItems[i].title}: order = $i');
+      }
+
+      storeItemList = reorderedItems;
+      await ServerManager().updateItemsOrder(items: storeItemList);
+      notifyListeners();
+      LogService.debug('✅ StoreProvider: Items reordered successfully - ${storeItemList.length} items saved');
+    } catch (e) {
+      LogService.error('❌ StoreProvider: Error reordering items: $e');
+      rethrow;
+    }
+  }
 }

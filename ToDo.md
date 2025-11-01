@@ -90,11 +90,7 @@ ayrıca onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamam
 
 quick task butonu task ekleyince kapanmasın
 
-rutinlerin istaitislikler kısmı hatalı
-
 quick add bottomsheeti geliştir. her şey olacak
-
-store itemlar sıralanabilsin
 
 target streak değişince streakta da güncellenmeli
 

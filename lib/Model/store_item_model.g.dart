@@ -27,13 +27,14 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       isTimerActive: fields[6] as bool?,
       credit: fields[7] as int,
       description: fields[9] as String?,
+      order: fields[10] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, ItemModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,16 +54,14 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       ..writeByte(8)
       ..write(obj.addCount)
       ..writeByte(9)
-      ..write(obj.description);
+      ..write(obj.description)
+      ..writeByte(10)
+      ..write(obj.order);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ItemModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is ItemModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

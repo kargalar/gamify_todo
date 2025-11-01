@@ -87,7 +87,12 @@ class HiveService {
 
   Future<List<ItemModel>> getItems() async {
     final box = await _itemBox;
-    return box.values.toList();
+    final items = box.values.toList();
+
+    // Order alanına göre sort et (eğer atanmışsa)
+    items.sort((a, b) => a.order.compareTo(b.order));
+
+    return items;
   }
 
   Future<void> updateItem(ItemModel itemModel) async {

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
@@ -57,32 +58,31 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          _isHovering = true;
-          _animationController.forward();
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          _isHovering = false;
-          _animationController.reverse();
-        });
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: AppColors.borderRadiusAll,
-            child: InkWell(
-              borderRadius: AppColors.borderRadiusAll,
-              splashColor: AppColors.panelBackground.withValues(alpha: 0.9),
-              highlightColor: AppColors.panelBackground.withValues(alpha: 0.1),
-              onTap: storeItemAction,
-              onLongPress: () async {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+      child: Slidable(
+        key: ValueKey(widget.storeItemModel.id),
+        startActionPane: ActionPane(
+          dismissible: DismissiblePane(
+            dismissThreshold: 0.01,
+            closeOnCancel: true,
+            confirmDismiss: () async {
+              await NavigatorService()
+                  .goTo(
+                    AddStoreItemPage(editItemModel: widget.storeItemModel),
+                    transition: Transition.size,
+                  )
+                  .then(
+                    (value) => StoreProvider().setStateItems(),
+                  );
+              return false;
+            },
+            onDismissed: () {},
+          ),
+          motion: const ScrollMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (_) async {
                 await NavigatorService()
                     .goTo(
                       AddStoreItemPage(editItemModel: widget.storeItemModel),
@@ -92,79 +92,110 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
                       (value) => StoreProvider().setStateItems(),
                     );
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.panelBackground.withValues(alpha: 0.8),
-                      AppColors.panelBackground2.withValues(alpha: 0.6),
+              backgroundColor: AppColors.main,
+              foregroundColor: Colors.white,
+              icon: Icons.edit,
+              label: LocaleKeys.Edit.tr(),
+            ),
+          ],
+        ),
+        child: MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              _isHovering = true;
+              _animationController.forward();
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              _isHovering = false;
+              _animationController.reverse();
+            });
+          },
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: AppColors.borderRadiusAll,
+              child: InkWell(
+                borderRadius: AppColors.borderRadiusAll,
+                splashColor: AppColors.panelBackground.withValues(alpha: 0.9),
+                highlightColor: AppColors.panelBackground.withValues(alpha: 0.1),
+                onTap: storeItemAction,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.panelBackground.withValues(alpha: 0.8),
+                        AppColors.panelBackground2.withValues(alpha: 0.6),
+                      ],
+                    ),
+                    borderRadius: AppColors.borderRadiusAll,
+                    border: Border.all(
+                      color: AppColors.main.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.black.withValues(alpha: 0.1),
+                        blurRadius: _isHovering ? 50 : 4,
+                        offset: const Offset(0, 2),
+                      ),
                     ],
                   ),
-                  borderRadius: AppColors.borderRadiusAll,
-                  border: Border.all(
-                    color: AppColors.main.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.black.withValues(alpha: 0.1),
-                      blurRadius: _isHovering ? 50 : 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    // Icon on the left
-                    _buildTypeIcon(),
-                    const SizedBox(width: 16),
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      // Icon on the left
+                      _buildTypeIcon(),
+                      const SizedBox(width: 16),
 
-                    // Title and Description in the middle
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.storeItemModel.title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.text,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (widget.storeItemModel.description != null && widget.storeItemModel.description!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
+                      // Title and Description in the middle
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              widget.storeItemModel.description!,
+                              widget.storeItemModel.title,
                               style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.grey,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.text,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            if (widget.storeItemModel.description != null && widget.storeItemModel.description!.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.storeItemModel.description!,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.grey,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // Remaining amount and button on the right
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildRemainingAmount(),
+                          const SizedBox(height: 8),
+                          _buildBuyButton(),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 12),
-
-                    // Remaining amount and button on the right
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildRemainingAmount(),
-                        const SizedBox(height: 8),
-                        _buildBuyButton(),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -10,6 +10,8 @@ import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Model/store_item_model.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:provider/provider.dart';
 
 class StorePage extends StatefulWidget {
@@ -81,12 +83,37 @@ class _StorePageState extends State<StorePage> {
         ),
         body: storeItems.isEmpty
             ? _buildEmptyState()
-            : ListView.builder(
+            : ReorderableListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: storeItems.length,
+                onReorder: (oldIndex, newIndex) {
+                  _onReorderItems(oldIndex, newIndex, storeItems);
+                },
+                buildDefaultDragHandles: false,
+                // Drag ederken item'ı daha belirgin göster
+                proxyDecorator: (child, index, animation) {
+                  return AnimatedBuilder(
+                    animation: animation,
+                    builder: (BuildContext context, Widget? child) {
+                      final double animValue = Curves.easeInOut.transform(animation.value);
+                      final double scale = 1 + (0.05 * animValue);
+
+                      return Transform.scale(
+                        scale: scale,
+                        child: child,
+                      );
+                    },
+                    child: child,
+                  );
+                },
                 itemBuilder: (context, index) {
-                  return StoreItem(
-                    storeItemModel: storeItems[index],
+                  final item = storeItems[index];
+                  return ReorderableDelayedDragStartListener(
+                    key: ValueKey(item.id),
+                    index: index,
+                    child: StoreItem(
+                      storeItemModel: item,
+                    ),
                   );
                 },
               ),
@@ -377,6 +404,28 @@ class _StorePageState extends State<StorePage> {
       Helper().getMessage(message: LocaleKeys.ResetStoreProgressSuccess.tr());
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");
+    }
+  }
+
+  void _onReorderItems(int oldIndex, int newIndex, List<ItemModel> storeItems) async {
+    try {
+      // Reorderable list view'ın logic'i:
+      // Eğer newIndex > oldIndex ise, gerçek index'i 1 azalt
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+
+      // Item'ı listeden çıkar ve yeni konuma ekle
+      final ItemModel item = storeItems.removeAt(oldIndex);
+      storeItems.insert(newIndex, item);
+
+      // Provider'ı güncelle
+      await context.read<StoreProvider>().reorderItems(storeItems);
+
+      LogService.debug('✅ Store items reordered successfully');
+    } catch (e) {
+      LogService.error('❌ Error reordering items: $e');
+      Helper().getMessage(message: "Sıralama hatası: $e");
     }
   }
 }

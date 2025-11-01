@@ -443,6 +443,32 @@ class ServerManager {
     // checkRequest(response);
   }
 
+  // update items order
+  Future<void> updateItemsOrder({
+    required List<ItemModel> items,
+  }) async {
+    try {
+      // Save all items locally to preserve order
+      for (final item in items) {
+        await HiveService().updateItem(item);
+      }
+
+      LogService.debug('✅ Items order saved locally');
+
+      // var response = await dio.put(
+      //   "$_baseUrl/updateItemsOrder",
+      //   data: {
+      //     'items': items.map((item) => item.toJson()).toList(),
+      //   },
+      // );
+
+      // checkRequest(response);
+    } catch (e) {
+      LogService.error('❌ Error updating items order: $e');
+      rethrow;
+    }
+  }
+
   // update trait
   Future<void> updateTrait({
     required TraitModel traitModel,
