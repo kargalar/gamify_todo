@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../General/app_colors.dart';
 import '../../Model/category_model.dart';
@@ -13,9 +14,8 @@ import '../../Service/logging_service.dart';
 import '../../Widgets/Common/add_item_dialog.dart';
 import '../../Widgets/Common/category_filter_widget.dart';
 import '../../Widgets/Common/standard_app_bar.dart';
-import '../../Widgets/Projects/project_card.dart';
+import '../../Widgets/Projects/expandable_project_card.dart';
 import '../Home/Widget/create_category_bottom_sheet.dart';
-import 'project_detail_page.dart';
 
 /// Projeler ana sayfası
 class ProjectsPage extends StatefulWidget {
@@ -32,6 +32,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   Map<String, int> _projectNoteCounts = {}; // projectId -> noteCount
   int _previousTaskCountVersion = 0;
   int _previousNoteCountVersion = 0;
+  final Set<String> _expandedProjectIds = {}; // Track which projects are expanded
 
   // Public method to show add project dialog from outside
   void showAddProjectDialog() {
@@ -49,6 +50,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       await provider.loadProjects();
       await _loadProjectTaskCounts();
       await _loadProjectNoteCounts();
+      await _loadExpandedState();
     });
   }
 
@@ -56,6 +58,31 @@ class _ProjectsPageState extends State<ProjectsPage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadExpandedState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final expandedIds = prefs.getStringList('expandedProjectIds') ?? [];
+      if (mounted) {
+        setState(() {
+          _expandedProjectIds.addAll(expandedIds);
+        });
+        LogService.debug('📂 ProjectsPage: Loaded expanded state for ${expandedIds.length} projects');
+      }
+    } catch (e) {
+      LogService.error('❌ Error loading expanded state: $e');
+    }
+  }
+
+  Future<void> _saveExpandedState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('expandedProjectIds', _expandedProjectIds.toList());
+      LogService.debug('💾 ProjectsPage: Saved expanded state for ${_expandedProjectIds.length} projects');
+    } catch (e) {
+      LogService.error('❌ Error saving expanded state: $e');
+    }
   }
 
   Future<void> _loadProjectTaskCounts() async {
@@ -365,7 +392,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
     return ReorderableListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      buildDefaultDragHandles: false, // Varsayılan handle icon'unu kaldır
+      buildDefaultDragHandles: false, // Varsayılan handle ikonunu kaldır
       proxyDecorator: (child, index, animation) {
         // Sürükleme sırasında kartın görünümünü özelleştir
         return AnimatedBuilder(
@@ -433,19 +460,25 @@ class _ProjectsPageState extends State<ProjectsPage> {
     // Get note count from cached data
     final noteCount = _projectNoteCounts[project.id] ?? 0;
 
-    return ProjectCard(
-      itemId: project.id,
+    final isExpanded = _expandedProjectIds.contains(project.id);
+
+    return ExpandableProjectCard(
       project: project,
       category: category,
       taskCount: taskCount,
       completedTaskCount: completedTaskCount,
       noteCount: noteCount,
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ProjectDetailPage(project: project),
-          ),
-        );
+      isExpanded: isExpanded,
+      onExpanded: () {
+        setState(() {
+          if (_expandedProjectIds.contains(project.id)) {
+            _expandedProjectIds.remove(project.id);
+          } else {
+            _expandedProjectIds.add(project.id);
+          }
+        });
+        _saveExpandedState();
+        LogService.debug('🔄 ProjectsPage: Project ${project.id} expansion toggled');
       },
       onPin: () async {
         final success = await provider.togglePinProject(project.id);

@@ -94,6 +94,4 @@ quick add bottomsheeti geliştir. her şey olacak
 
 target streak değişince streakta da güncellenmeli
 
-projelerde notlar ve tasklar diğerleri giib oalcak. basınca düzenle, basılı tutunca deit vb.....
-
 home daki headerlar da basılı tutarak sıralanabilsin
