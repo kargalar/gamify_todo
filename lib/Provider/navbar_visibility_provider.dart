@@ -8,7 +8,7 @@ class NavbarVisibilityProvider with ChangeNotifier {
   bool _showInbox = true;
   bool _showCategories = true;
   bool _showNotes = true;
-  bool _showProjects = true;
+  bool _showProjects = false;
 
   // Main page index (default is Inbox = 1)
   int _mainPageIndex = 1;
@@ -40,7 +40,7 @@ class NavbarVisibilityProvider with ChangeNotifier {
       _showInbox = prefs.getBool(_keyShowInbox) ?? true;
       _showCategories = prefs.getBool(_keyShowCategories) ?? true;
       _showNotes = prefs.getBool(_keyShowNotes) ?? true;
-      _showProjects = prefs.getBool(_keyShowProjects) ?? true;
+      _showProjects = prefs.getBool(_keyShowProjects) ?? false;
       _mainPageIndex = prefs.getInt(_keyMainPageIndex) ?? 1;
 
       LogService.debug('NavbarVisibility: Settings loaded successfully');
@@ -56,8 +56,7 @@ class NavbarVisibilityProvider with ChangeNotifier {
       _showStore = !_showStore;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_keyShowStore, _showStore);
-      LogService.debug(
-          'NavbarVisibility: Store visibility toggled to $_showStore');
+      LogService.debug('NavbarVisibility: Store visibility toggled to $_showStore');
       notifyListeners();
     } catch (e) {
       LogService.error('NavbarVisibility: Error toggling Store: $e');
@@ -70,8 +69,7 @@ class NavbarVisibilityProvider with ChangeNotifier {
       _showInbox = !_showInbox;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_keyShowInbox, _showInbox);
-      LogService.debug(
-          'NavbarVisibility: Inbox visibility toggled to $_showInbox');
+      LogService.debug('NavbarVisibility: Inbox visibility toggled to $_showInbox');
       notifyListeners();
     } catch (e) {
       LogService.error('NavbarVisibility: Error toggling Inbox: $e');
@@ -84,8 +82,7 @@ class NavbarVisibilityProvider with ChangeNotifier {
       _showCategories = !_showCategories;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_keyShowCategories, _showCategories);
-      LogService.debug(
-          'NavbarVisibility: Categories visibility toggled to $_showCategories');
+      LogService.debug('NavbarVisibility: Categories visibility toggled to $_showCategories');
       notifyListeners();
     } catch (e) {
       LogService.error('NavbarVisibility: Error toggling Categories: $e');
@@ -98,8 +95,7 @@ class NavbarVisibilityProvider with ChangeNotifier {
       _showNotes = !_showNotes;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_keyShowNotes, _showNotes);
-      LogService.debug(
-          'NavbarVisibility: Notes visibility toggled to $_showNotes');
+      LogService.debug('NavbarVisibility: Notes visibility toggled to $_showNotes');
       notifyListeners();
     } catch (e) {
       LogService.error('NavbarVisibility: Error toggling Notes: $e');
@@ -112,8 +108,7 @@ class NavbarVisibilityProvider with ChangeNotifier {
       _showProjects = !_showProjects;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_keyShowProjects, _showProjects);
-      LogService.debug(
-          'NavbarVisibility: Projects visibility toggled to $_showProjects');
+      LogService.debug('NavbarVisibility: Projects visibility toggled to $_showProjects');
       notifyListeners();
     } catch (e) {
       LogService.error('NavbarVisibility: Error toggling Projects: $e');
@@ -125,16 +120,14 @@ class NavbarVisibilityProvider with ChangeNotifier {
     try {
       // Ensure the page is visible before setting as main
       if (!isPageVisible(pageIndex)) {
-        LogService.debug(
-            'NavbarVisibility: Cannot set hidden page as main page');
+        LogService.debug('NavbarVisibility: Cannot set hidden page as main page');
         return;
       }
 
       _mainPageIndex = pageIndex;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_keyMainPageIndex, _mainPageIndex);
-      LogService.debug(
-          'NavbarVisibility: Main page set to index $_mainPageIndex');
+      LogService.debug('NavbarVisibility: Main page set to index $_mainPageIndex');
       notifyListeners();
     } catch (e) {
       LogService.error('NavbarVisibility: Error setting main page: $e');
