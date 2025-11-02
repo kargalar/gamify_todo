@@ -1104,8 +1104,8 @@ class Helper {
                         icon: const Icon(Icons.today_rounded, size: 18),
                         label: Text(LocaleKeys.Today.tr(), style: const TextStyle(fontSize: 13)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.main.withValues(alpha: 0.1),
-                          foregroundColor: AppColors.main,
+                          backgroundColor: AppColors.orange.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.orange,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
@@ -1169,6 +1169,26 @@ class Helper {
                         ),
                       ),
                     ),
+                    // Next Year button
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          final now = DateTime.now();
+                          final nextYear = DateTime(now.year + 1, now.month, now.day);
+                          Navigator.of(context).pop(nextYear);
+                        },
+                        icon: const Icon(Icons.calendar_today_rounded, size: 18),
+                        label: Text(LocaleKeys.NextYear.tr(), style: const TextStyle(fontSize: 13)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.deepBlue.withValues(alpha: 0.1),
+                          foregroundColor: AppColors.deepBlue,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                      ),
+                    ),
+
                     // Undated button
                     const SizedBox(width: 8),
                     Expanded(

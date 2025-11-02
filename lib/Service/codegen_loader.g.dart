@@ -516,6 +516,7 @@ class CodegenLoader extends AssetLoader {
     "StorageAccessRequired": "Storage access required",
     "NextWeek": "Next Week",
     "NextMonth": "Next Month",
+    "NextYear": "Next Year",
     "Delete": "Delete",
     "DeleteRoutine": "Delete Routine",
     "DeleteRoutineConfirmation": "Are you sure you want to delete this routine?",

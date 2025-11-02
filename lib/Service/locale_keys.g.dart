@@ -509,6 +509,7 @@ abstract class LocaleKeys {
   static const StorageAccessRequired = 'StorageAccessRequired';
   static const NextWeek = 'NextWeek';
   static const NextMonth = 'NextMonth';
+  static const NextYear = 'NextYear';
   static const Delete = 'Delete';
   static const DeleteRoutine = 'DeleteRoutine';
   static const DeleteRoutineConfirmation = 'DeleteRoutineConfirmation';

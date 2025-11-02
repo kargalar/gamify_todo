@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/extensions.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/General/date_formatter.dart';
 import 'package:next_level/Widgets/Common/linkify_text.dart';
 
 /// Compact and simple note card widget (with Slidable actions)
@@ -226,7 +226,7 @@ class NoteCard extends StatelessWidget {
                     // Zaman damgası
                     const SizedBox(height: 8),
                     Text(
-                      _formatDate(note.createdAt),
+                      note.createdAt.compactDate(),
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.text.withValues(alpha: 0.65),
@@ -258,20 +258,5 @@ class NoteCard extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    } else if (difference.inDays == 1) {
-      return 'Yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
-    } else {
-      return DateFormatter.formatDate(date);
-    }
   }
 }

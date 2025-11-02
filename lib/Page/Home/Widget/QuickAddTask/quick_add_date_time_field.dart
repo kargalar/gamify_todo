@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/date_formatter.dart';
 import 'package:next_level/Provider/quick_add_task_provider.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -50,7 +51,8 @@ class QuickAddDateTimeField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<QuickAddTaskProvider>(
       builder: (context, provider, _) {
-        final dateStr = provider.selectedDate != null ? DateFormat('d MMM').format(provider.selectedDate!) : 'Date';
+        final dateStr = provider.selectedDate != null ? DateFormatter.formatDate(provider.selectedDate!) : 'Date';
+        // final dateStr = provider.selectedDate != null ? DateFormat('d MMM').format(provider.selectedDate!) : 'Date';
         final timeStr = provider.selectedTime != null ? provider.selectedTime!.format(context) : 'Time';
 
         return Container(

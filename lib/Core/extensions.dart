@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/General/date_formatter.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 
 extension DurationFormatting on Duration {
@@ -187,5 +188,20 @@ extension DateTimeExtension on DateTime {
 
   bool isAfterOrSameDay(DateTime date) {
     return year > date.year || (year == date.year && month > date.month) || (year == date.year && month == date.month && day >= date.day);
+  }
+
+  String compactDate() {
+    final now = DateTime.now();
+    final difference = now.difference(this);
+
+    if (difference.inDays == 0) {
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return DateFormatter.formatDate(this);
+    }
   }
 }

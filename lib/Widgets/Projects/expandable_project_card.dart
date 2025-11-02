@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../General/app_colors.dart';
 import '../../General/category_icons.dart';
-import '../../General/date_formatter.dart';
 import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
 import '../../Model/project_subtask_model.dart';
@@ -425,7 +425,7 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
               // Date
               const SizedBox(height: 6),
               Text(
-                DateFormatter.formatDate(widget.project.createdAt),
+                widget.project.createdAt.compactDate(),
                 style: TextStyle(
                   fontSize: 9,
                   color: AppColors.onBackground.withValues(alpha: 0.5),
