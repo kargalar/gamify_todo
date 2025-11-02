@@ -7,7 +7,9 @@ import 'package:next_level/Page/Home/Widget/task_contributions_widget.dart';
 import 'package:next_level/Page/Settings/vacation_day_settings_page.dart';
 import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/vacation_mode_provider.dart';
+import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:provider/provider.dart';
 
 class WeeklyStreakDialog extends StatefulWidget {
@@ -20,6 +22,27 @@ class WeeklyStreakDialog extends StatefulWidget {
 }
 
 class _WeeklyStreakDialogState extends State<WeeklyStreakDialog> {
+  late final VoidCallback _streakSettingsListener;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to streak settings changes to update UI instantly
+    _streakSettingsListener = () {
+      LogService.debug('🔄 Streak settings changed, updating weekly streak dialog');
+      if (mounted) {
+        setState(() {});
+      }
+    };
+    StreakSettingsProvider().addListener(_streakSettingsListener);
+  }
+
+  @override
+  void dispose() {
+    StreakSettingsProvider().removeListener(_streakSettingsListener);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Calculate initial size based on today's tasks
