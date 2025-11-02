@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Page/Home/Widget/quick_add_task_bottom_sheet.dart';
+import 'package:next_level/Page/Home/Widget/QuickAddTask/quick_add_task_bottom_sheet.dart';
 import 'package:next_level/Page/Inbox/inbox_page.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Page/Home/home_page.dart';

@@ -3,8 +3,6 @@ attachments ve tema geçici olarak kaldırıldı
 
 ---------------
 
-
-
 botomsheet tam ekran olabilsin
 
 subtaskları birleştir
@@ -34,7 +32,6 @@ rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nı
 ○ Repeat days dal all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. O tasklar ya en yakın diğer gund egisterilwin ya da gisterilmesin
 
-
  rutin gün seçimi kısmında Repeat days ın oraya all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. ne yapılabilir
 NOTE: bildirimleri de bunne göre güncellemelisin
@@ -51,7 +48,6 @@ slitch tasarım geliştirmeleri
 
 proje ve not eklerken tam ekran butonu içiçn çok fazla boşluk verilmiş daha kompakt yap. gerekirse stack ile yap.
 
-
 projeler ve notlar sekmeleri varsayıaln olarak kapalı olsun
 
 weekly ve yearly streaklar için 5 durum mu olsun.
@@ -61,16 +57,13 @@ weekly ve yearly streaklar için 5 durum mu olsun.
     4. both reached
     5. vacation day
 
-
 vacation mode aktifken otomatik sonraki güne geçince o günü de tatil olarak işaretliyor mu
 
 inbox da kendi tarihleri arasında home page de ise kendi listeleri arasında sıralnabileceklerbelki daha sonra sürükelyerek tarih değiştirme veya liste değiştirme de olabilir.
 
 ganini sorunu çöz. 
 
-
 dünkü rutin tamamalnmaın rağmen başarısız işaretlenimş. yani timer dün başlamış bugün bitmiş!!!!
-
 
 tamamalnınca aniden yok olması kötü
 gün geçişler iappardaki kötü
@@ -83,13 +76,12 @@ bildirim icon
 
 hide done kısmında hide pinned ikizi butonu ekle. kaitf olduğunda pinlen task sadece pinde gösterilsin. aynı taskalrda gösterilmesin.
 
-tasklar oluşturulurken pin gizlenmesin ve taskalr pinlenmiş olarak oluşturulabilsin
+tasklar oluşturulurken pinlenmiş olarak oluşturulabilsin
 
 projelerin taskları onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamamlandığını
 
-
 quick add bottomsheeti geliştir. her şey olacak
 
-target streak değişince streakta da güncellenmeli
-
 home daki headerlar da basılı tutarak sıralanabilsin
+
+add task page de priorty için bottom sheet yerine küçük bir menü açılmasını dene

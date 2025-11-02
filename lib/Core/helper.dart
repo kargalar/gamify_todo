@@ -407,9 +407,13 @@ class Helper {
     BuildContext context, {
     TimeOfDay? initialTime,
     DateTime? referenceDate,
+    int? initialNotificationAlarmState,
+    int? initialEarlyReminderMinutes,
   }) async {
     TimeOfDay selectedTime = initialTime ?? TimeOfDay.now();
     bool dateChanged = false;
+    int notificationAlarmState = initialNotificationAlarmState ?? 0; // 0: Off, 1: Notification, 2: Alarm
+    int? earlyReminderMinutes = initialEarlyReminderMinutes ?? 0; // Default: Now (0 min)
     late FixedExtentScrollController hourController;
     late FixedExtentScrollController minuteController;
 
@@ -600,7 +604,8 @@ class Helper {
                     ),
 
                     const SizedBox(height: 24),
-                    // Quick time buttons
+
+                    // Quick time buttons - MOVED TO TOP
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -626,6 +631,7 @@ class Helper {
                             _buildQuickTimeDialogButton(
                               context,
                               null,
+                              selectedTime,
                               (time, changed) {
                                 setState(() {
                                   selectedTime = time;
@@ -646,6 +652,7 @@ class Helper {
                             _buildQuickTimeDialogButton(
                               context,
                               15,
+                              selectedTime,
                               (time, changed) {
                                 setState(() {
                                   selectedTime = time;
@@ -666,6 +673,7 @@ class Helper {
                             _buildQuickTimeDialogButton(
                               context,
                               60,
+                              selectedTime,
                               (time, changed) {
                                 setState(() {
                                   selectedTime = time;
@@ -687,6 +695,156 @@ class Helper {
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 24),
+
+                    // Notification/Alarm Settings - Single Button with 3 States
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 12,
+                      children: [
+                        // Single toggle button: Off -> Notification -> Alarm -> Off
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              notificationAlarmState = (notificationAlarmState + 1) % 3;
+                              switch (notificationAlarmState) {
+                                case 0:
+                                  debugPrint('🔇 State: Off');
+                                case 1:
+                                  debugPrint('📢 State: Notification');
+                                case 2:
+                                  debugPrint('🔔 State: Alarm');
+                              }
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: notificationAlarmState == 0
+                                  ? AppColors.background.withValues(alpha: 0.3)
+                                  : notificationAlarmState == 1
+                                      ? AppColors.blue.withValues(alpha: 0.2)
+                                      : AppColors.red.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: notificationAlarmState == 0
+                                    ? AppColors.text.withValues(alpha: 0.1)
+                                    : notificationAlarmState == 1
+                                        ? AppColors.blue
+                                        : AppColors.red,
+                                width: 1.5,
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  notificationAlarmState == 0
+                                      ? Icons.notifications_off_rounded
+                                      : notificationAlarmState == 1
+                                          ? Icons.notifications_active_rounded
+                                          : Icons.alarm_rounded,
+                                  color: notificationAlarmState == 0
+                                      ? AppColors.text.withValues(alpha: 0.5)
+                                      : notificationAlarmState == 1
+                                          ? AppColors.blue
+                                          : AppColors.red,
+                                  size: 22,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  notificationAlarmState == 0
+                                      ? 'Off'
+                                      : notificationAlarmState == 1
+                                          ? 'Notification'
+                                          : 'Alarm',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: notificationAlarmState == 0
+                                        ? AppColors.text.withValues(alpha: 0.6)
+                                        : notificationAlarmState == 1
+                                            ? AppColors.blue
+                                            : AppColors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Early Reminder Buttons (visible if not Off)
+                        if (notificationAlarmState != 0) ...[
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Text(
+                                  'Early Reminder',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.text.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                              ),
+                              GridView.count(
+                                crossAxisCount: 3,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                                childAspectRatio: 2.5,
+                                children: [
+                                  _buildReminderButton(
+                                      0,
+                                      'Now',
+                                      earlyReminderMinutes == 0,
+                                      () => setState(() {
+                                            earlyReminderMinutes = 0;
+                                            debugPrint('⏰ Early reminder: 0 min');
+                                          })),
+                                  _buildReminderButton(
+                                      5,
+                                      '5 min',
+                                      earlyReminderMinutes == 5,
+                                      () => setState(() {
+                                            earlyReminderMinutes = 5;
+                                            debugPrint('⏰ Early reminder: 5 min');
+                                          })),
+                                  _buildReminderButton(
+                                      15,
+                                      '15 min',
+                                      earlyReminderMinutes == 15,
+                                      () => setState(() {
+                                            earlyReminderMinutes = 15;
+                                            debugPrint('⏰ Early reminder: 15 min');
+                                          })),
+                                  _buildReminderButton(
+                                      30,
+                                      '30 min',
+                                      earlyReminderMinutes == 30,
+                                      () => setState(() {
+                                            earlyReminderMinutes = 30;
+                                            debugPrint('⏰ Early reminder: 30 min');
+                                          })),
+                                  _buildReminderButton(
+                                      60,
+                                      '1 hour',
+                                      earlyReminderMinutes == 60,
+                                      () => setState(() {
+                                            earlyReminderMinutes = 60;
+                                            debugPrint('⏰ Early reminder: 60 min');
+                                          })),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -704,6 +862,8 @@ class Helper {
                     {
                       'time': selectedTime,
                       'dateChanged': dateChanged,
+                      'notificationAlarmState': notificationAlarmState,
+                      'earlyReminderMinutes': notificationAlarmState != 0 ? earlyReminderMinutes : null,
                     },
                   ),
                   child: Text(
@@ -719,61 +879,96 @@ class Helper {
     );
   }
 
+  Widget _buildReminderButton(int minutes, String label, bool isSelected, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.main : AppColors.panelBackground.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.main : AppColors.main.withValues(alpha: 0.2),
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: isSelected ? AppColors.white : AppColors.main,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildQuickTimeDialogButton(
     BuildContext context,
     int? addMinutes,
+    TimeOfDay currentTime,
     Function(TimeOfDay, bool) onSelect,
   ) {
+    // Determine what time this button represents
+    late TimeOfDay buttonTime;
+    late String buttonLabel;
+
+    int newHour = DateTime.now().hour;
+    int newMinute = DateTime.now().minute;
+    bool dayChanged = false;
+
+    if (addMinutes != null && addMinutes > 0) {
+      int now = DateTime.now().hour * 60 + DateTime.now().minute;
+      int totalMinutes = now + addMinutes;
+
+      if (totalMinutes >= 24 * 60) {
+        dayChanged = true;
+        totalMinutes = totalMinutes % (24 * 60);
+      }
+
+      newHour = totalMinutes ~/ 60;
+      newMinute = totalMinutes % 60;
+      buttonLabel = addMinutes == 15 ? 'In 15 Min' : 'In 1 Hour';
+    } else {
+      buttonLabel = 'Now';
+    }
+
+    buttonTime = TimeOfDay(hour: newHour, minute: newMinute);
+
+    // Check if this button is selected
+    final isSelected = currentTime.hour == buttonTime.hour && currentTime.minute == buttonTime.minute;
+
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          int newHour = DateTime.now().hour;
-          int newMinute = DateTime.now().minute;
-          bool dayChanged = false;
-
-          if (addMinutes != null && addMinutes > 0) {
-            // Şu anki saat + eklenen dakika
-            int now = DateTime.now().hour * 60 + DateTime.now().minute;
-            int totalMinutes = now + addMinutes;
-
-            // Eğer ertesi güne geçerse
-            if (totalMinutes >= 24 * 60) {
-              dayChanged = true;
-              totalMinutes = totalMinutes % (24 * 60);
-            }
-
-            newHour = totalMinutes ~/ 60;
-            newMinute = totalMinutes % 60;
-          }
-
-          final newTime = TimeOfDay(hour: newHour, minute: newMinute);
-          onSelect(newTime, dayChanged);
+          onSelect(buttonTime, dayChanged);
           debugPrint('✅ Quick time selected: ${newHour.toString().padLeft(2, '0')}:${newMinute.toString().padLeft(2, '0')} ${dayChanged ? '(+1 Day)' : ''}');
         },
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.panelBackground.withValues(alpha: 0.7),
+            color: isSelected ? AppColors.main : AppColors.panelBackground.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.main.withValues(alpha: 0.2),
-              width: 1,
+              color: isSelected ? AppColors.main : AppColors.main.withValues(alpha: 0.2),
+              width: isSelected ? 2 : 1,
             ),
           ),
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
           child: Center(
             child: Text(
-              addMinutes == null
-                  ? 'Now'
-                  : addMinutes == 15
-                      ? 'In 15 Min'
-                      : 'In 1 Hour',
+              buttonLabel,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: AppColors.main,
+                color: isSelected ? AppColors.white : AppColors.main,
               ),
               textAlign: TextAlign.center,
             ),
@@ -1000,6 +1195,30 @@ class Helper {
         );
       },
     );
+  }
+
+  Future<Map<String, dynamic>?> selectDateAndTime({
+    required BuildContext context,
+    DateTime? initialDate,
+    TimeOfDay? initialTime,
+  }) async {
+    DateTime? selectedDate;
+
+    // İlk olarak tarih seçişini göster
+    selectedDate = await selectDateWithQuickActions(
+      context: context,
+      initialDate: initialDate,
+    );
+
+    if (selectedDate == null || !context.mounted) {
+      return null;
+    }
+
+    // Tarih seçildikten sonra kullanıcı saat seçmek isterse
+    return {
+      'date': selectedDate,
+      'time': initialTime,
+    };
   }
 
   // Task detay sayfasına navigate etmek için yardımcı metod

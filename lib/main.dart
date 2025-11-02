@@ -8,6 +8,7 @@ import 'package:next_level/Service/product_localization.dart';
 import 'package:next_level/Service/app_launch_service.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
+import 'package:next_level/Provider/quick_add_task_provider.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/navbar_visibility_provider.dart';
@@ -72,6 +73,7 @@ void main() async {
       ChangeNotifierProvider.value(value: streakSettingsProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),
+      ChangeNotifierProvider(create: (context) => QuickAddTaskProvider()),
       ChangeNotifierProvider(create: (context) => AddStoreItemProvider()),
       ChangeNotifierProvider(create: (context) => TraitProvider()),
       ChangeNotifierProvider(create: (context) => TaskLogProvider()),
