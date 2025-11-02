@@ -272,20 +272,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () async {
                   final appLaunchService = AppLaunchService();
                   final count = await appLaunchService.getLaunchCount();
-                  final lastReviewRequest = await appLaunchService.getLastReviewRequestCount();
                   final reviewCompleted = await appLaunchService.isReviewCompleted();
-                  final thresholds = appLaunchService.getReviewThresholds();
 
-                  LogService.debug('Settings: Count: $count, Last request: $lastReviewRequest, Completed: $reviewCompleted');
+                  LogService.debug('Settings: Count: $count, Completed: $reviewCompleted');
 
-                  // Sonraki eşiği hesapla
-                  int? nextThreshold;
-                  for (int threshold in thresholds) {
-                    if (count < threshold) {
-                      nextThreshold = threshold;
-                      break;
-                    }
-                  }
+                  // Sonraki review'un hangi açılışta olacağını hesapla
+                  final nextReviewAt = ((count ~/ 10) + 1) * 10;
 
                   if (mounted) {
                     showDialog(
@@ -295,10 +287,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         title: const Text('Launch & Review Info'),
                         content: Text(
                           'Current launch count: $count\n'
-                          'Last review request at: ${lastReviewRequest > 0 ? lastReviewRequest : "None"}\n'
                           'Review completed: ${reviewCompleted ? "Yes" : "No"}\n'
-                          'Next review at: ${nextThreshold ?? "No more"}\n'
-                          '\nThresholds: ${thresholds.join(", ")}',
+                          'Next review at: $nextReviewAt launches',
                         ),
                         actions: [
                           TextButton(

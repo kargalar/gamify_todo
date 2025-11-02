@@ -9,16 +9,8 @@ class AppLaunchService {
   static const String _lastReviewRequestCountKey = 'last_review_request_count';
   static const String _reviewCompletedKey = 'review_completed';
 
-  // Review isteme eşik değerleri (3, 7, 15, 25, 50, 75, 100, 125, 150...)
-  // 3, 7, 15, 25'ten sonra her +25'te bir
-  static List<int> get _reviewRequestThresholds {
-    List<int> thresholds = [3, 7, 15, 25];
-    // 50'den başlayarak +25'lik artışlarla 1000'e kadar devam et
-    for (int i = 50; i <= 1000; i += 25) {
-      thresholds.add(i);
-    }
-    return thresholds;
-  }
+  // Review isteme aralığı: her 10 açılışta bir sor
+  static const int _reviewRequestInterval = 10;
 
   final InAppReview _inAppReview = InAppReview.instance;
 
@@ -47,23 +39,11 @@ class AppLaunchService {
 
       LogService.debug('AppLaunchService: Uygulama açılış sayısı güncellendi: $newCount');
 
-      // Son review isteği hangi sayıda yapıldı
-      final lastReviewRequestCount = prefs.getInt(_lastReviewRequestCountKey) ?? 0;
-
-      // Eşik değerlerinden birini kontrol et
-      for (int threshold in _reviewRequestThresholds) {
-        // Bu eşiğe ulaşıldı mı ve daha önce bu eşikte sorulmamış mı?
-        if (newCount >= threshold && lastReviewRequestCount < threshold) {
-          LogService.debug('AppLaunchService: $threshold. açılış eşiğine ulaşıldı, review dialog gösteriliyor');
-
-          await _requestReview();
-
-          // Son review isteği sayısını güncelle
-          await prefs.setInt(_lastReviewRequestCountKey, threshold);
-
-          LogService.debug('AppLaunchService: Review dialog gösterildi (Eşik: $threshold)');
-          break; // Sadece bir kez sor
-        }
+      // Her 10 açılışta review sor
+      if (newCount % _reviewRequestInterval == 0) {
+        LogService.debug('AppLaunchService: $newCount. açılış - review dialog gösteriliyor');
+        await _requestReview();
+        LogService.debug('AppLaunchService: Review dialog gösterildi');
       }
     } catch (e) {
       LogService.error('AppLaunchService: Açılış sayısı güncellenirken hata: $e');
@@ -141,10 +121,5 @@ class AppLaunchService {
     } catch (e) {
       LogService.error('AppLaunchService: Review tamamlanma durumu kaydedilirken hata: $e');
     }
-  }
-
-  /// Review eşik değerlerini getirir (bilgilendirme amaçlı)
-  List<int> getReviewThresholds() {
-    return _reviewRequestThresholds;
   }
 }
