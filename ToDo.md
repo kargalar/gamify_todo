@@ -87,7 +87,6 @@ tasklar oluşturulurken pin gizlenmesin ve taskalr pinlenmiş olarak oluşturula
 
 projelerin taskları onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamamlandığını
 
-quick task butonu task ekleyince kapanmasın
 
 quick add bottomsheeti geliştir. her şey olacak
 

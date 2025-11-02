@@ -78,16 +78,35 @@ class _QuickAddTaskBottomSheetState extends State<QuickAddTaskBottomSheet> {
       priority: 3, // Default priority (low)
     );
 
-    // Add the task
-    await taskProvider.addTask(newTask);
+    try {
+      // Add the task
+      await taskProvider.addTask(newTask);
 
-    setState(() {
-      _isLoading = false;
-    });
+      if (mounted) {
+        // Clear the text field
+        _taskNameController.clear();
 
-    // Close the bottom sheet
-    // ignore: use_build_context_synchronously
-    Navigator.of(context).pop();
+        // Reset the date to today
+        _selectedDate = DateTime.now();
+
+        // Request focus back to the title field for quick consecutive task adding
+        _taskNameFocus.requestFocus();
+
+        // Reset loading state
+        setState(() {
+          _isLoading = false;
+        });
+
+        print('✅ QuickAddTaskBottomSheet: Task added successfully - "${newTask.title}" - Ready for next task');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        print('❌ QuickAddTaskBottomSheet: Failed to add task - $e');
+      }
+    }
   }
 
   @override
