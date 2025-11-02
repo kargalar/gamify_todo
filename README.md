@@ -3,6 +3,9 @@
 ## Overview
 A mobile app that turns task management into a game. Users complete daily tasks to earn points and purchase rewards from an in-app store.
 
+## Download
+[![Google Play Store](https://img.shields.io/badge/Google%20Play-Download-brightgreen?logo=google-play)](https://play.google.com/store/apps/details?id=app.nextlevel)
+
 ## Key Features
 - **Task Management**: Create, edit, and track tasks
 - **Routines**: Set up recurring tasks  
