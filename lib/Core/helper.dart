@@ -815,20 +815,12 @@ class Helper {
                                             debugPrint('⏰ Early reminder: 5 min');
                                           })),
                                   _buildReminderButton(
-                                      15,
-                                      '15 min',
-                                      earlyReminderMinutes == 15,
+                                      20,
+                                      '20 min',
+                                      earlyReminderMinutes == 20,
                                       () => setState(() {
-                                            earlyReminderMinutes = 15;
-                                            debugPrint('⏰ Early reminder: 15 min');
-                                          })),
-                                  _buildReminderButton(
-                                      30,
-                                      '30 min',
-                                      earlyReminderMinutes == 30,
-                                      () => setState(() {
-                                            earlyReminderMinutes = 30;
-                                            debugPrint('⏰ Early reminder: 30 min');
+                                            earlyReminderMinutes = 20;
+                                            debugPrint('⏰ Early reminder: 20 min');
                                           })),
                                   _buildReminderButton(
                                       60,
@@ -837,6 +829,22 @@ class Helper {
                                       () => setState(() {
                                             earlyReminderMinutes = 60;
                                             debugPrint('⏰ Early reminder: 60 min');
+                                          })),
+                                  _buildReminderButton(
+                                      180,
+                                      '3 hours',
+                                      earlyReminderMinutes == 180,
+                                      () => setState(() {
+                                            earlyReminderMinutes = 180;
+                                            debugPrint('⏰ Early reminder: 180 min');
+                                          })),
+                                  _buildReminderButton(
+                                      600,
+                                      '10 hours',
+                                      earlyReminderMinutes == 600,
+                                      () => setState(() {
+                                            earlyReminderMinutes = 600;
+                                            debugPrint('⏰ Early reminder: 600 min');
                                           })),
                                 ],
                               ),

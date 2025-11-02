@@ -229,6 +229,12 @@ class HomeViewModel extends ChangeNotifier {
     return archivedTasks.where((task) => task.categoryId == selectedCategoryId).toList();
   }
 
+  // Get tasks with active timer (shown regardless of other filters)
+  List<TaskModel> getActiveTimerTasks() {
+    final allTasks = TaskProvider().taskList;
+    return allTasks.where((task) => task.isTimerActive == true).toList();
+  }
+
   List<RoutineModel> getArchivedRoutines() {
     final archivedRoutines = TaskProvider().getArchivedRoutines();
     if (selectedCategoryId == null) {

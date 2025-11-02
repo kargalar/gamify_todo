@@ -254,6 +254,7 @@ class PriorityBottomSheet extends StatelessWidget {
       child: InkWell(
         onTap: () {
           addTaskProvider.updatePriority(value);
+          Navigator.pop(context);
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(

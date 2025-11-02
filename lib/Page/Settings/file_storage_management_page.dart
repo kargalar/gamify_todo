@@ -284,29 +284,31 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
           onTap: () => NavigatorService().back(),
           child: const Icon(Icons.arrow_back_ios),
         ),
-        actions: [
-          if (attachmentFilesWithDetails.isNotEmpty) ...[
-            PopupMenuButton<String>(
-              icon: Icon(Icons.sort_rounded, color: AppColors.main),
-              tooltip: 'Sort Files',
-              onSelected: _changeSortBy,
-              itemBuilder: (context) => [
-                _sortMenuItem('name', Icons.text_fields_rounded, 'Sort by Name'),
-                _sortMenuItem('size', Icons.data_usage_rounded, 'Sort by Size'),
-                _sortMenuItem('date', Icons.schedule_rounded, 'Sort by Date'),
-              ],
-            ),
-            IconButton(onPressed: _downloadAllFiles, icon: const Icon(Icons.download_rounded), tooltip: 'Download All Files'),
-            IconButton(onPressed: _clearAllFiles, icon: const Icon(Icons.delete_sweep_rounded), tooltip: 'Clear All Files'),
-          ],
-          IconButton(onPressed: _loadAttachmentFiles, icon: const Icon(Icons.refresh_rounded), tooltip: 'Refresh'),
-        ],
+        // File management actions commented out for now
+        // actions: [
+        //   if (attachmentFilesWithDetails.isNotEmpty) ...[
+        //     PopupMenuButton<String>(
+        //       icon: Icon(Icons.sort_rounded, color: AppColors.main),
+        //       tooltip: 'Sort Files',
+        //       onSelected: _changeSortBy,
+        //       itemBuilder: (context) => [
+        //         _sortMenuItem('name', Icons.text_fields_rounded, 'Sort by Name'),
+        //         _sortMenuItem('size', Icons.data_usage_rounded, 'Sort by Size'),
+        //         _sortMenuItem('date', Icons.schedule_rounded, 'Sort by Date'),
+        //       ],
+        //     ),
+        //     IconButton(onPressed: _downloadAllFiles, icon: const Icon(Icons.download_rounded), tooltip: 'Download All Files'),
+        //     IconButton(onPressed: _clearAllFiles, icon: const Icon(Icons.delete_sweep_rounded), tooltip: 'Clear All Files'),
+        //   ],
+        //   IconButton(onPressed: _loadAttachmentFiles, icon: const Icon(Icons.refresh_rounded), tooltip: 'Refresh'),
+        // ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 _dataManagementActions(),
+                // File management UI commented out for now
                 // _storageSummaryCard(),
                 // Expanded(
                 //   child: attachmentFilesWithDetails.isEmpty
@@ -419,9 +421,10 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
 
   Widget _dataManagementActions() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       child: Column(
         children: [
+          // First Row: Export & Import
           Row(
             children: [
               Expanded(
@@ -444,6 +447,8 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
             ],
           ),
           const SizedBox(height: 8),
+
+          // Second Row: Reset Routine & Reset Store
           Row(
             children: [
               Expanded(
@@ -463,6 +468,54 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                 ),
               ),
               const SizedBox(width: 8),
+              Expanded(
+                child: _dataActionButton(
+                  icon: Icons.history_rounded,
+                  label: 'Reset Store Progress',
+                  color: AppColors.purple,
+                  onTap: () {
+                    Helper().getDialog(
+                      withTimer: true,
+                      message: 'Reset all store item purchase history? This action cannot be undone.',
+                      onAccept: () async {
+                        try {
+                          final storeProvider = StoreProvider();
+                          // Clear store items
+                          storeProvider.storeItemList.clear();
+                          LogService.debug('✅ Store progress reset');
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Store progress reset'),
+                                backgroundColor: AppColors.green,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          LogService.error('❌ Error resetting store progress: $e');
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Error resetting store progress'),
+                                backgroundColor: AppColors.red,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      acceptButtonText: LocaleKeys.Yes.tr(),
+                      title: 'Confirm',
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Third Row: Delete All Data
+          Row(
+            children: [
               Expanded(
                 child: _dataActionButton(
                   icon: Icons.delete_forever,

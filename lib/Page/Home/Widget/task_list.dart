@@ -155,9 +155,16 @@ class _TaskListState extends State<TaskList> {
     final isToday = vm.isToday(pageDate);
     // Get overdue tasks only for today's view
     final List<TaskModel> overdueTasks = isToday ? vm.getOverdueTasks() : <TaskModel>[];
+    // Get active timer tasks (shown regardless of other filters)
+    final List<TaskModel> activeTimerTasks = vm.getActiveTimerTasks();
+    // Merge active timer tasks with normal task list
+    final List<dynamic> allTasksWithTimers = [
+      ...activeTimerTasks,
+      ...selectedDateTaskList,
+    ];
 
     // Check if there are any tasks to display
-    final hasAnyTasks = selectedDateTaskList.isNotEmpty || selectedDateGhostRutinTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty || overdueTasks.isNotEmpty || pinnedTasks.isNotEmpty;
+    final hasAnyTasks = allTasksWithTimers.isNotEmpty || selectedDateGhostRutinTaskList.isNotEmpty || selectedDateRutinTaskList.isNotEmpty || overdueTasks.isNotEmpty || pinnedTasks.isNotEmpty;
     return !hasAnyTasks
         ? Center(
             child: Text(
@@ -182,9 +189,9 @@ class _TaskListState extends State<TaskList> {
                   PinnedTasksHeader(pinnedTasks: pinnedTasks),
                 ],
 
-                // Normal tasks - now collapsible
-                if (selectedDateTaskList.isNotEmpty) ...[
-                  NormalTasksHeader(tasks: selectedDateTaskList),
+                // Normal tasks (including active timer tasks) - now collapsible
+                if (allTasksWithTimers.isNotEmpty) ...[
+                  NormalTasksHeader(tasks: allTasksWithTimers),
                 ],
 
                 // Routine Tasks - now collapsible (includes both regular and ghost routines)
