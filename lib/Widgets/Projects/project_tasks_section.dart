@@ -36,12 +36,18 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
   void initState() {
     super.initState();
     _subtasks = List.from(widget.tasks);
+    if (widget.project.showOnlyIncompleteTasks == true) {
+      _subtasks = _subtasks.where((t) => !t.isCompleted).toList();
+    }
   }
 
   @override
   void didUpdateWidget(ProjectTasksSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     _subtasks = List.from(widget.tasks);
+    if (widget.project.showOnlyIncompleteTasks == true) {
+      _subtasks = _subtasks.where((t) => !t.isCompleted).toList();
+    }
   }
 
   void _copyAllTasks() {
@@ -108,17 +114,30 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
     });
   }
 
-  void _toggleShowCompletedTasks() {
+  Future<void> _toggleShowCompletedTasks() async {
+    final provider = context.read<ProjectsProvider>();
+    final newShowOnlyIncomplete = widget.project.showOnlyIncompleteTasks != true;
+
+    widget.project.showOnlyIncompleteTasks = newShowOnlyIncomplete;
+    await provider.updateProject(widget.project);
+
     setState(() {
-      _subtasks = _subtasks.where((t) => !t.isCompleted).toList();
+      if (newShowOnlyIncomplete) {
+        _subtasks = _subtasks.where((t) => !t.isCompleted).toList();
+      } else {
+        _subtasks = List.from(widget.tasks);
+      }
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Completed tasks hidden'),
-        backgroundColor: AppColors.green,
-      ),
-    );
-    LogService.debug('✅ Completed tasks hidden');
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(newShowOnlyIncomplete ? 'Completed tasks hidden' : 'All tasks shown'),
+          backgroundColor: AppColors.green,
+        ),
+      );
+    }
+    LogService.debug('✅ Show only incomplete: $newShowOnlyIncomplete');
   }
 
   Future<void> _completeAllTasks() async {

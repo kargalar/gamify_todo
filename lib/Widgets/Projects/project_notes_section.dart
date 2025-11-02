@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import '../../General/app_colors.dart';
 import '../../Model/project_model.dart';
@@ -70,36 +71,6 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
     });
   }
 
-  void _copyOnlyTitledNotes() {
-    final titled = _notes.where((n) => n.title != null && n.title!.isNotEmpty).toList();
-    if (titled.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('No titled notes'),
-            backgroundColor: AppColors.text.withValues(alpha: 0.7),
-          ),
-        );
-      }
-      LogService.error('⚠️ No titled notes to copy');
-      return;
-    }
-
-    final bulletList = titled.map((note) => '📌 ${note.title}').join('\n');
-
-    Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${titled.length} note titles copied'),
-            backgroundColor: AppColors.green,
-          ),
-        );
-      }
-      LogService.debug('✅ ${titled.length} note titles copied');
-    });
-  }
-
   Future<void> _clearAllNotes() async {
     final provider = context.read<ProjectsProvider>();
     for (final note in _notes) {
@@ -139,46 +110,29 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
                     case 'copy_all':
                       await _copyAllNotes();
                       break;
-                    case 'copy_titled':
-                      _copyOnlyTitledNotes();
-                      break;
                     case 'clear_all':
                       await _clearAllNotes();
                       break;
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'copy_all',
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.copy, size: 16),
-                        SizedBox(width: 12),
-                        Text('Copy all notes'),
+                        const Icon(Icons.content_copy, size: 18),
+                        const SizedBox(width: 8),
+                        Text('Copy All'.tr()),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
-                    value: 'copy_titled',
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.copy, size: 16),
-                        SizedBox(width: 12),
-                        Text('Copy titles only'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuDivider(),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'clear_all',
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.delete, size: 16, color: AppColors.red),
-                        SizedBox(width: 12),
-                        Text('Delete all notes', style: TextStyle(color: AppColors.red)),
+                        const Icon(Icons.clear_all, size: 18, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Text('Clear All'.tr(), style: const TextStyle(color: Colors.red)),
                       ],
                     ),
                   ),

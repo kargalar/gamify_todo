@@ -47,8 +47,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
     if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isSameDay(DateTime.now()))) return null;
 
     // Sadece non-routine tasklar için edit action göster
-    final bool canEdit = widget.taskModel.routineID == null;
-    final double extentRatio = canEdit ? 0.6 : 0.3;
+    final bool isNotRoutine = widget.taskModel.routineID == null;
+    final double extentRatio = isNotRoutine ? 0.6 : 0.3;
 
     return ActionPane(
       motion: const ScrollMotion(),
@@ -67,7 +67,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
               taskProvider.updateItems();
             });
           } else {
-            TaskActionHandler.handleTaskFailure(widget.taskModel);
+            await TaskActionHandler.handleTaskLongPress(widget.taskModel);
             taskProvider.updateItems();
           }
           return false;
@@ -75,7 +75,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         onDismissed: () {},
       ),
       children: [
-        if (canEdit) editAction(),
+        editAction(),
         failedAction(),
         // Cancel seçeneği - Disiplin sistemi gelene kadar devre dışı
         // cancelAction(),
@@ -200,12 +200,18 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
   SlidableAction editAction() {
     return SlidableAction(
-      onPressed: (context) {
-        LogService.debug('✏️ Task ${widget.taskModel.id} - Edit operation started');
-        Get.to(() => AddTaskPage(editTask: widget.taskModel))?.then((_) {
-          LogService.debug('✅ Task ${widget.taskModel.id} - Edit completed');
+      onPressed: (context) async {
+        // if routine, handle long press first
+        if (widget.taskModel.routineID != null) {
+          await TaskActionHandler.handleTaskLongPress(widget.taskModel);
           taskProvider.updateItems();
-        });
+        } else {
+          LogService.debug('✏️ Task ${widget.taskModel.id} - Edit operation started');
+          Get.to(() => AddTaskPage(editTask: widget.taskModel))?.then((_) {
+            LogService.debug('✅ Task ${widget.taskModel.id} - Edit completed');
+            taskProvider.updateItems();
+          });
+        }
       },
       backgroundColor: AppColors.blue,
       icon: Icons.edit,
