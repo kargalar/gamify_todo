@@ -85,3 +85,5 @@ quick add bottomsheeti geliştir. her şey olacak
 home daki headerlar da basılı tutarak sıralanabilsin
 
 add task page de priorty için bottom sheet yerine küçük bir menü açılmasını dene
+
+inboxda arama kısmında arama aktifken filtreler geçersiz oalcak.
