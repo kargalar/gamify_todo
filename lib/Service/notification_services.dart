@@ -272,61 +272,23 @@ class NotificationService {
     final Map<String, dynamic> payload = {'taskId': id};
     LogService.debug('Payload: $payload');
 
-    // Eğer erken hatırlatma süresi belirtilmişse, erken hatırlatma bildirimi planla
+    // Early reminder varsa, bildirimi o kadar dakika erkene al
+    DateTime actualNotificationTime = scheduledDate;
     if (earlyReminderMinutes != null && earlyReminderMinutes > 0) {
-      final DateTime earlyReminderDate = scheduledDate.subtract(Duration(minutes: earlyReminderMinutes));
-      LogService.debug('⏰ Early Reminder - ScheduledDate: $scheduledDate');
-      LogService.debug('⏰ Early Reminder - EarlyReminderDate (now-$earlyReminderMinutes min): $earlyReminderDate');
-      LogService.debug('⏰ Early Reminder - EarlyReminderDate isAfter now: ${earlyReminderDate.isAfter(DateTime.now())}');
-
-      // Erken hatırlatma zamanı geçmemişse bildirim planla
-      if (earlyReminderDate.isAfter(DateTime.now())) {
-        String reminderText;
-        if (earlyReminderMinutes >= 60) {
-          final hours = earlyReminderMinutes ~/ 60;
-          final minutes = earlyReminderMinutes % 60;
-          if (minutes > 0) {
-            reminderText = "⏰ ${hours}h ${minutes}m ÖNCE hatırlatma";
-          } else {
-            reminderText = "⏰ ${hours}h ÖNCE hatırlatma";
-          }
-        } else {
-          reminderText = "⏰ $earlyReminderMinutes dakika ÖNCE hatırlatma";
-        }
-
-        final tz.TZDateTime earlyReminderTZDate = tz.TZDateTime.from(earlyReminderDate, tz.local);
-        LogService.debug('⏰ Early Reminder TZDate: $earlyReminderTZDate');
-        final String earlyPayload = jsonEncode(payload);
-        LogService.debug('⏰ Early Reminder Payload: $earlyPayload');
-        try {
-          final earlyId = (safeId + 300000) % 2147483647;
-          await flutterLocalNotificationsPlugin.zonedSchedule(
-            earlyId, // Güvenli ID
-            title,
-            reminderText,
-            earlyReminderTZDate,
-            notificationDetails(false), // Erken hatırlatma için normal bildirim kullan (alarm değil)
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            matchDateTimeComponents: DateTimeComponents.dateAndTime,
-            payload: earlyPayload,
-          );
-          LogService.debug('✅ Early reminder notification scheduled (earlyId: $earlyId, time: $earlyReminderTZDate)');
-        } catch (e) {
-          LogService.error('❌ Error scheduling early reminder notification: $e');
-        }
-      } else {
-        LogService.debug('❌ Early reminder date is in the past, notification not scheduled');
-      }
+      actualNotificationTime = scheduledDate.subtract(Duration(minutes: earlyReminderMinutes));
+      LogService.debug('⏰ Early Reminder Active: $earlyReminderMinutes minutes');
+      LogService.debug('⏰ Original scheduled time: $scheduledDate');
+      LogService.debug('⏰ Adjusted notification time: $actualNotificationTime (${earlyReminderMinutes}m earlier)');
     }
 
-    // Asıl bildirimi/alarmı planla
+    // Bildirim/alarmı planla (early reminder varsa erken saatte, yoksa normal saatte)
     try {
       if (isAlarm) {
         // Alarm package kullanarak gerçek alarm planla
         LogService.debug('🚨 Scheduling alarm with alarm package...');
-        LogService.debug('🚨 Alarm DateTime: $scheduledDate');
+        LogService.debug('🚨 Alarm DateTime: $actualNotificationTime');
         LogService.debug('🚨 Current DateTime: ${DateTime.now()}');
-        LogService.debug('🚨 Time difference: ${scheduledDate.difference(DateTime.now()).inMinutes} minutes');
+        LogService.debug('🚨 Time difference: ${actualNotificationTime.difference(DateTime.now()).inMinutes} minutes');
 
         // Alarm package için gerekli izinleri kontrol et
         bool hasAlarmPermission = await requestAlarmPermission();
@@ -341,7 +303,7 @@ class NotificationService {
 
         final alarmSettings = AlarmSettings(
           id: safeId,
-          dateTime: scheduledDate,
+          dateTime: actualNotificationTime, // Early reminder varsa erken saat
           assetAudioPath: selectedSoundPath, // Kullanıcının seçtiği ses
           loopAudio: true,
           vibrate: true,
@@ -392,7 +354,7 @@ class NotificationService {
       } else {
         // Normal bildirim için flutter_local_notifications kullan
         LogService.debug('📢 Scheduling notification...');
-        final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
+        final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(actualNotificationTime, tz.local); // Early reminder varsa erken saat
         LogService.debug('📢 ScheduledTZDate: $scheduledTZDate');
         final String notificationPayload = jsonEncode(payload);
         LogService.debug('📢 NotificationPayload: $notificationPayload');
