@@ -275,8 +275,10 @@ class NotificationService {
     // Eğer erken hatırlatma süresi belirtilmişse, erken hatırlatma bildirimi planla
     if (earlyReminderMinutes != null && earlyReminderMinutes > 0) {
       final DateTime earlyReminderDate = scheduledDate.subtract(Duration(minutes: earlyReminderMinutes));
-      LogService.debug('EarlyReminderDate: $earlyReminderDate');
-      LogService.debug('EarlyReminderDate isAfter now: ${earlyReminderDate.isAfter(DateTime.now())}');
+      LogService.debug('⏰ Early Reminder - ScheduledDate: $scheduledDate');
+      LogService.debug('⏰ Early Reminder - EarlyReminderDate (now-$earlyReminderMinutes min): $earlyReminderDate');
+      LogService.debug('⏰ Early Reminder - EarlyReminderDate isAfter now: ${earlyReminderDate.isAfter(DateTime.now())}');
+
       // Erken hatırlatma zamanı geçmemişse bildirim planla
       if (earlyReminderDate.isAfter(DateTime.now())) {
         String reminderText;
@@ -284,36 +286,36 @@ class NotificationService {
           final hours = earlyReminderMinutes ~/ 60;
           final minutes = earlyReminderMinutes % 60;
           if (minutes > 0) {
-            reminderText = "${hours}h ${minutes}m sonra başlayacak";
+            reminderText = "⏰ ${hours}h ${minutes}m ÖNCE hatırlatma";
           } else {
-            reminderText = "${hours}h sonra başlayacak";
+            reminderText = "⏰ ${hours}h ÖNCE hatırlatma";
           }
         } else {
-          reminderText = "$earlyReminderMinutes dakika sonra başlayacak";
+          reminderText = "⏰ $earlyReminderMinutes dakika ÖNCE hatırlatma";
         }
 
         final tz.TZDateTime earlyReminderTZDate = tz.TZDateTime.from(earlyReminderDate, tz.local);
-        LogService.debug('earlyReminderTZDate: $earlyReminderTZDate');
+        LogService.debug('⏰ Early Reminder TZDate: $earlyReminderTZDate');
         final String earlyPayload = jsonEncode(payload);
-        LogService.debug('earlyPayload: $earlyPayload');
+        LogService.debug('⏰ Early Reminder Payload: $earlyPayload');
         try {
           final earlyId = (safeId + 300000) % 2147483647;
           await flutterLocalNotificationsPlugin.zonedSchedule(
             earlyId, // Güvenli ID
-            "⏰ $title",
+            title,
             reminderText,
             earlyReminderTZDate,
-            notificationDetails(false), // Erken hatırlatma için normal bildirim kullan
+            notificationDetails(false), // Erken hatırlatma için normal bildirim kullan (alarm değil)
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
             matchDateTimeComponents: DateTimeComponents.dateAndTime,
             payload: earlyPayload,
           );
-          LogService.debug('✓ Early reminder notification scheduled (earlyId: $earlyId)');
+          LogService.debug('✅ Early reminder notification scheduled (earlyId: $earlyId, time: $earlyReminderTZDate)');
         } catch (e) {
-          LogService.error('✗ Error scheduling early reminder notification: $e');
+          LogService.error('❌ Error scheduling early reminder notification: $e');
         }
       } else {
-        LogService.debug('✗ Early reminder date is not after now, notification not scheduled');
+        LogService.debug('❌ Early reminder date is in the past, notification not scheduled');
       }
     }
 
@@ -321,21 +323,21 @@ class NotificationService {
     try {
       if (isAlarm) {
         // Alarm package kullanarak gerçek alarm planla
-        LogService.debug('✓ Scheduling alarm with alarm package...');
-        LogService.debug('Alarm DateTime: $scheduledDate');
-        LogService.debug('Current DateTime: ${DateTime.now()}');
-        LogService.debug('Time difference: ${scheduledDate.difference(DateTime.now()).inMinutes} minutes');
+        LogService.debug('🚨 Scheduling alarm with alarm package...');
+        LogService.debug('🚨 Alarm DateTime: $scheduledDate');
+        LogService.debug('🚨 Current DateTime: ${DateTime.now()}');
+        LogService.debug('🚨 Time difference: ${scheduledDate.difference(DateTime.now()).inMinutes} minutes');
 
         // Alarm package için gerekli izinleri kontrol et
         bool hasAlarmPermission = await requestAlarmPermission();
         if (!hasAlarmPermission) {
-          LogService.debug('✗ Alarm permission not granted');
+          LogService.debug('❌ Alarm permission not granted');
           return;
         }
 
         // Seçili alarm sesini al
         final selectedSoundPath = await _alarmSoundService.getSelectedSoundPath(alarmType);
-        LogService.debug('✓ Selected alarm sound for ${alarmType.name}: $selectedSoundPath');
+        LogService.debug('✅ Selected alarm sound for ${alarmType.name}: $selectedSoundPath');
 
         final alarmSettings = AlarmSettings(
           id: safeId,
@@ -362,9 +364,9 @@ class NotificationService {
 
         try {
           await Alarm.set(alarmSettings: alarmSettings);
-          LogService.debug('✓ Alarm set called');
+          LogService.debug('🚨 Alarm set called');
         } catch (e) {
-          LogService.error('✗ Error calling Alarm.set: $e');
+          LogService.error('❌ Error calling Alarm.set: $e');
         }
 
         // Alarm'ın doğru ayarlandığını doğrula
@@ -372,27 +374,28 @@ class NotificationService {
           final alarms = await Alarm.getAlarms();
           final setAlarm = alarms.where((alarm) => alarm.id == safeId).firstOrNull;
           if (setAlarm != null) {
-            LogService.debug('✓ Alarm successfully set and verified');
-            LogService.debug('Alarm ID: ${setAlarm.id}');
-            LogService.debug('Alarm DateTime: ${setAlarm.dateTime}');
+            LogService.debug('✅ Alarm successfully set and verified');
+            LogService.debug('🚨 Alarm ID: ${setAlarm.id}');
+            LogService.debug('🚨 Alarm DateTime: ${setAlarm.dateTime}');
+            LogService.debug('🚨 Time until alarm: ${setAlarm.dateTime.difference(DateTime.now()).inMinutes} minutes');
           } else {
-            LogService.debug('✗ Alarm was not set properly');
+            LogService.debug('❌ Alarm was not set properly');
           }
         } catch (e) {
-          LogService.error('✗ Error verifying alarm: $e');
+          LogService.error('❌ Error verifying alarm: $e');
         }
 
-        LogService.debug('✓ Alarm scheduled successfully with alarm package');
+        LogService.debug('✅ Alarm scheduled successfully with alarm package');
 
         // Debug: Alarm'ları kontrol et
         await debugAlarms();
       } else {
         // Normal bildirim için flutter_local_notifications kullan
-        LogService.debug('✓ Scheduling notification...');
+        LogService.debug('📢 Scheduling notification...');
         final tz.TZDateTime scheduledTZDate = tz.TZDateTime.from(scheduledDate, tz.local);
-        LogService.debug('scheduledTZDate: $scheduledTZDate');
+        LogService.debug('📢 ScheduledTZDate: $scheduledTZDate');
         final String notificationPayload = jsonEncode(payload);
-        LogService.debug('notificationPayload: $notificationPayload');
+        LogService.debug('📢 NotificationPayload: $notificationPayload');
         try {
           await flutterLocalNotificationsPlugin.zonedSchedule(
             safeId,
@@ -404,13 +407,13 @@ class NotificationService {
             matchDateTimeComponents: DateTimeComponents.dateAndTime,
             payload: notificationPayload,
           );
-          LogService.debug('✓ Notification scheduled successfully (safeId: $safeId)');
+          LogService.debug('✅ Notification scheduled successfully (safeId: $safeId)');
         } catch (e) {
-          LogService.error('✗ Error scheduling notification: $e');
+          LogService.error('❌ Error scheduling notification: $e');
         }
       }
     } catch (e) {
-      LogService.error('✗ Error scheduling ${isAlarm ? 'alarm' : 'notification'}: $e');
+      LogService.error('❌ Error scheduling ${isAlarm ? 'alarm' : 'notification'}: $e');
     }
   }
 
