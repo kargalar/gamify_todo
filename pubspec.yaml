@@ -148,18 +148,18 @@ dev_dependencies:
 
 # Splash Screen Settings
 flutter_native_splash:
-  color: "#030303" # Arka plan rengi
+  color: "#0C0C0C" # Arka plan rengi
   image: assets/logo/splash600.png # Splash görüntüsü
   android_12:
     image: assets/logo/splash1152.png # Android 12+ için splash görüntüsü
-    color: "#030303" # Arka plan rengi
+    color: "#0C0C0C" # Arka plan rengi
 
 # App Icon Settings
 flutter_icons:
   android: true
   ios: true
   image_path: "assets/logo/logo.png"
-  adaptive_icon_background: "#030303"
+  adaptive_icon_background: "#0C0C0C"
   adaptive_icon_foreground: "assets/logo/logo_transparent.png"
   min_sdk_android: 21
   remove_alpha_ios: true
@@ -178,3 +178,8 @@ flutter:
   #   - family: FacelogIcon
   #     fonts:
   #       - asset: assets\icons\FacelogIcon.ttf
+
+
+  # New logo & splash command
+  # flutter pub run flutter_launcher_icons;
+  # flutter pub run flutter_native_splash:create;
