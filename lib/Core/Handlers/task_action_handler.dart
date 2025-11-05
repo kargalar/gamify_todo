@@ -267,7 +267,16 @@ class TaskActionHandler {
   }
 
   /// Handles task cancellation action
+  /// NOTE: Cancel feature is temporarily disabled - commented out to prevent automatic cancellation
   static void handleTaskCancellation(TaskModel taskModel) {
+    // ❌ CANCEL FEATURE TEMPORARILY DISABLED
+    // If you want to re-enable, uncomment the code below
+
+    LogService.debug('⚠️ Task cancellation attempted but feature is disabled: ${taskModel.title}');
+    return; // Exit early - don't process cancellation
+
+    // ============ COMMENTED OUT - DO NOT REMOVE ============
+    /*
     if (taskModel.status == TaskStatusEnum.CANCEL) {
       // When un cancelling a task, delete the CANCEL log first
       TaskLogProvider().deleteLogByTaskIdAndStatus(taskModel.id, TaskStatusEnum.CANCEL);
@@ -333,5 +342,7 @@ class TaskActionHandler {
       // Show undo message with previous status
       TaskProvider().showTaskCancellationUndoWithPreviousStatus(taskModel, previousStatus);
     }
+    */
+    // ======================================================
   }
 }

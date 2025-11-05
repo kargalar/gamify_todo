@@ -207,10 +207,12 @@ extension TaskModelExtension on TaskModel {
       // showCompleted = false ise:
       // 1. Explicit status null olan taskları göster (in progress)
       // 2. Timer tipinde aktif olan taskları göster (hedef süre 0 olsa bile)
-      // 3. DONE, FAILED, CANCEL, OVERDUE status'u olan taskları gizle
+      // 3. FAILED status'u olan taskları göster (başarısız ama hala aktif sayılır - filtreleme ayarlarından kontrol edilir)
+      // 4. DONE, CANCEL, OVERDUE status'u olan taskları gizle
       if (status == null) return true; // In progress tasks always show
       if (type == TaskTypeEnum.TIMER && (isTimerActive ?? false)) return true; // Active timers always show
-      return false; // Hide completed, failed, cancelled, overdue tasks
+      if (status == TaskStatusEnum.FAILED) return true; // 🔴 FAILED tasks always show - controlled by HomeViewModel filters
+      return false; // Hide completed, cancelled, overdue tasks
     }
 
     return taskDate?.isSameDay(date) == true && isRoutineCheck() && isCompletedCheck();

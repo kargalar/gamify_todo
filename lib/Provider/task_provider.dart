@@ -342,11 +342,12 @@ class TaskProvider with ChangeNotifier {
             // Remove from server/storage
             ServerManager().deleteTask(id: t.id);
 
-            // Add a log entry (preserve history) for deletion if needed
-            TaskLogProvider().addTaskLog(
-              t,
-              customStatus: TaskStatusEnum.CANCEL,
-            );
+            // !!!!!!!!!!!!!!!!!!!!!!!!
+            // // Add a log entry (preserve history) for deletion if needed
+            // TaskLogProvider().addTaskLog(
+            //   t,
+            //   customStatus: TaskStatusEnum.CANCEL,
+            // );
           }
 
           // Update widgets after removals
@@ -852,6 +853,12 @@ class TaskProvider with ChangeNotifier {
 
   // iptal de kullanıcıya ceza yansıtılmayacak
   void cancelTask(TaskModel taskModel) {
+    // ❌ CANCEL FEATURE TEMPORARILY DISABLED
+    LogService.debug('⚠️ Task cancellation attempted but feature is disabled: ${taskModel.title}');
+    return; // Exit early - don't process cancellation
+
+    // ============ COMMENTED OUT - DO NOT REMOVE ============
+    /*
     LogService.debug('Canceling task: ID=${taskModel.id}, Title=${taskModel.title}, Current Status=${taskModel.status}');
     if (taskModel.status == TaskStatusEnum.CANCEL) {
       LogService.debug('Task is already CANCELED, checking date for overdue logic');
@@ -933,6 +940,8 @@ class TaskProvider with ChangeNotifier {
 
     // TODO: Show undo message for a period of time in case of cancel or delete
     notifyListeners();
+    */
+    // ======================================================
   }
 
   void failedTask(TaskModel taskModel) {
@@ -1020,9 +1029,14 @@ class TaskProvider with ChangeNotifier {
   }
 
   /// Mark all routine tasks for the given date as skipped (Pas Geç).
-  /// This sets their status to CANCEL so they won't be marked as FAILED
-  /// by the daily routine processor when the next day arrives.
+  /// NOTE: This feature is temporarily disabled to prevent automatic cancellation
   Future<void> skipRoutinesForDate(DateTime date) async {
+    // ❌ SKIP ROUTINE FEATURE TEMPORARILY DISABLED
+    LogService.debug('⚠️ Skip routines feature is temporarily disabled');
+    return; // Exit early - don't process skipping
+
+    // ============ COMMENTED OUT - DO NOT REMOVE ============
+    /*
     try {
       final tasksToSkip = taskList.where((task) => task.routineID != null && task.taskDate != null && task.taskDate!.isSameDay(date) && task.status == null).toList();
       if (tasksToSkip.isEmpty) {
@@ -1066,6 +1080,8 @@ class TaskProvider with ChangeNotifier {
       LogService.error('Error while skipping routines for date $date: $e');
       Helper().getMessage(message: "${"Error".tr()}: $e");
     }
+    */
+    // ======================================================
   }
 
   // Delete a task with undo functionality

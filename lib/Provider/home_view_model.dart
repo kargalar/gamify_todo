@@ -349,17 +349,19 @@ class HomeViewModel extends ChangeNotifier {
     }
 
     // Load status filter preferences
-    final statusIndices = prefs.getStringList('home_selected_statuses') ?? [];
+    final hasCompleted = prefs.getBool('home_show_completed') ?? true;
+    final hasFailed = prefs.getBool('home_show_failed') ?? true;
+    final hasCancel = prefs.getBool('home_show_cancel') ?? true;
+    final hasOverdue = prefs.getBool('home_show_overdue') ?? true;
+
     _selectedStatuses.clear();
-    for (var index in statusIndices) {
-      final idx = int.tryParse(index);
-      if (idx != null && idx >= 0 && idx < TaskStatusEnum.values.length) {
-        _selectedStatuses.add(TaskStatusEnum.values[idx]);
-      }
-    }
+    if (hasCompleted) _selectedStatuses.add(TaskStatusEnum.DONE);
+    if (hasFailed) _selectedStatuses.add(TaskStatusEnum.FAILED);
+    if (hasCancel) _selectedStatuses.add(TaskStatusEnum.CANCEL);
+    if (hasOverdue) _selectedStatuses.add(TaskStatusEnum.OVERDUE);
 
     _showEmptyStatus = prefs.getBool('home_show_empty_status') ?? true;
-    LogService.debug('✅ Home: Loaded all filter preferences');
+    LogService.debug('✅ Home: Loaded all filter preferences - Statuses: $_selectedStatuses, ShowEmpty: $_showEmptyStatus');
 
     notifyListeners();
   }
@@ -381,9 +383,12 @@ class HomeViewModel extends ChangeNotifier {
     await prefs.setBool('home_show_timer', _selectedTaskTypes.contains(TaskTypeEnum.TIMER));
     LogService.debug('Saved task type filters: $_selectedTaskTypes');
 
-    final statusIndices = _selectedStatuses.map((status) => status.index.toString()).toList();
-    await prefs.setStringList('home_selected_statuses', statusIndices);
-    LogService.debug('Saved status filters: ${statusIndices.length} statuses');
+    // Save status filter preferences
+    await prefs.setBool('home_show_completed', _selectedStatuses.contains(TaskStatusEnum.DONE));
+    await prefs.setBool('home_show_failed', _selectedStatuses.contains(TaskStatusEnum.FAILED));
+    await prefs.setBool('home_show_cancel', _selectedStatuses.contains(TaskStatusEnum.CANCEL));
+    await prefs.setBool('home_show_overdue', _selectedStatuses.contains(TaskStatusEnum.OVERDUE));
+    LogService.debug('✅ Home: Saved status filters: $_selectedStatuses');
 
     await prefs.setBool('home_show_empty_status', _showEmptyStatus);
   }
