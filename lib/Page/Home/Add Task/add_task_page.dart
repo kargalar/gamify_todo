@@ -70,13 +70,15 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
 
         addTaskProvider.targetCount = routine.targetCount ?? 1;
         addTaskProvider.taskDuration = routine.remainingDuration ?? const Duration(hours: 0, minutes: 0);
-        addTaskProvider.selectedDays = routine.repeatDays;
+        addTaskProvider.selectedDays = List.from(routine.repeatDays);
         addTaskProvider.isRoutine = true;
+        LogService.debug('InitState: Loaded routine with ${addTaskProvider.selectedDays.length} selected days');
       } else {
         addTaskProvider.targetCount = addTaskProvider.editTask!.targetCount ?? 1;
         addTaskProvider.taskDuration = addTaskProvider.editTask!.remainingDuration ?? const Duration(hours: 0, minutes: 0);
         addTaskProvider.selectedDays = [];
         addTaskProvider.isRoutine = false;
+        LogService.debug('InitState: Loaded standalone task');
       }
 
       addTaskProvider.taskNameController.text = addTaskProvider.editTask!.title;
@@ -356,6 +358,16 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
 
     // Template mode'da tarih kontrolleri yapma
     if (!widget.isTemplateMode) {
+      // Rutin oluşturulurken en az 1 gün seçilmesi zorunlu
+      if (addTaskProvider.isRoutine && addTaskProvider.selectedDays.isEmpty) {
+        Helper().getMessage(
+          message: 'Rutin oluşturmak için en az bir gün seçmelisiniz.',
+          status: StatusEnum.WARNING,
+        );
+        LogService.error('AddTask: Routine creation failed - no day selected');
+        return;
+      }
+
       // Rutin oluşturulurken tarih seçimi zorunlu
       if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
         Helper().getMessage(
@@ -565,6 +577,16 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
           message: LocaleKeys.RoutineStartDateError.tr(),
           status: StatusEnum.WARNING,
         );
+        return;
+      }
+
+      // Rutin editlerken tekrar task'e dönüştürülmeyecek
+      if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null && addTaskProvider.selectedDays.isEmpty) {
+        Helper().getMessage(
+          message: "Rutini task'e donusturemezsiniz. En az bir gun seciniz.",
+          status: StatusEnum.WARNING,
+        );
+        LogService.debug('goBack: Cannot convert routine to task during edit - selectedDays is empty');
         return;
       }
 

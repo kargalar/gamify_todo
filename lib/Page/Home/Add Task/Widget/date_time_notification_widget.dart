@@ -42,6 +42,9 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
     // Ensure the widget rebuilds when provider changes
     context.watch<AddTaskProvider>();
 
+    // Rutin editlerken switch gösterilmeyecek
+    final isEditingRoutine = addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.panelBackground,
@@ -84,46 +87,47 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                       ),
                     ],
                   ),
-                  // Task/Routine Switch
-                  Row(
-                    children: [
-                      Text(
-                        "Task",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: !addTaskProvider.isRoutine ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                  // Task/Routine Switch - Rutin editlerken gösterilmeyecek
+                  if (!isEditingRoutine)
+                    Row(
+                      children: [
+                        Text(
+                          "Task",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: !addTaskProvider.isRoutine ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Switch(
-                        value: addTaskProvider.isRoutine,
-                        onChanged: (value) {
-                          setState(() {
-                            addTaskProvider.isRoutine = value;
-                            if (value) {
-                              // Routine seçildiğinde tarihi today olarak ayarla
-                              addTaskProvider.selectedDate = DateTime.now();
-                            } else {
-                              // Task seçildiğinde selectedDays'ı temizle
-                              addTaskProvider.selectedDays = [];
-                            }
-                          });
-                        },
-                        activeThumbColor: AppColors.main,
-                        activeTrackColor: AppColors.main.withValues(alpha: 0.3),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Routine",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: addTaskProvider.isRoutine ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                        const SizedBox(width: 8),
+                        Switch(
+                          value: addTaskProvider.isRoutine,
+                          onChanged: (value) {
+                            setState(() {
+                              addTaskProvider.isRoutine = value;
+                              if (value) {
+                                // Routine seçildiğinde tarihi today olarak ayarla
+                                addTaskProvider.selectedDate = DateTime.now();
+                              } else {
+                                // Task seçildiğinde selectedDays'ı temizle
+                                addTaskProvider.selectedDays = [];
+                              }
+                            });
+                          },
+                          activeThumbColor: AppColors.main,
+                          activeTrackColor: AppColors.main.withValues(alpha: 0.3),
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Routine",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: addTaskProvider.isRoutine ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),

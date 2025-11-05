@@ -142,6 +142,15 @@ class _SelectDaysWidgetState extends State<SelectDaysWidget> {
           }
 
           if (widget.addTaskProvider.selectedDays.contains(index)) {
+            // En az 1 gün seçili kalması gerekir
+            if (widget.addTaskProvider.selectedDays.length <= 1) {
+              Helper().getMessage(
+                message: 'En az bir gün seçmelisiniz',
+                status: StatusEnum.WARNING,
+              );
+              LogService.debug('SelectDaysWidget: Cannot deselect - at least one day required');
+              return;
+            }
             widget.addTaskProvider.selectedDays.remove(index);
             LogService.debug('SelectDaysWidget: Day $name deselected successfully');
           } else {
