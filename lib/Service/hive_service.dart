@@ -90,7 +90,7 @@ class HiveService {
     final items = box.values.toList();
 
     // Order alanına göre sort et (eğer atanmışsa)
-    items.sort((a, b) => a.order.compareTo(b.order));
+    items.sort((a, b) => a.order!.compareTo(b.order!));
 
     return items;
   }

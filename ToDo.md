@@ -108,6 +108,3 @@ inboxda arama kısmında arama aktifken filtreler geçersiz oalcak.
 timer tasklarda da bildirim izni istemeli izin verilmemişse.
 ○ Goals
 home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işaretlense bile gösterilmiyorlr.
-
-
-rutini editleyip tekrar taska dönüşütürmeez. edit sayfasında tarih kısmındaki switch rutin editlerken gösterilmeyecek. rutin ise her zaman rutin günlerini değişitebilecke sadece. ve en az 1 rutin günü seçilmek zorunda oalcak

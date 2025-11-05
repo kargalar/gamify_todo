@@ -26,7 +26,7 @@ class ItemModel extends HiveObject {
   @HiveField(9)
   final String? description;
   @HiveField(10)
-  int order; // itemlerin sırasını belirtmek için
+  int? order; // itemlerin sırasını belirtmek için
 
   ItemModel({
     this.id = 0,
@@ -85,7 +85,7 @@ class ItemModel extends HiveObject {
       'is_timer_active': isTimerActive,
       'add_count': addCount,
       'description': description,
-      'order': order,
+      'order': order ?? 0,
     };
   }
 }
