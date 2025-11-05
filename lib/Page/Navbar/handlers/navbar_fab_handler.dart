@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
-import 'package:next_level/Page/Home/Widget/QuickAddTask/quick_add_task_bottom_sheet.dart';
+import 'package:next_level/Page/Home/Widget/compact_add_task_bottom_sheet.dart';
+import 'package:next_level/Page/Home/Widget/task_templates_bottom_sheet.dart';
 import 'package:next_level/Page/Store/add_store_item_page.dart';
 import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:get/get.dart';
 
@@ -21,7 +23,9 @@ class NavbarFABHandler {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (currentIndex == 1) _buildQuickAddFAB(),
+        if (currentIndex == 1) _buildTemplatesFAB(),
+        if (currentIndex == 1) const SizedBox(width: 8),
+        if (currentIndex == 1) _buildCompactAddFAB(),
         if (currentIndex == 1) const SizedBox(width: 10),
         _buildMainFAB(currentIndex),
       ],
@@ -33,8 +37,8 @@ class NavbarFABHandler {
     return currentIndex == 0 || currentIndex == 1 || currentIndex == 2 || currentIndex == 3 || currentIndex == 4;
   }
 
-  /// Build quick add FAB for Home tab
-  Widget _buildQuickAddFAB() {
+  /// Build compact add FAB for Home tab
+  Widget _buildCompactAddFAB() {
     return SizedBox(
       width: 48,
       height: 48,
@@ -42,18 +46,45 @@ class NavbarFABHandler {
         backgroundColor: AppColors.text,
         foregroundColor: AppColors.background,
         onPressed: () {
+          LogService.debug('⚡ Compact Add Task FAB pressed');
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
             barrierColor: Colors.transparent,
-            builder: (context) => const QuickAddTaskBottomSheet(),
+            builder: (context) => const CompactAddTaskBottomSheet(),
           );
         },
         elevation: 4,
         child: const Icon(
           Icons.flash_on_rounded,
           size: 22,
+        ),
+      ),
+    );
+  }
+
+  /// Build templates FAB for Home tab
+  Widget _buildTemplatesFAB() {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: FloatingActionButton(
+        backgroundColor: AppColors.main.withValues(alpha: 0.7),
+        foregroundColor: Colors.white,
+        onPressed: () {
+          LogService.debug('📚 Task Templates FAB pressed');
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const TaskTemplatesBottomSheet(),
+          );
+        },
+        elevation: 4,
+        child: const Icon(
+          Icons.bookmark_outline,
+          size: 20,
         ),
       ),
     );

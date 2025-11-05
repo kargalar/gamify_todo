@@ -17,13 +17,16 @@ import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view
 import 'package:next_level/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Service/task_template_service.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/task_template_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
+import 'package:next_level/Model/task_template_model.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -32,9 +35,11 @@ class AddTaskPage extends StatefulWidget {
   const AddTaskPage({
     super.key,
     this.editTask,
+    this.isTemplateMode = false,
   });
 
   final TaskModel? editTask;
+  final bool isTemplateMode;
 
   @override
   State<AddTaskPage> createState() => _AddTaskPageState();
@@ -164,10 +169,14 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
           appBar: AppBar(
             elevation: 0,
             title: Text(
-              addTaskProvider.editTask != null
-                  ? LocaleKeys.EditTask.tr()
-                  : addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID != null
-                      ? LocaleKeys.EditRoutine.tr()
+              widget.isTemplateMode
+                  ? addTaskProvider.editTask != null
+                      ? 'Edit Template'
+                      : 'Add Template'
+                  : addTaskProvider.editTask != null
+                      ? addTaskProvider.editTask!.routineID != null
+                          ? LocaleKeys.EditRoutine.tr()
+                          : LocaleKeys.EditTask.tr()
                       : LocaleKeys.AddTask.tr(),
             ),
             leading: InkWell(
@@ -181,7 +190,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
               child: const Icon(Icons.arrow_back_ios),
             ),
             actions: [
-              if (addTaskProvider.editTask == null)
+              if (addTaskProvider.editTask == null && !widget.isTemplateMode)
                 TextButton(
                   onPressed: () {
                     // Unfocus before saving
@@ -196,7 +205,23 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-              const PinTaskSwitch(),
+              // Template mode'da yeni template oluştururken save butonu göster
+              if (widget.isTemplateMode && addTaskProvider.editTask == null)
+                TextButton(
+                  onPressed: () {
+                    // Unfocus before saving
+                    addTaskProvider.unfocusAll();
+                    FocusScope.of(context).unfocus();
+                    addTask();
+                  },
+                  child: Text(
+                    LocaleKeys.Save.tr(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              if (!widget.isTemplateMode) const PinTaskSwitch(),
             ],
           ),
           body: SingleChildScrollView(
@@ -206,7 +231,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   children: [
-                    if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) ...[
+                    if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null && !widget.isTemplateMode) ...[
                       const SizedBox(height: 10),
                       EditProgressWidget.forTask(task: addTaskProvider.editTask!),
                     ],
@@ -219,9 +244,9 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     // Enhanced Subtask Section
                     const EnhancedSubtaskSection(),
                     const SizedBox(height: 10),
-                    // Combined Date, Time & Notification widget
-                    const DateTimeNotificationWidget(),
-                    const SizedBox(height: 10),
+                    // Combined Date, Time & Notification widget - hidden in template mode
+                    if (!widget.isTemplateMode) const DateTimeNotificationWidget(),
+                    if (!widget.isTemplateMode) const SizedBox(height: 10),
                     const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -254,8 +279,8 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     // const FileAttachmentWidget(),
                     // const SizedBox(height: 10),
 
-                    // Add Recent Logs section for edit task
-                    if (addTaskProvider.editTask != null && _taskDetailViewModel != null)
+                    // Add Recent Logs section for edit task (not for template mode)
+                    if (addTaskProvider.editTask != null && _taskDetailViewModel != null && !widget.isTemplateMode)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -265,7 +290,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                       ),
 
                     const SizedBox(height: 20),
-                    if (addTaskProvider.editTask != null)
+                    if (addTaskProvider.editTask != null && !widget.isTemplateMode)
                       InkWell(
                         borderRadius: AppColors.borderRadiusAll,
                         onTap: () async {
@@ -316,8 +341,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
 
     LogService.debug('AddTask: Starting task/routine creation');
     LogService.debug('AddTask: Task name: ${addTaskProvider.taskNameController.text}');
-    LogService.debug('AddTask: Selected days: ${addTaskProvider.selectedDays}');
-    LogService.debug('AddTask: Selected date: ${addTaskProvider.selectedDate}');
+    LogService.debug('AddTask: Template mode: ${widget.isTemplateMode}');
 
     if (addTaskProvider.taskNameController.text.isEmpty) {
       addTaskProvider.taskNameController.clear();
@@ -330,29 +354,39 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
       return;
     }
 
-    // Rutin oluşturulurken tarih seçimi zorunlu
-    if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
-      Helper().getMessage(
-        message: LocaleKeys.RoutineStartDateError.tr(),
-        status: StatusEnum.WARNING,
-      );
-      LogService.error('AddTask: Routine creation failed - no start date selected');
-      return;
-    }
+    // Template mode'da tarih kontrolleri yapma
+    if (!widget.isTemplateMode) {
+      // Rutin oluşturulurken tarih seçimi zorunlu
+      if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate == null) {
+        Helper().getMessage(
+          message: LocaleKeys.RoutineStartDateError.tr(),
+          status: StatusEnum.WARNING,
+        );
+        LogService.error('AddTask: Routine creation failed - no start date selected');
+        return;
+      }
 
-    // Rutin başlangıç tarihi geçmiş bir tarih olamaz
-    if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeDay(DateTime.now())) {
-      Helper().getMessage(
-        message: LocaleKeys.RoutineStartDateError.tr(),
-        status: StatusEnum.WARNING,
-      );
-      LogService.error('AddTask: Routine creation failed - start date is in the past');
-      return;
+      // Rutin başlangıç tarihi geçmiş bir tarih olamaz
+      if (addTaskProvider.selectedDays.isNotEmpty && addTaskProvider.selectedDate != null && addTaskProvider.selectedDate!.isBeforeDay(DateTime.now())) {
+        Helper().getMessage(
+          message: LocaleKeys.RoutineStartDateError.tr(),
+          status: StatusEnum.WARNING,
+        );
+        LogService.error('AddTask: Routine creation failed - start date is in the past');
+        return;
+      }
     }
 
     if (isLoadign) return;
 
     isLoadign = true;
+
+    // Template mode'da template'i kaydet
+    if (widget.isTemplateMode) {
+      await _saveAsTemplate();
+      isLoadign = false;
+      return;
+    }
 
     if (addTaskProvider.selectedDays.isEmpty) {
       LogService.debug('AddTask: Creating standalone task');
@@ -448,6 +482,60 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
 
   Future<void> goBack() async {
     if (addTaskProvider.editTask != null) {
+      // Template mode'da otomatik kayıt
+      if (widget.isTemplateMode) {
+        LogService.debug('🔄 Template otomatik kaydı başladı...');
+
+        addTaskProvider.taskNameController.text = addTaskProvider.taskNameController.text.trim();
+        addTaskProvider.descriptionController.text = addTaskProvider.descriptionController.text.trim();
+        addTaskProvider.locationController.text = addTaskProvider.locationController.text.trim();
+
+        if (addTaskProvider.taskNameController.text.isEmpty) {
+          addTaskProvider.taskNameController.clear();
+          Helper().getMessage(
+            message: LocaleKeys.TraitNameEmpty.tr(),
+            status: StatusEnum.WARNING,
+          );
+          return;
+        }
+
+        try {
+          // Update template with same ID
+          final updatedTemplate = TaskTemplateModel(
+            id: addTaskProvider.editTask!.id,
+            title: addTaskProvider.taskNameController.text,
+            description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
+            type: addTaskProvider.selectedTaskType,
+            priority: addTaskProvider.priority,
+            remainingDuration: addTaskProvider.taskDuration,
+            targetCount: addTaskProvider.targetCount,
+            attributeIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
+            skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
+            subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
+            location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
+            categoryId: addTaskProvider.categoryId,
+            earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+            isNotificationOn: addTaskProvider.isNotificationOn,
+            isAlarmOn: addTaskProvider.isAlarmOn,
+          );
+
+          await TaskTemplateService.saveTemplate(updatedTemplate);
+          // UI'ı güncelle
+          if (mounted) {
+            context.read<TaskTemplateProvider>().addTemplate(updatedTemplate);
+          }
+          LogService.debug('✅ Template güncellendi: ${updatedTemplate.title}');
+          NavigatorService().back();
+        } catch (e) {
+          LogService.error('❌ Template güncelleme hatası: $e');
+          Helper().getMessage(
+            message: 'Template kaydedilemedi',
+            status: StatusEnum.ERROR,
+          );
+        }
+        return;
+      }
+
       addTaskProvider.taskNameController.text = addTaskProvider.taskNameController.text.trim();
       addTaskProvider.descriptionController.text = addTaskProvider.descriptionController.text.trim();
       addTaskProvider.locationController.text = addTaskProvider.locationController.text.trim();
@@ -573,6 +661,89 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
         return;
       }
       NavigatorService().back();
+    }
+  }
+
+  Future<void> _saveAsTemplate() async {
+    try {
+      final taskProvider = context.read<TaskTemplateProvider>();
+
+      // Eğer editTask varsa, bunu template model'e dönüştür ve güncelle
+      if (addTaskProvider.editTask != null) {
+        LogService.debug('📋 Updating template...');
+
+        // Mevcut template'i güncelle
+        final updatedTemplate = TaskTemplateModel(
+          id: addTaskProvider.editTask!.id, // Template'in aynı ID'sini koru
+          title: addTaskProvider.taskNameController.text,
+          description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
+          type: addTaskProvider.selectedTaskType,
+          priority: addTaskProvider.priority,
+          remainingDuration: addTaskProvider.taskDuration,
+          targetCount: addTaskProvider.targetCount,
+          attributeIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
+          skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
+          subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
+          location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
+          categoryId: addTaskProvider.categoryId,
+          earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+          isNotificationOn: addTaskProvider.isNotificationOn,
+          isAlarmOn: addTaskProvider.isAlarmOn,
+        );
+
+        await taskProvider.addTemplate(updatedTemplate);
+        LogService.debug('✅ Template updated successfully: ${updatedTemplate.title}');
+      } else {
+        LogService.debug('📋 Saving new template...');
+
+        // Yeni template oluştur
+        final newTemplate = TaskTemplateModel(
+          title: addTaskProvider.taskNameController.text,
+          description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,
+          type: addTaskProvider.selectedTaskType,
+          priority: addTaskProvider.priority,
+          remainingDuration: addTaskProvider.taskDuration,
+          targetCount: addTaskProvider.targetCount,
+          attributeIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.ATTRIBUTE).map((e) => e.id).toList(),
+          skillIDList: addTaskProvider.selectedTraits.where((element) => element.type == TraitTypeEnum.SKILL).map((e) => e.id).toList(),
+          subtasks: addTaskProvider.subtasks.isNotEmpty ? List.from(addTaskProvider.subtasks) : null,
+          location: addTaskProvider.locationController.text.isEmpty ? null : addTaskProvider.locationController.text,
+          categoryId: addTaskProvider.categoryId,
+          earlyReminderMinutes: addTaskProvider.earlyReminderMinutes,
+          isNotificationOn: addTaskProvider.isNotificationOn,
+          isAlarmOn: addTaskProvider.isAlarmOn,
+        );
+
+        await taskProvider.addTemplate(newTemplate);
+        LogService.debug('✅ Template saved successfully: ${newTemplate.title}');
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Template saved: ${addTaskProvider.taskNameController.text}'),
+            backgroundColor: AppColors.main.withValues(alpha: 0.9),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Clear form and go back
+        addTaskProvider.taskNameController.clear();
+        addTaskProvider.descriptionController.clear();
+        addTaskProvider.locationController.clear();
+        NavigatorService().back();
+      }
+    } catch (e) {
+      LogService.error('❌ Failed to save template: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('❌ Failed to save template'),
+            backgroundColor: AppColors.red.withValues(alpha: 0.9),
+          ),
+        );
+      }
     }
   }
 }

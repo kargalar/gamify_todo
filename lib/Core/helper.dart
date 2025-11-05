@@ -14,6 +14,7 @@ import 'package:next_level/General/Adapter/trait_type_enum_adapter.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_log_model.dart';
+import 'package:next_level/Model/task_template_model.dart';
 import 'package:next_level/Model/vacation_date_model.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/project_model.dart';
@@ -64,6 +65,7 @@ class Helper {
     Hive.registerAdapter(TaskStatusEnumAdapter());
     Hive.registerAdapter(TaskLogModelAdapter());
     Hive.registerAdapter(VacationDateModelAdapter());
+    Hive.registerAdapter(TaskTemplateModelAdapter());
   }
 
   Future<void> getDialog({

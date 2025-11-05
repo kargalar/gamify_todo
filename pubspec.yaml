@@ -136,6 +136,7 @@ dev_dependencies:
 
   # Code Generation
   build_runner: ^2.4.8
+  # dart run build_runner build --delete-conflicting-outputs
 
   # Change App Package Name
   change_app_package_name: ^1.4.0

@@ -88,16 +88,26 @@ add task page de priorty için bottom sheet yerine küçük bir menü açılmas�
 
 inboxda arama kısmında arama aktifken filtreler geçersiz oalcak.
 
-
-○ Telefon kilit ekranda aktif Timer bildirimi next level yazmak yerine taşkın adı yazsın
-○ Goals
-○ Home da bir quick add task var bir de normal add task var. quick add taskın adını compact add task yap. her yerde buna göre güncelledikten sonra birtane quick add task butonu ekle. buna basınca önceden kaydedilmiş task template leri oluşturulacak. bir bottomsheet listesinden kullanıcıönceden oluşturduğu template i seçecek. seçince de o güne o task oluşturulacak. templateler o bottomsheetteki + iconundan eklensin. templatein oluşturulacağı sayfa add task page olacak. ama tarih kısmı template oluşturulurken gösterilmeyecek. onun dışındaki yerler aktif olailir.
-○ Reset store progress de kredi de sıfırlansın
-○ Gecmsite filtreler önemli olmayacak hepsi gosterilecek
-○ Rutin Aktif Timer task kısmına gelmeyecek
-○ Tüm mesajlar için helperdekininkullan farklı farklı olamsinlar
-○ Varsyailan alarm di di di dit olsun
 ○ Alarm ses seçiminde hep aynısı çalıyor
+○ Varsyailan alarm di di di dit olsun
+
 ○ Yeni task eklerken baisnda bittomsheet açılacak. Basılı tutunca tam ekran sayfa
     Yanında da quick buton olacak. Quick butona da kullanıcının ekleeigi taskla 4olacak mesele adveleopment. Bunu kaydedecek istediginca çağıracak gibj çalışacak
+
+
+
+
+
+○ Telefon kilit ekranda, aktif Timer bildirimi next level yazmak yerine taskın adı yazsın.
+    Yani şuan şöyel görünüyor: "NextLevel . 15:47". Ama şöyle görünmeli: "Read Book . 15:47"
+○ data managementte Reset store progress de kredi de sıfırlansın
+○ home da geçmiş ve gelecek günlere gidildiğinde filtreleri uygulama. tüm taskları göster.
+○ timer taskın timerı aktif olunca, normalde pin listesideyse, rutindeyse veya overduedaysa bile task listesinde de gösteriliyor. hangi listedekse asdece orada gösterilsin. Bu sorun galiba aktif timerın her zaman görünür olmasıyla ilişkili.
+○ Tüm mesajlar için helperdeki "getMessage" kullan farklı farklı olamsinlar
+
 timer tasklarda da bildirim izni istemeli izin verilmemişse.
+○ Goals
+gelecekteki rutinler de slide ile düzenlenebilmeli.
+overdue olan rutini düzenlemeye çalışınca statistics yerine direkt edit geliyor. 
+rutini editleyip tekrar task dönüşütürmeez. edit sayfasında tarih kısmındaki switch rutin editlerken gösterilmeyecek.
+home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işaretlense bile gösterilmiyorlr.

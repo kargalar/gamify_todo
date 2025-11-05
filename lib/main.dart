@@ -25,6 +25,8 @@ import 'package:next_level/Provider/color_provider.dart';
 import 'package:next_level/Provider/notes_provider.dart';
 import 'package:next_level/Provider/projects_provider.dart';
 import 'package:next_level/Provider/user_provider.dart';
+import 'package:next_level/Provider/task_template_provider.dart';
+import 'package:next_level/Service/task_template_service.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +34,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initApp();
+
+  // Initialize TaskTemplateService
+  await TaskTemplateService.initialize();
 
   // Initialize TaskStyleProvider and load saved style
   final taskStyleProvider = TaskStyleProvider();
@@ -66,6 +71,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => NavbarProvider()),
       ChangeNotifierProvider.value(value: navbarVisibilityProvider),
       ChangeNotifierProvider(create: (context) => TaskProvider()),
+      ChangeNotifierProvider(create: (context) => TaskTemplateProvider()),
       ChangeNotifierProvider.value(value: taskStyleProvider),
       ChangeNotifierProvider.value(value: colorProvider),
       ChangeNotifierProvider.value(value: vacationModeProvider),
