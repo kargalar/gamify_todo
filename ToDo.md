@@ -87,3 +87,17 @@ home daki headerlar da basılı tutarak sıralanabilsin
 add task page de priorty için bottom sheet yerine küçük bir menü açılmasını dene
 
 inboxda arama kısmında arama aktifken filtreler geçersiz oalcak.
+
+
+○ Telefon kilit ekranda aktif Timer bildirimi next level yazmak yerine taşkın adı yazsın
+○ Goals
+○ Home da bir quick add task var bir de normal add task var. quick add taskın adını compact add task yap. her yerde buna göre güncelledikten sonra birtane quick add task butonu ekle. buna basınca önceden kaydedilmiş task template leri oluşturulacak. bir bottomsheet listesinden kullanıcıönceden oluşturduğu template i seçecek. seçince de o güne o task oluşturulacak. templateler o bottomsheetteki + iconundan eklensin. templatein oluşturulacağı sayfa add task page olacak. ama tarih kısmı template oluşturulurken gösterilmeyecek. onun dışındaki yerler aktif olailir.
+○ Reset store progress de kredi de sıfırlansın
+○ Gecmsite filtreler önemli olmayacak hepsi gosterilecek
+○ Rutin Aktif Timer task kısmına gelmeyecek
+○ Tüm mesajlar için helperdekininkullan farklı farklı olamsinlar
+○ Varsyailan alarm di di di dit olsun
+○ Alarm ses seçiminde hep aynısı çalıyor
+○ Yeni task eklerken baisnda bittomsheet açılacak. Basılı tutunca tam ekran sayfa
+    Yanında da quick buton olacak. Quick butona da kullanıcının ekleeigi taskla 4olacak mesele adveleopment. Bunu kaydedecek istediginca çağıracak gibj çalışacak
+timer tasklarda da bildirim izni istemeli izin verilmemişse.
