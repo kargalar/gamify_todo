@@ -107,7 +107,6 @@ inboxda arama kısmında arama aktifken filtreler geçersiz oalcak.
 
 timer tasklarda da bildirim izni istemeli izin verilmemişse.
 ○ Goals
-gelecekteki rutinler de slide ile düzenlenebilmeli.
 overdue olan rutini düzenlemeye çalışınca statistics yerine direkt edit geliyor. 
 rutini editleyip tekrar task dönüşütürmeez. edit sayfasında tarih kısmındaki switch rutin editlerken gösterilmeyecek.
 home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işaretlense bile gösterilmiyorlr.

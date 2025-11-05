@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:next_level/Core/Handlers/task_action_handler.dart';
-import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -44,7 +43,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
   }
 
   ActionPane? startPane() {
-    if (widget.taskModel.routineID != null && (widget.taskModel.taskDate == null || !widget.taskModel.taskDate!.isSameDay(DateTime.now()))) return null;
+    // Ghost routine task kontrolü (taskDate gelecekte ise)
+    final bool isGhostRoutine = widget.taskModel.routineID != null && widget.taskModel.taskDate != null && widget.taskModel.taskDate!.isAfter(DateTime.now());
 
     // Sadece non-routine tasklar için edit action göster
     final bool isNotRoutine = widget.taskModel.routineID == null;
@@ -67,8 +67,20 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
               taskProvider.updateItems();
             });
           } else {
-            await TaskActionHandler.handleTaskLongPress(widget.taskModel);
-            taskProvider.updateItems();
+            final bool isGhostRoutine = widget.taskModel.taskDate != null && widget.taskModel.taskDate!.isAfter(DateTime.now());
+
+            if (isGhostRoutine) {
+              LogService.debug('🔮 Ghost Routine ${widget.taskModel.routineID} - Edit operation started (swipe dismissed - direct to edit page)');
+              // Ghost routine'ler istatistik sayfasına değil direkt edit sayfasına gidiyor
+              Get.to(() => AddTaskPage(editTask: widget.taskModel))?.then((_) {
+                LogService.debug('✅ Ghost Routine ${widget.taskModel.routineID} - Edit completed');
+                taskProvider.updateItems();
+              });
+            } else {
+              LogService.debug('🔄 Routine ${widget.taskModel.routineID} - Edit operation started (swipe dismissed - to detail page)');
+              await TaskActionHandler.handleTaskLongPress(widget.taskModel);
+              taskProvider.updateItems();
+            }
           }
           return false;
         },
@@ -76,7 +88,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       ),
       children: [
         editAction(),
-        failedAction(),
+        if (!isGhostRoutine) failedAction(),
         // Cancel seçeneği - Disiplin sistemi gelene kadar devre dışı
         // cancelAction(),
       ],
@@ -144,6 +156,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
   SlidableAction failedAction() {
     return SlidableAction(
       onPressed: (context) {
+        LogService.debug('❌ Task ${widget.taskModel.id} - Mark as failed');
         // Eğer task zaten fail durumundaysa animasyon oynatma
         if (widget.taskModel.status == TaskStatusEnum.FAILED) {
           // Direkt fail işlemi yap (animasyon yok)
@@ -203,8 +216,21 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       onPressed: (context) async {
         // if routine, handle long press first
         if (widget.taskModel.routineID != null) {
-          await TaskActionHandler.handleTaskLongPress(widget.taskModel);
-          taskProvider.updateItems();
+          final bool isGhostRoutine = widget.taskModel.taskDate != null && widget.taskModel.taskDate!.isAfter(DateTime.now());
+
+          if (isGhostRoutine) {
+            LogService.debug('🔮 Ghost Routine ${widget.taskModel.routineID} - Edit operation started (direct to edit page)');
+            // Ghost routine'ler istatistik sayfasına değil direkt edit sayfasına gidiyor
+            Get.to(() => AddTaskPage(editTask: widget.taskModel))?.then((_) {
+              LogService.debug('✅ Ghost Routine ${widget.taskModel.routineID} - Edit completed');
+              taskProvider.updateItems();
+            });
+          } else {
+            LogService.debug('🔄 Routine ${widget.taskModel.routineID} - Edit operation started (to detail page)');
+            await TaskActionHandler.handleTaskLongPress(widget.taskModel);
+            taskProvider.updateItems();
+            LogService.debug('✅ Routine ${widget.taskModel.routineID} - Edit completed');
+          }
         } else {
           LogService.debug('✏️ Task ${widget.taskModel.id} - Edit operation started');
           Get.to(() => AddTaskPage(editTask: widget.taskModel))?.then((_) {

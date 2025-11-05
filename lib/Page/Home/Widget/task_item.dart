@@ -23,6 +23,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_style_provider.dart';
 import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:provider/provider.dart';
 
 enum AnimationType { completion, fail, cancel }
@@ -146,6 +147,11 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // Debug: Ghost routine task kontrolü
+    if (widget.isRoutine && widget.taskModel.taskDate != null && widget.taskModel.taskDate!.isAfter(DateTime.now())) {
+      LogService.debug('🔮 Building Ghost Routine Task: ${widget.taskModel.title} (ID: ${widget.taskModel.routineID})');
+    }
+
     return Consumer<TaskStyleProvider>(
       builder: (context, styleProvider, child) {
         return AnimatedBuilder(
