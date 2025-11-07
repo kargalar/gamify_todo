@@ -718,7 +718,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
       } else {
         LogService.debug('📋 Saving new template...');
 
-        // Yeni template oluştur
+        // Yeni template oluştur - time her zaman null
         final newTemplate = TaskTemplateModel(
           title: addTaskProvider.taskNameController.text,
           description: addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text,

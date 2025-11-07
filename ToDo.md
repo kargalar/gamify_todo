@@ -108,3 +108,11 @@ inboxda arama kısmında arama aktifken filtreler geçersiz oalcak.
 timer tasklarda da bildirim izni istemeli izin verilmemişse.
 ○ Goals
 home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işaretlense bile gösterilmiyorlr.
+
+
+
+○ Streaki guncelleyince geçmiş günleri etkilememesi lazım
+○ Tasc actionda tepki versin baisnda
+○ Store İrem da renk seçilebilsin
+○ Tam ekran Timer için Timer aktofken basılı tutulması gereksin??
+○ Galiba reset store çalışmıyor data sayfasindaki

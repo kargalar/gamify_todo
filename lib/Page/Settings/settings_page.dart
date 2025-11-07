@@ -74,47 +74,8 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Language selection temporarily disabled - default is English
-            // _settingsOption(
-            //   title: LocaleKeys.SelectLanguage.tr(),
-            //   icon: Icons.language,
-            //   onTap: () {
-            //     showDialog(
-            //       context: context,
-            //       builder: (context) => const LanguageSelectionPopup(),
-            //     );
-            //   },
-            // ),
-            // _settingsOption(
-            //   title: LocaleKeys.ThemeSelection.tr(),
-            //   subtitle: LocaleKeys.ThemeSelectionSubtitle.tr(),
-            //   icon: Icons.dark_mode,
-            //   onTap: () {
-            //     context.read<ThemeProvider>().changeTheme();
-            //   },
-            //   trailing: Switch.adaptive(
-            //     value: AppColors.isDark,
-            //     thumbIcon: AppColors.isDark
-            //         ? WidgetStateProperty.all(
-            //             const Icon(
-            //               Icons.brightness_2,
-            //               color: AppColors.black,
-            //             ),
-            //           )
-            //         : WidgetStateProperty.all(
-            //             const Icon(
-            //               Icons.wb_sunny,
-            //               color: AppColors.white,
-            //             ),
-            //           ),
-            //     trackOutlineColor: AppColors.isDark ? WidgetStateProperty.all(AppColors.transparent) : WidgetStateProperty.all(AppColors.dirtyRed),
-            //     inactiveThumbColor: AppColors.dirtyRed,
-            //     inactiveTrackColor: AppColors.white,
-            //     onChanged: (_) {
-            //       context.read<ThemeProvider>().changeTheme();
-            //     },
-            //   ),
-            // ),
+            // CUSTOMIZATION SECTION
+            const SizedBox(height: 8),
             _settingsOption(
               title: LocaleKeys.SelectTaskStyle.tr(),
               subtitle: LocaleKeys.SelectTaskStyle.tr(),
@@ -165,7 +126,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               },
             ),
-            // Navbar Customization option
             _settingsOption(
               title: LocaleKeys.NavbarCustomization.tr(),
               subtitle: LocaleKeys.NavbarCustomizationSubtitle.tr(),
@@ -174,7 +134,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 NavigatorService().goTo(const NavbarCustomizationPage());
               },
             ),
-            // _settingsOption(
+
+            // DATA MANAGEMENT SECTION
+            const SizedBox(height: 16),
             _settingsOption(
               title: LocaleKeys.DataManagement.tr(),
               subtitle: LocaleKeys.DataManagementSubtitle.tr(),
@@ -184,6 +146,8 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
 
+            // OTHER SECTION
+            const SizedBox(height: 16),
             _settingsOption(
               title: LocaleKeys.ContactUs.tr(),
               subtitle: LocaleKeys.ContactUsSubtitle.tr(),
@@ -219,30 +183,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 }
               },
             ),
-            // TODO: for with database accounts
-            // _settingsOption(
-            //   title: LocaleKeys.Exit.tr(),
-            //   color: AppColors.red,
-            //   onTap: () {
-            //     NavigatorService().logout();
-            //   },
-            // ),
 
             // Development mode: Review test button
             if (kDebugMode) ...[
-              const SizedBox(height: 20),
-              const Divider(),
-              const SizedBox(height: 10),
-              const Center(
-                child: Text(
-                  'Developer Options',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               _settingsOption(
                 title: 'Test App Review',
                 subtitle: 'Reset all review data and test system',
@@ -325,7 +269,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
 
             // App Version at the bottom
-            const SizedBox(height: 5),
+            const SizedBox(height: 24),
             Center(
               child: Opacity(
                 opacity: 0.5,

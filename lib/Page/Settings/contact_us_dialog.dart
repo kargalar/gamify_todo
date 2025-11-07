@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/logging_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactUsDialog extends StatelessWidget {
@@ -28,16 +28,16 @@ class ContactUsDialog extends StatelessWidget {
                   'subject': 'Gamify Todo App Support',
                 },
               );
+              LogService.debug('ContactUsDialog: Opening email client');
               if (await canLaunchUrl(emailUri)) {
                 await launchUrl(emailUri);
+                LogService.debug('ContactUsDialog: Email client opened successfully');
               } else {
-                await Clipboard.setData(
-                  const ClipboardData(text: 'gamifytodo@gmail.com'),
-                );
+                LogService.error('ContactUsDialog: Could not open email client');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Email address copied to clipboard'),
+                      content: const Text('Cannot open email client. Please contact: gamifytodo@gmail.com'),
                       backgroundColor: AppColors.main,
                     ),
                   );
@@ -92,16 +92,16 @@ class ContactUsDialog extends StatelessWidget {
                       '- App Version: \n',
                 },
               );
+              LogService.debug('ContactUsDialog: Opening email client for bug report');
               if (await canLaunchUrl(emailUri)) {
                 await launchUrl(emailUri);
+                LogService.debug('ContactUsDialog: Bug report email client opened successfully');
               } else {
-                await Clipboard.setData(
-                  const ClipboardData(text: 'gamifytodo@gmail.com'),
-                );
+                LogService.error('ContactUsDialog: Could not open email client for bug report');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Bug report email copied to clipboard'),
+                      content: const Text('Cannot open email client. Please contact: gamifytodo@gmail.com'),
                       backgroundColor: AppColors.main,
                     ),
                   );

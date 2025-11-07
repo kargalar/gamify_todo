@@ -117,44 +117,50 @@ class HomeViewModel extends ChangeNotifier {
 
   // Helper method to apply filters to a list of tasks
   List<dynamic> _applyFilters(List<dynamic> tasks) {
-    // Apply routine/task filter
+    // IMPORTANT: Tasks with active timer should always be shown, regardless of filters
     tasks = tasks.where((task) {
+      // If timer is active, always show this task
+      if (task is TaskModel && task.isTimerActive == true) {
+        LogService.debug('⏱️ Home: Task ${task.id} has active timer - bypassing filters');
+        return true;
+      }
+
+      // Apply routine/task filter
       bool isRoutine = task.routineID != null;
-      return (isRoutine && _showRoutines) || (!isRoutine && _showTasks);
-    }).toList();
+      if (!((isRoutine && _showRoutines) || (!isRoutine && _showTasks))) {
+        return false;
+      }
 
-    // Apply task type filter
-    tasks = tasks.where((task) => _selectedTaskTypes.contains(task.type)).toList();
+      // Apply task type filter
+      if (!_selectedTaskTypes.contains(task.type)) {
+        return false;
+      }
 
-    // Apply today tasks filter
-    final now = DateTime.now();
-    final todayDate = DateTime(now.year, now.month, now.day);
-    tasks = tasks.where((task) {
+      // Apply today tasks filter
+      final now = DateTime.now();
+      final todayDate = DateTime(now.year, now.month, now.day);
       if (task.taskDate != null) {
         final taskDateOnly = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
         if (!_showTodayTasks && taskDateOnly.isAtSameMomentAs(todayDate)) {
           return false;
         }
       }
-      return true;
-    }).toList();
 
-    // Apply date filter
-    tasks = tasks.where((task) {
+      // Apply date filter
       switch (_dateFilterState) {
         case DateFilterState.all:
-          return true;
+          break;
         case DateFilterState.withDate:
           if (task.taskDate == null) return false;
           final taskDateOnly = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
-          return !taskDateOnly.isAtSameMomentAs(todayDate);
+          if (taskDateOnly.isAtSameMomentAs(todayDate)) return false;
+          break;
         case DateFilterState.withoutDate:
-          return task.taskDate == null;
+          if (task.taskDate != null) return false;
+          break;
       }
-    }).toList();
 
-    // Apply status filtering
-    tasks = tasks.where((task) {
+      // Apply status filtering
       bool matchesStatus = false;
 
       if (_selectedStatuses.isNotEmpty && _selectedStatuses.contains(task.status)) {
@@ -169,7 +175,11 @@ class HomeViewModel extends ChangeNotifier {
         return false;
       }
 
-      return matchesStatus;
+      if (!matchesStatus) {
+        return false;
+      }
+
+      return true;
     }).toList();
 
     return tasks;
@@ -187,10 +197,23 @@ class HomeViewModel extends ChangeNotifier {
 
   List<dynamic> getTasksForDate(DateTime date) {
     final tasks = TaskProvider().getTasksForDate(date);
-    if (selectedCategoryId == null) {
-      return _applyFilters(tasks);
+
+    // Pinned taskları çıkar - sadece PIN bölümünde gösterilecek
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
+
+    List<dynamic> filteredTasks = tasks;
+    if (isToday) {
+      final pinnedTasks = TaskProvider().getPinnedTasksForToday();
+      final pinnedTaskIds = pinnedTasks.map((t) => t.id).toSet();
+      filteredTasks = tasks.where((task) => !pinnedTaskIds.contains(task.id)).toList();
     }
-    final filtered = tasks.where((task) => task.categoryId == selectedCategoryId).toList();
+
+    if (selectedCategoryId == null) {
+      return _applyFilters(filteredTasks);
+    }
+    final filtered = filteredTasks.where((task) => task.categoryId == selectedCategoryId).toList();
     return _applyFilters(filtered);
   }
 
@@ -230,9 +253,26 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   // Get tasks with active timer (shown regardless of other filters)
+  // But exclude if already shown in pinned, overdue, or routine sections
   List<TaskModel> getActiveTimerTasks() {
     final allTasks = TaskProvider().taskList;
-    return allTasks.where((task) => task.isTimerActive == true).toList();
+    final activeTimerTasks = allTasks.where((task) => task.isTimerActive == true).toList();
+
+    // Exclude pinned tasks - they're shown in pinned section
+    final pinnedTasks = TaskProvider().getPinnedTasksForToday();
+    final pinnedTaskIds = pinnedTasks.map((t) => t.id).toSet();
+
+    // Exclude overdue tasks - they're shown in overdue section
+    final overdueTasks = TaskProvider().getOverdueTasks();
+    final overdueTaskIds = overdueTasks.map((t) => t.id).toSet();
+
+    // Exclude routine tasks - they're shown in routine section
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final routineTasks = TaskProvider().getRoutineTasksForDate(today);
+    final routineTaskIds = routineTasks.map((t) => t.id).toSet();
+
+    return activeTimerTasks.where((task) => !pinnedTaskIds.contains(task.id) && !overdueTaskIds.contains(task.id) && !routineTaskIds.contains(task.id)).toList();
   }
 
   List<RoutineModel> getArchivedRoutines() {

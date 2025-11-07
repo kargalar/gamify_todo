@@ -22,7 +22,6 @@ class FullScreenTimerPage extends StatefulWidget {
 }
 
 class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
-  bool _keepScreenOn = false;
   Timer? _updateTimer;
   Duration _currentDuration = Duration.zero;
   Duration _targetDuration = Duration.zero;
@@ -43,8 +42,9 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
     // Timer'ı başlat
     _startUpdateTimer();
 
-    // Başlangıçta ekran açık tutma ayarını kontrol et
-    _loadKeepScreenOnSetting();
+    // Her zaman wakelock aktif tut
+    _setKeepScreenOn(true);
+    LogService.debug('FullScreenTimerPage: WakeLock enabled');
   }
 
   @override
@@ -53,15 +53,6 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
     _updateTimer?.cancel();
     _setKeepScreenOn(false); // Ekran açık tutmayı kapat
     super.dispose();
-  }
-
-  void _loadKeepScreenOnSetting() async {
-    // SharedPreferences'tan ayarı yükle (şimdilik varsayılan false)
-    // İleride ayar sayfasına bağlanabilir
-    setState(() {
-      _keepScreenOn = false;
-    });
-    _setKeepScreenOn(_keepScreenOn);
   }
 
   void _setKeepScreenOn(bool value) {
@@ -126,42 +117,8 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
         body: SafeArea(
           child: Column(
             children: [
-              // Üst bar - sadece ayarlar
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Switch(
-                      value: _keepScreenOn,
-                      onChanged: (value) {
-                        LogService.debug('FullScreenTimerPage: Keep screen on toggled to $value');
-                        setState(() {
-                          _keepScreenOn = value;
-                        });
-                        _setKeepScreenOn(value);
-                      },
-                      activeThumbColor: AppColors.main,
-                      thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
-                        (Set<WidgetState> states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return const Icon(
-                              Icons.lightbulb,
-                              color: Colors.white,
-                              size: 16,
-                            );
-                          }
-                          return const Icon(
-                            Icons.lightbulb_outline,
-                            color: Colors.white,
-                            size: 16,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Üst bar boş bırakıldı (gelecek ihtiyaçlar için)
+              const SizedBox(height: 16),
 
               // Ana içerik
               Expanded(

@@ -219,7 +219,7 @@ class _TaskTemplatesBottomSheetState extends State<TaskTemplatesBottomSheet> {
         description: template.description,
         type: template.type,
         taskDate: dateOnly,
-        time: TimeOfDay.now(),
+        time: null,
         isNotificationOn: template.isNotificationOn,
         isAlarmOn: template.isAlarmOn,
         priority: template.priority,
