@@ -67,26 +67,49 @@ class _StoreItemRecentLogsWidgetState extends State<StoreItemRecentLogsWidget> {
               final log = widget.logs[index];
               return ListTile(
                 onTap: () => _showEditLogDialog(log, index),
-                leading: const Icon(Icons.history, size: 16),
+                leading: log.isPurchase ? Icon(Icons.shopping_cart, size: 16, color: AppColors.main) : const Icon(Icons.history, size: 16),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            // Tarih ve saat kısmını ayır
-                            text: log.formattedDate.substring(0, log.formattedDate.lastIndexOf(':')),
-                            style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  // Tarih ve saat kısmını ayır
+                                  text: log.formattedDate.substring(0, log.formattedDate.lastIndexOf(':')),
+                                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                                ),
+                                TextSpan(
+                                  // Saniye kısmını vurgula
+                                  text: log.formattedDate.substring(log.formattedDate.lastIndexOf(':')),
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          TextSpan(
-                            // Saniye kısmını vurgula
-                            text: log.formattedDate.substring(log.formattedDate.lastIndexOf(':')),
-                            style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                        if (log.isPurchase)
+                          Container(
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.main.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '🛒 Purchase',
+                              style: TextStyle(
+                                color: AppColors.main,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                      ],
                     ),
                   ],
                 ),

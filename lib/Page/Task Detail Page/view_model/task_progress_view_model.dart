@@ -28,6 +28,7 @@ class TaskProgressViewModel extends ChangeNotifier {
     required dynamic value,
     required TaskTypeEnum type,
     bool affectsProgress = false,
+    bool isPurchase = false,
   }) {
     _addStoreItemLog(
       itemId: itemId,
@@ -35,6 +36,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       value: value,
       type: type,
       affectsProgress: affectsProgress,
+      isPurchase: isPurchase,
     );
   }
 
@@ -45,6 +47,7 @@ class TaskProgressViewModel extends ChangeNotifier {
     required dynamic value,
     required TaskTypeEnum type,
     bool affectsProgress = false,
+    bool isPurchase = false,
   }) async {
     final log = StoreItemLog(
       itemId: itemId,
@@ -53,6 +56,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       value: value,
       type: type,
       affectsProgress: affectsProgress,
+      isPurchase: isPurchase,
     );
     _storeItemLogs.add(log);
 
@@ -83,7 +87,10 @@ class TaskProgressViewModel extends ChangeNotifier {
 
   // Store item loglarını getirme metodu
   static List<StoreItemLog> getStoreItemLogs(int itemId) {
-    // Sadece o item'a ait logları filtrele
+    // itemId = -1 ise tüm logları getir, değilse sadece o item'a ait logları filtrele
+    if (itemId == -1) {
+      return _storeItemLogs.reversed.toList(); // Tüm loglar (en yeni ilk)
+    }
     return _storeItemLogs.where((log) => log.itemId == itemId).toList().reversed.toList(); // En yeni log en üstte
   }
 

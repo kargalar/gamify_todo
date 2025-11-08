@@ -105,7 +105,8 @@ inboxda arama kısmında arama aktifken filtreler geçersiz oalcak.
 ○ timer taskın timerı aktif olunca, normalde pin listesideyse, rutindeyse veya overduedaysa bile task listesinde de gösteriliyor. hangi listedekse asdece orada gösterilsin. Bu sorun galiba aktif timerın her zaman görünür olmasıyla ilişkili.
 ○ Tüm mesajlar için helperdeki "getMessage" kullan farklı farklı olamsinlar
 
-timer tasklarda da bildirim izni istemeli izin verilmemişse.
+timer task başlatılırken bildirim izinlerini kontrol et. izin yoksa kullanıcıyı uyar.
+
 ○ Goals
 home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işaretlense bile gösterilmiyorlr.
 
@@ -116,3 +117,9 @@ home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işa
 ○ Store İrem da renk seçilebilsin
 ○ Tam ekran Timer için Timer aktofken basılı tutulması gereksin??
 ○ Galiba reset store çalışmıyor data sayfasindaki
+store item davaranışı tasklarda olduğu gibi olsun
+
+
+store item recent loglar kısmın task recent loglar gibi olsun. today falan diye göstersin.
+
+taskalrın edit progressi rutinlerinki gibi olsun

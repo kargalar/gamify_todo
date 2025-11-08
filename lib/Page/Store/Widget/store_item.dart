@@ -335,13 +335,18 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
           value = widget.storeItemModel.addCount; // Eklenen sayı miktarı
         }
 
-        // Log kaydini oluştur
+        // Log kaydini oluştur - purchase satın alındığı için kredi harcanır (negatif)
         TaskProgressViewModel.addStoreItemLog(
           itemId: widget.storeItemModel.id,
           action: "Purchase",
-          value: value, // Sadece değişiklik miktarını kaydet
+          value: value, // Değişiklik miktarı (item arttırıldığı miktarı)
           type: widget.storeItemModel.type,
+          isPurchase: true, // Satın alma işlemi
         );
+
+        // Kredi harcaması ayrı olarak log'lanır (negatif kredi)
+        // Bu müşteri tarafından görülebilmesi için daily transactions'a eklemelidir
+        LogService.debug('💰 Store Item Purchase: ${widget.storeItemModel.title} - Credit cost: -${widget.storeItemModel.credit}');
 
         await ServerManager().updateUser(userModel: loginUser!);
         await ServerManager().updateItem(itemModel: widget.storeItemModel);

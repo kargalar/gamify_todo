@@ -8,6 +8,8 @@ class StoreItemLog {
   final TaskTypeEnum type;
   // Whether this log should affect the item's persisted progress (manual logs)
   final bool affectsProgress;
+  // Whether this log is a purchase (satın alma) - shows as credit deduction in transactions
+  final bool isPurchase;
 
   StoreItemLog({
     required this.itemId,
@@ -16,6 +18,7 @@ class StoreItemLog {
     required this.value,
     required this.type,
     this.affectsProgress = false,
+    this.isPurchase = false,
   });
   String get formattedValue {
     if (type == TaskTypeEnum.COUNTER) {

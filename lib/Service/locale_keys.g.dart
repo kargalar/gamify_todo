@@ -436,6 +436,11 @@ abstract class LocaleKeys {
   static const CreditRate = 'CreditRate';
   static const CreditExample = 'CreditExample';
   static const Understood = 'Understood';
+  static const TodayCredits = 'TodayCredits';
+  static const Earned = 'Earned';
+  static const Lost = 'Lost';
+  static const Transactions = 'Transactions';
+  static const NoTransactions = 'NoTransactions';
   static const CategoryCreated = 'CategoryCreated';
   static const ErrorOccurred = 'ErrorOccurred';
   static const VacationModeDisableConfirmation = 'VacationModeDisableConfirmation';
