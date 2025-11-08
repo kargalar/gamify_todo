@@ -38,7 +38,7 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
         _storeItemLogCache = logs;
       });
     } catch (e) {
-      print('[Daily Credit Transactions] Error loading logs: $e');
+      debugPrint('[Daily Credit Transactions] Error loading logs: $e');
     }
   }
 

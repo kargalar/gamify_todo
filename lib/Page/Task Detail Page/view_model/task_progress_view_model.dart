@@ -77,7 +77,8 @@ class TaskProgressViewModel extends ChangeNotifier {
       final box = await _getStoreItemLogBox();
       await box.add(log);
 
-      print('[Store Item Log] Added log for item $itemId');
+      debugPrint('[Store Item Log] Added log for item $itemId');
+      debugPrint('');
 
       // If this manual log should affect item's progress, update and persist the item
       if (affectsProgress) {
@@ -94,11 +95,11 @@ class TaskProgressViewModel extends ChangeNotifier {
           await ServerManager().updateItem(itemModel: item);
           StoreProvider().setStateItems();
         } catch (e) {
-          print('[Store Item Log Error] Failed to affect progress: $e');
+          debugPrint('[Store Item Log Error] Failed to affect progress: $e');
         }
       }
     } catch (e) {
-      print('[Store Item Log Error] Failed to add log: $e');
+      debugPrint('[Store Item Log Error] Failed to add log: $e');
     }
   }
 
@@ -115,7 +116,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       }
       return logs.where((log) => log.itemId == itemId).toList().reversed.toList(); // En yeni log en üstte
     } catch (e) {
-      print('[Store Item Log Error] Failed to get logs: $e');
+      debugPrint('[Store Item Log Error] Failed to get logs: $e');
       return [];
     }
   }
@@ -148,7 +149,7 @@ class TaskProgressViewModel extends ChangeNotifier {
 
       await box.putAt(actualIndex, updatedLog);
 
-      print('[Store Item Log] Edited log for item ${oldLog.itemId}');
+      debugPrint('[Store Item Log] Edited log for item ${oldLog.itemId}');
 
       // If this log affects progress, adjust the item by the delta between new and old
       if (oldLog.affectsProgress) {
@@ -168,11 +169,11 @@ class TaskProgressViewModel extends ChangeNotifier {
           await ServerManager().updateItem(itemModel: item);
           StoreProvider().setStateItems();
         } catch (e) {
-          print('[Store Item Log Error] Failed to affect progress on edit: $e');
+          debugPrint('[Store Item Log Error] Failed to affect progress on edit: $e');
         }
       }
     } catch (e) {
-      print('[Store Item Log Error] Failed to edit log: $e');
+      debugPrint('[Store Item Log Error] Failed to edit log: $e');
     }
   }
 
@@ -193,7 +194,7 @@ class TaskProgressViewModel extends ChangeNotifier {
 
       await box.deleteAt(actualIndex);
 
-      print('[Store Item Log] Deleted log for item ${removed.itemId}');
+      debugPrint('[Store Item Log] Deleted log for item ${removed.itemId}');
 
       // If log affected progress, roll it back from the item
       if (removed.affectsProgress) {
@@ -207,11 +208,11 @@ class TaskProgressViewModel extends ChangeNotifier {
           await ServerManager().updateItem(itemModel: item);
           StoreProvider().setStateItems();
         } catch (e) {
-          print('[Store Item Log Error] Failed to rollback progress: $e');
+          debugPrint('[Store Item Log Error] Failed to rollback progress: $e');
         }
       }
     } catch (e) {
-      print('[Store Item Log Error] Failed to delete log: $e');
+      debugPrint('[Store Item Log Error] Failed to delete log: $e');
     }
   }
 
