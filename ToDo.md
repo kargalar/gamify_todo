@@ -119,11 +119,6 @@ home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işa
 ○ Galiba reset store çalışmıyor data sayfasindaki
 store item davaranışı tasklarda olduğu gibi olsun
 
-
-
 taskalrın edit progressi rutinlerinki gibi olsun
-
-
-recnt log kısmı itemlerda ve taskalrda aynı kod çaırılsın. edit log dialogda text girmek yerine + - butonları ve furaiton oicker kullanılsın. ve log düzenlerken saati seçilememesin.
 
 edit lod store item için de aynı olsun
