@@ -405,11 +405,27 @@ class _InboxTaskListState extends State<InboxTaskList> {
         return;
       }
 
+      // Eski sırayı göster
+      LogService.debug('  📍 Before reorder (sortOrder values):');
+      for (int i = 0; i < tasks.length && i < 10; i++) {
+        final task = tasks[i];
+        final marker = i == oldIndex ? '👈' : '  ';
+        LogService.debug('    $marker [$i] Task ${task.id}: "${task.title}" - sortOrder: ${task.sortOrder}');
+      }
+
       // Taşınacak task'ı listeden çıkar
       final movedTask = tasks.removeAt(oldIndex);
+      LogService.debug('  ✂️ Moved Task ${movedTask.id}: "${movedTask.title}" (sortOrder: ${movedTask.sortOrder}) from position $oldIndex');
 
       // Yeni pozisyona ekle
       tasks.insert(newIndex, movedTask);
+
+      LogService.debug('  📋 After move to position $newIndex (before sortOrder update):');
+      for (int i = 0; i < tasks.length && i < 10; i++) {
+        final task = tasks[i];
+        final marker = i == newIndex ? '✅' : '  ';
+        LogService.debug('    $marker [$i] Task ${task.id}: "${task.title}" - current sortOrder: ${task.sortOrder}');
+      }
 
       // Tüm task'lara yeni sortOrder değerlerini ata
       final updatedTasks = <TaskModel>[];
@@ -418,10 +434,16 @@ class _InboxTaskListState extends State<InboxTaskList> {
         final newSortOrder = tasks.length - i;
 
         if (task.sortOrder != newSortOrder) {
+          final oldSortOrder = task.sortOrder;
           task.sortOrder = newSortOrder;
           updatedTasks.add(task);
-          LogService.debug('  ✏️ Updated Task ${task.id}: sortOrder → $newSortOrder');
+          LogService.debug('  ✏️ Updated Task ${task.id}: sortOrder $oldSortOrder → $newSortOrder (Position: ${i + 1}/${tasks.length})');
         }
+      }
+
+      LogService.debug('📊 Updated tasks summary (Inbox):');
+      for (var ut in updatedTasks) {
+        LogService.debug('   • Task ${ut.id}: "${ut.title}" - sortOrder: ${ut.sortOrder}');
       }
 
       // UI'ı hemen güncelle
@@ -429,16 +451,34 @@ class _InboxTaskListState extends State<InboxTaskList> {
       LogService.debug('  🎨 UI updated immediately');
 
       // Veritabanına kaydet (arka planda)
+      bool allSavedSuccessfully = true;
       for (final updatedTask in updatedTasks) {
         try {
+          // Hive'e kaydet
           await updatedTask.save();
+
+          // ServerManager'a da kaydet
           await ServerManager().updateTask(taskModel: updatedTask);
         } catch (e) {
-          LogService.error('❌ Error saving task ${updatedTask.id}: $e');
+          LogService.error('❌ CRITICAL: Error saving task ${updatedTask.id}: $e');
+          allSavedSuccessfully = false;
+
+          // Hata durumunda tekrar dene
+          try {
+            await Future.delayed(const Duration(milliseconds: 500));
+            await updatedTask.save();
+            LogService.debug('  ✅ Retry: Task ${updatedTask.id} saved after delay');
+          } catch (retryError) {
+            LogService.error('❌ CRITICAL: Retry failed for task ${updatedTask.id}: $retryError');
+          }
         }
       }
 
-      LogService.debug('✅ Inbox: Tasks reordered and saved successfully');
+      if (allSavedSuccessfully) {
+        LogService.debug('✅ Inbox: All tasks reordered and saved successfully');
+      } else {
+        LogService.error('⚠️ Inbox: Some tasks failed to save!');
+      }
     } catch (e) {
       LogService.error('❌ Inbox: Error reordering tasks: $e');
       setState(() {});

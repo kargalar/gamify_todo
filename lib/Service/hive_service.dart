@@ -181,28 +181,40 @@ class HiveService {
 
   Future<List<TaskModel>> getTasks() async {
     final box = await _taskBox;
-    return box.values.toList();
+    final tasks = box.values.toList();
+
+    // sortOrder'a göre sırala (yüksek değer = üstte)
+    tasks.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
+
+    LogService.debug('📋 Loaded ${tasks.length} tasks from Hive (sorted by sortOrder)');
+    for (int i = 0; i < tasks.length && i < 5; i++) {
+      LogService.debug('  ${i + 1}. Task ${tasks[i].id}: "${tasks[i].title}" - sortOrder: ${tasks[i].sortOrder}');
+    }
+
+    return tasks;
   }
 
   Future<void> updateTask(TaskModel taskModel) async {
     final box = await _taskBox;
-    LogService.debug('Updating task in Hive: ID=${taskModel.id}, Title=${taskModel.title}');
 
     try {
+      LogService.debug('💾 Saving task to Hive: ID=${taskModel.id}, sortOrder=${taskModel.sortOrder}');
+
       // Update the box with the task model
-      LogService.debug('Putting task in Hive box: ID=${taskModel.id}');
       await box.put(taskModel.id, taskModel);
-      LogService.debug('put() done successfully for task: ID=${taskModel.id}');
 
       // Verify the task was saved correctly
       final savedTask = box.get(taskModel.id);
       if (savedTask != null) {
-        LogService.debug('Task successfully saved to Hive: ID=${savedTask.id}, Title=${savedTask.title}');
+        LogService.debug('✅ Task verified in Hive: ID=${savedTask.id}, Title="${savedTask.title}", sortOrder=${savedTask.sortOrder}');
+        if (savedTask.sortOrder != taskModel.sortOrder) {
+          LogService.error('⚠️ CRITICAL: sortOrder mismatch after save! Expected: ${taskModel.sortOrder}, Got: ${savedTask.sortOrder}');
+        }
       } else {
-        LogService.error('ERROR: Failed to retrieve saved task from Hive');
+        LogService.error('❌ CRITICAL ERROR: Failed to retrieve saved task from Hive');
       }
     } catch (e) {
-      LogService.error('ERROR saving task to Hive: $e');
+      LogService.error('❌ CRITICAL ERROR saving task to Hive: $e');
       rethrow;
     }
   }

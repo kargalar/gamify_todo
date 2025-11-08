@@ -69,7 +69,7 @@ class TaskModel extends HiveObject {
   // Setter for isPinned
   set isPinned(bool value) => _isPinned = value;
 
-  @HiveField(25, defaultValue: 0)
+  @HiveField(25, defaultValue: -1)
   int sortOrder; // Sıralama için kullanılır (yüksek değer = üstte)
 
   TaskModel({
@@ -255,6 +255,7 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       categoryId: fields[20] is int ? (fields[20] as int).toString() : fields[20] as String?,
       earlyReminderMinutes: fields[22] as int?,
       attachmentPaths: (fields[23] as List?)?.cast<String>(),
+      sortOrder: fields[25] as int? ?? 0, // ⭐ sortOrder eklendi!
     )
       .._showSubtasks = fields[21] as bool?
       .._isPinned = fields[24] as bool?;
@@ -263,7 +264,7 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(25)
+      ..writeByte(26) // 25 değil 26 field var (0-25)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -313,6 +314,8 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..writeByte(23)
       ..write(obj.attachmentPaths)
       ..writeByte(24)
-      ..write(obj._isPinned);
+      ..write(obj._isPinned)
+      ..writeByte(25)
+      ..write(obj.sortOrder); // ⭐ sortOrder eklendi!
   }
 }

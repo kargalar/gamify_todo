@@ -36,14 +36,12 @@ class DurationCalculator {
 
         if (log.duration != null) {
           total += log.duration!;
-          LogService.debug('DurationCalculator: Added log duration: ${log.duration!.compactFormat()} for task ${task.title}');
         } else if (log.count != null && log.count! != 0) {
           // Counter logları: hem pozitif (+1, +2) hem negatif (-1, -2) değerleri hesaba kat
           if (task.remainingDuration != null) {
             final count = log.count!.abs() <= 100 ? log.count! : (log.count! > 0 ? 5 : -5);
             final add = task.remainingDuration! * count;
             total += add;
-            LogService.debug('DurationCalculator: Added log count: $count * ${task.remainingDuration!.compactFormat()} = ${add.compactFormat()} for task ${task.title}');
 
             // For counter tasks, accumulate counts for breakdown
             if (task.type == TaskTypeEnum.COUNTER) {
@@ -56,7 +54,6 @@ class DurationCalculator {
           if (!processedTaskDates.contains(key)) {
             if (task.remainingDuration != null) {
               total += task.remainingDuration!;
-              LogService.debug('DurationCalculator: Added checkbox duration: ${task.remainingDuration!.compactFormat()} for task ${task.title}');
             }
             processedTaskDates.add(key);
           }
@@ -190,7 +187,6 @@ class DurationCalculator {
     // Check if vacation mode is active or it's a vacation day
     final isVacationModeActive = VacationModeProvider().isVacationModeEnabled;
     final isVacationDayActive = VacationDateProvider().isVacationDay(selectedDate);
-    LogService.debug('DurationCalculator: Vacation mode active: $isVacationModeActive, Vacation day: $isVacationDayActive for $selectedDate');
 
     for (final t in tasks) {
       if (t.remainingDuration != null) {

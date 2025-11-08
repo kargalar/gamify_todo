@@ -35,7 +35,6 @@ class VacationDateProvider extends ChangeNotifier {
     final vacationDate = _vacationBox!.get(dateString);
 
     final result = vacationDate?.isVacation ?? false;
-    LogService.debug('VacationDateProvider: isDateVacation($dateString) = $result');
     return result;
   }
 
@@ -108,7 +107,6 @@ class VacationDateProvider extends ChangeNotifier {
     final checkDate = DateTime(date.year, date.month, date.day);
 
     final isToday = checkDate.isAtSameMomentAs(today);
-    final isPast = checkDate.isBefore(today);
     final isFuture = checkDate.isAfter(today);
 
     // 1. Check if this specific date is marked as vacation in Hive
@@ -128,12 +126,12 @@ class VacationDateProvider extends ChangeNotifier {
 
     final result = isSpecificDateVacation || isVacationModeApplicable || isVacationWeekday;
 
-    if (isToday) {
-      LogService.debug(
-          '🏖️ VacationDateProvider.isVacationDay TODAY: result=$result, specificDate=$isSpecificDateVacation, vacationMode=$isVacationModeApplicable (active=$isVacationModeActive, includeFuture=$includeFutureVacationMode), weekday=$isVacationWeekday (index=$weekdayIndex, vacationWeekdays=$vacationWeekdays)');
-    } else {
-      LogService.debug('VacationDateProvider: isVacationDay for ${date.toIso8601String()}: $result (specificDate: $isSpecificDateVacation, vacationMode: $isVacationModeApplicable, weekday: $isVacationWeekday, isPast: $isPast, isFuture: $isFuture, includeFuture=$includeFutureVacationMode)');
-    }
+    // if (isToday) {
+    //   LogService.debug(
+    //       '🏖️ VacationDateProvider.isVacationDay TODAY: result=$result, specificDate=$isSpecificDateVacation, vacationMode=$isVacationModeApplicable (active=$isVacationModeActive, includeFuture=$includeFutureVacationMode), weekday=$isVacationWeekday (index=$weekdayIndex, vacationWeekdays=$vacationWeekdays)');
+    // } else {
+    //   LogService.debug('VacationDateProvider: isVacationDay for ${date.toIso8601String()}: $result (specificDate: $isSpecificDateVacation, vacationMode: $isVacationModeApplicable, weekday: $isVacationWeekday, isPast: $isPast, isFuture: $isFuture, includeFuture=$includeFutureVacationMode)');
+    // }
 
     return result;
   }

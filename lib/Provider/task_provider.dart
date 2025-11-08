@@ -1638,6 +1638,15 @@ class TaskProvider with ChangeNotifier {
 
     // sortOrder'a göre sırala (yüksek değer = üstte)
     tasks.sort((a, b) => b.sortOrder.compareTo(a.sortOrder));
+
+    LogService.debug('📅 getTasksForDate(${date.day}/${date.month}/${date.year}): Found ${tasks.length} tasks:');
+    for (int i = 0; i < tasks.length && i < 5; i++) {
+      LogService.debug('   [$i] Task ${tasks[i].id}: "${tasks[i].title}" - sortOrder: ${tasks[i].sortOrder}');
+    }
+    if (tasks.length > 5) {
+      LogService.debug('   ... and ${tasks.length - 5} more tasks');
+    }
+
     return tasks;
   }
 
@@ -1739,15 +1748,26 @@ class TaskProvider with ChangeNotifier {
         return false;
       }
 
+      // Eski sırayı göster
+      LogService.debug('  📍 Before reorder (sortOrder values):');
+      for (int i = 0; i < tasksList.length && i < 10; i++) {
+        final task = tasksList[i];
+        final marker = i == oldIndex ? '👈' : '  ';
+        LogService.debug('    $marker [$i] Task ${task.id}: "${task.title}" - sortOrder: ${task.sortOrder}');
+      }
+
       // Taşınacak task'ı listeden çıkar
       final movedTask = tasksList.removeAt(oldIndex);
+      LogService.debug('  ✂️ Moved Task ${movedTask.id}: "${movedTask.title}" (sortOrder: ${movedTask.sortOrder}) from position $oldIndex');
 
       // Yeni pozisyona ekle
       tasksList.insert(newIndex, movedTask);
 
-      LogService.debug('  📋 New order after move:');
-      for (var i = 0; i < tasksList.length; i++) {
-        LogService.debug('    $i: Task ${tasksList[i].id} - ${tasksList[i].title}');
+      LogService.debug('  📋 After move to position $newIndex (before sortOrder update):');
+      for (int i = 0; i < tasksList.length && i < 10; i++) {
+        final task = tasksList[i];
+        final marker = i == newIndex ? '✅' : '  ';
+        LogService.debug('    $marker [$i] Task ${task.id}: "${task.title}" - current sortOrder: ${task.sortOrder}');
       }
 
       // Önce tüm task'ları lokal olarak güncelle (optimistik UI güncellemesi)
@@ -1757,11 +1777,17 @@ class TaskProvider with ChangeNotifier {
         final newSortOrder = tasksList.length - i; // Tersten sıralama
 
         if (task.sortOrder != newSortOrder) {
+          final oldSortOrder = task.sortOrder;
           task.sortOrder = newSortOrder;
           updatedTasks.add(task);
 
-          LogService.debug('  ✏️ Updated Task ${task.id}: sortOrder → $newSortOrder');
+          LogService.debug('  ✏️ Updated Task ${task.id}: sortOrder $oldSortOrder → $newSortOrder (Position: ${i + 1}/${tasksList.length})');
         }
+      }
+
+      LogService.debug('📊 Updated tasks summary:');
+      for (var ut in updatedTasks) {
+        LogService.debug('   • Task ${ut.id}: "${ut.title}" - sortOrder: ${ut.sortOrder}');
       }
 
       // UI'ı hemen güncelle (kullanıcı anında değişikliği görsün)
@@ -1769,17 +1795,35 @@ class TaskProvider with ChangeNotifier {
       LogService.debug('  🎨 UI updated immediately');
 
       // Ardından veritabanına kaydet (arka planda)
+      bool allSavedSuccessfully = true;
       for (final updatedTask in updatedTasks) {
         try {
+          // Hive'e kaydet
           await updatedTask.save();
+
+          // ServerManager'a da kaydet
           await ServerManager().updateTask(taskModel: updatedTask);
         } catch (e) {
-          LogService.error('❌ Error saving task ${updatedTask.id}: $e');
+          LogService.error('❌ CRITICAL: Error saving task ${updatedTask.id}: $e');
+          allSavedSuccessfully = false;
+
+          // Hata durumunda tekrar dene
+          try {
+            await Future.delayed(const Duration(milliseconds: 500));
+            await updatedTask.save();
+            LogService.debug('  ✅ Retry: Task ${updatedTask.id} saved after delay');
+          } catch (retryError) {
+            LogService.error('❌ CRITICAL: Retry failed for task ${updatedTask.id}: $retryError');
+          }
         }
       }
 
-      LogService.debug('✅ TaskProvider: Tasks reordered and saved successfully');
-      return true;
+      if (allSavedSuccessfully) {
+        LogService.debug('✅ TaskProvider: All tasks reordered and saved successfully');
+      } else {
+        LogService.error('⚠️ TaskProvider: Some tasks failed to save! Check debug log above.');
+      }
+      return allSavedSuccessfully;
     } catch (e) {
       LogService.error('❌ TaskProvider: Error reordering tasks: $e');
       // Hata durumunda listeyi yeniden yükle

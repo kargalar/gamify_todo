@@ -4,7 +4,6 @@ import 'package:next_level/Provider/home_view_model.dart';
 import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Page/Home/Widget/weekly_streak_dialog.dart';
-import 'package:next_level/Service/logging_service.dart';
 
 void _showWeeklyStreakDialog(BuildContext context, HomeViewModel vm) {
   showModalBottomSheet(
@@ -33,26 +32,23 @@ class ProgressChip extends StatelessWidget {
 
         // Determine color based on four states
         Color mainColor;
-        String statusMessage;
         if (!hasReachedDaily && !hasReachedStreak) {
           // 1. Durum: Ne daily ne streak - Neutral highlight
           mainColor = AppColors.dirtyWhite;
-          statusMessage = 'Neither daily nor streak goals have been reached yet';
+          // statusMessage = 'Neither daily nor streak goals have been reached yet';
         } else if (hasReachedStreak && !hasReachedDaily) {
           // 2. Durum: Streak var ama daily yok - Turuncu
           mainColor = AppColors.orange;
-          statusMessage = 'Streak goal has been reached but daily goal has not been reached';
+          // statusMessage = 'Streak goal has been reached but daily goal has not been reached';
         } else if (hasReachedDaily && !hasReachedStreak) {
           // 3. Durum: Daily var ama streak yok - Yeşil
           mainColor = AppColors.green;
-          statusMessage = 'Daily goal has been reached but streak goal has not been reached';
+          // statusMessage = 'Daily goal has been reached but streak goal has not been reached';
         } else {
           // 4. Durum: Hem daily hem streak - Kırmızı
           mainColor = AppColors.red;
-          statusMessage = 'Both daily and streak goals have been reached! 🔥';
+          // statusMessage = 'Both daily and streak goals have been reached! 🔥';
         }
-
-        LogService.debug('📊 Progress Chip Status: $statusMessage (Daily: ${(percent * 100).round()}%, Streak: ${vm.todayTotalDuration.inMinutes}/${vm.streakDuration.inMinutes}min, Vacation: $isTodayVacation)');
 
         return TweenAnimationBuilder<double>(
           duration: const Duration(milliseconds: 350),
