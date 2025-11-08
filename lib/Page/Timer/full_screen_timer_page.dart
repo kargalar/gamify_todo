@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Service/global_timer.dart';
-import 'package:next_level/Service/logging_service.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -30,7 +28,6 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
   @override
   void initState() {
     super.initState();
-    LogService.debug('FullScreenTimerPage: initState called for task ${widget.taskModel.id}');
 
     // Başlangıç süresini al
     _currentDuration = widget.taskModel.currentDuration ?? Duration.zero;
@@ -44,19 +41,16 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
 
     // Her zaman wakelock aktif tut
     _setKeepScreenOn(true);
-    LogService.debug('FullScreenTimerPage: WakeLock enabled');
   }
 
   @override
   void dispose() {
-    LogService.debug('FullScreenTimerPage: dispose called for task ${widget.taskModel.id}');
     _updateTimer?.cancel();
     _setKeepScreenOn(false); // Ekran açık tutmayı kapat
     super.dispose();
   }
 
   void _setKeepScreenOn(bool value) {
-    LogService.debug('FullScreenTimerPage: Setting keep screen on to $value');
     if (value) {
       WakelockPlus.enable();
     } else {
@@ -65,7 +59,6 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
   }
 
   void _startUpdateTimer() {
-    LogService.debug('FullScreenTimerPage: Starting update timer');
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -84,7 +77,6 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
   }
 
   void _toggleTimer() {
-    LogService.debug('FullScreenTimerPage: Toggling timer for task ${widget.taskModel.id}');
     setState(() {
       _isTimerRunning = !_isTimerRunning;
     });
@@ -104,10 +96,72 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
     return AppColors.red; // Az
   }
 
+  // Takvim yaprağı gibi süre gösterimi
+  Widget _buildTimeDisplay(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    // Sadece gerekli olanları göster
+    final List<Widget> timeWidgets = [];
+
+    if (hours > 0) {
+      timeWidgets.add(_buildTimeCard(hours.toString().padLeft(2, '0')));
+      timeWidgets.add(const SizedBox(width: 4));
+    }
+
+    timeWidgets.add(_buildTimeCard(minutes.toString().padLeft(2, '0')));
+    timeWidgets.add(const SizedBox(width: 4));
+    timeWidgets.add(_buildTimeCard(seconds.toString().padLeft(2, '0')));
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: timeWidgets,
+    );
+  }
+
+  // Takvim yaprağı kartı - sadece rakam göster
+  Widget _buildTimeCard(String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.text.withAlpha(100),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(50),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        value,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          fontFeatures: [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
+  }
+
+  // Hedef süreyi formatla (saat:dakika:saniye)
+  String _formatTargetTime(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    if (hours > 0) {
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else {
+      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    LogService.debug('FullScreenTimerPage: Building UI for task ${widget.taskModel.id}');
-
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pop();
@@ -126,66 +180,61 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Task adı
-                      Text(
-                        widget.taskModel.title,
-                        style: TextStyle(
-                          color: AppColors.text,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 50),
-
-                      // Büyük timer gösterimi
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      // Dairesel progress ile timer gösterimi
+                      Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Text(
-                            _currentDuration.textLongDynamicWithoutZero(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 50,
-                              fontWeight: FontWeight.bold,
-                              fontFeatures: [FontFeature.tabularFigures()],
-                            ),
-                          ),
-                          Text(
-                            ' /${_targetDuration.textLongDynamicWithoutZero()}',
-                            style: TextStyle(
-                              color: AppColors.text.withAlpha(180),
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              fontFeatures: const [FontFeature.tabularFigures()],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      // Progress bar ve tamamlanma icon'u
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                          // Dairesel progress indicator
                           SizedBox(
-                            width: 200,
-                            child: LinearProgressIndicator(
+                            width: 280,
+                            height: 280,
+                            child: CircularProgressIndicator(
                               value: _progress,
+                              strokeWidth: 12,
                               backgroundColor: AppColors.text.withAlpha(50),
                               valueColor: AlwaysStoppedAnimation<Color>(_progressColor),
                             ),
                           ),
-                          if (_progress >= 1.0) ...[
-                            const SizedBox(width: 10),
-                            const Icon(
-                              Icons.check_circle,
-                              color: AppColors.green,
-                              size: 24,
+                          // İçerideki timer gösterimi
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Takvim yaprakları gibi mevcut süre gösterimi
+                              _buildTimeDisplay(_currentDuration),
+                              const SizedBox(height: 20),
+                              // Hedef süre normal text olarak
+                              Text(
+                                _formatTargetTime(_targetDuration),
+                                style: TextStyle(
+                                  color: AppColors.text.withAlpha(150),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFeatures: const [FontFeature.tabularFigures()],
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Tamamlanma icon'u
+                          if (_progress >= 1.0)
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.green,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                child: const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
                             ),
-                          ],
                         ],
                       ),
-                      const SizedBox(height: 100),
+                      const SizedBox(height: 60),
 
                       // Play/Pause butonu - sadece icon
                       IconButton(
@@ -196,7 +245,7 @@ class _FullScreenTimerPageState extends State<FullScreenTimerPage> {
                           size: 20,
                         ),
                         style: IconButton.styleFrom(
-                          backgroundColor: _isTimerRunning ? AppColors.red.withAlpha(150) : AppColors.green.withAlpha(150),
+                          backgroundColor: _isTimerRunning ? AppColors.red.withAlpha(100) : AppColors.green.withAlpha(100),
                           padding: const EdgeInsets.all(12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
