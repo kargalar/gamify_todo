@@ -151,54 +151,24 @@ class _EditLogDialogState extends State<EditLogDialog> {
               ],
             ),
             const SizedBox(height: 16),
-            // Status removed - user cannot change status
+            // Progress section based on task type
             if (widget.taskModel.type != TaskTypeEnum.CHECKBOX) const SizedBox(height: 0),
             if (widget.taskModel.type != TaskTypeEnum.CHECKBOX)
               _CompactSection(
                 label: LocaleKeys.Progress.tr(),
                 icon: Icons.trending_up_outlined,
                 child: widget.taskModel.type == TaskTypeEnum.COUNTER
-                    ? TextField(
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: LocaleKeys.EnterCount.tr(),
-                          filled: true,
-                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                        controller: TextEditingController(text: count?.toString() ?? ''),
-                        onChanged: (v) => setState(() => count = int.tryParse(v)),
+                    ? _CounterControl(
+                        count: count ?? 0,
+                        onChanged: (value) => setState(() => count = value),
                       )
-                    : Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: LocaleKeys.Hours.tr(),
-                                filled: true,
-                                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                              ),
-                              controller: TextEditingController(text: hours.toString()),
-                              onChanged: (v) => setState(() => hours = int.tryParse(v) ?? 0),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: LocaleKeys.Minutes.tr(),
-                                filled: true,
-                                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                              ),
-                              controller: TextEditingController(text: minutes.toString()),
-                              onChanged: (v) => setState(() => minutes = int.tryParse(v) ?? 0),
-                            ),
-                          ),
-                        ],
+                    : _DurationPicker(
+                        hours: hours,
+                        minutes: minutes,
+                        onChanged: (h, m) => setState(() {
+                          hours = h;
+                          minutes = m;
+                        }),
                       ),
               ),
           ],
@@ -358,6 +328,195 @@ class _Pill extends StatelessWidget {
           const Icon(Icons.expand_more, size: 18),
         ],
       ),
+    );
+  }
+}
+
+// Counter control with +/- buttons
+class _CounterControl extends StatelessWidget {
+  final int count;
+  final ValueChanged<int> onChanged;
+
+  const _CounterControl({required this.count, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Theme.of(context).dividerColor.withAlpha(77)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Decrease button
+          IconButton(
+            onPressed: () => onChanged(count - 1),
+            icon: Icon(Icons.remove_circle_outline, color: AppColors.red),
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(8),
+              minimumSize: const Size(40, 40),
+            ),
+          ),
+          // Count display
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.main.withAlpha(20),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              count.toString(),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.main,
+              ),
+            ),
+          ),
+          // Increase button
+          IconButton(
+            onPressed: () => onChanged(count + 1),
+            icon: Icon(Icons.add_circle_outline, color: AppColors.green),
+            style: IconButton.styleFrom(
+              padding: const EdgeInsets.all(8),
+              minimumSize: const Size(40, 40),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Duration picker with scroll wheels
+class _DurationPicker extends StatelessWidget {
+  final int hours;
+  final int minutes;
+  final Function(int hours, int minutes) onChanged;
+
+  const _DurationPicker({
+    required this.hours,
+    required this.minutes,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(77),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Theme.of(context).dividerColor.withAlpha(77)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Hours picker
+          _TimeUnit(
+            value: hours,
+            label: LocaleKeys.Hours.tr(),
+            maxValue: 23,
+            onChanged: (value) => onChanged(value, minutes),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              ':',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: AppColors.main.withAlpha(150),
+              ),
+            ),
+          ),
+          // Minutes picker
+          _TimeUnit(
+            value: minutes,
+            label: LocaleKeys.Minutes.tr(),
+            maxValue: 59,
+            onChanged: (value) => onChanged(hours, value),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Time unit component (hours or minutes)
+class _TimeUnit extends StatelessWidget {
+  final int value;
+  final String label;
+  final int maxValue;
+  final ValueChanged<int> onChanged;
+
+  const _TimeUnit({
+    required this.value,
+    required this.label,
+    required this.maxValue,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Increase button
+        IconButton(
+          onPressed: () {
+            final newValue = value < maxValue ? value + 1 : 0;
+            onChanged(newValue);
+          },
+          icon: Icon(Icons.keyboard_arrow_up, color: AppColors.main),
+          style: IconButton.styleFrom(
+            padding: const EdgeInsets.all(4),
+            minimumSize: const Size(40, 40),
+          ),
+        ),
+        // Value display
+        Container(
+          width: 60,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.main.withAlpha(20),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            value.toString().padLeft(2, '0'),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: AppColors.main,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Label
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        // Decrease button
+        IconButton(
+          onPressed: () {
+            final newValue = value > 0 ? value - 1 : maxValue;
+            onChanged(newValue);
+          },
+          icon: Icon(Icons.keyboard_arrow_down, color: AppColors.main),
+          style: IconButton.styleFrom(
+            padding: const EdgeInsets.all(4),
+            minimumSize: const Size(40, 40),
+          ),
+        ),
+      ],
     );
   }
 }
