@@ -156,6 +156,7 @@ class _AddManualLogDialogState extends State<AddManualLogDialog> {
           initialDate: selectedDateTime,
         );
         if (date != null && context.mounted) {
+          // !!!!!!! Saat seçmesin direkt şuanki saati alsın.
           // Sonra saat seç
           final result = await Helper().selectTime(
             context,

@@ -213,4 +213,84 @@ class TaskLogProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Counter task'ın target count'u değiştirildiğinde logları güncelle
+  Future<void> updateCounterTaskLogStatuses(TaskModel updatedTask) async {
+    if (updatedTask.type != TaskTypeEnum.COUNTER) {
+      return; // Sadece counter task'lar için
+    }
+
+    final logs = getLogsByTaskId(updatedTask.id);
+    if (logs.isEmpty || updatedTask.targetCount == null) {
+      return;
+    }
+
+    int currentCount = 0;
+
+    // Logları zamana göre sırala (en eski ilk)
+    logs.sort((a, b) => a.logDate.compareTo(b.logDate));
+
+    for (final log in logs) {
+      // Her log'un count'unu currentCount'a ekle
+      if (log.count != null) {
+        currentCount += log.count!;
+      }
+
+      // Yeni target count'a göre status belirle
+      TaskStatusEnum? newStatus;
+      if (currentCount >= updatedTask.targetCount!) {
+        newStatus = TaskStatusEnum.DONE;
+      } else {
+        newStatus = null; // Counter task default status null
+      }
+
+      // Status değişmişse güncelle
+      if (log.status != newStatus) {
+        log.status = newStatus;
+        // HiveObject olduğu için doğrudan save ettik
+        await log.save();
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Timer task'ın duration'u değiştirildiğinde logları güncelle
+  Future<void> updateTimerTaskLogStatuses(TaskModel updatedTask) async {
+    if (updatedTask.type != TaskTypeEnum.TIMER) {
+      return; // Sadece timer task'lar için
+    }
+
+    final logs = getLogsByTaskId(updatedTask.id);
+    if (logs.isEmpty || updatedTask.remainingDuration == null) {
+      return;
+    }
+
+    Duration cumulativeDuration = Duration.zero;
+
+    // Logları zamana göre sırala (en eski ilk)
+    logs.sort((a, b) => a.logDate.compareTo(b.logDate));
+
+    for (final log in logs) {
+      // Her log'un duration'ını cumulativeDuration'a ekle
+      if (log.duration != null) {
+        cumulativeDuration = cumulativeDuration + log.duration!;
+      }
+
+      // Yeni target duration'a göre status belirle
+      TaskStatusEnum? newStatus;
+      if (cumulativeDuration >= updatedTask.remainingDuration!) {
+        newStatus = TaskStatusEnum.DONE;
+      } else {
+        newStatus = null; // Timer task default status null
+      }
+
+      // Status değişmişse güncelle
+      if (log.status != newStatus) {
+        log.status = newStatus;
+        // HiveObject olduğu için doğrudan save ettik
+        await log.save();
+        notifyListeners();
+      }
+    }
+  }
 }

@@ -12,6 +12,7 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/date_time_notification_widget.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/pin_task_switch.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
@@ -22,6 +23,7 @@ import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_template_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -273,6 +275,26 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     ),
                     const SizedBox(height: 10),
                     if (addTaskProvider.editTask == null) const SelectTaskType(),
+                    // Counter task ise, edit modunda da target count'u göster
+                    if (addTaskProvider.editTask != null && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              LocaleKeys.TargetCount.tr(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.white,
+                              ),
+                            ),
+                          ),
+                          const SelectTargetCount(),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
                     const SizedBox(height: 10),
                     const CompactTraitOptions(),
                     const SizedBox(height: 10),
@@ -602,6 +624,10 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
           // Update the existing task model directly to preserve Hive object identity
           TaskModel existingTask = taskProvider.taskList[index];
 
+          // Target count değişip değişmediğini kontrol et (counter task için)
+          final targetCountChanged = existingTask.targetCount != addTaskProvider.targetCount && addTaskProvider.selectedTaskType == TaskTypeEnum.COUNTER;
+          final timerDurationChanged = existingTask.remainingDuration != addTaskProvider.taskDuration && addTaskProvider.selectedTaskType == TaskTypeEnum.TIMER;
+
           // Update all properties
           existingTask.title = addTaskProvider.taskNameController.text;
           existingTask.description = addTaskProvider.descriptionController.text.isEmpty ? null : addTaskProvider.descriptionController.text;
@@ -633,6 +659,16 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
             selectedDays: addTaskProvider.selectedDays,
             taskModel: existingTask,
           );
+
+          // Target count değişmişse logları güncelle
+          if (targetCountChanged) {
+            LogService.debug('🔄 Counter task target count changed - updating log statuses');
+            await TaskLogProvider().updateCounterTaskLogStatuses(existingTask);
+          }
+          if (timerDurationChanged) {
+            LogService.debug('🔄 Timer task duration changed - updating log statuses');
+            await TaskLogProvider().updateTimerTaskLogStatuses(existingTask);
+          }
         } else {
           LogService.error('ERROR: Task not found in taskList: ID=${addTaskProvider.editTask!.id}');
         }
