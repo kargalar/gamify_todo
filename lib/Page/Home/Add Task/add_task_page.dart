@@ -15,7 +15,7 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
-import 'package:next_level/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
+import 'package:next_level/Widgets/Common/recent_logs_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/task_template_service.dart';
@@ -308,7 +308,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          RecentLogsWidget(viewModel: _taskDetailViewModel!),
+                          RecentLogsWidget(taskViewModelForTask: _taskDetailViewModel!),
                           const SizedBox(height: 30),
                         ],
                       ),

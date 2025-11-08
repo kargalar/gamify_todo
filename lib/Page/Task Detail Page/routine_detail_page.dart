@@ -7,7 +7,7 @@ import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view
 import 'package:next_level/Page/Task%20Detail%20Page/widget/all_time_stats_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/completion_rate_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
-import 'package:next_level/Page/Task%20Detail%20Page/widget/recent_logs_widget.dart';
+import 'package:next_level/Widgets/Common/recent_logs_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/trait_progress_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/unarchive_button.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/weekly_trend_chart_widget.dart';
@@ -235,7 +235,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                         SectionPanel(
                           icon: Icons.history_rounded,
                           title: LocaleKeys.RecentLogs.tr(),
-                          child: RecentLogsWidget(viewModel: _viewModel),
+                          child: RecentLogsWidget(taskViewModelForTask: _viewModel),
                         ),
 
                         const SizedBox(height: 20),

@@ -2,16 +2,18 @@
 applyTo: '*
 ---
 Provide project context and coding guidelines that AI should follow when generating code, answering questions, or reviewing changes.
-- Her zaman clean code prensiplerine göre kod yaz:
-- Hiçbir dosya 600 satırı geçmesin.
-- Her dosya tek sorumluluk taşısın (SRP).
-- Componentleri küçük tut, UI ve business logic’i ayır.
-- Feature-based klasör yapısı uygula.
-- UI parçalarını atomic design (atoms, molecules, organisms, pages) mantığına göre ayır.
-- Tekrarlayan kodları custom hook veya utils içine taşı.
-- uygulamda hatalar gerçekleşiyor ama çoğu zaman göremiyor. bundan sonra yazdığım kodlar için debug panelde mesajı için kodlar da ekle. hata veya başarılı olma durumlarında.
-Eğer Color kullanman gerekiyors AppColors Sınıfından çağır.
+- Always write code according to clean code principles:
+- No file should exceed 600 lines.
+- Each file should have a single responsibility (SRP).
+- Keep components small; separate UI and business logic.
+- Apply a feature-based folder structure.
+- Separate UI components according to atomic design logic (atoms, molecules, organisms, pages).
+- Move repetitive code into custom hooks or utils.
+- Errors occur in the application, but most of the time they are not visible. From now on, add code for messages in the debug panel for the code I write, in case of errors or success. 
+If you need to use Color, call it from the AppColors class. 
 
-hiçbir zaman build alma veya uygulamayı başlatma
+Never build or start the application. 
+
+Do not create md files unless absolutely necessary (for summaries, etc.).
 *'
 ---

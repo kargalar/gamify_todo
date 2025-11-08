@@ -8,7 +8,7 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
 import 'package:next_level/Page/Store/Widget/set_credit.dart';
-import 'package:next_level/Page/Store/Widget/store_item_recent_logs_widget.dart';
+import 'package:next_level/Widgets/Common/recent_logs_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -290,60 +290,12 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     },
                   ),
 
-                  const SizedBox(height: 10),
                   // Recent Logs Container
                   if (widget.editItemModel != null) ...[
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.panelBackground,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header with title and icon
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.history_rounded,
-                                color: AppColors.main,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                "Recent Logs",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Divider
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Divider(
-                              color: AppColors.text.withValues(alpha: 0.1),
-                              height: 1,
-                            ),
-                          ),
-                          // Recent Logs Widget
-                          StoreItemRecentLogsWidget(
-                            itemId: widget.editItemModel!.id,
-                            itemType: widget.editItemModel!.type,
-                            onLogUpdated: () => setState(() {}),
-                          ),
-                        ],
-                      ),
+                    RecentLogsWidget(
+                      storeItemId: widget.editItemModel!.id,
+                      storeItemType: widget.editItemModel!.type,
+                      onLogUpdated: () => setState(() {}),
                     ),
                     const SizedBox(height: 5),
                   ],
