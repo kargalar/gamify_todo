@@ -21,11 +21,25 @@ class DailyCreditTransactions extends StatefulWidget {
 
 class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
   late DateTime _selectedDate;
+  List<dynamic> _storeItemLogCache = [];
 
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
+    _loadStoreItemLogsCache();
+  }
+
+  /// Store item loglarını cache'e yükle
+  void _loadStoreItemLogsCache() async {
+    try {
+      final logs = await TaskProgressViewModel.getStoreItemLogs(-1);
+      setState(() {
+        _storeItemLogCache = logs;
+      });
+    } catch (e) {
+      print('[Daily Credit Transactions] Error loading logs: $e');
+    }
   }
 
   /// Verilen tarih için kredileri hesapla
@@ -224,8 +238,8 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
     double lost = 0.0;
     final List<Map<String, dynamic>> transactions = [];
 
-    // Store item log'larını al (TaskProgressViewModel'den)
-    final allStoreLogs = TaskProgressViewModel.getStoreItemLogs(-1); // Tüm itemlerin loglarını al (-1 = all)
+    // Cache'deki store item loglarını kullan
+    final allStoreLogs = _storeItemLogCache;
 
     // Belirtilen gündeki purchase loglarını filtrele
     final purchaseLogsForDay = allStoreLogs.where((log) => log.isPurchase && log.logDate.isAfter(dateStart) && log.logDate.isBefore(dateEnd)).toList();
@@ -430,6 +444,8 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
 
     return GestureDetector(
       onTap: () {
+        // Dialog açılmadan önce cache'i güncelleyelim
+        _loadStoreItemLogsCache();
         showDialog(
           context: context,
           builder: (context) => StatefulBuilder(

@@ -1,14 +1,29 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 
-class StoreItemLog {
+part 'store_item_log_model.g.dart';
+
+@HiveType(typeId: 10)
+class StoreItemLog extends HiveObject {
+  @HiveField(0)
   final int itemId;
+
+  @HiveField(1)
   final DateTime logDate;
+
+  @HiveField(2)
   final String action;
-  final dynamic value; // int for counter, Duration for timer
-  final TaskTypeEnum type;
-  // Whether this log should affect the item's persisted progress (manual logs)
+
+  @HiveField(3)
+  final dynamic value; // int for counter, Duration for timer (stored as is)
+
+  @HiveField(4)
+  final int typeValue; // 0 for COUNTER, 1 for TIMER
+
+  @HiveField(5)
   final bool affectsProgress;
-  // Whether this log is a purchase (satın alma) - shows as credit deduction in transactions
+
+  @HiveField(6)
   final bool isPurchase;
 
   StoreItemLog({
@@ -16,10 +31,34 @@ class StoreItemLog {
     required this.logDate,
     required this.action,
     required this.value,
-    required this.type,
+    required this.typeValue,
     this.affectsProgress = false,
     this.isPurchase = false,
   });
+
+  /// Factory constructor for creation with TaskTypeEnum
+  factory StoreItemLog.create({
+    required int itemId,
+    required DateTime logDate,
+    required String action,
+    required dynamic value,
+    required TaskTypeEnum type,
+    bool affectsProgress = false,
+    bool isPurchase = false,
+  }) {
+    return StoreItemLog(
+      itemId: itemId,
+      logDate: logDate,
+      action: action,
+      value: value,
+      typeValue: type == TaskTypeEnum.COUNTER ? 0 : 1,
+      affectsProgress: affectsProgress,
+      isPurchase: isPurchase,
+    );
+  }
+
+  TaskTypeEnum get type => typeValue == 0 ? TaskTypeEnum.COUNTER : TaskTypeEnum.TIMER;
+
   String get formattedValue {
     if (type == TaskTypeEnum.COUNTER) {
       int count = value as int;

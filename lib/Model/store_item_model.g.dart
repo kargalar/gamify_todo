@@ -27,7 +27,7 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
       isTimerActive: fields[6] as bool?,
       credit: fields[7] as int,
       description: fields[9] as String?,
-      order: fields[10] == null ? 0 : fields[10] as int,
+      order: fields[10] as int?,
     );
   }
 
@@ -63,5 +63,9 @@ class ItemModelAdapter extends TypeAdapter<ItemModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is ItemModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ItemModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

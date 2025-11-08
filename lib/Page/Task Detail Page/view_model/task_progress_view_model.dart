@@ -13,14 +13,28 @@ import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TaskProgressViewModel extends ChangeNotifier {
   final TaskModel? taskModel;
   final ItemModel? itemModel;
   final TaskLogProvider taskLogProvider;
-  // Store item logları için basit in-memory storage (gerçek uygulamada database kullanılmalı)
-  static final List<StoreItemLog> _storeItemLogs = [];
+
+  // Hive box'ı (lazily initialized)
+  static Box<StoreItemLog>? _storeItemLogBox;
+
+  static const String _storeItemLogBoxName = 'storeItemLogBox';
+
+  // Hive box'ı lazy initialize et
+  static Future<Box<StoreItemLog>> _getStoreItemLogBox() async {
+    if (_storeItemLogBox != null && _storeItemLogBox!.isOpen) {
+      return _storeItemLogBox!;
+    }
+    _storeItemLogBox = await Hive.openBox<StoreItemLog>(_storeItemLogBoxName);
+    return _storeItemLogBox!;
+  }
+
   // Store item log ekleme metodu (public static)
   static void addStoreItemLog({
     required int itemId,
@@ -49,65 +63,92 @@ class TaskProgressViewModel extends ChangeNotifier {
     bool affectsProgress = false,
     bool isPurchase = false,
   }) async {
-    final log = StoreItemLog(
-      itemId: itemId,
-      logDate: DateTime.now(),
-      action: action,
-      value: value,
-      type: type,
-      affectsProgress: affectsProgress,
-      isPurchase: isPurchase,
-    );
-    _storeItemLogs.add(log);
+    try {
+      final log = StoreItemLog.create(
+        itemId: itemId,
+        logDate: DateTime.now(),
+        action: action,
+        value: value,
+        type: type,
+        affectsProgress: affectsProgress,
+        isPurchase: isPurchase,
+      );
 
-    // En fazla 50 log tut (memory management için)
-    if (_storeItemLogs.length > 50) {
-      _storeItemLogs.removeRange(0, _storeItemLogs.length - 50);
-    }
+      final box = await _getStoreItemLogBox();
+      await box.add(log);
 
-    // If this manual log should affect item's progress, update and persist the item
-    if (affectsProgress) {
-      try {
-        // Load item and mutate
-        final item = StoreProvider().storeItemList.firstWhere((e) => e.id == itemId);
-        if (type == TaskTypeEnum.COUNTER) {
-          final delta = (value as int);
-          item.currentCount = (item.currentCount ?? 0) + delta;
-        } else if (type == TaskTypeEnum.TIMER) {
-          final delta = (value as Duration);
-          item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
+      print('[Store Item Log] Added log for item $itemId');
+
+      // If this manual log should affect item's progress, update and persist the item
+      if (affectsProgress) {
+        try {
+          // Load item and mutate
+          final item = StoreProvider().storeItemList.firstWhere((e) => e.id == itemId);
+          if (type == TaskTypeEnum.COUNTER) {
+            final delta = (value as int);
+            item.currentCount = (item.currentCount ?? 0) + delta;
+          } else if (type == TaskTypeEnum.TIMER) {
+            final delta = (value as Duration);
+            item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
+          }
+          await ServerManager().updateItem(itemModel: item);
+          StoreProvider().setStateItems();
+        } catch (e) {
+          print('[Store Item Log Error] Failed to affect progress: $e');
         }
-        await ServerManager().updateItem(itemModel: item);
-        StoreProvider().setStateItems();
-      } catch (_) {
-        // no-op: if item not found, just keep the log in memory
       }
+    } catch (e) {
+      print('[Store Item Log Error] Failed to add log: $e');
     }
   }
 
   // Store item loglarını getirme metodu
-  static List<StoreItemLog> getStoreItemLogs(int itemId) {
-    // itemId = -1 ise tüm logları getir, değilse sadece o item'a ait logları filtrele
-    if (itemId == -1) {
-      return _storeItemLogs.reversed.toList(); // Tüm loglar (en yeni ilk)
+  static Future<List<StoreItemLog>> getStoreItemLogs(int itemId) async {
+    try {
+      final box = await _getStoreItemLogBox();
+
+      // itemId = -1 ise tüm logları getir, değilse sadece o item'a ait logları filtrele
+      List<StoreItemLog> logs = box.values.toList();
+
+      if (itemId == -1) {
+        return logs.reversed.toList(); // Tüm loglar (en yeni ilk)
+      }
+      return logs.where((log) => log.itemId == itemId).toList().reversed.toList(); // En yeni log en üstte
+    } catch (e) {
+      print('[Store Item Log Error] Failed to get logs: $e');
+      return [];
     }
-    return _storeItemLogs.where((log) => log.itemId == itemId).toList().reversed.toList(); // En yeni log en üstte
   }
 
   // Store item log düzenleme metodu
   static void editStoreItemLog(int index, dynamic newValue) async {
-    if (index >= 0 && index < _storeItemLogs.length) {
-      // Ters çevrilmiş listede index'i düzelt
-      int actualIndex = _storeItemLogs.length - 1 - index;
-      final oldLog = _storeItemLogs[actualIndex];
-      _storeItemLogs[actualIndex] = StoreItemLog(
-        itemId: _storeItemLogs[actualIndex].itemId,
-        logDate: _storeItemLogs[actualIndex].logDate,
-        action: _storeItemLogs[actualIndex].action,
+    if (index < 0) return;
+
+    try {
+      final box = await _getStoreItemLogBox();
+
+      if (index >= box.length) return;
+
+      // Get all logs and find the one to edit (reversed list)
+      List<StoreItemLog> allLogs = box.values.toList();
+      int actualIndex = allLogs.length - 1 - index;
+
+      final oldLog = allLogs[actualIndex];
+
+      // Update the log - construct with proper typeValue
+      final updatedLog = StoreItemLog(
+        itemId: oldLog.itemId,
+        logDate: oldLog.logDate,
+        action: oldLog.action,
         value: newValue,
-        type: _storeItemLogs[actualIndex].type,
-        affectsProgress: _storeItemLogs[actualIndex].affectsProgress,
+        typeValue: oldLog.typeValue,
+        affectsProgress: oldLog.affectsProgress,
+        isPurchase: oldLog.isPurchase,
       );
+
+      await box.putAt(actualIndex, updatedLog);
+
+      print('[Store Item Log] Edited log for item ${oldLog.itemId}');
 
       // If this log affects progress, adjust the item by the delta between new and old
       if (oldLog.affectsProgress) {
@@ -126,17 +167,33 @@ class TaskProgressViewModel extends ChangeNotifier {
           }
           await ServerManager().updateItem(itemModel: item);
           StoreProvider().setStateItems();
-        } catch (_) {}
+        } catch (e) {
+          print('[Store Item Log Error] Failed to affect progress on edit: $e');
+        }
       }
+    } catch (e) {
+      print('[Store Item Log Error] Failed to edit log: $e');
     }
   }
 
   // Store item log silme metodu
   static void deleteStoreItemLog(int index) async {
-    if (index >= 0 && index < _storeItemLogs.length) {
-      // Ters çevrilmiş listede index'i düzelt
-      int actualIndex = _storeItemLogs.length - 1 - index;
-      final removed = _storeItemLogs.removeAt(actualIndex);
+    if (index < 0) return;
+
+    try {
+      final box = await _getStoreItemLogBox();
+
+      if (index >= box.length) return;
+
+      // Get all logs and find the one to delete (reversed list)
+      List<StoreItemLog> allLogs = box.values.toList();
+      int actualIndex = allLogs.length - 1 - index;
+
+      final removed = allLogs[actualIndex];
+
+      await box.deleteAt(actualIndex);
+
+      print('[Store Item Log] Deleted log for item ${removed.itemId}');
 
       // If log affected progress, roll it back from the item
       if (removed.affectsProgress) {
@@ -149,8 +206,12 @@ class TaskProgressViewModel extends ChangeNotifier {
           }
           await ServerManager().updateItem(itemModel: item);
           StoreProvider().setStateItems();
-        } catch (_) {}
+        } catch (e) {
+          print('[Store Item Log Error] Failed to rollback progress: $e');
+        }
       }
+    } catch (e) {
+      print('[Store Item Log Error] Failed to delete log: $e');
     }
   }
 

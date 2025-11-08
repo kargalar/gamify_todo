@@ -335,9 +335,9 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                               color: AppColors.text.withValues(alpha: 0.1),
                               height: 1,
                             ),
-                          ), // Recent Logs Widget
+                          ),
+                          // Recent Logs Widget
                           StoreItemRecentLogsWidget(
-                            logs: TaskProgressViewModel.getStoreItemLogs(widget.editItemModel!.id),
                             itemId: widget.editItemModel!.id,
                             itemType: widget.editItemModel!.type,
                             onLogUpdated: () => setState(() {}),
@@ -482,7 +482,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
       await HiveService().updateItem(item);
 
       // Clear logs for this item from TaskProgressViewModel
-      final logs = TaskProgressViewModel.getStoreItemLogs(item.id);
+      final logs = await TaskProgressViewModel.getStoreItemLogs(item.id);
       for (int i = logs.length - 1; i >= 0; i--) {
         TaskProgressViewModel.deleteStoreItemLog(i);
       }

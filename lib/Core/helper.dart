@@ -20,6 +20,7 @@ import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/project_note_model.dart';
+import 'package:next_level/Model/store_item_log_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
@@ -66,6 +67,7 @@ class Helper {
     Hive.registerAdapter(TaskLogModelAdapter());
     Hive.registerAdapter(VacationDateModelAdapter());
     Hive.registerAdapter(TaskTemplateModelAdapter());
+    Hive.registerAdapter(StoreItemLogAdapter());
   }
 
   Future<void> getDialog({

@@ -7,14 +7,12 @@ import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 
 class StoreItemRecentLogsWidget extends StatefulWidget {
-  final List<StoreItemLog> logs;
   final int itemId;
   final TaskTypeEnum itemType;
   final VoidCallback? onLogUpdated;
 
   const StoreItemRecentLogsWidget({
     super.key,
-    required this.logs,
     required this.itemId,
     required this.itemType,
     this.onLogUpdated,
@@ -25,6 +23,20 @@ class StoreItemRecentLogsWidget extends StatefulWidget {
 }
 
 class _StoreItemRecentLogsWidgetState extends State<StoreItemRecentLogsWidget> {
+  late Future<List<StoreItemLog>> _logsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLogs();
+  }
+
+  void _loadLogs() {
+    setState(() {
+      _logsFuture = TaskProgressViewModel.getStoreItemLogs(widget.itemId);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -48,75 +60,109 @@ class _StoreItemRecentLogsWidgetState extends State<StoreItemRecentLogsWidget> {
             ),
           ],
         ),
-        if (widget.logs.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Center(
-              child: Text(
-                LocaleKeys.NoLogsYet.tr(),
-                style: TextStyle(color: Colors.grey[400], fontSize: 14),
-              ),
-            ),
-          )
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: widget.logs.length,
-            itemBuilder: (context, index) {
-              final log = widget.logs[index];
-              return ListTile(
-                onTap: () => _showEditLogDialog(log, index),
-                leading: log.isPurchase ? Icon(Icons.shopping_cart, size: 16, color: AppColors.main) : const Icon(Icons.history, size: 16),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  // Tarih ve saat kısmını ayır
-                                  text: log.formattedDate.substring(0, log.formattedDate.lastIndexOf(':')),
-                                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                                ),
-                                TextSpan(
-                                  // Saniye kısmını vurgula
-                                  text: log.formattedDate.substring(log.formattedDate.lastIndexOf(':')),
-                                  style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                              ],
+        FutureBuilder<List<StoreItemLog>>(
+          future: _logsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              );
+            }
+
+            if (snapshot.hasError) {
+              print('[Store Item Logs Widget Error] ${snapshot.error}');
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(
+                  child: Text(
+                    'Error loading logs',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  ),
+                ),
+              );
+            }
+
+            final logs = snapshot.data ?? [];
+
+            if (logs.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(
+                  child: Text(
+                    LocaleKeys.NoLogsYet.tr(),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  ),
+                ),
+              );
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: logs.length,
+              itemBuilder: (context, index) {
+                final log = logs[index];
+                return ListTile(
+                  onTap: () => _showEditLogDialog(log, index),
+                  leading: log.isPurchase ? Icon(Icons.shopping_cart, size: 16, color: AppColors.main) : const Icon(Icons.history, size: 16),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    // Tarih ve saat kısmını ayır
+                                    text: log.formattedDate.substring(0, log.formattedDate.lastIndexOf(':')),
+                                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                                  ),
+                                  TextSpan(
+                                    // Saniye kısmını vurgula
+                                    text: log.formattedDate.substring(log.formattedDate.lastIndexOf(':')),
+                                    style: TextStyle(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        if (log.isPurchase)
-                          Container(
-                            margin: const EdgeInsets.only(left: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.main.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              '🛒 Purchase',
-                              style: TextStyle(
-                                color: AppColors.main,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                          if (log.isPurchase)
+                            Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.main.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '🛒 Purchase',
+                                style: TextStyle(
+                                  color: AppColors.main,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-                trailing: Text(log.formattedValue),
-              );
-            },
-          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: Text(log.formattedValue),
+                );
+              },
+            );
+          },
+        ),
       ],
     );
   }
@@ -150,6 +196,8 @@ class _StoreItemRecentLogsWidgetState extends State<StoreItemRecentLogsWidget> {
             onPressed: () {
               _addManualLog(valueController.text);
               Navigator.pop(context);
+              // reload logs after adding
+              _loadLogs();
             },
             child: const Text('Add'),
           ),
@@ -370,6 +418,9 @@ class _StoreItemRecentLogsWidgetState extends State<StoreItemRecentLogsWidget> {
       if (widget.onLogUpdated != null) {
         widget.onLogUpdated!();
       }
+
+      // reload local list
+      _loadLogs();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid format. Please use correct format.')),
@@ -383,6 +434,9 @@ class _StoreItemRecentLogsWidgetState extends State<StoreItemRecentLogsWidget> {
     if (widget.onLogUpdated != null) {
       widget.onLogUpdated!();
     }
+
+    // reload local list
+    _loadLogs();
   }
 
   Duration _parseDuration(String text) {

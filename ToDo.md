@@ -120,6 +120,8 @@ home page de, today da faillenmiş tasklar filtrelerde gösteriliyor olarak işa
 store item davaranışı tasklarda olduğu gibi olsun
 
 
-store item recent loglar kısmın task recent loglar gibi olsun. today falan diye göstersin.
 
 taskalrın edit progressi rutinlerinki gibi olsun
+
+
+recnt log kısmı itemlerda ve taskalrda aynı kod çaırılsın. edit log dialogda text girmek yerine + - butonları ve furaiton oicker kullanılsın. ve log düzenlerken saati seçilememesin.
