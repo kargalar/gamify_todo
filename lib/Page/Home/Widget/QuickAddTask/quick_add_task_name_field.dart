@@ -38,11 +38,6 @@ class QuickAddTaskNameField extends StatelessWidget {
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-        prefixIcon: Icon(
-          Icons.task_alt_rounded,
-          color: AppColors.text.withValues(alpha: 0.4),
-          size: 20,
-        ),
         filled: false,
       ),
       textInputAction: TextInputAction.next,

@@ -18,6 +18,7 @@ import 'package:next_level/Service/logging_service.dart';
 class AddTaskProvider with ChangeNotifier {
   // Widget variables
   TaskModel? editTask;
+  bool isPreFilledFromQuickAdd = false; // Flag for data transferred from quick add
   TextEditingController taskNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController locationController = TextEditingController();

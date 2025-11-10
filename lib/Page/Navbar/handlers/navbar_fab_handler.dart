@@ -23,8 +23,6 @@ class NavbarFABHandler {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (currentIndex == 1) _buildTemplatesFAB(),
-        if (currentIndex == 1) const SizedBox(width: 8),
         if (currentIndex == 1) _buildCompactAddFAB(),
         if (currentIndex == 1) const SizedBox(width: 10),
         _buildMainFAB(currentIndex),
@@ -42,38 +40,9 @@ class NavbarFABHandler {
     return SizedBox(
       width: 48,
       height: 48,
-      child: FloatingActionButton(
-        backgroundColor: AppColors.text,
-        foregroundColor: AppColors.background,
-        onPressed: () {
-          LogService.debug('⚡ Compact Add Task FAB pressed');
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            barrierColor: Colors.transparent,
-            builder: (context) => const CompactAddTaskBottomSheet(),
-          );
-        },
-        elevation: 4,
-        child: const Icon(
-          Icons.flash_on_rounded,
-          size: 22,
-        ),
-      ),
-    );
-  }
-
-  /// Build templates FAB for Home tab
-  Widget _buildTemplatesFAB() {
-    return SizedBox(
-      width: 48,
-      height: 48,
-      child: FloatingActionButton(
-        backgroundColor: AppColors.main.withValues(alpha: 0.7),
-        foregroundColor: Colors.white,
-        onPressed: () {
-          LogService.debug('📚 Task Templates FAB pressed');
+      child: GestureDetector(
+        onLongPress: () {
+          LogService.debug('📚 Task Templates opened from long press');
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -81,10 +50,24 @@ class NavbarFABHandler {
             builder: (context) => const TaskTemplatesBottomSheet(),
           );
         },
-        elevation: 4,
-        child: const Icon(
-          Icons.bookmark_outline,
-          size: 20,
+        child: FloatingActionButton(
+          backgroundColor: AppColors.text,
+          foregroundColor: AppColors.background,
+          onPressed: () {
+            LogService.debug('⚡ Compact Add Task FAB pressed');
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              barrierColor: Colors.transparent,
+              builder: (context) => const CompactAddTaskBottomSheet(),
+            );
+          },
+          elevation: 4,
+          child: const Icon(
+            Icons.flash_on_rounded,
+            size: 22,
+          ),
         ),
       ),
     );

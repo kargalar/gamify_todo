@@ -1,10 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/quick_add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Service/navigator_service.dart';
+import 'package:next_level/Page/Home/Add Task/add_task_page.dart';
 import 'package:provider/provider.dart';
 
 // Field components
@@ -110,7 +114,6 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
               bottom: MediaQuery.of(context).viewInsets.bottom + 16,
               left: 16,
               right: 16,
-              top: 16,
             ),
             decoration: BoxDecoration(
               color: AppColors.background,
@@ -134,15 +137,19 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Handle bar
-                  _buildHandleBar(),
-                  const SizedBox(height: 16),
-
-                  // Task name input field
-                  QuickAddTaskNameField(
-                    onFieldSubmitted: provider.descriptionFocus,
+                  Row(
+                    children: [
+                      Expanded(
+                        // Task name input field
+                        child: QuickAddTaskNameField(
+                          onFieldSubmitted: provider.descriptionFocus,
+                        ),
+                      ),
+                      // Handle bar with More Details button
+                      _buildHeaderWithMoreDetails(provider),
+                    ],
                   ),
-                  const SizedBox(height: 12),
+                  // const SizedBox(height: 12),
 
                   // Options row - Date, Priority, Type, Notification
                   _buildOptionsRow(),
@@ -159,16 +166,58 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
     );
   }
 
-  Widget _buildHandleBar() {
-    return Center(
-      child: Container(
-        width: 40,
-        height: 4,
-        decoration: BoxDecoration(
-          color: AppColors.text.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(2),
+  Widget _buildHeaderWithMoreDetails(QuickAddTaskProvider provider) {
+    return SizedBox(
+      height: 50,
+      child: TextButton(
+        onPressed: () {
+          _transferDataAndNavigate(provider);
+        },
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: Text(
+          'More Details',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.main,
+            fontSize: 12,
+          ),
         ),
       ),
+    );
+  }
+
+  void _transferDataAndNavigate(QuickAddTaskProvider provider) {
+    LogService.debug('📝 More Details button pressed, transferring data to AddTaskPage');
+
+    // Transfer data from QuickAddProvider to AddTaskProvider
+    final addTaskProvider = context.read<AddTaskProvider>();
+
+    addTaskProvider.taskNameController.text = provider.taskNameController.text;
+    addTaskProvider.descriptionController.text = provider.descriptionController.text;
+    addTaskProvider.selectedDate = provider.selectedDate;
+    addTaskProvider.selectedTime = provider.selectedTime;
+    addTaskProvider.selectedTaskType = provider.selectedTaskType;
+    addTaskProvider.priority = provider.priority;
+    addTaskProvider.targetCount = provider.targetCount;
+    addTaskProvider.taskDuration = provider.remainingDuration;
+    addTaskProvider.isNotificationOn = provider.notificationAlarmState == 1;
+    addTaskProvider.isAlarmOn = provider.notificationAlarmState == 2;
+    addTaskProvider.earlyReminderMinutes = provider.earlyReminderMinutes;
+
+    // Set flag to prevent reset in AddTaskPage's initState
+    addTaskProvider.isPreFilledFromQuickAdd = true;
+
+    LogService.debug('✅ Data transferred: title="${provider.taskNameController.text}", date=${provider.selectedDate}');
+
+    Navigator.of(context).pop();
+    NavigatorService().goTo(
+      const AddTaskPage(),
+      transition: Transition.downToUp,
     );
   }
 
@@ -194,61 +243,65 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
   }
 
   Widget _buildActionButtons(QuickAddTaskProvider provider) {
-    return Row(
+    return Column(
       children: [
-        // Cancel button
-        Expanded(
-          child: TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              LocaleKeys.Cancel.tr(),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.text.withValues(alpha: 0.7),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-
-        // Add button
-        Expanded(
-          flex: 2,
-          child: ElevatedButton(
-            onPressed: provider.isLoading ? null : _addTask,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.main,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              disabledBackgroundColor: AppColors.main.withValues(alpha: 0.5),
-            ),
-            child: provider.isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text(
-                    LocaleKeys.AddTask.tr(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
+        Row(
+          children: [
+            // Cancel button
+            Expanded(
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-          ),
+                ),
+                child: Text(
+                  LocaleKeys.Cancel.tr(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.text.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Add button
+            Expanded(
+              flex: 2,
+              child: ElevatedButton(
+                onPressed: provider.isLoading ? null : _addTask,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.main,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  disabledBackgroundColor: AppColors.main.withValues(alpha: 0.5),
+                ),
+                child: provider.isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        LocaleKeys.AddTask.tr(),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+              ),
+            ),
+          ],
         ),
       ],
     );

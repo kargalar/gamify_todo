@@ -99,7 +99,8 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
       addTaskProvider.isPinned = addTaskProvider.editTask!.isPinned;
       addTaskProvider.loadSubtasksFromTask(addTaskProvider.editTask!);
       addTaskProvider.loadAttachmentsFromTask(addTaskProvider.editTask!);
-    } else {
+    } else if (!addTaskProvider.isPreFilledFromQuickAdd) {
+      // Only reset if NOT pre-filled from quick add
       addTaskProvider.editTask = null;
 
       addTaskProvider.taskNameController.clear();
@@ -119,6 +120,10 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
       addTaskProvider.isPinned = false;
       addTaskProvider.clearSubtasks();
       addTaskProvider.clearAttachments();
+    } else {
+      // Pre-filled from quick add - reset flag for next time
+      LogService.debug('📝 AddTaskPage: Pre-filled data detected, keeping values');
+      addTaskProvider.isPreFilledFromQuickAdd = false;
     }
   }
 

@@ -122,3 +122,5 @@ store item davaranışı tasklarda olduğu gibi olsun
 taskalrın edit progressi rutinlerinki gibi olsun
 
 edit lod store item için de aynı olsun
+
+quick add task a basılı tutnca template bottomsheet açılsın. templet in butonu kaldır
