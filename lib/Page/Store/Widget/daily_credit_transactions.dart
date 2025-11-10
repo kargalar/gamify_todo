@@ -11,6 +11,9 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/routine_detail_page.dart';
+import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
+import 'package:next_level/Service/navigator_service.dart';
 
 class DailyCreditTransactions extends StatefulWidget {
   const DailyCreditTransactions({super.key});
@@ -77,6 +80,8 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
               'type': 'earn',
               'amount': credits,
               'taskTitle': log.taskTitle,
+              'taskId': log.taskId,
+              'taskDuration': task.remainingDuration,
               'icon': Icons.check_circle,
               'time': log.logDate,
             });
@@ -90,6 +95,8 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
               'type': 'lose',
               'amount': credits,
               'taskTitle': log.taskTitle,
+              'taskId': log.taskId,
+              'taskDuration': task.remainingDuration,
               'icon': Icons.cancel,
               'time': log.logDate,
             });
@@ -161,6 +168,8 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
               'type': 'earn',
               'amount': credits,
               'taskTitle': log.taskTitle,
+              'taskId': log.taskId,
+              'taskDuration': task.remainingDuration,
               'icon': Icons.add_circle,
               'time': log.logDate,
             });
@@ -171,6 +180,8 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
               'type': 'lose',
               'amount': credits,
               'taskTitle': '${log.taskTitle})',
+              'taskId': log.taskId,
+              'taskDuration': task.remainingDuration,
               'icon': Icons.remove_circle,
               'time': log.logDate,
             });
@@ -207,6 +218,8 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
               'type': 'earn',
               'amount': credits,
               'taskTitle': log.taskTitle,
+              'taskId': log.taskId,
+              'taskDuration': log.duration,
               'icon': Icons.timer,
               'time': log.logDate,
             });
@@ -216,9 +229,24 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
               'type': 'lose',
               'amount': credits,
               'taskTitle': log.taskTitle,
+              'taskId': log.taskId,
+              'taskDuration': log.duration,
               'icon': Icons.timer_off,
               'time': log.logDate,
             });
+          } else {
+            // Diğer statuslar için de transaction'ı kaydet
+            earned += credits;
+            transactions.add({
+              'type': 'earn',
+              'amount': credits,
+              'taskTitle': log.taskTitle,
+              'taskId': log.taskId,
+              'taskDuration': log.duration,
+              'icon': Icons.timer,
+              'time': log.logDate,
+            });
+            LogService.debug('Timer log with status ${log.status} recorded for ${log.taskTitle}');
           }
         }
       } catch (e) {
@@ -362,57 +390,91 @@ class _DailyCreditTransactionsState extends State<DailyCreditTransactions> {
                   final taskTitle = transaction['taskTitle'] as String;
                   final icon = transaction['icon'] as IconData;
                   final time = transaction['time'] as DateTime;
+                  final taskId = transaction['taskId'] as int?;
+                  final taskDuration = transaction['taskDuration'] as Duration?;
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: (isEarn ? Colors.green : Colors.red).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                    child: GestureDetector(
+                      onTap: taskId != null
+                          ? () {
+                              try {
+                                final task = TaskProvider().taskList.firstWhere((t) => t.id == taskId);
+                                // Rutin tasksa, rutin detay sayfasına git
+                                if (task.routineID != null) {
+                                  NavigatorService().goTo(RoutineDetailPage(taskModel: task));
+                                } else {
+                                  // Normal task ise, edit sayfasına git
+                                  NavigatorService().goTo(AddTaskPage(editTask: task));
+                                }
+                              } catch (e) {
+                                LogService.debug('Error navigating to task detail: $e');
+                              }
+                            }
+                          : null,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: (isEarn ? Colors.green : Colors.red).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              icon,
+                              size: 18,
+                              color: isEarn ? Colors.green : Colors.red,
+                            ),
                           ),
-                          child: Icon(
-                            icon,
-                            size: 18,
-                            color: isEarn ? Colors.green : Colors.red,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                taskTitle,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  taskTitle,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                DateFormat('HH:mm').format(time),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.text.withValues(alpha: 0.5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      DateFormat('HH:mm').format(time),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.text.withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                    if (taskDuration != null) ...[
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '• ${taskDuration.inHours}h ${taskDuration.inMinutes % 60}m',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.text.withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                    ]
+                                  ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${isEarn ? '+' : '-'}${amount.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: isEarn ? Colors.green : Colors.red,
+                          const SizedBox(width: 8),
+                          Text(
+                            '${isEarn ? '+' : '-'}${amount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: isEarn ? Colors.green : Colors.red,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },

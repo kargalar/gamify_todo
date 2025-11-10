@@ -121,6 +121,13 @@ store item davaranışı tasklarda olduğu gibi olsun
 
 taskalrın edit progressi rutinlerinki gibi olsun
 
-edit lod store item için de aynı olsun
+edit log store item için de aynı olsun
 
-quick add task a basılı tutnca template bottomsheet açılsın. templet in butonu kaldır
+
+○ Bikdirmler zamanında gelmiyor
+○ İnprogress olan timer kredi transection da gosterilmiyir
+○ Store İrem alına appardaki guncellensin
+○ Recent logs padding for stire
+○ - log duzgun hesaplanda sa gosterilirken + gibingisteriomis para yerinde
+○ Progress summary ve statistics de 2 tane var kullanım suredi
+○ No task or notes yok gosterilmesin
