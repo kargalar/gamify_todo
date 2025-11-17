@@ -183,6 +183,26 @@ class _SettingsPageState extends State<SettingsPage> {
                 }
               },
             ),
+            _settingsOption(
+              title: 'Source Code',
+              subtitle: 'View project on GitHub',
+              icon: Icons.code,
+              onTap: () async {
+                const url = 'https://github.com/kargalar/gamify_todo';
+                LogService.debug('Settings: Opening GitHub source code');
+
+                try {
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                    LogService.debug('Settings: GitHub source code URL launched successfully');
+                  } else {
+                    LogService.error('Settings: Could not launch GitHub URL');
+                  }
+                } catch (e) {
+                  LogService.error('Settings: Error launching GitHub URL: $e');
+                }
+              },
+            ),
 
             // Development mode: Review test button
             if (kDebugMode) ...[
