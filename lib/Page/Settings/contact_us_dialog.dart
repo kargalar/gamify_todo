@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ContactUsDialog extends StatelessWidget {
   const ContactUsDialog({super.key});
@@ -19,25 +19,23 @@ class ContactUsDialog extends StatelessWidget {
           _contactOption(
             icon: Icons.email,
             title: LocaleKeys.Email.tr(),
-            subtitle: "gamifytodo@gmail.com",
+            subtitle: "kargalarx@gmail.com",
             onTap: () async {
-              final Uri emailUri = Uri(
-                scheme: 'mailto',
-                path: 'gamifytodo@gmail.com',
-                queryParameters: {
-                  'subject': 'Gamify Todo App Support',
-                },
-              );
-              LogService.debug('ContactUsDialog: Opening email client');
-              if (await canLaunchUrl(emailUri)) {
-                await launchUrl(emailUri);
-                LogService.debug('ContactUsDialog: Email client opened successfully');
-              } else {
-                LogService.error('ContactUsDialog: Could not open email client');
+              try {
+                final Email email = Email(
+                  body: '',
+                  subject: 'Gamify Todo App Support',
+                  recipients: ['kargalarx@gmail.com'],
+                );
+                LogService.debug('ContactUsDialog: Sending email');
+                await FlutterEmailSender.send(email);
+                LogService.debug('ContactUsDialog: Email sent successfully');
+              } catch (e) {
+                LogService.error('ContactUsDialog: Could not send email - $e');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Cannot open email client. Please contact: gamifytodo@gmail.com'),
+                      content: const Text('Cannot open email client. Please contact: kargalarx@gmail.com'),
                       backgroundColor: AppColors.main,
                     ),
                   );
@@ -75,12 +73,9 @@ class ContactUsDialog extends StatelessWidget {
             title: LocaleKeys.ReportBug.tr(),
             subtitle: LocaleKeys.SendUsBugReports.tr(),
             onTap: () async {
-              final Uri emailUri = Uri(
-                scheme: 'mailto',
-                path: 'gamifytodo@gmail.com',
-                queryParameters: {
-                  'subject': 'Bug Report - Gamify Todo App',
-                  'body': 'Please describe the bug you encountered:\n\n'
+              try {
+                final Email email = Email(
+                  body: 'Please describe the bug you encountered:\n\n'
                       'Steps to reproduce:\n'
                       '1. \n'
                       '2. \n'
@@ -90,18 +85,18 @@ class ContactUsDialog extends StatelessWidget {
                       'Device information:\n'
                       '- Operating System: \n'
                       '- App Version: \n',
-                },
-              );
-              LogService.debug('ContactUsDialog: Opening email client for bug report');
-              if (await canLaunchUrl(emailUri)) {
-                await launchUrl(emailUri);
-                LogService.debug('ContactUsDialog: Bug report email client opened successfully');
-              } else {
-                LogService.error('ContactUsDialog: Could not open email client for bug report');
+                  subject: 'Bug Report - Gamify Todo App',
+                  recipients: ['kargalarx@gmail.com'],
+                );
+                LogService.debug('ContactUsDialog: Sending bug report email');
+                await FlutterEmailSender.send(email);
+                LogService.debug('ContactUsDialog: Bug report email sent successfully');
+              } catch (e) {
+                LogService.error('ContactUsDialog: Could not send bug report email - $e');
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Cannot open email client. Please contact: gamifytodo@gmail.com'),
+                      content: const Text('Cannot open email client. Please contact: kargalarx@gmail.com'),
                       backgroundColor: AppColors.main,
                     ),
                   );

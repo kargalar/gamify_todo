@@ -22,6 +22,26 @@ Alarm ses seçiminde hep aynısı çalıyor
 
  Tam ekran Timer için Timer aktofken basılı tutulması gereksin??
 
+ restroe edince sample dataayı tekrar sormasın.
+
+ projelerdeki notlar kısmının kaldır
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- homescreen widget -->
 Home screen add task buton
 

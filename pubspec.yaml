@@ -116,6 +116,9 @@ dependencies:
   # URL Launcher
   url_launcher: ^6.3.1
 
+  # Email Sender
+  flutter_email_sender: ^8.0.0
+
   # Linkify
   flutter_linkify: ^6.0.0
 
