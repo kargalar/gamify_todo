@@ -247,24 +247,25 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
 
-                  // Type section
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.panelBackground,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                  if (widget.editItemModel == null) ...[
+                    const SizedBox(height: 10),
+                    // Type section
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.panelBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const SelectTaskType(isStore: true),
                     ),
-                    child: widget.editItemModel == null ? const SelectTaskType(isStore: true) : const SizedBox(),
-                  ),
-                  const SizedBox(height: 10),
+                  ],
 
                   // Duration section - only show if not counter type
                   Consumer<AddStoreItemProvider>(
@@ -273,25 +274,31 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                       if (selectedType == TaskTypeEnum.COUNTER) {
                         return const SizedBox.shrink();
                       }
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.panelBackground,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                      return Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.panelBackground,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: const DurationPickerWidget(isStore: true),
+                            child: const DurationPickerWidget(isStore: true),
+                          ),
+                        ],
                       );
                     },
                   ),
 
                   // Recent Logs Container
                   if (widget.editItemModel != null) ...[
+                    const SizedBox(height: 10),
                     RecentLogsWidget(
                       storeItemId: widget.editItemModel!.id,
                       storeItemType: widget.editItemModel!.type,
