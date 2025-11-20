@@ -173,11 +173,36 @@ class _DateTimeNotificationWidgetState extends State<DateTimeNotificationWidget>
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.access_time_rounded,
-                      size: 24,
-                      color: addTaskProvider.selectedTime != null ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
-                    ),
+                    // Clear notification/alarm button
+                    if (addTaskProvider.selectedTime != null)
+                      InkWell(
+                        onTap: () {
+                          debugPrint('🗑️ Clearing notification/alarm');
+                          addTaskProvider.isNotificationOn = false;
+                          addTaskProvider.isAlarmOn = false;
+                          addTaskProvider.earlyReminderMinutes = null;
+                          addTaskProvider.selectedTime = null;
+                          setState(() {});
+                        },
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          color: AppColors.transparent,
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: AppColors.main,
+                          ),
+                        ),
+                      ),
+
+                    if (addTaskProvider.selectedTime == null)
+                      Icon(
+                        Icons.access_time_rounded,
+                        size: 24,
+                        color: addTaskProvider.selectedTime != null ? AppColors.main : AppColors.text.withValues(alpha: 0.6),
+                      ),
+
                     const SizedBox(width: 12),
                     Text(
                       addTaskProvider.selectedTime?.to24Hours() ?? LocaleKeys.SelectTime.tr(),
