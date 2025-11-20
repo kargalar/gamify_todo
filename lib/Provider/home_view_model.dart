@@ -210,11 +210,20 @@ class HomeViewModel extends ChangeNotifier {
       filteredTasks = tasks.where((task) => !pinnedTaskIds.contains(task.id)).toList();
     }
 
-    if (selectedCategoryId == null) {
-      return _applyFilters(filteredTasks);
+    // Apply filters only for today's view, not for past or future days
+    if (isToday) {
+      if (selectedCategoryId == null) {
+        return _applyFilters(filteredTasks);
+      }
+      final filtered = filteredTasks.where((task) => task.categoryId == selectedCategoryId).toList();
+      return _applyFilters(filtered);
+    } else {
+      // For past and future days, only apply category filter without other filters
+      if (selectedCategoryId == null) {
+        return filteredTasks;
+      }
+      return filteredTasks.where((task) => task.categoryId == selectedCategoryId).toList();
     }
-    final filtered = filteredTasks.where((task) => task.categoryId == selectedCategoryId).toList();
-    return _applyFilters(filtered);
   }
 
   List<TaskModel> getPinnedTasksForToday() {
@@ -228,20 +237,50 @@ class HomeViewModel extends ChangeNotifier {
 
   List<dynamic> getRoutineTasksForDate(DateTime date) {
     final routines = TaskProvider().getRoutineTasksForDate(date);
-    if (selectedCategoryId == null) {
-      return _applyFilters(routines);
+
+    // Determine if this is today
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
+
+    // Apply filters only for today's view
+    if (isToday) {
+      if (selectedCategoryId == null) {
+        return _applyFilters(routines);
+      }
+      final filtered = routines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+      return _applyFilters(filtered);
+    } else {
+      // For past and future days, only apply category filter
+      if (selectedCategoryId == null) {
+        return routines;
+      }
+      return routines.where((routine) => routine.categoryId == selectedCategoryId).toList();
     }
-    final filtered = routines.where((routine) => routine.categoryId == selectedCategoryId).toList();
-    return _applyFilters(filtered);
   }
 
   List<dynamic> getGhostRoutineTasksForDate(DateTime date) {
     final ghostRoutines = TaskProvider().getGhostRoutineTasksForDate(date);
-    if (selectedCategoryId == null) {
-      return _applyFilters(ghostRoutines);
+
+    // Determine if this is today
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final isToday = date.year == today.year && date.month == today.month && date.day == today.day;
+
+    // Apply filters only for today's view
+    if (isToday) {
+      if (selectedCategoryId == null) {
+        return _applyFilters(ghostRoutines);
+      }
+      final filtered = ghostRoutines.where((routine) => routine.categoryId == selectedCategoryId).toList();
+      return _applyFilters(filtered);
+    } else {
+      // For past and future days, only apply category filter
+      if (selectedCategoryId == null) {
+        return ghostRoutines;
+      }
+      return ghostRoutines.where((routine) => routine.categoryId == selectedCategoryId).toList();
     }
-    final filtered = ghostRoutines.where((routine) => routine.categoryId == selectedCategoryId).toList();
-    return _applyFilters(filtered);
   }
 
   List<TaskModel> getArchivedTasks() {
