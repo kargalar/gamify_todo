@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -46,30 +48,20 @@ class _VacationDatesListPageState extends State<VacationDatesListPage> {
       LogService.debug('VacationDatesListPage: Removed vacation date: ${date.toIso8601String()}');
 
       // Show success message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Vacation date removed: ${DateFormat('dd MMM yyyy').format(date)}'),
-            backgroundColor: AppColors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: 'Vacation date removed: ${DateFormat('dd MMM yyyy').format(date)}',
+        status: StatusEnum.SUCCESS,
+      );
 
       // Reload the list
       await _loadVacationDates();
     } catch (e) {
       LogService.error('VacationDatesListPage: Error removing vacation date: $e');
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error removing vacation date: $e'),
-            backgroundColor: AppColors.red,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: 'Error removing vacation date: $e',
+        status: StatusEnum.WARNING,
+      );
     }
   }
 
@@ -101,30 +93,20 @@ class _VacationDatesListPageState extends State<VacationDatesListPage> {
       await VacationDateProvider().clearAllVacationDates();
       LogService.debug('VacationDatesListPage: Cleared all vacation dates');
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('All vacation dates cleared'),
-            backgroundColor: AppColors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: 'All vacation dates cleared',
+        status: StatusEnum.SUCCESS,
+      );
 
       // Reload the list
       await _loadVacationDates();
     } catch (e) {
       LogService.error('VacationDatesListPage: Error clearing vacation dates: $e');
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error clearing vacation dates: $e'),
-            backgroundColor: AppColors.red,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: 'Error clearing vacation dates: $e',
+        status: StatusEnum.WARNING,
+      );
     }
   }
 

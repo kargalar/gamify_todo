@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/store_item_log_model.dart';
@@ -338,8 +340,9 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
       }
     } catch (e) {
       debugPrint('[Recent Logs Widget] Error adding manual log: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid format. Please use correct format.')),
+      Helper().getMessage(
+        message: 'Invalid format. Please use correct format.',
+        status: StatusEnum.WARNING,
       );
     }
   }
@@ -364,8 +367,9 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
       _loadStoreItemLogs();
     } catch (e) {
       debugPrint('[Recent Logs Widget] Error editing log: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid format. Please use correct format.')),
+      Helper().getMessage(
+        message: 'Invalid format. Please use correct format.',
+        status: StatusEnum.WARNING,
       );
     }
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/extensions.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../General/app_colors.dart';
@@ -468,14 +470,10 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
                                 );
                                 await provider.addSubtask(subtask);
                                 await _loadDetails();
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Task added successfully'),
-                                      backgroundColor: AppColors.green,
-                                    ),
-                                  );
-                                }
+                                Helper().getMessage(
+                                  message: 'Task added successfully',
+                                  status: StatusEnum.SUCCESS,
+                                );
                                 LogService.debug('✅ Quick task added: $title');
                               }
                             },
@@ -540,14 +538,10 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
                               );
                               await provider.addProjectNote(note);
                               await _loadDetails();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Note added successfully'),
-                                    backgroundColor: AppColors.green,
-                                  ),
-                                );
-                              }
+                              Helper().getMessage(
+                                message: 'Note added successfully',
+                                status: StatusEnum.SUCCESS,
+                              );
                               LogService.debug('✅ Quick note added: $title');
                             },
                           ),
@@ -628,7 +622,7 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
             // Empty state
             if (_subtasks.isEmpty && _notes.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   'No tasks or notes yet',
                   style: TextStyle(

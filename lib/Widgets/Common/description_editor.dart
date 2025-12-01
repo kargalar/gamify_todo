@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 // !!!!!!!!!!!!!!!!!!!!
 // ignore: depend_on_referenced_packages
 import 'package:linkify/linkify.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import '../../Core/helper.dart';
 import '../../General/app_colors.dart';
 import '../../Service/locale_keys.g.dart';
 import '../../Service/logging_service.dart';
@@ -69,12 +71,9 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
     if (description.isNotEmpty) {
       Clipboard.setData(ClipboardData(text: description));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleKeys.CopiedDescription.tr()),
-            duration: const Duration(seconds: 2),
-            backgroundColor: AppColors.green,
-          ),
+        Helper().getMessage(
+          message: LocaleKeys.CopiedDescription.tr(),
+          status: StatusEnum.SUCCESS,
         );
         LogService.debug('✅ Description copied to clipboard');
       }
@@ -124,15 +123,10 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
                 Navigator.of(context).pop();
                 LogService.debug('✅ Description cleared');
 
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Description cleared'),
-                      duration: const Duration(seconds: 2),
-                      backgroundColor: AppColors.orange,
-                    ),
-                  );
-                }
+                Helper().getMessage(
+                  message: 'Description cleared',
+                  status: StatusEnum.INFO,
+                );
               },
               child: Text(LocaleKeys.Clear.tr()),
             ),

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
@@ -65,26 +67,18 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
 
         await file.copy(newPath);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(LocaleKeys.DownloadSuccess.tr(args: [path.basename(filePath)])),
-              backgroundColor: AppColors.green,
-            ),
-          );
-        }
+        Helper().getMessage(
+          message: LocaleKeys.DownloadSuccess.tr(args: [path.basename(filePath)]),
+          status: StatusEnum.SUCCESS,
+        );
         LogService.debug('Dosya indirildi: $newPath');
       }
     } catch (e) {
       LogService.error('Download error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleKeys.DownloadFailed.tr()),
-            backgroundColor: AppColors.red,
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: LocaleKeys.DownloadFailed.tr(),
+        status: StatusEnum.WARNING,
+      );
     }
   }
 
@@ -101,14 +95,10 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
       }
     } catch (e) {
       LogService.error('Share error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleKeys.ShareFailed.tr()),
-            backgroundColor: AppColors.red,
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: LocaleKeys.ShareFailed.tr(),
+        status: StatusEnum.WARNING,
+      );
     }
   }
 
@@ -118,27 +108,19 @@ class _AttachmentViewerPageState extends State<AttachmentViewerPage> {
       final result = await OpenFile.open(filePath);
       if (result.type != ResultType.done) {
         // If file couldn't be opened, show its location
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(LocaleKeys.FileCannotBeOpenedLocation.tr(args: [path.dirname(filePath)])),
-              backgroundColor: AppColors.orange,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
+        Helper().getMessage(
+          message: LocaleKeys.FileCannotBeOpenedLocation.tr(args: [path.dirname(filePath)]),
+          status: StatusEnum.INFO,
+          duration: const Duration(seconds: 3),
+        );
       }
     } catch (e) {
       LogService.error('Open file error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleKeys.FileCannotBeOpenedLocation.tr(args: [path.dirname(filePath)])),
-            backgroundColor: AppColors.orange,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: LocaleKeys.FileCannotBeOpenedLocation.tr(args: [path.dirname(filePath)]),
+        status: StatusEnum.INFO,
+        duration: const Duration(seconds: 3),
+      );
     }
   }
 

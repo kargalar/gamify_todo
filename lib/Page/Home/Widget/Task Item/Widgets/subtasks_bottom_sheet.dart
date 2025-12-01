@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
@@ -354,13 +356,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
         hasClipboardData = true;
       });
       // Show confirmation snackbar
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Subtasks copied to clipboard'),
-          duration: const Duration(seconds: 2),
-          backgroundColor: AppColors.main,
-        ),
+      Helper().getMessage(
+        message: 'Subtasks copied to clipboard',
+        status: StatusEnum.SUCCESS,
       );
     });
   }
@@ -369,12 +367,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
     final subtasks = widget.taskModel.subtasks ?? [];
     final incomplete = subtasks.where((s) => !s.isCompleted).toList();
     if (incomplete.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('No incomplete subtasks to copy'),
-          duration: const Duration(seconds: 2),
-          backgroundColor: AppColors.text.withValues(alpha: 0.1),
-        ),
+      Helper().getMessage(
+        message: 'No incomplete subtasks to copy',
+        status: StatusEnum.INFO,
       );
       return;
     }
@@ -391,13 +386,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
       setState(() {
         hasClipboardData = true;
       });
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Incomplete subtasks copied to clipboard'),
-          duration: const Duration(seconds: 2),
-          backgroundColor: AppColors.main,
-        ),
+      Helper().getMessage(
+        message: 'Incomplete subtasks copied to clipboard',
+        status: StatusEnum.SUCCESS,
       );
     });
   }
@@ -441,12 +432,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
 
     final parsedSubtasks = _parseSubtasksFromText(data.text!);
     if (parsedSubtasks.isEmpty) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No valid subtasks found in clipboard'),
-          backgroundColor: Colors.red,
-        ),
+      Helper().getMessage(
+        message: 'No valid subtasks found in clipboard',
+        status: StatusEnum.WARNING,
       );
       return;
     }
@@ -465,14 +453,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
 
     _checkClipboard(); // Re-check clipboard after paste
 
-    // !!!! Replace ScaffoldMessenger with similar message thing used in helper
-    // ignore: use_build_context_synchronously
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${parsedSubtasks.length} subtasks pasted'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: AppColors.main,
-      ),
+    Helper().getMessage(
+      message: '${parsedSubtasks.length} subtasks pasted',
+      status: StatusEnum.SUCCESS,
     );
   }
 
@@ -481,12 +464,9 @@ class _SubtasksBottomSheetState extends State<SubtasksBottomSheet> {
     final count = widget.taskModel.subtasks?.length ?? 0;
     taskProvider.clearSubtasks(widget.taskModel);
     setState(() {}); // Refresh UI
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$count subtasks cleared'),
-        duration: const Duration(seconds: 2),
-        backgroundColor: AppColors.red,
-      ),
+    Helper().getMessage(
+      message: '$count subtasks cleared',
+      status: StatusEnum.INFO,
     );
   }
 }

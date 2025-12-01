@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import '../../Core/helper.dart';
+import '../../Core/Enums/status_enum.dart';
 import '../../Provider/notes_provider.dart';
 import '../../Provider/navbar_provider.dart';
 import '../../Widgets/Notes/note_card.dart';
@@ -362,8 +364,9 @@ class _NotesPageState extends State<NotesPage> {
               onPressed: () {
                 Navigator.pop(context);
                 provider.deleteNote(note.id);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(LocaleKeys.NoteDeleted.tr())),
+                Helper().getMessage(
+                  message: LocaleKeys.NoteDeleted.tr(),
+                  status: StatusEnum.SUCCESS,
                 );
                 LogService.debug('✅ Note ${note.id} deleted');
               },

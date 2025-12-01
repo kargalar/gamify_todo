@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Provider/profile_view_model.dart';
+import 'package:next_level/Page/Profile/Widget/day_detail_bottom_sheet.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -258,6 +259,10 @@ class _ProgressBarChart extends StatelessWidget {
   final Map<DateTime, Duration> data;
   const _ProgressBarChart({required this.period, required this.data});
 
+  void _showDayDetails(BuildContext context, DateTime date) {
+    DayDetailBottomSheet.show(context: context, date: date);
+  }
+
   @override
   Widget build(BuildContext context) {
     double maxHours = 0;
@@ -371,6 +376,18 @@ class _ProgressBarChart extends StatelessWidget {
       BarChartData(
         barTouchData: BarTouchData(
           enabled: true,
+          touchCallback: (FlTouchEvent event, barTouchResponse) {
+            if (event is FlTapUpEvent && barTouchResponse != null && barTouchResponse.spot != null) {
+              final touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+              if (touchedIndex >= 0 && touchedIndex < orderedKeys.length) {
+                final selectedDate = orderedKeys[touchedIndex];
+                // Show day details bottom sheet (only for week/month, not year)
+                if (period != ProgressPeriod.year) {
+                  _showDayDetails(context, selectedDate);
+                }
+              }
+            }
+          },
           touchTooltipData: BarTouchTooltipData(
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               DateTime date = orderedKeys[group.x.toInt()];

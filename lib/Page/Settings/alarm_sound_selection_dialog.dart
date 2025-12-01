@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/alarm_sound_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -88,15 +90,10 @@ class _AlarmSoundSelectionDialogState extends State<AlarmSoundSelectionDialog> {
       LogService.debug('AlarmSoundSelectionDialog: Sound selected for ${type.name}: $soundId');
 
       // Success message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$soundName selected for ${_getTypeDisplayName(type)}'),
-            backgroundColor: AppColors.deepGreen,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: '$soundName selected for ${_getTypeDisplayName(type)}',
+        status: StatusEnum.SUCCESS,
+      );
     } catch (e) {
       LogService.error('AlarmSoundSelectionDialog: Error selecting sound: $e');
     }
@@ -148,12 +145,9 @@ class _AlarmSoundSelectionDialogState extends State<AlarmSoundSelectionDialog> {
           _playingSoundId = null;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error playing sound: $e'),
-            backgroundColor: AppColors.dirtyRed,
-            duration: const Duration(seconds: 2),
-          ),
+        Helper().getMessage(
+          message: 'Error playing sound: $e',
+          status: StatusEnum.WARNING,
         );
       }
     }

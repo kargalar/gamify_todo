@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 
@@ -35,13 +37,9 @@ class _StreakTargetDialogState extends State<StreakTargetDialog> {
     Navigator.of(context).pop(true); // Return true to indicate success
 
     // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Streak target updated to ${_selectedHours.toStringAsFixed(1)} hours'),
-        backgroundColor: AppColors.main,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
+    Helper().getMessage(
+      message: 'Streak target updated to ${_selectedHours.toStringAsFixed(1)} hours',
+      status: StatusEnum.SUCCESS,
     );
   }
 

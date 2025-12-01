@@ -841,6 +841,11 @@ class HiveService {
 
           // Import language setting
           await prefs.setString('selected_language', sharedPrefsMap["selected_language"] ?? 'en');
+
+          // Mark first launch as done to prevent sample data dialog after restore
+          await prefs.setBool('is_first_launch', false);
+          await prefs.setBool('is_default_data_loaded', true);
+
           await createTasksFromRoutines();
 
           // Cancel all notifications after import and task creation to clean up any old notifications

@@ -9,6 +9,8 @@ import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/file_storage_service.dart';
@@ -79,17 +81,13 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
       try {
         final ok = await _fileStorageService.downloadAllFiles();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(ok ? 'All files downloaded' : 'Some files failed'),
-            backgroundColor: ok ? AppColors.green : AppColors.orange,
-          ),
+        Helper().getMessage(
+          message: ok ? 'All files downloaded' : 'Some files failed',
+          status: ok ? StatusEnum.SUCCESS : StatusEnum.WARNING,
         );
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error'), backgroundColor: AppColors.red),
-        );
+        Helper().getMessage(message: 'Error', status: StatusEnum.WARNING);
       }
     }
   }
@@ -123,17 +121,13 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
       try {
         final ok = await _fileStorageService.downloadFile(file, null);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(ok ? 'Downloaded' : 'Failed'),
-            backgroundColor: ok ? AppColors.green : AppColors.red,
-          ),
+        Helper().getMessage(
+          message: ok ? 'Downloaded' : 'Failed',
+          status: ok ? StatusEnum.SUCCESS : StatusEnum.WARNING,
         );
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error'), backgroundColor: AppColors.red),
-        );
+        Helper().getMessage(message: 'Error', status: StatusEnum.WARNING);
       }
     }
   }
@@ -156,17 +150,13 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
         final ok = await _fileStorageService.deleteAllAttachments();
         if (ok) await _loadAttachmentFiles();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(ok ? 'Cleared' : 'Failed'),
-            backgroundColor: ok ? AppColors.green : AppColors.red,
-          ),
+        Helper().getMessage(
+          message: ok ? 'Cleared' : 'Failed',
+          status: ok ? StatusEnum.SUCCESS : StatusEnum.WARNING,
         );
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error'), backgroundColor: AppColors.red),
-        );
+        Helper().getMessage(message: 'Error', status: StatusEnum.WARNING);
       }
     }
   }
@@ -176,14 +166,10 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
       await file.delete();
       await _loadAttachmentFiles();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Deleted'), backgroundColor: AppColors.green),
-      );
+      Helper().getMessage(message: 'Deleted');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error'), backgroundColor: AppColors.red),
-      );
+      Helper().getMessage(message: 'Error', status: StatusEnum.WARNING);
     }
   }
 
@@ -480,27 +466,33 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                       onAccept: () async {
                         try {
                           final storeProvider = StoreProvider();
-                          // Clear store items
-                          storeProvider.storeItemList.clear();
-                          LogService.debug('✅ Store progress reset');
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Store progress reset'),
-                                backgroundColor: AppColors.green,
-                              ),
-                            );
+
+                          // Reset all store items' progress to their initial values
+                          for (final item in storeProvider.storeItemList) {
+                            // Reset counter items
+                            if (item.type == TaskTypeEnum.COUNTER) {
+                              item.currentCount = 0;
+                            }
+                            // Reset timer items
+                            else if (item.type == TaskTypeEnum.TIMER) {
+                              item.currentDuration = Duration.zero;
+                              // Also stop timer if it's active
+                              if (item.isTimerActive == true) {
+                                item.isTimerActive = false;
+                              }
+                            }
+
+                            await HiveService().updateItem(item);
                           }
+
+                          // Update the provider to reflect changes in UI
+                          storeProvider.setStateItems();
+
+                          LogService.debug('✅ Store progress reset');
+                          Helper().getMessage(message: LocaleKeys.ResetStoreProgressSuccess.tr());
                         } catch (e) {
                           LogService.error('❌ Error resetting store progress: $e');
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Error resetting store progress'),
-                                backgroundColor: AppColors.red,
-                              ),
-                            );
-                          }
+                          Helper().getMessage(message: "Error: $e");
                         }
                       },
                       acceptButtonText: LocaleKeys.Yes.tr(),

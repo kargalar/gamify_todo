@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Navbar/constants/navbar_constants.dart';
 import 'package:next_level/Page/Navbar/constants/navbar_pages.dart';
@@ -233,13 +235,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
       Navigator.of(context).pop();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('✅ Sample data loaded successfully!'),
-          backgroundColor: AppColors.green,
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      Helper().getMessage(message: 'Sample data loaded successfully!');
 
       LogService.debug('✅ Sample data loaded and UI updated');
     } catch (e) {
@@ -248,13 +244,7 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
       if (mounted) {
         Navigator.of(context).pop();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Failed to load sample data: $e'),
-            backgroundColor: AppColors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        Helper().getMessage(message: 'Failed to load sample data: $e', status: StatusEnum.WARNING);
       }
     }
   }

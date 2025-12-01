@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:provider/provider.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Service/logging_service.dart';
 import '../Model/project_model.dart';
 import '../Model/note_model.dart';
@@ -77,35 +79,23 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
 
       if (success) {
         LogService.debug('✅ AddEditItemBottomSheet: Auto-saved successfully');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(LocaleKeys.NoteUpdated.tr()),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+        Helper().getMessage(
+          message: LocaleKeys.NoteUpdated.tr(),
+          status: StatusEnum.SUCCESS,
+        );
       } else {
         LogService.error('❌ AddEditItemBottomSheet: Auto-save failed');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(LocaleKeys.NoteUpdateFailed.tr()),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        Helper().getMessage(
+          message: LocaleKeys.NoteUpdateFailed.tr(),
+          status: StatusEnum.WARNING,
+        );
       }
     } catch (e) {
       LogService.error('❌ AddEditItemBottomSheet: Auto-save error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleKeys.ErrorOccurred.tr(args: [e.toString()])),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: LocaleKeys.ErrorOccurred.tr(args: [e.toString()]),
+        status: StatusEnum.WARNING,
+      );
     }
   }
 
@@ -709,24 +699,18 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
       if (success && mounted) {
         Navigator.pop(context, true);
         if (widget.type == ItemType.note) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr()),
-              backgroundColor: Colors.green,
-            ),
+          Helper().getMessage(
+            message: isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr(),
+            status: StatusEnum.SUCCESS,
           );
         }
       }
     } catch (e) {
       LogService.error('❌ AddEditItemBottomSheet: Error saving item: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${'Error'.tr()}: $e"),
-            backgroundColor: AppColors.red,
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: "${'Error'.tr()}: $e",
+        status: StatusEnum.WARNING,
+      );
     } finally {
       if (mounted) {
         setState(() {

@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -48,8 +50,9 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
     final validation = _quickAddProvider.validateInputs();
     if (validation != null) {
       LogService.error('❌ Validation failed: $validation');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(validation)),
+      Helper().getMessage(
+        message: validation,
+        status: StatusEnum.WARNING,
       );
       return;
     }
@@ -77,23 +80,18 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
         _quickAddProvider.setLoading(false);
 
         // Show success feedback
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${LocaleKeys.AddTask.tr()}: ${taskModel.title}'),
-            duration: const Duration(seconds: 2),
-            backgroundColor: AppColors.main.withValues(alpha: 0.9),
-          ),
+        Helper().getMessage(
+          message: '${LocaleKeys.AddTask.tr()}: ${taskModel.title}',
+          status: StatusEnum.SUCCESS,
         );
       }
     } catch (e) {
       if (mounted) {
         _quickAddProvider.setLoading(false);
         LogService.error('❌ CompactAddTaskBottomSheet: Failed to add task - $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Failed to add task'),
-            backgroundColor: AppColors.red.withValues(alpha: 0.9),
-          ),
+        Helper().getMessage(
+          message: 'Failed to add task',
+          status: StatusEnum.WARNING,
         );
       }
     }

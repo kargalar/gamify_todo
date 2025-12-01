@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 // import 'package:next_level/Core/Widgets/language_pop.dart'; // Temporarily disabled
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Settings/color_selection_dialog.dart';
 import 'package:next_level/Page/Settings/contact_us_dialog.dart';
@@ -218,15 +220,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   final count = await appLaunchService.getLaunchCount();
                   LogService.debug('Settings: All review data reset, launch count: $count');
 
-                  if (mounted) {
-                    // ignore: use_build_context_synchronously
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Review data reset! Restart app to test.\nWill ask at: 5, 20, 40, 60 launches.'),
-                        duration: Duration(seconds: 4),
-                      ),
-                    );
-                  }
+                  Helper().getMessage(
+                    message: 'Review data reset! Restart app to test.\nWill ask at: 5, 20, 40, 60 launches.',
+                    status: StatusEnum.INFO,
+                    duration: const Duration(seconds: 4),
+                  );
                 },
               ),
               _settingsOption(
@@ -275,15 +273,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   await appLaunchService.markReviewAsCompleted();
                   LogService.debug('Settings: Review marked as completed');
 
-                  if (mounted) {
-                    // ignore: use_build_context_synchronously
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Review marked as completed! App will not ask again.'),
-                        duration: Duration(seconds: 3),
-                      ),
-                    );
-                  }
+                  Helper().getMessage(
+                    message: 'Review marked as completed! App will not ask again.',
+                    status: StatusEnum.SUCCESS,
+                    duration: const Duration(seconds: 3),
+                  );
                 },
               ),
             ],

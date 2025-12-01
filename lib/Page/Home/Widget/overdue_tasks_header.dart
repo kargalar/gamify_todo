@@ -200,7 +200,7 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
                     return ReorderableDelayedDragStartListener(
                       key: ValueKey(task.key),
                       index: index,
-                      child: TaskItem(taskModel: task),
+                      child: TaskItem(taskModel: task, showDate: true),
                     );
                   },
                 ),

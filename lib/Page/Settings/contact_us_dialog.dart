@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -32,14 +34,10 @@ class ContactUsDialog extends StatelessWidget {
                 LogService.debug('ContactUsDialog: Email sent successfully');
               } catch (e) {
                 LogService.error('ContactUsDialog: Could not send email - $e');
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Cannot open email client. Please contact: kargalarx@gmail.com'),
-                      backgroundColor: AppColors.main,
-                    ),
-                  );
-                }
+                Helper().getMessage(
+                  message: 'Cannot open email client. Please contact: kargalarx@gmail.com',
+                  status: StatusEnum.WARNING,
+                );
               }
             },
           ),
@@ -93,14 +91,10 @@ class ContactUsDialog extends StatelessWidget {
                 LogService.debug('ContactUsDialog: Bug report email sent successfully');
               } catch (e) {
                 LogService.error('ContactUsDialog: Could not send bug report email - $e');
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Cannot open email client. Please contact: kargalarx@gmail.com'),
-                      backgroundColor: AppColors.main,
-                    ),
-                  );
-                }
+                Helper().getMessage(
+                  message: 'Cannot open email client. Please contact: kargalarx@gmail.com',
+                  status: StatusEnum.WARNING,
+                );
               }
             },
           ),

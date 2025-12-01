@@ -98,66 +98,10 @@ class _InboxTaskListState extends State<InboxTaskList> {
     // Start with all tasks
     List<TaskModel> tasks = List.from(allTasksWithoutArchived);
 
-    // Apply routine/task filter
-    tasks = tasks.where((task) {
-      bool isRoutine = task.routineID != null;
-
-      // For routines
-      if (isRoutine) {
-        return widget.showRoutines;
-      }
-
-      // For non-routine tasks
-      return widget.showTasks;
-    }).toList();
-
-    // Apply task type filter
-    tasks = tasks.where((task) => widget.selectedTaskTypes.contains(task.type)).toList();
-
-    // Apply date filter
-    LogService.debug('📅 InboxTaskList: Applying date filter: ${widget.dateFilterState}');
-
-    tasks = tasks.where((task) {
-      switch (widget.dateFilterState) {
-        case DateFilterState.all:
-          return true; // Show all tasks
-        case DateFilterState.withDate:
-          // Show tasks with dates
-          return task.taskDate != null;
-        case DateFilterState.withoutDate:
-          return task.taskDate == null; // Show only tasks without dates
-      }
-    }).toList();
-
-    LogService.debug('📊 InboxTaskList: After date filter, ${tasks.length} tasks remaining');
-
-    // Apply status filtering
-    tasks = tasks.where((task) {
-      bool matchesStatus = false;
-
-      // Check if task matches selected statuses
-      if (widget.selectedStatuses.isNotEmpty && widget.selectedStatuses.contains(task.status)) {
-        matchesStatus = true;
-      }
-
-      // Check if task matches empty status filter
-      if (widget.showEmptyStatus && task.status == null) {
-        matchesStatus = true;
-      }
-
-      // If no filters are selected, show nothing
-      if (widget.selectedStatuses.isEmpty && !widget.showEmptyStatus) {
-        return false;
-      }
-
-      return matchesStatus;
-    }).toList();
-
-    // Apply search filter if search query is not empty
+    // If search is active, bypass all other filters and only apply search
     if (widget.searchQuery.isNotEmpty) {
+      final lowerQuery = widget.searchQuery.toLowerCase();
       tasks = tasks.where((task) {
-        final lowerQuery = widget.searchQuery.toLowerCase();
-
         // Search in task title and description
         bool matchesTask = task.title.toLowerCase().contains(lowerQuery) || (task.description?.toLowerCase().contains(lowerQuery) ?? false);
 
@@ -170,6 +114,61 @@ class _InboxTaskListState extends State<InboxTaskList> {
         }
 
         return matchesTask || matchesSubtasks;
+      }).toList();
+    } else {
+      // Apply routine/task filter
+      tasks = tasks.where((task) {
+        bool isRoutine = task.routineID != null;
+
+        // For routines
+        if (isRoutine) {
+          return widget.showRoutines;
+        }
+
+        // For non-routine tasks
+        return widget.showTasks;
+      }).toList();
+
+      // Apply task type filter
+      tasks = tasks.where((task) => widget.selectedTaskTypes.contains(task.type)).toList();
+
+      // Apply date filter
+      LogService.debug('📅 InboxTaskList: Applying date filter: ${widget.dateFilterState}');
+
+      tasks = tasks.where((task) {
+        switch (widget.dateFilterState) {
+          case DateFilterState.all:
+            return true; // Show all tasks
+          case DateFilterState.withDate:
+            // Show tasks with dates
+            return task.taskDate != null;
+          case DateFilterState.withoutDate:
+            return task.taskDate == null; // Show only tasks without dates
+        }
+      }).toList();
+
+      LogService.debug('📊 InboxTaskList: After date filter, ${tasks.length} tasks remaining');
+
+      // Apply status filtering
+      tasks = tasks.where((task) {
+        bool matchesStatus = false;
+
+        // Check if task matches selected statuses
+        if (widget.selectedStatuses.isNotEmpty && widget.selectedStatuses.contains(task.status)) {
+          matchesStatus = true;
+        }
+
+        // Check if task matches empty status filter
+        if (widget.showEmptyStatus && task.status == null) {
+          matchesStatus = true;
+        }
+
+        // If no filters are selected, show nothing
+        if (widget.selectedStatuses.isEmpty && !widget.showEmptyStatus) {
+          return false;
+        }
+
+        return matchesStatus;
       }).toList();
     }
 

@@ -4,6 +4,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import '../../General/app_colors.dart';
+import '../../Core/helper.dart';
+import '../../Core/Enums/status_enum.dart';
 import '../../Model/project_model.dart';
 import '../../Model/project_subtask_model.dart';
 import '../../Provider/projects_provider.dart';
@@ -66,14 +68,7 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
     }).join('\n');
 
     Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${_subtasks.length} tasks copied'),
-            backgroundColor: AppColors.green,
-          ),
-        );
-      }
+      Helper().getMessage(message: '${_subtasks.length} tasks copied');
       LogService.debug('✅ ${_subtasks.length} tasks copied to clipboard');
     });
   }
@@ -81,14 +76,7 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
   void _copyIncompleteTasks() {
     final incomplete = _subtasks.where((t) => !t.isCompleted).toList();
     if (incomplete.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('No incomplete tasks'),
-            backgroundColor: AppColors.text.withValues(alpha: 0.7),
-          ),
-        );
-      }
+      Helper().getMessage(message: 'No incomplete tasks', status: StatusEnum.INFO);
       LogService.error('⚠️ No incomplete tasks to copy');
       return;
     }
@@ -102,14 +90,7 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
     }).join('\n');
 
     Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${incomplete.length} incomplete tasks copied'),
-            backgroundColor: AppColors.green,
-          ),
-        );
-      }
+      Helper().getMessage(message: '${incomplete.length} incomplete tasks copied');
       LogService.debug('✅ ${incomplete.length} incomplete tasks copied');
     });
   }
@@ -129,14 +110,7 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
       }
     });
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(newShowOnlyIncomplete ? 'Completed tasks hidden' : 'All tasks shown'),
-          backgroundColor: AppColors.green,
-        ),
-      );
-    }
+    Helper().getMessage(message: newShowOnlyIncomplete ? 'Completed tasks hidden' : 'All tasks shown');
     LogService.debug('✅ Show only incomplete: $newShowOnlyIncomplete');
   }
 
@@ -162,10 +136,6 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
 
   @override
   Widget build(BuildContext context) {
-    if (_subtasks.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     return Column(
       children: [
         Padding(
@@ -260,7 +230,6 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
             ],
           ),
         ),
-        const SizedBox(height: 8),
         ReorderableListView(
           shrinkWrap: true,
           buildDefaultDragHandles: false,
@@ -331,28 +300,19 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
               await provider.deleteSubtask(task.id);
               widget.onTasksChanged();
 
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Task deleted'),
-                    backgroundColor: AppColors.red,
-                    action: SnackBarAction(
-                      label: 'Undo',
-                      textColor: AppColors.white,
-                      onPressed: () async {
-                        if (_deletedTask != null) {
-                          final provider = context.read<ProjectsProvider>();
-                          await provider.addSubtask(_deletedTask!);
-                          widget.onTasksChanged();
+              Helper().getUndoMessage(
+                message: 'Task deleted',
+                onUndo: () async {
+                  if (_deletedTask != null) {
+                    final provider = context.read<ProjectsProvider>();
+                    await provider.addSubtask(_deletedTask!);
+                    widget.onTasksChanged();
 
-                          _deletedTask = null;
-                          _deletedTaskIndex = null;
-                        }
-                      },
-                    ),
-                  ),
-                );
-              }
+                    _deletedTask = null;
+                    _deletedTaskIndex = null;
+                  }
+                },
+              );
               LogService.debug('🗑️ Task deleted: ${task.title}');
             },
           ),
@@ -367,28 +327,19 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
                 await provider.deleteSubtask(task.id);
                 widget.onTasksChanged();
 
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Task deleted'),
-                      backgroundColor: AppColors.red,
-                      action: SnackBarAction(
-                        label: 'Undo',
-                        textColor: AppColors.white,
-                        onPressed: () async {
-                          if (_deletedTask != null) {
-                            final provider = context.read<ProjectsProvider>();
-                            await provider.addSubtask(_deletedTask!);
-                            widget.onTasksChanged();
+                Helper().getUndoMessage(
+                  message: 'Task deleted',
+                  onUndo: () async {
+                    if (_deletedTask != null) {
+                      final provider = context.read<ProjectsProvider>();
+                      await provider.addSubtask(_deletedTask!);
+                      widget.onTasksChanged();
 
-                            _deletedTask = null;
-                            _deletedTaskIndex = null;
-                          }
-                        },
-                      ),
-                    ),
-                  );
-                }
+                      _deletedTask = null;
+                      _deletedTaskIndex = null;
+                    }
+                  },
+                );
                 LogService.debug('🗑️ Task deleted: ${task.title}');
               },
               backgroundColor: AppColors.red,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
+import '../../Core/helper.dart';
+import '../../Core/Enums/status_enum.dart';
 import '../../Model/note_model.dart';
 import '../../Model/category_model.dart';
 import '../../Provider/notes_provider.dart';
@@ -298,23 +300,15 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         if (success) {
           LogService.debug('✅ AddEditNotePage: Note saved successfully');
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr(),
-              ),
-              backgroundColor: Colors.green,
-            ),
+          Helper().getMessage(
+            message: isEditing ? LocaleKeys.NoteUpdated.tr() : LocaleKeys.NoteAdded.tr(),
+            status: StatusEnum.SUCCESS,
           );
         } else {
           LogService.error('❌ AddEditNotePage: Failed to save note');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isEditing ? LocaleKeys.NoteUpdateFailed.tr() : LocaleKeys.NoteSaveFailed.tr(),
-              ),
-              backgroundColor: Colors.red,
-            ),
+          Helper().getMessage(
+            message: isEditing ? LocaleKeys.NoteUpdateFailed.tr() : LocaleKeys.NoteSaveFailed.tr(),
+            status: StatusEnum.WARNING,
           );
         }
       }
@@ -324,11 +318,9 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
         setState(() {
           _isSaving = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(LocaleKeys.ErrorOccurred.tr(args: [e.toString()])),
-            backgroundColor: Colors.red,
-          ),
+        Helper().getMessage(
+          message: LocaleKeys.ErrorOccurred.tr(args: [e.toString()]),
+          status: StatusEnum.WARNING,
         );
       }
     }

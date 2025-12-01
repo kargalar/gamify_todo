@@ -32,10 +32,12 @@ class TaskItem extends StatefulWidget {
     super.key,
     required this.taskModel,
     this.isRoutine = false,
+    this.showDate = false,
   });
 
   final TaskModel taskModel;
   final bool isRoutine;
+  final bool showDate;
 
   @override
   State<TaskItem> createState() => _TaskItemState();
@@ -226,7 +228,9 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                                 ),
                                 const SizedBox(width: 10),
                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
+                                    if (widget.showDate && widget.taskModel.taskDate != null) _buildDateLabel(),
                                     TaskTime(taskModel: widget.taskModel),
                                     if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
                                   ],
@@ -493,6 +497,30 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
           ],
         );
     }
+  }
+
+  Widget _buildDateLabel() {
+    final taskDate = widget.taskModel.taskDate!;
+    final dateText = DateFormat('dd MMM').format(taskDate);
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: AppColors.orange.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          dateText,
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: AppColors.orange,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildSubtasksButton() {

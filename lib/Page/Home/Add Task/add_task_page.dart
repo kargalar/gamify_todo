@@ -781,32 +781,23 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
         LogService.debug('✅ Template saved successfully: ${newTemplate.title}');
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('✅ Template saved: ${addTaskProvider.taskNameController.text}'),
-            backgroundColor: AppColors.main.withValues(alpha: 0.9),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+      Helper().getMessage(
+        message: '✅ Template saved: ${addTaskProvider.taskNameController.text}',
+        status: StatusEnum.SUCCESS,
+      );
 
-        // Clear form and go back
-        addTaskProvider.taskNameController.clear();
-        addTaskProvider.descriptionController.clear();
-        addTaskProvider.locationController.clear();
-        NavigatorService().back();
-      }
+      // Clear form and go back
+      addTaskProvider.taskNameController.clear();
+      addTaskProvider.descriptionController.clear();
+      addTaskProvider.locationController.clear();
+      NavigatorService().back();
     } catch (e) {
       LogService.error('❌ Failed to save template: $e');
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('❌ Failed to save template'),
-            backgroundColor: AppColors.red.withValues(alpha: 0.9),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: '❌ Failed to save template',
+        status: StatusEnum.WARNING,
+      );
     }
   }
 }

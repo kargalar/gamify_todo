@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/task_template_model.dart';
@@ -238,25 +240,16 @@ class _TaskTemplatesBottomSheetState extends State<TaskTemplatesBottomSheet> {
 
       LogService.debug('✅ Task created from template: ${template.title}');
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('✅ Task created: ${template.title}'),
-            backgroundColor: AppColors.main.withValues(alpha: 0.9),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: '✅ Task created: ${template.title}',
+        status: StatusEnum.SUCCESS,
+      );
     } catch (e) {
       LogService.error('❌ Failed to create task from template: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('❌ Failed to create task'),
-            backgroundColor: AppColors.red.withValues(alpha: 0.9),
-          ),
-        );
-      }
+      Helper().getMessage(
+        message: '❌ Failed to create task',
+        status: StatusEnum.WARNING,
+      );
     }
   }
 

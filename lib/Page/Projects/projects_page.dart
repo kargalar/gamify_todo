@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Core/helper.dart';
+import '../../Core/Enums/status_enum.dart';
 import '../../General/app_colors.dart';
 import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
@@ -482,18 +484,20 @@ class _ProjectsPageState extends State<ProjectsPage> {
       },
       onPin: () async {
         final success = await provider.togglePinProject(project.id);
-        if (context.mounted && success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(project.isPinned ? 'Project unpinned' : 'Project pinned')),
+        if (success) {
+          Helper().getMessage(
+            message: project.isPinned ? 'Project unpinned' : 'Project pinned',
+            status: StatusEnum.SUCCESS,
           );
           LogService.debug('📌 Project ${project.isPinned ? 'unpinned' : 'pinned'}: ${project.title}');
         }
       },
       onArchive: () async {
         final success = await provider.toggleArchiveProject(project.id);
-        if (context.mounted && success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(project.isArchived ? 'Project unarchived' : 'Project archived')),
+        if (success) {
+          Helper().getMessage(
+            message: project.isArchived ? 'Project unarchived' : 'Project archived',
+            status: StatusEnum.SUCCESS,
           );
           LogService.debug('📦 Project ${project.isArchived ? 'unarchived' : 'archived'}: ${project.title}');
         }
@@ -520,9 +524,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
         if (confirmed == true) {
           final success = await provider.deleteProject(project.id);
-          if (context.mounted && success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Project deleted')),
+          if (success) {
+            Helper().getMessage(
+              message: 'Project deleted',
+              status: StatusEnum.SUCCESS,
             );
             LogService.debug('🗑️ Project deleted: ${project.title}');
           }
@@ -560,13 +565,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
           final provider = context.read<ProjectsProvider>();
           final success = await provider.addProject(project);
 
-          if (context.mounted) {
-            if (success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(LocaleKeys.ProjectCreated.tr())),
-              );
-              LogService.debug('✅ Project created: ${project.id}');
-            }
+          if (success) {
+            Helper().getMessage(
+              message: LocaleKeys.ProjectCreated.tr(),
+              status: StatusEnum.SUCCESS,
+            );
+            LogService.debug('✅ Project created: ${project.id}');
           }
         },
         isEditing: false,

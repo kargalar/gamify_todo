@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:provider/provider.dart';
 import '../../General/app_colors.dart';
 import '../../Model/project_model.dart';
 import '../../Model/project_note_model.dart';
 import '../../Provider/projects_provider.dart';
 import '../../Service/logging_service.dart';
+import '../../Core/helper.dart';
 import './add_project_note_bottom_sheet.dart';
 
 class ProjectNotesSection extends StatefulWidget {
@@ -60,11 +62,9 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
 
     return Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${_notes.length} notes copied'),
-            backgroundColor: AppColors.green,
-          ),
+        Helper().getMessage(
+          message: '${_notes.length} notes copied',
+          status: StatusEnum.SUCCESS,
         );
       }
       LogService.debug('✅ ${_notes.length} notes copied to clipboard');
@@ -207,33 +207,23 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
               await provider.deleteProjectNote(note.id);
               widget.onNotesChanged();
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Note deleted'),
-                    backgroundColor: AppColors.red,
-                    action: SnackBarAction(
-                      label: 'Undo',
-                      textColor: AppColors.white,
-                      onPressed: () async {
-                        if (_deletedNote != null) {
-                          final provider = context.read<ProjectsProvider>();
-                          await provider.addProjectNote(_deletedNote!);
-                          widget.onNotesChanged();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Note restored'),
-                                backgroundColor: AppColors.green,
-                              ),
-                            );
-                          }
-                          LogService.debug('↩️ Note restored: ${_deletedNote!.title}');
-                          _deletedNote = null;
-                          _deletedNoteIndex = null;
-                        }
-                      },
-                    ),
-                  ),
+                Helper().getUndoMessage(
+                  message: 'Note deleted',
+                  statusColor: AppColors.red,
+                  onUndo: () async {
+                    if (_deletedNote != null) {
+                      final provider = context.read<ProjectsProvider>();
+                      await provider.addProjectNote(_deletedNote!);
+                      widget.onNotesChanged();
+                      Helper().getMessage(
+                        message: 'Note restored',
+                        status: StatusEnum.SUCCESS,
+                      );
+                      LogService.debug('↩️ Note restored: ${_deletedNote!.title}');
+                      _deletedNote = null;
+                      _deletedNoteIndex = null;
+                    }
+                  },
                 );
               }
               LogService.debug('🗑️ Note deleted: ${note.title}');
@@ -250,33 +240,23 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
                 await provider.deleteProjectNote(note.id);
                 widget.onNotesChanged();
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Note deleted'),
-                      backgroundColor: AppColors.red,
-                      action: SnackBarAction(
-                        label: 'Undo',
-                        textColor: AppColors.white,
-                        onPressed: () async {
-                          if (_deletedNote != null) {
-                            final provider = context.read<ProjectsProvider>();
-                            await provider.addProjectNote(_deletedNote!);
-                            widget.onNotesChanged();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Note restored'),
-                                  backgroundColor: AppColors.green,
-                                ),
-                              );
-                            }
-                            LogService.debug('↩️ Note restored: ${_deletedNote!.title}');
-                            _deletedNote = null;
-                            _deletedNoteIndex = null;
-                          }
-                        },
-                      ),
-                    ),
+                  Helper().getUndoMessage(
+                    message: 'Note deleted',
+                    statusColor: AppColors.red,
+                    onUndo: () async {
+                      if (_deletedNote != null) {
+                        final provider = context.read<ProjectsProvider>();
+                        await provider.addProjectNote(_deletedNote!);
+                        widget.onNotesChanged();
+                        Helper().getMessage(
+                          message: 'Note restored',
+                          status: StatusEnum.SUCCESS,
+                        );
+                        LogService.debug('↩️ Note restored: ${_deletedNote!.title}');
+                        _deletedNote = null;
+                        _deletedNoteIndex = null;
+                      }
+                    },
                   );
                 }
                 LogService.debug('🗑️ Note deleted: ${note.title}');

@@ -97,6 +97,8 @@ extension DurationFormatting on Duration {
       return "$seconds${LocaleKeys.s.tr()}";
     } else if (hours == 0 && minutes > 0 && seconds > 0) {
       return "$minutes${LocaleKeys.m.tr()} $seconds${LocaleKeys.s.tr()}";
+    } else if (hours == 0 && minutes == 0 && seconds == 0) {
+      return "$hours${LocaleKeys.h.tr()}";
     } else {
       return "$hours${LocaleKeys.h.tr()} $minutes${LocaleKeys.m.tr()} $seconds${LocaleKeys.s.tr()}";
     }

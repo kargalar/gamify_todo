@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/General/category_icons.dart';
@@ -253,12 +255,9 @@ class CategorySelectorBottomSheet extends StatelessWidget {
         // Yeni kategoriyi seçili olarak dön
         Navigator.pop(context, newCategory);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('CategoryCreated'.tr(args: [newCategory.name])),
-            backgroundColor: Color(newCategory.colorValue),
-            duration: const Duration(seconds: 2),
-          ),
+        Helper().getMessage(
+          message: 'CategoryCreated'.tr(args: [newCategory.name]),
+          status: StatusEnum.SUCCESS,
         );
       }
     }
