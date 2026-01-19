@@ -195,6 +195,9 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
     // Transfer data from QuickAddProvider to AddTaskProvider
     final addTaskProvider = context.read<AddTaskProvider>();
 
+    // IMPORTANT: Clear editTask to ensure we're creating a NEW task, not editing
+    addTaskProvider.editTask = null;
+
     addTaskProvider.taskNameController.text = provider.taskNameController.text;
     addTaskProvider.descriptionController.text = provider.descriptionController.text;
     addTaskProvider.selectedDate = provider.selectedDate;
