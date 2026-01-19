@@ -28,7 +28,7 @@ Telefon kilit ekranda, aktif Timer bildirimi next level yazmak yerine taskın ad
 
 timer task başlatılırken bildirim izinlerini kontrol et. izin yoksa kullanıcıyı uyar.
 
-Goals feature
+<!-- Goals feature -->
 
 taskalrın edit progressi rutinlerinki gibi olsun
 

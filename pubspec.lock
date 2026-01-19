@@ -1094,7 +1094,7 @@ packages:
     source: hosted
     version: "1.5.0"
   rename_app:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: rename_app
       sha256: "387a88335f853674b39bed7943955388bbaf6aae4ffdc812e2ef275ce119abc7"
