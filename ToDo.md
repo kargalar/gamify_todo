@@ -22,7 +22,6 @@ Task silip hemen uygulamdan cikinca sorun var. undo butonu işlevi için yaptı�
 
 bildirim ve alarm kurma kodalrı her yerde aynı mı ve kullanıcıın local zaman dilimine göre mi ayaralnıyor?
 
-eğer geçmiş logalrı silersem sonraki logalrın done durumu güncellenmeli. belkide done da olmayacak artık.
 hedef süre 0 olan tasklarda, geçen sürenin 0 dan büyük olduğu durumlarda done olması gerekiyor. timer aktifken done yazıyor amatiner durudulaunca task done olarak gösterilmiyor. bu sorunu düzelt.
 
 

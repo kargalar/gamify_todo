@@ -25,6 +25,13 @@ class TaskLogProvider with ChangeNotifier {
     _repository = repo;
   }
 
+  TaskRepository _taskRepository = TaskRepository();
+
+  @visibleForTesting
+  void setTaskRepository(TaskRepository repo) {
+    _taskRepository = repo;
+  }
+
   TaskProvider? _taskProvider;
 
   TaskProvider get taskProvider {
@@ -127,6 +134,14 @@ class TaskLogProvider with ChangeNotifier {
     taskLogList.add(taskLog);
 
     await recalculateTaskProgress(taskModel.id);
+
+    // Auto-update log statuses for tracked types to ensure consistency
+    if (taskModel.type == TaskTypeEnum.COUNTER) {
+      await updateCounterTaskLogStatuses(taskModel);
+    } else if (taskModel.type == TaskTypeEnum.TIMER) {
+      await updateTimerTaskLogStatuses(taskModel);
+    }
+
     notifyListeners();
   }
 
@@ -170,7 +185,7 @@ class TaskLogProvider with ChangeNotifier {
       }
 
       // Update task in storage using TaskRepository
-      await TaskRepository().updateTask(taskProvider.taskList[taskIndex]);
+      await _taskRepository.updateTask(taskProvider.taskList[taskIndex]);
     }
 
     notifyListeners();
@@ -194,7 +209,7 @@ class TaskLogProvider with ChangeNotifier {
       // Reset task status to null
       task.status = null;
       // Update task in storage using TaskRepository
-      await TaskRepository().updateTask(task);
+      await _taskRepository.updateTask(task);
     }
 
     notifyListeners();
@@ -207,7 +222,7 @@ class TaskLogProvider with ChangeNotifier {
     // Reset status of all tasks to null
     for (final task in taskProvider.taskList) {
       task.status = null;
-      await TaskRepository().updateTask(task);
+      await _taskRepository.updateTask(task);
     }
 
     notifyListeners();
@@ -231,14 +246,27 @@ class TaskLogProvider with ChangeNotifier {
 
   // Delete a specific log by ID
   Future<void> deleteTaskLog(int logId) async {
-    await _repository.deleteTaskLog(logId);
-
     // We need the task ID to recalculate, so find the log before deleting or store the ID
     final logIndex = taskLogList.indexWhere((log) => log.id == logId);
     if (logIndex != -1) {
       final taskId = taskLogList[logIndex].taskId;
       taskLogList.removeAt(logIndex);
+      await _repository.deleteTaskLog(logId);
+
       await recalculateTaskProgress(taskId);
+
+      // Find the task model to check type and get targets
+      final taskIndex = taskProvider.taskList.indexWhere((t) => t.id == taskId);
+      if (taskIndex != -1) {
+        final task = taskProvider.taskList[taskIndex];
+
+        // Recalculate status of remaining logs based on task type
+        if (task.type == TaskTypeEnum.COUNTER) {
+          await updateCounterTaskLogStatuses(task);
+        } else if (task.type == TaskTypeEnum.TIMER) {
+          await updateTimerTaskLogStatuses(task);
+        }
+      }
     }
 
     notifyListeners();
