@@ -12,6 +12,9 @@ import 'package:next_level/Model/task_log_model.dart';
 import 'package:intl/intl.dart';
 import 'package:next_level/Service/logging_service.dart';
 
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/log_display_model.dart';
+
 class TraitProgressData {
   final int traitId;
   final String title;
@@ -19,16 +22,6 @@ class TraitProgressData {
   final Color color;
   final String icon;
   const TraitProgressData({required this.traitId, required this.title, required this.progress, required this.color, required this.icon});
-}
-
-class TaskLog {
-  final String dateTime;
-  final String duration;
-  final String status;
-  final int logId;
-  final String datePart; // "Today", "Yesterday", or formatted date
-
-  TaskLog(this.dateTime, this.duration, this.status, this.logId, this.datePart);
 }
 
 class TaskDetailViewModel with ChangeNotifier {
@@ -43,7 +36,7 @@ class TaskDetailViewModel with ChangeNotifier {
   String bestHour = "15:00";
   String bestDay = "Wednesday";
   int longestStreak = 0;
-  List<TaskLog> recentLogs = [];
+  List<LogDisplayModel> recentLogs = [];
 
   // TaskLogProvider'ı dinlemek için
   late final TaskLogProvider _taskLogProvider = TaskLogProvider();
@@ -247,7 +240,7 @@ class TaskDetailViewModel with ChangeNotifier {
     logs = logs.where((log) => log.status != TaskStatusEnum.OVERDUE).toList();
 
     // Convert to UI model
-    List<TaskLog> tempLogs = [];
+    List<LogDisplayModel> tempLogs = [];
 
     for (int i = 0; i < logs.length; i++) {
       final log = logs[i];
@@ -258,7 +251,7 @@ class TaskDetailViewModel with ChangeNotifier {
       DateTime yesterday = today.subtract(const Duration(days: 1));
       DateTime logDateOnly = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
 
-      String datePart;
+      String? datePart;
       if (logDateOnly == today) {
         datePart = 'Today';
       } else if (logDateOnly == yesterday) {
@@ -267,13 +260,12 @@ class TaskDetailViewModel with ChangeNotifier {
         datePart = DateFormat('d MMM yyyy').format(log.logDate);
       }
 
-      String timePart = DateFormat('HH:mm:ss').format(log.logDate);
-      String formattedDate = '$datePart $timePart';
-
       // Format the duration or count as a difference
       String progressText = "";
+      dynamic amountValue;
 
       if (log.duration != null) {
+        amountValue = log.duration;
         // Pozitif veya negatif değerleri göster
         bool isPositive = !log.duration!.isNegative;
         int hours = isPositive ? log.duration!.inHours : -log.duration!.inHours;
@@ -281,62 +273,44 @@ class TaskDetailViewModel with ChangeNotifier {
         int seconds = isPositive ? log.duration!.inSeconds.remainder(60) : -log.duration!.inSeconds.remainder(60);
         String sign = isPositive ? "+" : "-";
 
-        // Saat, dakika ve saniye değerlerini göster
         if (hours > 0) {
-          // Saat varsa
           if (minutes > 0) {
-            // Saat ve dakika varsa
-            if (seconds > 0) {
-              // Saat, dakika ve saniye varsa
-              progressText = "$sign${hours}h ${minutes}m ${seconds}s";
-            } else {
-              // Saat ve dakika var, saniye yok
-              progressText = "$sign${hours}h ${minutes}m";
-            }
+            progressText = seconds > 0 ? "$sign${hours}h ${minutes}m ${seconds}s" : "$sign${hours}h ${minutes}m";
           } else {
-            // Sadece saat varsa
-            if (seconds > 0) {
-              // Saat ve saniye varsa
-              progressText = "$sign${hours}h ${seconds}s";
-            } else {
-              // Sadece saat varsa
-              progressText = "$sign${hours}h";
-            }
+            progressText = seconds > 0 ? "$sign${hours}h ${seconds}s" : "$sign${hours}h";
           }
         } else if (minutes > 0) {
-          // Saat yok, dakika varsa
-          if (seconds > 0) {
-            // Dakika ve saniye varsa
-            progressText = "$sign${minutes}m ${seconds}s";
-          } else {
-            // Sadece dakika varsa
-            progressText = "$sign${minutes}m";
-          }
+          progressText = seconds > 0 ? "$sign${minutes}m ${seconds}s" : "$sign${minutes}m";
         } else if (seconds > 0) {
-          // Sadece saniye varsa
           progressText = "$sign${seconds}s";
         } else {
-          // Sıfır durumu - işaret göster
           progressText = "${isPositive ? '+' : '-'}0s";
         }
       } else if (log.count != null) {
-        // Pozitif veya negatif değerleri göster
+        amountValue = log.count;
         String sign = log.count! >= 0 ? "+" : "";
         progressText = "$sign${log.count}";
       }
 
-      // Get status text
+      // Get status text and color
       String statusText = log.getStatusText();
+      Color? statusColor;
+      if (log.status == TaskStatusEnum.DONE) statusColor = AppColors.green;
+      if (log.status == TaskStatusEnum.FAILED) statusColor = AppColors.red;
 
-      tempLogs.add(TaskLog(formattedDate, progressText, statusText, log.id, datePart));
+      tempLogs.add(LogDisplayModel(
+        id: log.id,
+        dateTime: log.logDate,
+        displayAmount: progressText,
+        amount: amountValue,
+        status: statusText,
+        type: taskModel.type,
+        datePart: datePart,
+        statusColor: statusColor,
+      ));
     }
 
     recentLogs = tempLogs;
-
-    // If no logs yet, provide empty list
-    if (recentLogs.isEmpty) {
-      recentLogs = [];
-    }
 
     // Dinleyicilere bildir
     notifyListeners();
@@ -368,5 +342,31 @@ class TaskDetailViewModel with ChangeNotifier {
   Future<void> clearLogsForTask() async {
     await TaskLogProvider().deleteLogsByTaskId(taskModel.id);
     LogService.debug('✅ Logs deleted for task ${taskModel.id}');
+  }
+
+  Future<void> addManualLog(dynamic value) async {
+    Duration? customDuration;
+    int? customCount;
+
+    if (taskModel.type == TaskTypeEnum.TIMER) {
+      if (value is Duration) customDuration = value;
+    } else if (taskModel.type == TaskTypeEnum.COUNTER) {
+      if (value is int) customCount = value;
+    }
+
+    await _taskLogProvider.addTaskLog(
+      taskModel,
+      customDuration: customDuration,
+      customCount: customCount,
+      customLogDate: DateTime.now(), // Or let addTaskLog handle it
+    );
+  }
+
+  Future<void> editLogByKey(int logId, dynamic newValue) async {
+    await _taskLogProvider.editTaskLog(logId, newValue);
+  }
+
+  Future<void> deleteLogByKey(int logId) async {
+    await _taskLogProvider.deleteTaskLog(logId);
   }
 }

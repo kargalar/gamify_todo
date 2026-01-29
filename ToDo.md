@@ -1,4 +1,3 @@
-item timer 0 altına inice 2 tane bildrimi geliyor.
 
 ○ İcon arka oaln siyah olsun
 
@@ -10,15 +9,19 @@ daha anlasılır istatistikler.
 
 windows sync
 
-wdget edit progressi kaldır.
-
-taskalrda ve itemlarda recent logs kısmını kadlır en baştan daha temiz ve düzgün ve bir şekilde. items ve tasklar için aynı kod kullanacak şekilde yap.
-
-
-projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve clean code prensiplerini uygula. bunu için gerekirse sistemi değiştirmekten çekinme. önemli olan temiz kod olmalı. lib altındaki bütün dosyaları kontrol ettiğinden emin ol
 <!-- taskı oluturup ilk girişte null hatasıç.  -->
 
-pinned listesinde olanlanar filtrenelenmeye dahil olmasın. her zaman gösterilsin
+pinned listesinde olanlanar filtrelenmeye dahil olmasın. eğer pinleen öğe varsa liste her zaman gösterilsin.
+
+Yeni task eklendigimde alttam mesaj gelmesin
+
+Next level da quckbottok sheette klavyeden alt satira geç e basinca description girme kismi gorunur Olsun ve description yazilsin
+
+store page de appardan Reset store progress deyince ilerleme sıfırlanıyor ama itemlarin logoları silinmiyor. Silinmeli.
+
+Task silip hemen uygulamdan cikinca sorun var. undo butonu işlevi için yaptığımız sistemden kaynaklı. buun çözmeliyiz. hemenç ıkarsam tekrar girdiğimde rask silinmemiş oluyor. ondo mesaj butonu gidene kadar bekleyip çıakrsam o zaman düzgünce silniiyor. ben sile bastıktan sonra direkt çıksam da sikinmiş olmalı. ama undo butonuna basarsam da geri getirebilmeliyim
+
+bildirim ve alarm kurma kodalrı her yerde aynı mı ve kullanıcıın local zaman dilimine göre mi ayaralnıyor?
 
 
 
@@ -34,3 +37,9 @@ pinned listesinde olanlanar filtrenelenmeye dahil olmasın. her zaman gösterils
 ○ Rutinlerin sıralamalarını degsitiridigimde gelecek ve geçmiş de o sirada sıfırlanmalı
 ○ Tatilde olsam bile gcemis rutinler fail oluyor.
     Günler de fail olarak işaretleniyor kontrol et düzelt oluyor
+
+
+
+projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve clean code prensiplerini uygula. bunu için gerekirse sistemi değiştirmekten çekinme. önemli olan temiz kod olmalı. lib altındaki bütün dosyaları kontrol ettiğinden emin ol
+
+item timer 0 altına inice 2 tane bildrimi geliyor.

@@ -126,6 +126,7 @@ class TaskLogProvider with ChangeNotifier {
     await _repository.addTaskLog(taskLog);
     taskLogList.add(taskLog);
 
+    await recalculateTaskProgress(taskModel.id);
     notifyListeners();
   }
 
@@ -161,6 +162,13 @@ class TaskLogProvider with ChangeNotifier {
     if (taskIndex != -1) {
       // Reset task status to null
       taskProvider.taskList[taskIndex].status = null;
+      // Reset progress
+      if (taskProvider.taskList[taskIndex].type == TaskTypeEnum.COUNTER) {
+        taskProvider.taskList[taskIndex].currentCount = 0;
+      } else if (taskProvider.taskList[taskIndex].type == TaskTypeEnum.TIMER) {
+        taskProvider.taskList[taskIndex].currentDuration = Duration.zero;
+      }
+
       // Update task in storage using TaskRepository
       await TaskRepository().updateTask(taskProvider.taskList[taskIndex]);
     }
@@ -219,6 +227,43 @@ class TaskLogProvider with ChangeNotifier {
       taskLogList.remove(logToDelete);
       notifyListeners();
     }
+  }
+
+  // Delete a specific log by ID
+  Future<void> deleteTaskLog(int logId) async {
+    await _repository.deleteTaskLog(logId);
+
+    // We need the task ID to recalculate, so find the log before deleting or store the ID
+    final logIndex = taskLogList.indexWhere((log) => log.id == logId);
+    if (logIndex != -1) {
+      final taskId = taskLogList[logIndex].taskId;
+      taskLogList.removeAt(logIndex);
+      await recalculateTaskProgress(taskId);
+    }
+
+    notifyListeners();
+  }
+
+  // Edit a specific log
+  Future<void> editTaskLog(int logId, dynamic newValue) async {
+    final index = taskLogList.indexWhere((log) => log.id == logId);
+    if (index == -1) return;
+
+    final log = taskLogList[index];
+
+    // Update value based on type logic if needed, but here we just update flexible fields.
+    // Assuming newValue matches the type (Duration or int).
+    if (newValue is int) {
+      log.count = newValue;
+    } else if (newValue is Duration) {
+      log.duration = newValue;
+    }
+
+    await _repository.updateTaskLog(log);
+    taskLogList[index] = log;
+
+    await recalculateTaskProgress(log.taskId);
+    notifyListeners();
   }
 
   /// Counter task'ın target count'u değiştirildiğinde logları güncelle
@@ -299,5 +344,54 @@ class TaskLogProvider with ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  // Existing methods implementation...
+
+  /// Recalculate task progress based on logs
+  Future<void> recalculateTaskProgress(int taskId) async {
+    final taskIndex = taskProvider.taskList.indexWhere((t) => t.id == taskId);
+    if (taskIndex == -1) return;
+
+    final task = taskProvider.taskList[taskIndex];
+    final logs = getLogsByTaskId(taskId); // Gets current logs from memory
+
+    if (task.type == TaskTypeEnum.COUNTER) {
+      int totalCount = 0;
+      for (var log in logs) {
+        if (log.count != null) {
+          totalCount += log.count!;
+        }
+      }
+      task.currentCount = totalCount;
+
+      // Update status if needed
+      if ((task.targetCount ?? 0) > 0 && totalCount >= task.targetCount!) {
+        if (task.status != TaskStatusEnum.DONE) task.status = TaskStatusEnum.DONE;
+      } else {
+        if (task.status == TaskStatusEnum.DONE) task.status = null;
+      }
+    } else if (task.type == TaskTypeEnum.TIMER) {
+      Duration totalDuration = Duration.zero;
+      for (var log in logs) {
+        if (log.duration != null) {
+          totalDuration += log.duration!;
+        }
+      }
+      task.currentDuration = totalDuration;
+
+      // Update status if needed
+      if ((task.remainingDuration ?? Duration.zero) > Duration.zero && totalDuration >= task.remainingDuration!) {
+        if (task.status != TaskStatusEnum.DONE) task.status = TaskStatusEnum.DONE;
+      } else {
+        if (task.status == TaskStatusEnum.DONE) task.status = null;
+      }
+    }
+
+    // Save updated task
+    await TaskRepository().updateTask(task);
+
+    // Notify TaskProvider listeners to update UI
+    taskProvider.notifyListeners();
   }
 }

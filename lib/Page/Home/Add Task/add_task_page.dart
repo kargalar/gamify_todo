@@ -15,6 +15,7 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
+
 import 'package:next_level/Widgets/Common/recent_logs_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -309,7 +310,31 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          RecentLogsWidget(taskViewModelForTask: _taskDetailViewModel!),
+                          RecentLogsWidget(
+                            logs: _taskDetailViewModel!.recentLogs,
+                            showAddButton: true,
+                            defaultType: _taskDetailViewModel!.taskModel.type,
+                            onAddLogSubmit: (value) async {
+                              await _taskDetailViewModel!.addManualLog(value);
+                              _taskDetailViewModel!.loadRecentLogs();
+                              setState(() {});
+                            },
+                            onClearAll: () async {
+                              await _taskDetailViewModel!.clearLogsForTask();
+                              _taskDetailViewModel!.loadRecentLogs();
+                              setState(() {});
+                            },
+                            onEditLog: (log, newValue) async {
+                              await _taskDetailViewModel!.editLogByKey(log.id, newValue);
+                              _taskDetailViewModel!.loadRecentLogs();
+                              setState(() {});
+                            },
+                            onDeleteLog: (log) async {
+                              await _taskDetailViewModel!.deleteLogByKey(log.id);
+                              _taskDetailViewModel!.loadRecentLogs();
+                              setState(() {});
+                            },
+                          ),
                           const SizedBox(height: 30),
                         ],
                       ),

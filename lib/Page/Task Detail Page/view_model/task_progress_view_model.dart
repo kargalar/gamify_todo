@@ -122,20 +122,13 @@ class TaskProgressViewModel extends ChangeNotifier {
     }
   }
 
-  // Store item log düzenleme metodu
-  static void editStoreItemLog(int index, dynamic newValue) async {
-    if (index < 0) return;
-
+  // Store item log düzenleme metodu (Key ile)
+  static Future<void> editStoreItemLogByKey(dynamic key, dynamic newValue) async {
     try {
       final box = await _getStoreItemLogBox();
+      final oldLog = box.get(key);
 
-      if (index >= box.length) return;
-
-      // Get all logs and find the one to edit (reversed list)
-      List<StoreItemLog> allLogs = box.values.toList();
-      int actualIndex = allLogs.length - 1 - index;
-
-      final oldLog = allLogs[actualIndex];
+      if (oldLog == null) return;
 
       // Update the log - construct with proper typeValue
       final updatedLog = StoreItemLog(
@@ -148,9 +141,10 @@ class TaskProgressViewModel extends ChangeNotifier {
         isPurchase: oldLog.isPurchase,
       );
 
-      await box.putAt(actualIndex, updatedLog);
+      // Hive key ile güncelleme
+      await box.put(key, updatedLog);
 
-      debugPrint('[Store Item Log] Edited log for item ${oldLog.itemId}');
+      debugPrint('[Store Item Log] Edited log for item ${oldLog.itemId} (Key: $key)');
 
       // If this log affects progress, adjust the item by the delta between new and old
       if (oldLog.affectsProgress) {
@@ -178,24 +172,17 @@ class TaskProgressViewModel extends ChangeNotifier {
     }
   }
 
-  // Store item log silme metodu
-  static void deleteStoreItemLog(int index) async {
-    if (index < 0) return;
-
+  // Store item log silme metodu (Key ile)
+  static Future<void> deleteStoreItemLogByKey(dynamic key) async {
     try {
       final box = await _getStoreItemLogBox();
+      final removed = box.get(key);
 
-      if (index >= box.length) return;
+      if (removed == null) return;
 
-      // Get all logs and find the one to delete (reversed list)
-      List<StoreItemLog> allLogs = box.values.toList();
-      int actualIndex = allLogs.length - 1 - index;
+      await box.delete(key);
 
-      final removed = allLogs[actualIndex];
-
-      await box.deleteAt(actualIndex);
-
-      debugPrint('[Store Item Log] Deleted log for item ${removed.itemId}');
+      debugPrint('[Store Item Log] Deleted log for item ${removed.itemId} (Key: $key)');
 
       // If log affected progress, roll it back from the item
       if (removed.affectsProgress) {
@@ -215,6 +202,42 @@ class TaskProgressViewModel extends ChangeNotifier {
     } catch (e) {
       debugPrint('[Store Item Log Error] Failed to delete log: $e');
     }
+  }
+
+  // Store item loglarını temizleme metodu
+  static Future<void> clearStoreItemLogs(int itemId) async {
+    try {
+      final box = await _getStoreItemLogBox();
+
+      // Itege logs and delete them
+      // We need keys to delete.
+      final keysToDelete = <dynamic>[];
+      final logsToDelete = <StoreItemLog>[];
+
+      for (var key in box.keys) {
+        final log = box.get(key);
+        if (log != null && log.itemId == itemId) {
+          keysToDelete.add(key);
+          logsToDelete.add(log);
+        }
+      }
+
+      // Delete one by one to handle logic? Or batch?
+      // Since deleteStoreItemLogByKey handles logic, calling it one by one is safest but might be slow if many.
+      // But typically not that many.
+      for (var key in keysToDelete) {
+        await deleteStoreItemLogByKey(key);
+      }
+
+      debugPrint('[Store Item Log] Cleared logs for item $itemId');
+    } catch (e) {
+      debugPrint('[Store Item Log Error] Failed to clear logs: $e');
+    }
+  }
+
+  // Legacy index-based methods (kept for safety or removal if unused)
+  static void editStoreItemLog(int index, dynamic newValue) async {
+    // ...
   }
 
   TaskProgressViewModel({

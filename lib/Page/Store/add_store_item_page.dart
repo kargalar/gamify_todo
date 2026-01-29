@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/log_display_model.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
@@ -36,6 +37,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
   late final storeProvider = context.read<StoreProvider>();
 
   bool isLoading = false;
+  List<LogDisplayModel> _logs = [];
 
   @override
   void initState() {
@@ -44,8 +46,52 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         addStoreItemProvider.setEditItem(widget.editItemModel);
+        if (widget.editItemModel != null) {
+          _loadLogs();
+        }
       }
     });
+  }
+
+  Future<void> _loadLogs() async {
+    if (widget.editItemModel == null) return;
+
+    final storeLogs = await TaskProgressViewModel.getStoreItemLogs(widget.editItemModel!.id);
+    final List<LogDisplayModel> displayLogs = [];
+
+    for (var log in storeLogs) {
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+      DateTime yesterday = today.subtract(const Duration(days: 1));
+      DateTime logDateOnly = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+
+      String? datePart;
+      if (logDateOnly == today) {
+        datePart = 'Today';
+      } else if (logDateOnly == yesterday) {
+        datePart = 'Yesterday';
+      } else {
+        datePart = DateFormat('d MMM yyyy').format(log.logDate);
+      }
+
+      displayLogs.add(LogDisplayModel(
+        id: log.key as int, // Hive key should be int
+        dateTime: log.logDate,
+        displayAmount: log.formattedValue,
+        amount: log.value,
+        status: "",
+        type: log.type,
+        isPurchase: log.isPurchase,
+        datePart: datePart,
+        canEdit: !log.isPurchase, // Don't allow editing purchase logs perhaps? Or maybe yes.
+      ));
+    }
+
+    if (mounted) {
+      setState(() {
+        _logs = displayLogs;
+      });
+    }
   }
 
   @override
@@ -55,6 +101,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           addStoreItemProvider.setEditItem(widget.editItemModel);
+          _loadLogs();
         }
       });
     }
@@ -71,12 +118,10 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
     super.didChangeAppLifecycleState(state);
 
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      // Uygulama arka plana alındığında veya inactive olduğunda timer'ı durdur
       if (addStoreItemProvider.isDescriptionTimerActive) {
         addStoreItemProvider.pauseDescriptionTimer();
       }
     } else if (state == AppLifecycleState.resumed) {
-      // Uygulama tekrar aktif olduğunda, eğer description focus'taysa timer'ı başlat
       if (addStoreItemProvider.descriptionFocus.hasFocus && !addStoreItemProvider.isDescriptionTimerActive) {
         addStoreItemProvider.startDescriptionTimer();
       }
@@ -91,9 +136,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
         if (!didPop) goBackCheck();
       },
       child: GestureDetector(
-        // Unfocus when tapping outside of text fields
         onTap: () {
-          // Unfocus all text fields
           addStoreItemProvider.unfocusAll();
           FocusScope.of(context).unfocus();
         },
@@ -103,7 +146,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
             leading: InkWell(
               borderRadius: AppColors.borderRadiusAll,
               onTap: () {
-                // Unfocus before going back
                 addStoreItemProvider.unfocusAll();
                 FocusScope.of(context).unfocus();
                 goBackCheck();
@@ -114,7 +156,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
               if (widget.editItemModel == null)
                 TextButton(
                   onPressed: () {
-                    // Unfocus before saving
                     addStoreItemProvider.unfocusAll();
                     FocusScope.of(context).unfocus();
                     addItem();
@@ -126,7 +167,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     ),
                   ),
                 ),
-              // Reset store item progress menu (only for edit mode)
               if (widget.editItemModel != null)
                 PopupMenuButton<String>(
                   onSelected: (value) {
@@ -150,7 +190,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
             ],
           ),
           body: SingleChildScrollView(
-            // Add keyboard dismiss behavior
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -162,11 +201,10 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                   TaskName(
                     isStore: true,
                     autoFocus: widget.editItemModel == null,
-                    onTaskSubmit: null, // Store items don't need this functionality
+                    onTaskSubmit: null,
                   ),
                   const SizedBox(height: 10),
 
-                  // Credit section
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.panelBackground,
@@ -197,7 +235,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
 
                   if (widget.editItemModel == null) ...[
                     const SizedBox(height: 10),
-                    // Type section
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.panelBackground,
@@ -214,7 +251,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     ),
                   ],
 
-                  // Duration section - only show if not counter type
                   Consumer<AddStoreItemProvider>(
                     builder: (context, provider, child) {
                       final selectedType = provider.selectedTaskType;
@@ -243,25 +279,43 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     },
                   ),
 
-                  // Recent Logs Container
-                  if (widget.editItemModel != null) ...[
-                    const SizedBox(height: 10),
+                  // Recent Logs
+                  if (_logs.isNotEmpty) ...[
+                    const SizedBox(height: 24),
                     RecentLogsWidget(
-                      storeItemId: widget.editItemModel!.id,
-                      storeItemType: widget.editItemModel!.type,
-                      onLogUpdated: () => setState(() {}),
+                      logs: _logs,
+                      showAddButton: true,
+                      defaultType: widget.editItemModel!.type, // Reverted to original logic for defaultType
+                      onAddLogSubmit: (value) async {
+                        TaskProgressViewModel.addStoreItemLog(
+                          itemId: widget.editItemModel!.id,
+                          action: "Manual Entry",
+                          value: value,
+                          type: widget.editItemModel!.type,
+                          affectsProgress: true,
+                        );
+                        _loadLogs();
+                      },
+                      onEditLog: (log, newValue) async {
+                        await TaskProgressViewModel.editStoreItemLogByKey(log.id, newValue);
+                        _loadLogs();
+                      },
+                      onDeleteLog: (log) async {
+                        await TaskProgressViewModel.deleteStoreItemLogByKey(log.id);
+                        _loadLogs();
+                      },
+                      onClearAll: () async {
+                        await TaskProgressViewModel.clearStoreItemLogs(widget.editItemModel!.id); // Used editItemModel!.id
+                        _loadLogs();
+                      },
                     ),
-                    const SizedBox(height: 5),
                   ],
-
-                  // Delete button for edit mode
                   if (widget.editItemModel != null) ...[
                     const SizedBox(height: 20),
                     Center(
                       child: InkWell(
                         borderRadius: AppColors.borderRadiusAll,
                         onTap: () {
-                          // Unfocus before showing dialog
                           addStoreItemProvider.unfocusAll();
                           FocusScope.of(context).unfocus();
 
@@ -303,7 +357,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
   void addItem() {
     if (addStoreItemProvider.taskNameController.text.trim().isEmpty) {
       addStoreItemProvider.taskNameController.clear();
-
       Helper().getMessage(
         message: LocaleKeys.NameEmpty.tr(),
         status: StatusEnum.WARNING,
@@ -322,7 +375,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
     if (widget.editItemModel != null) {
       if (addStoreItemProvider.taskNameController.text.trim().isEmpty) {
         addStoreItemProvider.taskNameController.clear();
-
         Helper().getMessage(
           message: LocaleKeys.NameEmpty.tr(),
           status: StatusEnum.WARNING,
@@ -373,35 +425,27 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
 
       final item = widget.editItemModel!;
 
-      // Reset progress values
       if (item.type == TaskTypeEnum.COUNTER) {
         item.currentCount = 0;
       } else if (item.type == TaskTypeEnum.TIMER) {
         item.currentDuration = Duration.zero;
-        // Also stop timer if it's active
         if (item.isTimerActive == true) {
           item.isTimerActive = false;
         }
       }
 
-      // Update item in storage
       await HiveService().updateItem(item);
 
-      // Clear logs for this item from TaskProgressViewModel
-      final logs = await TaskProgressViewModel.getStoreItemLogs(item.id);
-      for (int i = logs.length - 1; i >= 0; i--) {
-        TaskProgressViewModel.deleteStoreItemLog(i);
-      }
+      await TaskProgressViewModel.clearStoreItemLogs(item.id);
 
-      // Update provider
       storeProvider.setStateItems();
 
-      // Success message
       Helper().getMessage(message: LocaleKeys.ResetStoreProgressSuccess.tr());
 
-      // Refresh the page
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _loadLogs(); // Reload logs instead of empty setState
+        });
       }
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");

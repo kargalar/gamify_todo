@@ -232,7 +232,31 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                         SectionPanel(
                           icon: Icons.history_rounded,
                           title: LocaleKeys.RecentLogs.tr(),
-                          child: RecentLogsWidget(taskViewModelForTask: _viewModel),
+                          child: RecentLogsWidget(
+                            logs: _viewModel.recentLogs,
+                            showAddButton: true,
+                            defaultType: widget.taskModel.type,
+                            onAddLogSubmit: (value) async {
+                              await _viewModel.addManualLog(value);
+                              _viewModel.loadRecentLogs();
+                              setState(() {});
+                            },
+                            onClearAll: () async {
+                              await _viewModel.clearLogsForTask();
+                              _viewModel.loadRecentLogs();
+                              setState(() {});
+                            },
+                            onEditLog: (log, newValue) async {
+                              await _viewModel.editLogByKey(log.id, newValue);
+                              _viewModel.loadRecentLogs();
+                              setState(() {});
+                            },
+                            onDeleteLog: (log) async {
+                              await _viewModel.deleteLogByKey(log.id);
+                              _viewModel.loadRecentLogs();
+                              setState(() {});
+                            },
+                          ),
                         ),
 
                         const SizedBox(height: 20),
