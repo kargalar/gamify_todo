@@ -227,12 +227,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   List<TaskModel> getPinnedTasksForToday() {
-    final pinnedTasks = TaskProvider().getPinnedTasksForToday();
-    if (selectedCategoryId == null) {
-      return _applyFilters(pinnedTasks).cast<TaskModel>();
-    }
-    final filtered = pinnedTasks.where((task) => task.categoryId == selectedCategoryId).toList();
-    return _applyFilters(filtered).cast<TaskModel>();
+    return TaskProvider().getPinnedTasksForToday();
   }
 
   List<dynamic> getRoutineTasksForDate(DateTime date) {
