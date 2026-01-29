@@ -10,8 +10,15 @@ daha anlasılır istatistikler.
 
 windows sync
 
+wdget edit progressi kaldır.
+
+taskalrda ve itemlarda recent logs kısmını kadlır en baştan daha temiz ve düzgün ve bir şekilde. items ve tasklar için aynı kod kullanacak şekilde yap.
+
 
 projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve clean code prensiplerini uygula. bunu için gerekirse sistemi değiştirmekten çekinme. önemli olan temiz kod olmalı. lib altındaki bütün dosyaları kontrol ettiğinden emin ol
+<!-- taskı oluturup ilk girişte null hatasıç.  -->
+
+pinned listesinde olanlanar filtrenelenmeye dahil olmasın. her zaman gösterilsin
 
 
 

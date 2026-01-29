@@ -30,7 +30,7 @@ import 'package:next_level/Model/routine_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/task_template_model.dart';
 import 'package:provider/provider.dart';
-import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
+
 import 'package:next_level/Service/logging_service.dart';
 
 class AddTaskPage extends StatefulWidget {
@@ -240,10 +240,6 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   children: [
-                    if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null && !widget.isTemplateMode) ...[
-                      const SizedBox(height: 10),
-                      EditProgressWidget.forTask(task: addTaskProvider.editTask!),
-                    ],
                     const SizedBox(height: 10), // Combined Task Name and Description in a simpler way
                     TaskName(
                       autoFocus: addTaskProvider.editTask == null,

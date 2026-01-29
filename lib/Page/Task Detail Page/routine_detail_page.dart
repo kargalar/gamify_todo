@@ -6,7 +6,7 @@ import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/all_time_stats_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/completion_rate_widget.dart';
-import 'package:next_level/Page/Task%20Detail%20Page/widget/edit_progress_widget.dart';
+
 import 'package:next_level/Widgets/Common/recent_logs_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/trait_progress_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/widget/unarchive_button.dart';
@@ -190,11 +190,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                         const SizedBox(height: 10),
 
                         // Current Progress
-                        SectionPanel(
-                          icon: Icons.track_changes_rounded,
-                          title: 'Current Progress',
-                          child: EditProgressWidget.forTask(task: widget.taskModel),
-                        ),
+
                         const SizedBox(height: 10),
 
                         // All Time Stats and Success Metrics
