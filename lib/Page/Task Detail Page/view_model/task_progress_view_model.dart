@@ -11,7 +11,8 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/home_widget_service.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Repository/store_repository.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,7 +93,7 @@ class TaskProgressViewModel extends ChangeNotifier {
             final delta = (value as Duration);
             item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
           }
-          await ServerManager().updateItem(itemModel: item);
+          await StoreRepository().updateItem(item);
           StoreProvider().setStateItems();
         } catch (e) {
           debugPrint('[Store Item Log Error] Failed to affect progress: $e');
@@ -166,7 +167,7 @@ class TaskProgressViewModel extends ChangeNotifier {
             final delta = newVal - oldVal;
             item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
           }
-          await ServerManager().updateItem(itemModel: item);
+          await StoreRepository().updateItem(item);
           StoreProvider().setStateItems();
         } catch (e) {
           debugPrint('[Store Item Log Error] Failed to affect progress on edit: $e');
@@ -205,7 +206,7 @@ class TaskProgressViewModel extends ChangeNotifier {
           } else {
             item.currentDuration = (item.currentDuration ?? Duration.zero) - (removed.value as Duration);
           }
-          await ServerManager().updateItem(itemModel: item);
+          await StoreRepository().updateItem(item);
           StoreProvider().setStateItems();
         } catch (e) {
           debugPrint('[Store Item Log Error] Failed to rollback progress: $e');
@@ -352,7 +353,7 @@ class TaskProgressViewModel extends ChangeNotifier {
     }
 
     // Sunucuya güncelleme gönder
-    ServerManager().updateTask(taskModel: taskModel!);
+    TaskRepository().updateTask(taskModel!);
 
     // TaskProvider'daki task listesini güncelle
     try {
@@ -390,7 +391,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       }
 
       // Sunucuya güncelleme gönder
-      ServerManager().updateTask(taskModel: taskModel!);
+      TaskRepository().updateTask(taskModel!);
 
       // Kredi ekle
       AppHelper().addCreditByProgress(progressDifference);
@@ -405,7 +406,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       } else {
         itemModel!.currentDuration = value as Duration;
       }
-      ServerManager().updateItem(itemModel: itemModel!);
+      StoreRepository().updateItem(itemModel!);
     }
 
     notifyListeners();
@@ -580,7 +581,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       }
 
       itemModel!.currentCount = value;
-      ServerManager().updateItem(itemModel: itemModel!);
+      StoreRepository().updateItem(itemModel!);
     }
 
     updateProgress(value);
@@ -627,7 +628,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       int newValue = previousCount + totalChange;
 
       itemModel!.currentCount = newValue;
-      ServerManager().updateItem(itemModel: itemModel!);
+      StoreRepository().updateItem(itemModel!);
       updateProgress(newValue);
     }
   }
@@ -672,7 +673,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       Duration newValue = previousDuration + totalChange;
 
       itemModel!.currentDuration = newValue;
-      ServerManager().updateItem(itemModel: itemModel!);
+      StoreRepository().updateItem(itemModel!);
       updateProgress(newValue);
     }
   }

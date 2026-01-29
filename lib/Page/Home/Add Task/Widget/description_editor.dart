@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Provider/add_store_item_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Repository/store_repository.dart';
 import 'package:next_level/Widgets/Common/description_editor.dart' as shared;
 import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -43,7 +44,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
         // Update the existing task's description
         taskProvider.editTask!.description = text.isNotEmpty ? text : null;
         // Save to database
-        ServerManager().updateTask(taskModel: taskProvider.editTask!);
+        TaskRepository().updateTask(taskProvider.editTask!);
         LogService.debug('✅ Task description auto-saved: ${text.length} characters');
       }
       // For new tasks, the description will be saved when the task is created
@@ -69,7 +70,7 @@ class _DescriptionEditorState extends State<DescriptionEditor> {
         storeProvider.editItem = updatedItem;
 
         // Save to database
-        ServerManager().updateItem(itemModel: updatedItem);
+        StoreRepository().updateItem(updatedItem);
         LogService.debug('✅ Store item description auto-saved: ${text.length} characters');
       }
       // For new store items, the description will be saved when the item is created

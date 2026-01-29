@@ -6,8 +6,7 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
-import 'package:next_level/Service/hive_service.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/app_helper.dart';
@@ -75,7 +74,7 @@ class HomeWidgetService {
       // In background isolate or early startup, provider may be empty; fall back to Hive
       if (allTasks.isEmpty) {
         try {
-          allTasks = await HiveService().getTasks();
+          allTasks = await TaskRepository().getTasks();
           LogService.debug('Using Hive tasks for widget update, count: ${allTasks.length}');
         } catch (e) {
           LogService.error('Failed to load tasks from Hive for widget update: $e');
@@ -284,7 +283,7 @@ class HomeWidgetService {
             }
             // Reload task list from Hive to get widget changes
             try {
-              final tasks = await HiveService().getTasks();
+              final tasks = await TaskRepository().getTasks();
               TaskProvider().taskList = tasks;
               LogService.debug('✅ Tasks reloaded from Hive: ${tasks.length} tasks');
             } catch (e) {
@@ -381,7 +380,7 @@ class HomeWidgetService {
       LogService.debug('Task ID: $taskId, Title: $titleParam');
 
       // Load the task directly from Hive
-      final tasks = await HiveService().getTasks();
+      final tasks = await TaskRepository().getTasks();
       TaskModel? task;
       if (taskId != null && taskId > 0) {
         final matches = tasks.where((t) => t.id == taskId);
@@ -432,7 +431,7 @@ class HomeWidgetService {
                 final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
                 await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur - mins);
               }
-              await ServerManager().updateTask(taskModel: task);
+              await TaskRepository().updateTask(task);
             } else {
               task.status = TaskStatusEnum.DONE;
               await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.DONE);
@@ -442,7 +441,7 @@ class HomeWidgetService {
                 final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
                 await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur + mins);
               }
-              await ServerManager().updateTask(taskModel: task);
+              await TaskRepository().updateTask(task);
             }
             await updateAllWidgets();
             await _bumpWidgetEventSeq();
@@ -478,7 +477,7 @@ class HomeWidgetService {
               task.status = TaskStatusEnum.DONE;
             }
 
-            await ServerManager().updateTask(taskModel: task);
+            await TaskRepository().updateTask(task);
             await updateAllWidgets();
             await _bumpWidgetEventSeq();
           }

@@ -10,7 +10,7 @@ import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
 
 class EditLogDialog extends StatefulWidget {
   final TaskModel taskModel;
@@ -274,7 +274,7 @@ class _EditLogDialogState extends State<EditLogDialog> {
         // Reset task status to null
         taskProvider.taskList[taskIndex].status = null;
         // Update task in storage
-        await ServerManager().updateTask(taskModel: taskProvider.taskList[taskIndex]);
+        await TaskRepository().updateTask(taskProvider.taskList[taskIndex]);
         // Notify listeners
         taskProvider.updateItems();
       }

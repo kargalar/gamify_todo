@@ -4,7 +4,9 @@ import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/notification_services.dart';
-import 'package:next_level/Service/server_manager.dart';
+
+import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Repository/store_repository.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -128,7 +130,7 @@ class GlobalTimer {
       }
 
       // Sunucuya güncelleme gönder
-      ServerManager().updateTask(taskModel: taskModel);
+      TaskRepository().updateTask(taskModel);
 
       // Widget'ı güncelle
       HomeWidgetService.updateTaskCount();
@@ -189,7 +191,7 @@ class GlobalTimer {
       }
 
       // Sunucuya güncelleme gönder
-      ServerManager().updateItem(itemModel: storeItemModel);
+      StoreRepository().updateItem(storeItemModel);
     }
 
     // Global timer'ı başlat/durdur
@@ -264,14 +266,14 @@ class GlobalTimer {
                 // task.isTimerActive = false;
 
                 // Veritabanını güncelle
-                ServerManager().updateTask(taskModel: task);
+                TaskRepository().updateTask(task);
 
                 // Task Provider'a otomatik bildirim kontrolü çağırma
                 // (Tamamlandı durumunda planlı alarmın iptal edilmesini istemiyoruz)
               }
 
               if (task.currentDuration!.inSeconds % 60 == 0) {
-                ServerManager().updateTask(taskModel: task);
+                TaskRepository().updateTask(task);
                 AppHelper().addCreditByProgress(const Duration(seconds: 60));
               }
             }
@@ -333,7 +335,7 @@ class GlobalTimer {
               }
 
               if (storeItem.currentDuration!.inSeconds % 60 == 0) {
-                ServerManager().updateItem(itemModel: storeItem);
+                StoreRepository().updateItem(storeItem);
               }
             }
           }
@@ -389,7 +391,7 @@ class GlobalTimer {
             // Store the last known foreground timestamp
             await prefs.setString('last_foreground_time', now.toIso8601String());
 
-            ServerManager().updateTask(taskModel: task);
+            TaskRepository().updateTask(task);
             AppHelper().addCreditByProgress(difference);
           }
         }
@@ -442,7 +444,7 @@ class GlobalTimer {
           // Update baseline for next resume
           await prefs.setString('item_last_update_${storeItem.id}', now.toIso8601String());
           await prefs.setString('item_last_progress_${storeItem.id}', newRemaining.inSeconds.toString());
-          ServerManager().updateItem(itemModel: storeItem);
+          StoreRepository().updateItem(storeItem);
         }
       }
       StoreProvider().setStateItems();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:next_level/Repository/store_repository.dart';
 import 'package:next_level/Service/global_timer.dart';
-import 'package:next_level/Service/server_manager.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/store_item_model.dart';
 
@@ -12,11 +12,14 @@ class StoreProvider with ChangeNotifier {
   }
 
   StoreProvider._internal();
+
+  final StoreRepository _repository = StoreRepository();
+
 // ?? - kredi ve itemler - ye düşebilecek ama bu disipindena eksilmesine sebep oalcak
   List<ItemModel> storeItemList = [];
 
   void addItem(ItemModel itemModel) async {
-    final int storeItemId = await ServerManager().addItem(itemModel: itemModel);
+    final int storeItemId = await _repository.addItem(itemModel);
 
     itemModel.id = storeItemId;
 
@@ -26,7 +29,7 @@ class StoreProvider with ChangeNotifier {
   }
 
   void deleteItem(int id) async {
-    await ServerManager().deleteItem(id: id);
+    await _repository.deleteItem(id);
 
     storeItemList.removeWhere((element) => element.id == id);
 
@@ -34,7 +37,7 @@ class StoreProvider with ChangeNotifier {
   }
 
   void editItem(ItemModel itemModel) async {
-    await ServerManager().updateItem(itemModel: itemModel);
+    await _repository.updateItem(itemModel);
 
     final int index = storeItemList.indexWhere((element) => element.id == itemModel.id);
 
@@ -53,7 +56,7 @@ class StoreProvider with ChangeNotifier {
 
   Future<void> loadItems() async {
     try {
-      storeItemList = await ServerManager().getItems();
+      storeItemList = await _repository.getItems();
       notifyListeners();
     } catch (e) {
       LogService.error('❌ StoreProvider: Error loading items: $e');
@@ -69,7 +72,7 @@ class StoreProvider with ChangeNotifier {
       }
 
       storeItemList = reorderedItems;
-      await ServerManager().updateItemsOrder(items: storeItemList);
+      await _repository.updateItemsOrder(storeItemList);
       notifyListeners();
       LogService.debug('✅ StoreProvider: Items reordered successfully - ${storeItemList.length} items saved');
     } catch (e) {

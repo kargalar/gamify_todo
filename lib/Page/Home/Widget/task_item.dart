@@ -22,7 +22,7 @@ import 'package:next_level/Enum/task_item_style_enum.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Provider/task_style_provider.dart';
-import 'package:next_level/Service/server_manager.dart';
+
 import 'package:provider/provider.dart';
 
 enum AnimationType { completion, fail, cancel }
@@ -641,10 +641,8 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         Helper().getMessage(message: LocaleKeys.UnarchiveRoutineSuccess.tr());
       } else {
         // If it's a regular task, just change its status
-        widget.taskModel.status = null;
-        await ServerManager().updateTask(taskModel: widget.taskModel);
+        await Provider.of<TaskProvider>(context, listen: false).unarchiveTask(widget.taskModel);
         // ignore: use_build_context_synchronously
-        Provider.of<TaskProvider>(context, listen: false).updateItems();
         Helper().getMessage(message: LocaleKeys.UnarchiveTaskSuccess.tr());
       }
       setState(() {});

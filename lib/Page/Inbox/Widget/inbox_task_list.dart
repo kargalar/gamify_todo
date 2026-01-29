@@ -14,7 +14,7 @@ import 'package:next_level/Provider/navbar_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
 import 'package:provider/provider.dart';
 
 class InboxTaskList extends StatefulWidget {
@@ -456,8 +456,8 @@ class _InboxTaskListState extends State<InboxTaskList> {
           // Hive'e kaydet
           await updatedTask.save();
 
-          // ServerManager'a da kaydet
-          await ServerManager().updateTask(taskModel: updatedTask);
+          // TaskRepository'ye da kaydet
+          await TaskRepository().updateTask(updatedTask);
         } catch (e) {
           LogService.error('❌ CRITICAL: Error saving task ${updatedTask.id}: $e');
           allSavedSuccessfully = false;

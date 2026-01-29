@@ -1,13 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_log_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_provider.dart';
-import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/global_timer.dart';
-import 'package:next_level/Service/server_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:next_level/Repository/task_log_repository.dart';
+import 'package:next_level/Repository/task_repository.dart';
 
 class TaskLogProvider with ChangeNotifier {
   static final TaskLogProvider _instance = TaskLogProvider._internal();
@@ -18,10 +18,29 @@ class TaskLogProvider with ChangeNotifier {
 
   TaskLogProvider._internal();
 
+  TaskLogRepository _repository = TaskLogRepository();
+
+  @visibleForTesting
+  void setRepository(TaskLogRepository repo) {
+    _repository = repo;
+  }
+
+  TaskProvider? _taskProvider;
+
+  TaskProvider get taskProvider {
+    _taskProvider ??= TaskProvider();
+    return _taskProvider!;
+  }
+
+  @visibleForTesting
+  void setTaskProvider(TaskProvider provider) {
+    _taskProvider = provider;
+  }
+
   List<TaskLogModel> taskLogList = [];
 
   Future<void> loadTaskLogs() async {
-    taskLogList = await HiveService().getTaskLogs();
+    taskLogList = await _repository.getTaskLogs();
     notifyListeners();
   }
 
@@ -37,8 +56,6 @@ class TaskLogProvider with ChangeNotifier {
     // additional stop log by suppressing it.
     // (import at top ensures availability)
     // Now proceed with normal log creation
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int lastLogId = prefs.getInt("last_task_log_id") ?? 0;
 
     // Get the log date (either custom or now)
     final DateTime logDate = customLogDate ?? DateTime.now();
@@ -66,7 +83,7 @@ class TaskLogProvider with ChangeNotifier {
         existingLog.logDate = logDate; // Update timestamp to current time
 
         // Save the updated log
-        await HiveService().addTaskLog(existingLog);
+        await _repository.updateTaskLog(existingLog);
 
         // Update the log in the provider's list
         final index = taskLogList.indexWhere((log) => log.id == existingLog.id);
@@ -80,16 +97,11 @@ class TaskLogProvider with ChangeNotifier {
     }
 
     // If we get here, either it's not a checkbox task or there's no existing log for today
-    // Find the highest ID among existing logs to ensure uniqueness
-    int highestLogId = lastLogId;
-    for (final log in taskLogList) {
-      if (log.id > highestLogId) {
-        highestLogId = log.id;
-      }
-    }
+    // Generate next ID via Repository
+    int nextId = await _repository.generateNextId();
 
     final TaskLogModel taskLog = TaskLogModel(
-      id: highestLogId + 1,
+      id: nextId,
       taskId: taskModel.id,
       routineId: taskModel.routineID,
       logDate: logDate,
@@ -111,10 +123,8 @@ class TaskLogProvider with ChangeNotifier {
       GlobalTimer().startStopTimer(taskModel: taskModel, suppressStopLog: true);
     }
 
-    await HiveService().addTaskLog(taskLog);
+    await _repository.addTaskLog(taskLog);
     taskLogList.add(taskLog);
-
-    await prefs.setInt("last_task_log_id", taskLog.id);
 
     notifyListeners();
   }
@@ -140,20 +150,19 @@ class TaskLogProvider with ChangeNotifier {
     // Get all logs for this task
     final logsToDelete = taskLogList.where((log) => log.taskId == taskId).toList();
 
-    // Delete each log from Hive
+    // Delete each log from Repo
     for (final log in logsToDelete) {
-      await HiveService().deleteTaskLog(log.id);
+      await _repository.deleteTaskLog(log.id);
       taskLogList.remove(log);
     }
 
     // Find the task in TaskProvider and reset its status to null
-    final taskProvider = TaskProvider();
     final taskIndex = taskProvider.taskList.indexWhere((task) => task.id == taskId);
     if (taskIndex != -1) {
       // Reset task status to null
       taskProvider.taskList[taskIndex].status = null;
-      // Update task in storage
-      await ServerManager().updateTask(taskModel: taskProvider.taskList[taskIndex]);
+      // Update task in storage using TaskRepository
+      await TaskRepository().updateTask(taskProvider.taskList[taskIndex]);
     }
 
     notifyListeners();
@@ -164,21 +173,20 @@ class TaskLogProvider with ChangeNotifier {
     // Get all logs for this routine
     final logsToDelete = taskLogList.where((log) => log.routineId == routineId).toList();
 
-    // Delete each log from Hive
+    // Delete each log from Repo
     for (final log in logsToDelete) {
-      await HiveService().deleteTaskLog(log.id);
+      await _repository.deleteTaskLog(log.id);
       taskLogList.remove(log);
     }
 
     // Find all tasks associated with this routine and reset their status to null
-    final taskProvider = TaskProvider();
     final tasksToReset = taskProvider.taskList.where((task) => task.routineID == routineId).toList();
 
     for (final task in tasksToReset) {
       // Reset task status to null
       task.status = null;
-      // Update task in storage
-      await ServerManager().updateTask(taskModel: task);
+      // Update task in storage using TaskRepository
+      await TaskRepository().updateTask(task);
     }
 
     notifyListeners();
@@ -189,10 +197,9 @@ class TaskLogProvider with ChangeNotifier {
     taskLogList.clear();
 
     // Reset status of all tasks to null
-    final taskProvider = TaskProvider();
     for (final task in taskProvider.taskList) {
       task.status = null;
-      await ServerManager().updateTask(taskModel: task);
+      await TaskRepository().updateTask(task);
     }
 
     notifyListeners();
@@ -208,7 +215,7 @@ class TaskLogProvider with ChangeNotifier {
         .firstOrNull;
 
     if (logToDelete != null) {
-      await HiveService().deleteTaskLog(logToDelete.id);
+      await _repository.deleteTaskLog(logToDelete.id);
       taskLogList.remove(logToDelete);
       notifyListeners();
     }
@@ -247,8 +254,8 @@ class TaskLogProvider with ChangeNotifier {
       // Status değişmişse güncelle
       if (log.status != newStatus) {
         log.status = newStatus;
-        // HiveObject olduğu için doğrudan save ettik
-        await log.save();
+        // Use Repository to save
+        await _repository.updateTaskLog(log);
         notifyListeners();
       }
     }
@@ -287,8 +294,8 @@ class TaskLogProvider with ChangeNotifier {
       // Status değişmişse güncelle
       if (log.status != newStatus) {
         log.status = newStatus;
-        // HiveObject olduğu için doğrudan save ettik
-        await log.save();
+        // Use Repository to save
+        await _repository.updateTaskLog(log);
         notifyListeners();
       }
     }

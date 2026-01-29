@@ -5,7 +5,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/app_helper.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
 
 class CheckboxStatusViewModel extends ChangeNotifier {
   final TaskModel taskModel;
@@ -100,7 +100,7 @@ class CheckboxStatusViewModel extends ChangeNotifier {
     }
 
     // Sunucuya güncelleme gönder
-    ServerManager().updateTask(taskModel: taskModel);
+    TaskRepository().updateTask(taskModel);
 
     // TaskProvider'ı güncelle (ana sayfadaki görev durumunu güncellemek için)
     TaskProvider().updateItems();

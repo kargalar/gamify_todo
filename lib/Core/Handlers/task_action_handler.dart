@@ -9,7 +9,7 @@ import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/navigator_service.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 
@@ -17,7 +17,7 @@ import 'package:get/get_navigation/src/routes/transitions_type.dart';
 class TaskActionHandler {
   /// Helper method to update task and sync to Firestore
   static void _updateTaskAndSync(TaskModel taskModel) {
-    ServerManager().updateTask(taskModel: taskModel);
+    TaskRepository().updateTask(taskModel);
   }
 
   /// Handles the primary action for a task based on its type
@@ -235,7 +235,7 @@ class TaskActionHandler {
       }
 
       // Update task in provider
-      ServerManager().updateTask(taskModel: taskModel);
+      TaskRepository().updateTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
@@ -257,7 +257,7 @@ class TaskActionHandler {
       );
 
       // Update task in provider
-      ServerManager().updateTask(taskModel: taskModel);
+      TaskRepository().updateTask(taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 
@@ -313,7 +313,7 @@ class TaskActionHandler {
       }
 
       // Update task in provider
-      ServerManager().updateTask(taskModel: taskModel);
+      TaskRepository().updateTask(taskModel: taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
     } else {
@@ -335,7 +335,7 @@ class TaskActionHandler {
       );
 
       // Update task in provider
-      ServerManager().updateTask(taskModel: taskModel);
+      TaskRepository().updateTask(taskModel: taskModel);
       TaskProvider().updateItems();
       HomeWidgetService.updateAllWidgets();
 

@@ -6,7 +6,8 @@ import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Repository/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +17,7 @@ class NavbarLifecycleHandler {
 
     try {
       // Reload tasks and logs
-      context.read<TaskProvider>().taskList = await ServerManager().getTasks();
+      context.read<TaskProvider>().taskList = await TaskRepository().getTasks();
       await context.read<TaskProvider>().loadCategories();
       LogService.debug('📋 Tasks reloaded');
     } catch (e) {
@@ -25,7 +26,7 @@ class NavbarLifecycleHandler {
 
     try {
       // Reload user info for credit updates
-      final user = await ServerManager().getUser();
+      final user = await UserRepository().getUser(0);
       if (user != null && context.mounted) {
         loginUser = user;
         context.read<UserProvider>().setUser(user);

@@ -1,6 +1,6 @@
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/Provider/user_provider.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/user_repository.dart';
 import 'package:next_level/Service/logging_service.dart';
 
 class AppHelper {
@@ -36,7 +36,7 @@ class AppHelper {
 
     LogService.debug('💰 After: credit=${loginUser!.userCredit}, progress=${loginUser!.creditProgress.inMinutes} minutes');
 
-    await ServerManager().updateUser(userModel: loginUser!);
+    await UserRepository().updateUser(loginUser!);
 
     // Sync with UserProvider to update UI
     UserProvider().setUser(loginUser!);

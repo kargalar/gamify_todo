@@ -22,7 +22,11 @@ import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Service/navigator_service.dart';
 import 'package:next_level/Service/notification_services.dart';
-import 'package:next_level/Service/server_manager.dart';
+
+import 'package:next_level/Repository/store_repository.dart';
+import 'package:next_level/Repository/trait_repository.dart';
+import 'package:next_level/Repository/routine_repository.dart';
+import 'package:next_level/Repository/task_repository.dart';
 import 'package:provider/provider.dart';
 
 class NavbarPageManager extends StatefulWidget {
@@ -156,10 +160,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
     try {
       LogService.debug('📥 Loading initial data...');
 
-      context.read<StoreProvider>().storeItemList = await ServerManager().getItems();
-      context.read<TraitProvider>().traitList = await ServerManager().getTraits();
-      context.read<TaskProvider>().routineList = await ServerManager().getRoutines();
-      context.read<TaskProvider>().taskList = await ServerManager().getTasks();
+      context.read<StoreProvider>().storeItemList = await StoreRepository().getItems();
+      context.read<TraitProvider>().traitList = await TraitRepository().getTraits();
+      context.read<TaskProvider>().routineList = await RoutineRepository().getRoutines();
+      context.read<TaskProvider>().taskList = await TaskRepository().getTasks();
 
       await HiveService().createTasksFromRoutines();
       await GlobalTimer().checkSavedTimers();
@@ -225,10 +229,10 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
       if (!mounted) return;
 
-      context.read<StoreProvider>().storeItemList = await ServerManager().getItems();
-      context.read<TraitProvider>().traitList = await ServerManager().getTraits();
-      context.read<TaskProvider>().routineList = await ServerManager().getRoutines();
-      context.read<TaskProvider>().taskList = await ServerManager().getTasks();
+      context.read<StoreProvider>().storeItemList = await StoreRepository().getItems();
+      context.read<TraitProvider>().traitList = await TraitRepository().getTraits();
+      context.read<TaskProvider>().routineList = await RoutineRepository().getRoutines();
+      context.read<TaskProvider>().taskList = await TaskRepository().getTasks();
       await context.read<TaskProvider>().loadCategories();
 
       context.read<TaskProvider>().updateItems();

@@ -10,7 +10,8 @@ import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/user_repository.dart';
+import 'package:next_level/Repository/store_repository.dart';
 import 'package:next_level/Provider/store_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/store_item_model.dart';
@@ -348,8 +349,8 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         // Bu müşteri tarafından görülebilmesi için daily transactions'a eklemelidir
         LogService.debug('💰 Store Item Purchase: ${widget.storeItemModel.title} - Credit cost: -${widget.storeItemModel.credit}');
 
-        await ServerManager().updateUser(userModel: loginUser!);
-        await ServerManager().updateItem(itemModel: widget.storeItemModel);
+        await UserRepository().updateUser(loginUser!);
+        await StoreRepository().updateItem(widget.storeItemModel);
 
         // Sync with UserProvider to update UI
         UserProvider().setUser(loginUser!);
@@ -434,7 +435,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
       widget.storeItemModel.currentCount = widget.storeItemModel.currentCount! - 1;
       value = -1; // Kullanılan miktar (negatif)
       action = "Usage";
-      ServerManager().updateItem(itemModel: widget.storeItemModel);
+      StoreRepository().updateItem(widget.storeItemModel);
       // TODO: - olursa disiplin düşecek
     } else {
       // Timer için timer aktif durumunu kaydet
@@ -494,7 +495,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         action = "Timer Action";
       }
 
-      ServerManager().updateItem(itemModel: widget.storeItemModel);
+      StoreRepository().updateItem(widget.storeItemModel);
     }
 
     // Log kaydını oluştur - sadece anlamlı değişiklikler için

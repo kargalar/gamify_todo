@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:next_level/Service/server_manager.dart';
+import 'package:next_level/Repository/trait_repository.dart';
 import 'package:next_level/Model/trait_model.dart';
 
 class TraitProvider with ChangeNotifier {
@@ -11,17 +11,18 @@ class TraitProvider with ChangeNotifier {
   }
 
   List<TraitModel> traitList = [];
+  final TraitRepository _repository = TraitRepository();
 
   void editTrait(TraitModel traitModel) async {
     traitList[traitList.indexWhere((element) => element.id == traitModel.id)] = traitModel;
 
-    await ServerManager().updateTrait(traitModel: traitModel);
+    await _repository.updateTrait(traitModel);
 
     notifyListeners();
   }
 
   void addTrait(TraitModel traitModel) async {
-    final int traitId = await ServerManager().addTrait(traitModel: traitModel);
+    final int traitId = await _repository.addTrait(traitModel);
 
     traitModel.id = traitId;
 
@@ -31,7 +32,7 @@ class TraitProvider with ChangeNotifier {
   }
 
   void removeTrait(int id) async {
-    await ServerManager().deleteTrait(id: id);
+    await _repository.deleteTrait(id);
 
     traitList.removeWhere((element) => element.id == id);
 

@@ -9,6 +9,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Core/helper.dart';
 
 class TaskSlideActions extends StatefulWidget {
   const TaskSlideActions({
@@ -109,10 +110,16 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         closeOnCancel: true,
         confirmDismiss: () async {
           if (widget.taskModel.routineID == null) {
-            taskProvider.changeTaskDate(
+            final date = await Helper().selectDateWithQuickActions(
               context: context,
-              taskModel: widget.taskModel,
+              initialDate: widget.taskModel.taskDate,
             );
+            if (date != null) {
+              taskProvider.updateTaskDate(
+                taskModel: widget.taskModel,
+                selectedDate: date,
+              );
+            }
           }
 
           return false;
@@ -182,11 +189,17 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
   SlidableAction changeDateAction() {
     return SlidableAction(
-      onPressed: (context) {
-        taskProvider.changeTaskDate(
+      onPressed: (context) async {
+        final date = await Helper().selectDateWithQuickActions(
           context: context,
-          taskModel: widget.taskModel,
+          initialDate: widget.taskModel.taskDate,
         );
+        if (date != null) {
+          taskProvider.updateTaskDate(
+            taskModel: widget.taskModel,
+            selectedDate: date,
+          );
+        }
       },
       backgroundColor: AppColors.orange,
       icon: Icons.calendar_month,

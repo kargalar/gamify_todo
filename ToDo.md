@@ -4,6 +4,15 @@ item timer 0 altına inice 2 tane bildrimi geliyor.
 
 taskı editleyip çıkınca aktif timer devam etsin.
 
+tasarım iyileştirme.
+
+daha anlasılır istatistikler.
+
+windows sync
+
+
+projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve clean code prensiplerini uygula. bunu için gerekirse sistemi değiştirmekten çekinme. önemli olan temiz kod olmalı. lib altındaki bütün dosyaları kontrol ettiğinden emin ol
+
 
 
 

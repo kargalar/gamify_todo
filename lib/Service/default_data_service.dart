@@ -20,7 +20,10 @@ import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Service/notification_services.dart';
-import 'package:next_level/Service/server_manager.dart';
+
+import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Repository/routine_repository.dart';
+import 'package:next_level/Repository/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/General/accessible.dart';
 
@@ -162,7 +165,7 @@ class DefaultDataService {
     try {
       if (loginUser != null) {
         loginUser!.userCredit += 10;
-        await ServerManager().updateUser(userModel: loginUser!);
+        await UserRepository().updateUser(loginUser!);
         UserProvider().setUser(loginUser!);
         LogService.debug('✅ DefaultDataService: Kullanıcıya 10 kredi eklendi (Toplam: ${loginUser!.userCredit})');
       } else {
@@ -326,7 +329,7 @@ class DefaultDataService {
           status: null,
           categoryId: workCategory.id,
         );
-        await ServerManager().addTask(taskModel: emailTask);
+        await TaskRepository().addTask(emailTask);
         taskProvider.taskList.add(emailTask);
         LogService.debug('✅ DefaultDataService: Email kontrolü görevi oluşturuldu');
 
@@ -347,7 +350,7 @@ class DefaultDataService {
           remainingDuration: const Duration(hours: 1),
           isPinned: true,
         );
-        await ServerManager().addTask(taskModel: meetingTask);
+        await TaskRepository().addTask(meetingTask);
         taskProvider.taskList.add(meetingTask);
         LogService.debug('✅ DefaultDataService: Toplantı hazırlık görevi oluşturuldu');
       }
@@ -369,7 +372,7 @@ class DefaultDataService {
           currentCount: 0,
           remainingDuration: Duration(minutes: 30),
         );
-        await ServerManager().addTask(taskModel: readingTask);
+        await TaskRepository().addTask(readingTask);
         taskProvider.taskList.add(readingTask);
         LogService.debug('✅ DefaultDataService: Kitap okuma görevi oluşturuldu');
 
@@ -386,7 +389,7 @@ class DefaultDataService {
           priority: 3,
           categoryId: personalCategory.id,
         );
-        await ServerManager().addTask(taskModel: callFriendTask);
+        await TaskRepository().addTask(callFriendTask);
         taskProvider.taskList.add(callFriendTask);
         LogService.debug('✅ DefaultDataService: Arkadaş arama görevi oluşturuldu');
       }
@@ -410,7 +413,7 @@ class DefaultDataService {
           currentDuration: Duration.zero,
           remainingDuration: const Duration(minutes: 30),
         );
-        await ServerManager().addTask(taskModel: exerciseTask);
+        await TaskRepository().addTask(exerciseTask);
         taskProvider.taskList.add(exerciseTask);
         LogService.debug('✅ DefaultDataService: Egzersiz görevi oluşturuldu');
 
@@ -428,7 +431,7 @@ class DefaultDataService {
           currentCount: 0,
           targetCount: 8,
         );
-        await ServerManager().addTask(taskModel: waterTask);
+        await TaskRepository().addTask(waterTask);
         taskProvider.taskList.add(waterTask);
         LogService.debug('✅ DefaultDataService: Su içme görevi oluşturuldu');
       }
@@ -472,7 +475,7 @@ class DefaultDataService {
             ),
           ],
         );
-        await ServerManager().addTask(taskModel: groceryTask);
+        await TaskRepository().addTask(groceryTask);
         taskProvider.taskList.add(groceryTask);
         LogService.debug('✅ DefaultDataService: Market alışverişi görevi oluşturuldu (4 subtask ile)');
       }
@@ -885,7 +888,7 @@ class DefaultDataService {
           earlyReminderMinutes: 10,
         );
 
-        await ServerManager().addRoutine(routineModel: readRoutine);
+        await RoutineRepository().addRoutine(readRoutine);
         LogService.debug('✅ DefaultDataService: Read Book rutini oluşturuldu (${personalCategory.title})');
       }
 
@@ -910,7 +913,7 @@ class DefaultDataService {
           earlyReminderMinutes: 5,
         );
 
-        await ServerManager().addRoutine(routineModel: meditationRoutine);
+        await RoutineRepository().addRoutine(meditationRoutine);
         LogService.debug('✅ DefaultDataService: Meditation rutini oluşturuldu (${healthCategory.title})');
       }
 
