@@ -5,7 +5,7 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/app_helper.dart';
-import 'package:next_level/Service/global_timer.dart';
+
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Repository/task_repository.dart';
@@ -295,10 +295,10 @@ class TaskProvider with ChangeNotifier {
             task.subtasks = null;
           }
 
-          // Handle timer if active
-          if (task.isTimerActive != null && task.isTimerActive!) {
-            GlobalTimer().startStopTimer(taskModel: task);
-          }
+          // Timer handled by GlobalTimer service, no need to toggle here
+          // if (task.isTimerActive != null && task.isTimerActive!) {
+          //   GlobalTimer().startStopTimer(taskModel: task);
+          // }
 
           // Update notifications
           checkNotification(task);
@@ -518,10 +518,10 @@ class TaskProvider with ChangeNotifier {
         existingTask.subtasks = taskModel.subtasks;
         existingTask.attachmentPaths = taskModel.attachmentPaths;
 
-        // Handle timer if active
-        if (existingTask.isTimerActive != null && existingTask.isTimerActive!) {
-          GlobalTimer().startStopTimer(taskModel: existingTask);
-        }
+        // Timer handled by GlobalTimer service, no need to toggle here
+        // if (existingTask.isTimerActive != null && existingTask.isTimerActive!) {
+        //   GlobalTimer().startStopTimer(taskModel: existingTask);
+        // }
 
         // Update notifications
         checkNotification(existingTask);

@@ -1,5 +1,4 @@
 
-timer aktid bir taskın add task page sayfasına girip (yani düzenleme sayfası)  geri çıkarsam timer durduruluyor. durdurulmamamlı.
 
 tasarım iyileştirme.
 
