@@ -1,12 +1,11 @@
 
-Timer task ile 8 saat calsitim ama credi o artmadı gibi kontrol testi yap.
-    Bu sruecte uygulamayı bircon kez aç kapa yaptım. Belki etkiliyordu4.
+Timer task ile 8 saat calsitim ama credi o kadar artmadı gibi kontrol testi yap.
+    Bu sruecte uygulamayı bircon kez aç kapa yaptım. Belki etkiliyordur.
+kodların mantığını kontrol et. bir sorun, mantık hatası var mı.
     
-Log ekleme butonu hem üstte olsun hem recent logda olsun
+Farklı bir günde quick task eklerken ilkinde o güne ekliyor ama sonra birtane daha eklemek istersem o task o güne değil bu güne ekleniyor.
 
-Farklı bir günde quick task eklerken ikincide sifirlandigimda bugüne geliyor seçili güne degil
-
-Proje task editlerken save, cancel butonlarına gerek yok. Otomatik kaydedilsin
+Proje tasklarını editlerken save, cancel butonlarına gerek yok. Otomatik kaydedilsin. ayrıca projeyi düzenlerken de uğdate e gerek yok yine değişiklikler toormatik olarak kaydedilsin..
 
 Rutinlerin sıralamalarını degsitiridigimde gelecek ve geçmiş de o sirada sıralanmalı
 

@@ -15,6 +15,7 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
+import 'package:next_level/Widgets/Common/log_bottom_sheet.dart';
 
 import 'package:next_level/Widgets/Common/recent_logs_widget.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
@@ -158,6 +159,36 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
     }
   }
 
+  void _showAddLogDialog() async {
+    if (_taskDetailViewModel == null) return;
+
+    final result = await showModalBottomSheet<dynamic>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => LogBottomSheet(
+        type: addTaskProvider.editTask!.type,
+        isEdit: false,
+      ),
+    );
+
+    if (result != null) {
+      // Add log
+      await _taskDetailViewModel!.addManualLog(result);
+      // Refresh logs
+      _taskDetailViewModel!.loadRecentLogs();
+      setState(() {});
+
+      Helper().getMessage(
+        message: LocaleKeys.Success.tr(),
+        status: StatusEnum.SUCCESS,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -189,15 +220,25 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                           : LocaleKeys.EditTask.tr()
                       : LocaleKeys.AddTask.tr(),
             ),
-            leading: InkWell(
-              borderRadius: AppColors.borderRadiusAll,
-              onTap: () {
-                // Unfocus before going back
-                addTaskProvider.unfocusAll();
-                FocusScope.of(context).unfocus();
-                goBack();
-              },
-              child: const Icon(Icons.arrow_back_ios),
+            leadingWidth: 120,
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  borderRadius: AppColors.borderRadiusAll,
+                  onTap: () {
+                    // Unfocus before going back
+                    addTaskProvider.unfocusAll();
+                    FocusScope.of(context).unfocus();
+                    goBack();
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Icon(Icons.arrow_back_ios),
+                  ),
+                ),
+                if (!widget.isTemplateMode) const PinTaskSwitch(),
+              ],
             ),
             actions: [
               if (addTaskProvider.editTask == null && !widget.isTemplateMode)
@@ -231,7 +272,12 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-              if (!widget.isTemplateMode) const PinTaskSwitch(),
+              if (!widget.isTemplateMode && addTaskProvider.editTask != null && addTaskProvider.selectedTaskType != TaskTypeEnum.CHECKBOX)
+                IconButton(
+                  onPressed: _showAddLogDialog,
+                  icon: const Icon(Icons.post_add),
+                  tooltip: LocaleKeys.AddManualLog.tr(),
+                ),
             ],
           ),
           body: SingleChildScrollView(
