@@ -8,6 +8,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Model/task_model.dart';
 
 class NormalTasksHeader extends StatefulWidget {
   final List<dynamic> tasks;
@@ -192,6 +193,7 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
                   isPinnedList: false,
                   isRoutineList: false,
                   isOverdueList: false,
+                  explicitList: widget.tasks.cast<TaskModel>().toList(),
                 );
               },
               itemBuilder: (context, index) {

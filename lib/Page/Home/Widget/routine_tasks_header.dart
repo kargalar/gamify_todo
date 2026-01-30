@@ -8,6 +8,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Model/task_model.dart';
 
 class RoutineTasksHeader extends StatefulWidget {
   final List<dynamic> routineTasks;
@@ -164,17 +165,66 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
             axisAlignment: -1.0,
             child: Column(
               children: [
-                // Ghost routine tasks (ghost'lar sürüklenemez çünkü henüz gerçek task değiller)
+                // Ghost routine tasks (ghost'lar artık sürüklenebilir çünkü routineID üzerinden ana routine'i güncelliyoruz)
                 if (widget.ghostRoutineTasks.isNotEmpty)
-                  ListView.builder(
+                  ReorderableListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: widget.ghostRoutineTasks.length,
                     padding: EdgeInsets.zero,
+                    buildDefaultDragHandles: false,
+                    proxyDecorator: (child, index, animation) {
+                      return AnimatedBuilder(
+                        animation: animation,
+                        builder: (BuildContext context, Widget? child) {
+                          final double animValue = Curves.easeInOut.transform(animation.value);
+                          final double elevation = lerpDouble(0, 6, animValue)!;
+                          final double scale = lerpDouble(1.0, 1.02, animValue)!;
+                          return Transform.scale(
+                            scale: scale,
+                            child: Material(
+                              elevation: elevation,
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: child,
+                      );
+                    },
+                    onReorder: (int oldIndex, int newIndex) {
+                      final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+                      taskProvider.reorderTasks(
+                        oldIndex: oldIndex,
+                        newIndex: newIndex,
+                        isPinnedList: false,
+                        isRoutineList: false, // This is false because we set isGhostRoutineList: true
+                        isOverdueList: false,
+                        isGhostRoutineList: true, // Specify this is the ghost list
+                        explicitList: widget.ghostRoutineTasks.cast<TaskModel>().toList(),
+                      );
+                    },
                     itemBuilder: (context, index) {
-                      return TaskItem(
-                        taskModel: widget.ghostRoutineTasks[index],
-                        isRoutine: true,
+                      final task = widget.ghostRoutineTasks[index];
+                      // Use a composite key including 'ghost' to ensure uniqueness if mixed with real tasks
+                      // Ghost tasks might share IDs with real tasks? No, derived from Routine, but ID might be 0 or temp.
+                      // TaskModel for ghost usually has id=0?
+                      // Checking getGhostRoutineTasksForDate: id is not set, so it defaults to 0.
+                      // This is BAD for ReorderableListView Key.
+                      // We must ensure unique keys.
+                      // TaskItem uses task.key which uses task.id.
+                      // If all have id=0, keys are duplicate.
+                      // Ghost tasks from `getGhostRoutineTasksForDate` (line 2027) don't set ID.
+                      // `RoutineModel.id` is available in `routineID`.
+                      // Let's rely on `routineID` for key if `id` is 0.
+                      return ReorderableDelayedDragStartListener(
+                        key: ValueKey('ghost_${task.routineID}_$index'), // Use routineID and index to be safe
+                        index: index,
+                        child: TaskItem(
+                          taskModel: task,
+                          isRoutine: true,
+                        ),
                       );
                     },
                   ),
@@ -215,6 +265,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                         isPinnedList: false,
                         isRoutineList: true,
                         isOverdueList: false,
+                        explicitList: widget.routineTasks.cast<TaskModel>().toList(),
                       );
                     },
                     itemBuilder: (context, index) {

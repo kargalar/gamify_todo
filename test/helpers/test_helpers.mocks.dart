@@ -155,8 +155,7 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
       ) as _i3.Future<List<_i6.TraitModel>>);
 
   @override
-  _i3.Future<void> updateTrait(_i6.TraitModel? traitModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateTrait(_i6.TraitModel? traitModel) => (super.noSuchMethod(
         Invocation.method(
           #updateTrait,
           [traitModel],
@@ -176,8 +175,7 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> addRoutine(_i7.RoutineModel? routineModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> addRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
         Invocation.method(
           #addRoutine,
           [routineModel],
@@ -192,13 +190,11 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
           #getRoutines,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i7.RoutineModel>>.value(<_i7.RoutineModel>[]),
+        returnValue: _i3.Future<List<_i7.RoutineModel>>.value(<_i7.RoutineModel>[]),
       ) as _i3.Future<List<_i7.RoutineModel>>);
 
   @override
-  _i3.Future<void> updateRoutine(_i7.RoutineModel? routineModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
         Invocation.method(
           #updateRoutine,
           [routineModel],
@@ -257,8 +253,7 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> addCategory(_i9.CategoryModel? categoryModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> addCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
         Invocation.method(
           #addCategory,
           [categoryModel],
@@ -273,13 +268,11 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
           #getCategories,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i9.CategoryModel>>.value(<_i9.CategoryModel>[]),
+        returnValue: _i3.Future<List<_i9.CategoryModel>>.value(<_i9.CategoryModel>[]),
       ) as _i3.Future<List<_i9.CategoryModel>>);
 
   @override
-  _i3.Future<void> updateCategory(_i9.CategoryModel? categoryModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
         Invocation.method(
           #updateCategory,
           [categoryModel],
@@ -309,8 +302,7 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> addTaskLog(_i10.TaskLogModel? taskLogModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> addTaskLog(_i10.TaskLogModel? taskLogModel) => (super.noSuchMethod(
         Invocation.method(
           #addTaskLog,
           [taskLogModel],
@@ -325,30 +317,25 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
           #getTaskLogs,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
+        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
       ) as _i3.Future<List<_i10.TaskLogModel>>);
 
   @override
-  _i3.Future<List<_i10.TaskLogModel>> getTaskLogsByTaskId(int? taskId) =>
-      (super.noSuchMethod(
+  _i3.Future<List<_i10.TaskLogModel>> getTaskLogsByTaskId(int? taskId) => (super.noSuchMethod(
         Invocation.method(
           #getTaskLogsByTaskId,
           [taskId],
         ),
-        returnValue:
-            _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
+        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
       ) as _i3.Future<List<_i10.TaskLogModel>>);
 
   @override
-  _i3.Future<List<_i10.TaskLogModel>> getTaskLogsByRoutineId(int? routineId) =>
-      (super.noSuchMethod(
+  _i3.Future<List<_i10.TaskLogModel>> getTaskLogsByRoutineId(int? routineId) => (super.noSuchMethod(
         Invocation.method(
           #getTaskLogsByRoutineId,
           [routineId],
         ),
-        returnValue:
-            _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
+        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
       ) as _i3.Future<List<_i10.TaskLogModel>>);
 
   @override
@@ -497,13 +484,11 @@ class MockRoutineRepository extends _i1.Mock implements _i12.RoutineRepository {
           #getRoutines,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i7.RoutineModel>>.value(<_i7.RoutineModel>[]),
+        returnValue: _i3.Future<List<_i7.RoutineModel>>.value(<_i7.RoutineModel>[]),
       ) as _i3.Future<List<_i7.RoutineModel>>);
 
   @override
-  _i3.Future<int> addRoutine(_i7.RoutineModel? routineModel) =>
-      (super.noSuchMethod(
+  _i3.Future<int> addRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
         Invocation.method(
           #addRoutine,
           [routineModel],
@@ -512,8 +497,7 @@ class MockRoutineRepository extends _i1.Mock implements _i12.RoutineRepository {
       ) as _i3.Future<int>);
 
   @override
-  _i3.Future<void> updateRoutine(_i7.RoutineModel? routineModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
         Invocation.method(
           #updateRoutine,
           [routineModel],
@@ -565,8 +549,7 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i8.TaskModel? undoDeleteTask(int? taskId) =>
-      (super.noSuchMethod(Invocation.method(
+  _i8.TaskModel? undoDeleteTask(int? taskId) => (super.noSuchMethod(Invocation.method(
         #undoDeleteTask,
         [taskId],
       )) as _i8.TaskModel?);
@@ -586,8 +569,7 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i7.RoutineModel? undoDeleteRoutine(int? routineId) =>
-      (super.noSuchMethod(Invocation.method(
+  _i7.RoutineModel? undoDeleteRoutine(int? routineId) => (super.noSuchMethod(Invocation.method(
         #undoDeleteRoutine,
         [routineId],
       )) as _i7.RoutineModel?);
@@ -642,8 +624,7 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskDateChangeData? undoDateChange(int? taskId) =>
-      (super.noSuchMethod(Invocation.method(
+  _i13.TaskDateChangeData? undoDateChange(int? taskId) => (super.noSuchMethod(Invocation.method(
         #undoDateChange,
         [taskId],
       )) as _i13.TaskDateChangeData?);
@@ -667,8 +648,7 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskCompletionData? undoCompletion(int? taskId) =>
-      (super.noSuchMethod(Invocation.method(
+  _i13.TaskCompletionData? undoCompletion(int? taskId) => (super.noSuchMethod(Invocation.method(
         #undoCompletion,
         [taskId],
       )) as _i13.TaskCompletionData?);
@@ -692,8 +672,7 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskCancellationData? undoCancellation(int? taskId) =>
-      (super.noSuchMethod(Invocation.method(
+  _i13.TaskCancellationData? undoCancellation(int? taskId) => (super.noSuchMethod(Invocation.method(
         #undoCancellation,
         [taskId],
       )) as _i13.TaskCancellationData?);
@@ -717,8 +696,7 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskFailureData? undoFailure(int? taskId) =>
-      (super.noSuchMethod(Invocation.method(
+  _i13.TaskFailureData? undoFailure(int? taskId) => (super.noSuchMethod(Invocation.method(
         #undoFailure,
         [taskId],
       )) as _i13.TaskFailureData?);
@@ -746,8 +724,7 @@ class MockHomeWidgetHelper extends _i1.Mock implements _i16.HomeWidgetHelper {
 /// A class which mocks [CategoryRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCategoryRepository extends _i1.Mock
-    implements _i17.CategoryRepository {
+class MockCategoryRepository extends _i1.Mock implements _i17.CategoryRepository {
   MockCategoryRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -758,13 +735,11 @@ class MockCategoryRepository extends _i1.Mock
           #getCategories,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i9.CategoryModel>>.value(<_i9.CategoryModel>[]),
+        returnValue: _i3.Future<List<_i9.CategoryModel>>.value(<_i9.CategoryModel>[]),
       ) as _i3.Future<List<_i9.CategoryModel>>);
 
   @override
-  _i3.Future<String> addCategory(_i9.CategoryModel? categoryModel) =>
-      (super.noSuchMethod(
+  _i3.Future<String> addCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
         Invocation.method(
           #addCategory,
           [categoryModel],
@@ -779,8 +754,7 @@ class MockCategoryRepository extends _i1.Mock
       ) as _i3.Future<String>);
 
   @override
-  _i3.Future<void> updateCategory(_i9.CategoryModel? categoryModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
         Invocation.method(
           #updateCategory,
           [categoryModel],
@@ -890,8 +864,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
       ) as List<_i10.TaskLogModel>);
 
   @override
-  List<_i10.TaskLogModel> getLogsByRoutineId(int? routineId) =>
-      (super.noSuchMethod(
+  List<_i10.TaskLogModel> getLogsByRoutineId(int? routineId) => (super.noSuchMethod(
         Invocation.method(
           #getLogsByRoutineId,
           [routineId],
@@ -956,8 +929,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> updateCounterTaskLogStatuses(_i8.TaskModel? updatedTask) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateCounterTaskLogStatuses(_i8.TaskModel? updatedTask) => (super.noSuchMethod(
         Invocation.method(
           #updateCounterTaskLogStatuses,
           [updatedTask],
@@ -967,8 +939,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> updateTimerTaskLogStatuses(_i8.TaskModel? updatedTask) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateTimerTaskLogStatuses(_i8.TaskModel? updatedTask) => (super.noSuchMethod(
         Invocation.method(
           #updateTimerTaskLogStatuses,
           [updatedTask],
@@ -1028,8 +999,7 @@ class MockTaskLogRepository extends _i1.Mock implements _i20.TaskLogRepository {
           #getTaskLogs,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
+        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
       ) as _i3.Future<List<_i10.TaskLogModel>>);
 
   @override
@@ -1042,8 +1012,7 @@ class MockTaskLogRepository extends _i1.Mock implements _i20.TaskLogRepository {
       ) as _i3.Future<int>);
 
   @override
-  _i3.Future<void> updateTaskLog(_i10.TaskLogModel? taskLog) =>
-      (super.noSuchMethod(
+  _i3.Future<void> updateTaskLog(_i10.TaskLogModel? taskLog) => (super.noSuchMethod(
         Invocation.method(
           #updateTaskLog,
           [taskLog],
@@ -1220,8 +1189,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void setCategoryRepository(_i17.CategoryRepository? repo) =>
-      super.noSuchMethod(
+  void setCategoryRepository(_i17.CategoryRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setCategoryRepository,
           [repo],
@@ -1286,8 +1254,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<dynamic> addRoutine(_i7.RoutineModel? routineModel) =>
-      (super.noSuchMethod(
+  _i3.Future<dynamic> addRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
         Invocation.method(
           #addRoutine,
           [routineModel],
@@ -1371,8 +1338,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void checkTaskStatusForNotifications(_i8.TaskModel? taskModel) =>
-      super.noSuchMethod(
+  void checkTaskStatusForNotifications(_i8.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #checkTaskStatusForNotifications,
           [taskModel],
@@ -1457,8 +1423,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> setSelectedCategory(String? categoryId) =>
-      (super.noSuchMethod(
+  _i3.Future<void> setSelectedCategory(String? categoryId) => (super.noSuchMethod(
         Invocation.method(
           #setSelectedCategory,
           [categoryId],
@@ -1478,8 +1443,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       ) as _i3.Future<void>);
 
   @override
-  void toggleTaskSubtaskVisibility(_i8.TaskModel? taskModel) =>
-      super.noSuchMethod(
+  void toggleTaskSubtaskVisibility(_i8.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #toggleTaskSubtaskVisibility,
           [taskModel],
@@ -1571,8 +1535,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void sortTasksByPriorityAndTime(List<_i8.TaskModel>? tasks) =>
-      super.noSuchMethod(
+  void sortTasksByPriorityAndTime(List<_i8.TaskModel>? tasks) => super.noSuchMethod(
         Invocation.method(
           #sortTasksByPriorityAndTime,
           [tasks],
@@ -1615,6 +1578,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
     required bool? isPinnedList,
     required bool? isRoutineList,
     required bool? isOverdueList,
+    bool? isGhostRoutineList,
+    List<_i8.TaskModel>? explicitList,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1626,14 +1591,15 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
             #isPinnedList: isPinnedList,
             #isRoutineList: isRoutineList,
             #isOverdueList: isOverdueList,
+            #isGhostRoutineList: isGhostRoutineList,
+            #explicitList: explicitList,
           },
         ),
         returnValue: _i3.Future<bool>.value(false),
       ) as _i3.Future<bool>);
 
   @override
-  List<_i8.TaskModel> getRoutineTasksForDate(DateTime? date) =>
-      (super.noSuchMethod(
+  List<_i8.TaskModel> getRoutineTasksForDate(DateTime? date) => (super.noSuchMethod(
         Invocation.method(
           #getRoutineTasksForDate,
           [date],
@@ -1642,8 +1608,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       ) as List<_i8.TaskModel>);
 
   @override
-  List<_i8.TaskModel> getGhostRoutineTasksForDate(DateTime? date) =>
-      (super.noSuchMethod(
+  List<_i8.TaskModel> getGhostRoutineTasksForDate(DateTime? date) => (super.noSuchMethod(
         Invocation.method(
           #getGhostRoutineTasksForDate,
           [date],
@@ -1652,8 +1617,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       ) as List<_i8.TaskModel>);
 
   @override
-  List<_i8.TaskModel> getTasksByCategoryId(String? categoryId) =>
-      (super.noSuchMethod(
+  List<_i8.TaskModel> getTasksByCategoryId(String? categoryId) => (super.noSuchMethod(
         Invocation.method(
           #getTasksByCategoryId,
           [categoryId],
@@ -1772,8 +1736,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  _i3.Future<void> unarchiveTask(_i8.TaskModel? taskModel) =>
-      (super.noSuchMethod(
+  _i3.Future<void> unarchiveTask(_i8.TaskModel? taskModel) => (super.noSuchMethod(
         Invocation.method(
           #unarchiveTask,
           [taskModel],

@@ -9,6 +9,7 @@ import 'package:next_level/Provider/vacation_mode_provider.dart';
 import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Service/global_timer.dart';
 
 /// DurationCalculator handles all duration-related calculations for HomeViewModel.
 /// It aggregates durations from task logs, running timers, and provides breakdowns.
@@ -97,13 +98,20 @@ class DurationCalculator {
     for (final task in TaskProvider().taskList) {
       if (task.isTimerActive == true && task.taskDate != null && task.taskDate!.isSameDay(date)) {
         final current = task.currentDuration ?? Duration.zero;
-        final alreadyLogged = loggedPerTask[task.id] ?? Duration.zero;
-        final remaining = current - alreadyLogged;
-        if (remaining > Duration.zero) {
-          total += remaining;
-          LogService.debug('DurationCalculator: Added running timer delta: ${remaining.compactFormat()} for task ${task.title} (current: ${current.compactFormat()}, logged: ${alreadyLogged.compactFormat()})');
+
+        // Use GlobalTimer to get the session start duration
+        // This ensures we only add the delta accumulated in the *current active session*
+        // to the logs which represent completed/past sessions.
+        final startDuration = GlobalTimer().activeTaskStartDurations[task.id] ?? current;
+
+        // Calculate the delta for the current session
+        final sessionDelta = current - startDuration;
+
+        if (sessionDelta > Duration.zero) {
+          total += sessionDelta;
+          LogService.debug('DurationCalculator: Added active session delta: ${sessionDelta.compactFormat()} for task ${task.title} (current: ${current.compactFormat()}, start: ${startDuration.compactFormat()})');
         } else {
-          LogService.debug('DurationCalculator: Skipped running timer for task ${task.title} because currentDuration <= logged (${current.compactFormat()} <= ${alreadyLogged.compactFormat()})');
+          LogService.debug('DurationCalculator: Skipped active timer for task ${task.title} because session delta <= 0');
         }
       }
     }

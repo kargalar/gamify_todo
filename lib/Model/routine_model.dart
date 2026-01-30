@@ -45,6 +45,8 @@ class RoutineModel extends HiveObject {
   List<SubTaskModel>? subtasks; // alt görevler
   @HiveField(19)
   bool isActiveOnVacationDays; // tatil günlerinde aktif mi
+  @HiveField(20)
+  int sortOrder; // Sıralama için kullanılır
 
   RoutineModel({
     this.id = 0,
@@ -67,6 +69,7 @@ class RoutineModel extends HiveObject {
     this.earlyReminderMinutes,
     this.subtasks,
     this.isActiveOnVacationDays = false, // default: tatilde aktif değil
+    this.sortOrder = 0,
   });
 
   factory RoutineModel.fromJson(Map<String, dynamic> json) {
@@ -98,6 +101,7 @@ class RoutineModel extends HiveObject {
       earlyReminderMinutes: json['early_reminder_minutes'],
       subtasks: json['subtasks'] != null ? (json['subtasks'] as List).map((i) => SubTaskModel.fromJson(i)).toList() : null,
       isActiveOnVacationDays: json['is_active_on_vacation_days'] ?? false,
+      sortOrder: json['sort_order'] ?? 0,
     );
   }
 
@@ -131,6 +135,7 @@ class RoutineModel extends HiveObject {
       'early_reminder_minutes': earlyReminderMinutes,
       'subtasks': subtasks?.map((i) => i.toJson()).toList(),
       'is_active_on_vacation_days': isActiveOnVacationDays,
+      'sort_order': sortOrder,
     };
   }
 }
@@ -173,13 +178,14 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       earlyReminderMinutes: fields[17] as int?,
       subtasks: (fields[18] as List?)?.cast<SubTaskModel>(),
       isActiveOnVacationDays: fields[19] as bool? ?? false,
+      sortOrder: fields[20] as int? ?? 0,
     );
   }
 
   @override
   void write(BinaryWriter writer, RoutineModel obj) {
     writer
-      ..writeByte(20) // Changed from 19 to 20
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -219,6 +225,8 @@ class RoutineModelAdapter extends TypeAdapter<RoutineModel> {
       ..writeByte(18)
       ..write(obj.subtasks)
       ..writeByte(19)
-      ..write(obj.isActiveOnVacationDays);
+      ..write(obj.isActiveOnVacationDays)
+      ..writeByte(20)
+      ..write(obj.sortOrder);
   }
 }

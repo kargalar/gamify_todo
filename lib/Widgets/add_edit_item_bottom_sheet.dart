@@ -51,49 +51,67 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
 
   bool get isEditing => widget.item != null;
 
-  /// Değişiklik olup olmadığını kontrol eder (sadece not için)
+  /// Değişiklik olup olmadığını kontrol eder
   bool _hasChanges() {
-    if (!isEditing || widget.type != ItemType.note) return false;
+    if (!isEditing) return false;
 
-    final note = widget.item as NoteModel;
-    return _titleController.text.trim() != (note.title) || _contentController.text.trim() != (note.content) || _selectedCategory?.id != note.categoryId || _isPinned != note.isPinned;
+    if (widget.type == ItemType.note) {
+      final note = widget.item as NoteModel;
+      return _titleController.text.trim() != (note.title) || _contentController.text.trim() != (note.content) || _selectedCategory?.id != note.categoryId || _isPinned != note.isPinned;
+    } else {
+      // Project
+      final project = widget.item as ProjectModel;
+      return _titleController.text.trim() != (project.title) || _contentController.text.trim() != (project.description) || _selectedCategory?.id != project.categoryId || _isPinned != project.isPinned;
+    }
   }
 
-  /// Otomatik kaydetme (sadece not için)
+  /// Otomatik kaydetme
   Future<void> _autoSave() async {
-    if (!isEditing || widget.type != ItemType.note || !_hasChanges()) return;
+    if (!isEditing || !_hasChanges()) return;
 
     LogService.debug('💾 AddEditItemBottomSheet: Auto-saving changes');
 
     try {
-      final provider = context.read<NotesProvider>();
-      final note = widget.item as NoteModel;
-      final updatedNote = note.copyWith(
-        title: _titleController.text.trim(),
-        content: _contentController.text.trim(),
-        categoryId: _selectedCategory?.id,
-        isPinned: _isPinned,
-        updatedAt: DateTime.now(),
-      );
-      final success = await provider.updateNote(updatedNote);
-
-      if (success) {
-        LogService.debug('✅ AddEditItemBottomSheet: Auto-saved successfully');
-        Helper().getMessage(
-          message: LocaleKeys.NoteUpdated.tr(),
-          status: StatusEnum.SUCCESS,
+      if (widget.type == ItemType.note) {
+        final provider = context.read<NotesProvider>();
+        final note = widget.item as NoteModel;
+        final updatedNote = note.copyWith(
+          title: _titleController.text.trim(),
+          content: _contentController.text.trim(),
+          categoryId: _selectedCategory?.id,
+          isPinned: _isPinned,
+          updatedAt: DateTime.now(),
         );
+        final success = await provider.updateNote(updatedNote);
+        _logAutoSaveResult(success, LocaleKeys.NoteUpdated.tr(), LocaleKeys.NoteUpdateFailed.tr());
       } else {
-        LogService.error('❌ AddEditItemBottomSheet: Auto-save failed');
-        Helper().getMessage(
-          message: LocaleKeys.NoteUpdateFailed.tr(),
-          status: StatusEnum.WARNING,
-        );
+        // Project auto-save
+        final provider = context.read<ProjectsProvider>();
+        final project = widget.item as ProjectModel;
+        final updatedProject = project.copyWith(title: _titleController.text.trim(), description: _contentController.text.trim(), categoryId: _selectedCategory?.id, isPinned: _isPinned, updatedAt: DateTime.now());
+        final success = await provider.updateProject(updatedProject);
+        _logAutoSaveResult(success, 'Project updated', 'Project update failed');
       }
     } catch (e) {
       LogService.error('❌ AddEditItemBottomSheet: Auto-save error: $e');
       Helper().getMessage(
         message: LocaleKeys.ErrorOccurred.tr(args: [e.toString()]),
+        status: StatusEnum.WARNING,
+      );
+    }
+  }
+
+  void _logAutoSaveResult(bool success, String successMsg, String validMsg) {
+    if (success) {
+      LogService.debug('✅ AddEditItemBottomSheet: Auto-saved successfully');
+      Helper().getMessage(
+        message: successMsg,
+        status: StatusEnum.SUCCESS,
+      );
+    } else {
+      LogService.error('❌ AddEditItemBottomSheet: Auto-save failed');
+      Helper().getMessage(
+        message: validMsg,
         status: StatusEnum.WARNING,
       );
     }
@@ -203,7 +221,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
       canPop: true,
       // ignore: deprecated_member_use
       onPopInvoked: (didPop) {
-        if (didPop && isEditing && widget.type == ItemType.note) {
+        if (didPop && isEditing) {
           Future.microtask(() => _autoSave());
         }
       },
@@ -277,7 +295,7 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                         IconButton(
                           icon: Icon(Icons.close, color: AppColors.text),
                           onPressed: () async {
-                            if (isEditing && widget.type == ItemType.note) await _autoSave();
+                            if (isEditing) await _autoSave();
                             widget.onDismiss?.call();
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
@@ -305,8 +323,8 @@ class _AddEditItemBottomSheetState extends State<AddEditItemBottomSheet> {
                           _buildCategorySelectorButton(),
                           const SizedBox(height: 24),
 
-                          // Kaydet butonu (not için sadece yeni ekleme, proje için her zaman)
-                          if (widget.type == ItemType.project || !isEditing) _buildSaveButton(),
+                          // Kaydet butonu (edit modunda gizli, sadece yeni eklerken göster)
+                          if (!isEditing) _buildSaveButton(),
                           const SizedBox(height: 12),
                         ],
                       ),

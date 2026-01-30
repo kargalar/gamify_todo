@@ -1,6 +1,5 @@
 botomsheet tam ekran olabilsin
 
-subtaskları birleştir
 
 TASK ekledikten sonra geri tuşuna basınca sadece klavye kapanmasın bottom sheet de kapatilsin direkt
 
@@ -17,11 +16,7 @@ dünkü rutin tamamalnmaın rağmen başarısız işaretlenimş. yani timer dün
 
 bildirim icon
 
-tasklar oluşturulurken pinlenmiş olarak oluşturulabilsin
-
 projelerin taskları onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamamlandığını
-
-home daki headerlar da basılı tutarak sıralanabilsin
 
 Telefon kilit ekranda, aktif Timer bildirimi next level yazmak yerine taskın adı yazsın.
     Yani şuan şöyel görünüyor: "NextLevel . 15:47". Ama şöyle görünmeli: "Read Book . 15:47"
@@ -50,4 +45,4 @@ Store İrem da renk seçilebilsin
 
  Progress summary ve statistics de 2 tane var kullanım suredi
 
- 
+ sürekli gelenl ogları kontrol et gereksiz performans sorunu olabilir.

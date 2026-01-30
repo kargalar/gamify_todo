@@ -1,16 +1,12 @@
-appardaki ProgressChip kısmına süre gösterilirken aktif timerın ilerlemei gösterilmiyor. sadece timer durdulduğunda onu ekleyip gösteriyor. çünkü loglardan hesaplıyor. ancak aktif timerların geçen süresini de hesaplayıp göstermesi lazım..
+subtaskları birleştir
 
-    
+Timer task ile 8 saat calsitim ama credi o kadar artmadı gibi kontrol testi yap.
+    Bu sruecte uygulamayı bircon kez aç kapa yaptım. Belki etkiliyordur.
+kodların mantığını kontrol et. bir sorun, mantık hatası var mı.
 
-Proje tasklarını editlerken save, cancel butonlarına gerek yok. Otomatik kaydedilsin. ayrıca projeyi düzenlerken de uğdate e gerek yok yine değişiklikler toormatik olarak kaydedilsin..
+item lar için de apprda log ekleme iconunun ekle.
 
-Rutinlerin sıralamalarını degsitiridigimde gelecek ve geçmiş de o sirada sıralanmalı
+itemların da sırası değişitirlebilemi. aynı mantıkla stoe page e de uygula.
+home daki headerlar da basılı tutarak sıralanabilsin
 
-item timer 0 altına inice 2 tane bildrimi geliyor.
-
-
-
-
-
-
-
+eğer geçişini timer task aktifse bugünde gösterilmeli. yoksa karışıyor

@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';

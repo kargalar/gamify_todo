@@ -58,6 +58,7 @@ class TaskProvider with ChangeNotifier {
   List<RoutineModel> routineList = [];
 
   List<TaskModel> taskList = [];
+
   // Undo functionality delegated to UndoService
   UndoService _undoService = UndoService();
 
@@ -1835,9 +1836,11 @@ class TaskProvider with ChangeNotifier {
     required bool isPinnedList,
     required bool isRoutineList,
     required bool isOverdueList,
+    bool isGhostRoutineList = false,
+    List<TaskModel>? explicitList,
   }) async {
     try {
-      LogService.debug('🔄 TaskProvider: Reordering tasks from $oldIndex to $newIndex (pinned: $isPinnedList, routine: $isRoutineList, overdue: $isOverdueList)');
+      LogService.debug('🔄 TaskProvider: Reordering tasks from $oldIndex to $newIndex (pinned: $isPinnedList, routine: $isRoutineList, overdue: $isOverdueList, ghost: $isGhostRoutineList, explicit: ${explicitList != null})');
 
       // ReorderableListView'in klasik sorunu - düzeltme yap
       if (newIndex > oldIndex) {
@@ -1845,13 +1848,18 @@ class TaskProvider with ChangeNotifier {
       }
 
       // Doğru listeyi al
-      final today = DateTime.now();
+      final today = selectedDate; // Use current selected date logic
       List<TaskModel> tasksList;
 
-      if (isPinnedList) {
+      if (explicitList != null) {
+        tasksList = List<TaskModel>.from(explicitList);
+        LogService.debug('  📋 Using explicit list with ${tasksList.length} items');
+      } else if (isPinnedList) {
         tasksList = List<TaskModel>.from(getPinnedTasksForToday());
       } else if (isRoutineList) {
         tasksList = List<TaskModel>.from(getRoutineTasksForDate(today));
+      } else if (isGhostRoutineList) {
+        tasksList = List<TaskModel>.from(getGhostRoutineTasksForDate(today));
       } else if (isOverdueList) {
         tasksList = List<TaskModel>.from(getOverdueTasks());
       } else {
@@ -1862,6 +1870,11 @@ class TaskProvider with ChangeNotifier {
         LogService.error('❌ TaskProvider: Invalid reorder indices - oldIndex: $oldIndex, newIndex: $newIndex, listLength: ${tasksList.length}');
         return false;
       }
+
+      // Collect existing sortOrders to recycle them
+      // This preserves the "relative" priority range of the visible items without resetting everything to 0..N
+      final existingSortOrders = tasksList.map((t) => t.sortOrder).toList();
+      existingSortOrders.sort((a, b) => b.compareTo(a)); // Sort descending (High = Top)
 
       // Eski sırayı göster
       LogService.debug('  📍 Before reorder (sortOrder values):');
@@ -1887,23 +1900,45 @@ class TaskProvider with ChangeNotifier {
 
       // Önce tüm task'ları lokal olarak güncelle (optimistik UI güncellemesi)
       final updatedTasks = <TaskModel>[];
+      final updatedRoutines = <RoutineModel>[];
+
       for (int i = 0; i < tasksList.length; i++) {
         final task = tasksList[i];
-        final newSortOrder = tasksList.length - i; // Tersten sıralama
+        // Assign from the sorted list of existing orders
+        // If existing sortOrders are broken (all 0), fallback to length - i
+        int newSortOrder;
+        if (existingSortOrders.every((element) => element == 0)) {
+          newSortOrder = tasksList.length - i;
+        } else {
+          newSortOrder = existingSortOrders[i];
+        }
 
         if (task.sortOrder != newSortOrder) {
           final oldSortOrder = task.sortOrder;
           task.sortOrder = newSortOrder;
           updatedTasks.add(task);
 
+          // If this is a routine (real or ghost), sync the RoutineModel
+          if (isRoutineList || isGhostRoutineList) {
+            if (task.routineID != null) {
+              try {
+                final routine = routineList.firstWhere((r) => r.id == task.routineID);
+                if (routine.sortOrder != newSortOrder) {
+                  routine.sortOrder = newSortOrder;
+                  updatedRoutines.add(routine);
+                  LogService.debug('  🔄 Synced Routine ${routine.id} sortOrder: $newSortOrder');
+                }
+              } catch (_) {
+                LogService.error('Routine not found for task ${task.id} (routineID: ${task.routineID})');
+              }
+            }
+          }
+
           LogService.debug('  ✏️ Updated Task ${task.id}: sortOrder $oldSortOrder → $newSortOrder (Position: ${i + 1}/${tasksList.length})');
         }
       }
 
-      LogService.debug('📊 Updated tasks summary:');
-      for (var ut in updatedTasks) {
-        LogService.debug('   • Task ${ut.id}: "${ut.title}" - sortOrder: ${ut.sortOrder}');
-      }
+      LogService.debug('📊 Updated tasks summary: ${updatedTasks.length} tasks, ${updatedRoutines.length} routines');
 
       // UI'ı hemen güncelle (kullanıcı anında değişikliği görsün)
       notifyListeners();
@@ -1911,32 +1946,47 @@ class TaskProvider with ChangeNotifier {
 
       // Ardından veritabanına kaydet (arka planda)
       bool allSavedSuccessfully = true;
-      for (final updatedTask in updatedTasks) {
+
+      // 1. Save Routines (Priority for persistence of routine order)
+      for (final routine in updatedRoutines) {
         try {
-          // Hive'e kaydet
-          await updatedTask.save();
-
-          // TaskRepository'e da kaydet
-          await _taskRepository.updateTask(updatedTask);
+          await routine.save();
+          await _routineRepository.updateRoutine(routine);
         } catch (e) {
-          LogService.error('❌ CRITICAL: Error saving task ${updatedTask.id}: $e');
+          LogService.error('❌ CRITICAL: Error saving routine ${routine.id}: $e');
           allSavedSuccessfully = false;
+        }
+      }
 
-          // Hata durumunda tekrar dene
+      // 2. Save Tasks (Only if NOT ghost list, as ghosts are transient)
+      if (!isGhostRoutineList) {
+        for (final updatedTask in updatedTasks) {
           try {
-            await Future.delayed(const Duration(milliseconds: 500));
+            // Hive'e kaydet
             await updatedTask.save();
-            LogService.debug('  ✅ Retry: Task ${updatedTask.id} saved after delay');
-          } catch (retryError) {
-            LogService.error('❌ CRITICAL: Retry failed for task ${updatedTask.id}: $retryError');
+
+            // TaskRepository'e da kaydet
+            await _taskRepository.updateTask(updatedTask);
+          } catch (e) {
+            LogService.error('❌ CRITICAL: Error saving task ${updatedTask.id}: $e');
+            allSavedSuccessfully = false;
+
+            // Hata durumunda tekrar dene
+            try {
+              await Future.delayed(const Duration(milliseconds: 500));
+              await updatedTask.save();
+              LogService.debug('  ✅ Retry: Task ${updatedTask.id} saved after delay');
+            } catch (retryError) {
+              LogService.error('❌ CRITICAL: Retry failed for task ${updatedTask.id}: $retryError');
+            }
           }
         }
       }
 
       if (allSavedSuccessfully) {
-        LogService.debug('✅ TaskProvider: All tasks reordered and saved successfully');
+        LogService.debug('✅ TaskProvider: All tasks/routines reordered and saved successfully');
       } else {
-        LogService.error('⚠️ TaskProvider: Some tasks failed to save! Check debug log above.');
+        LogService.error('⚠️ TaskProvider: Some tasks/routines failed to save! Check debug log above.');
       }
       return allSavedSuccessfully;
     } catch (e) {
@@ -2002,6 +2052,12 @@ class TaskProvider with ChangeNotifier {
       tasks = taskList.where((task) => task.checkForThisDate(date, isRoutine: true, isCompleted: false)).toList();
     }
 
+    // Sort logic to respect routine sort order if tasks haven't been manually reordered today (maybe check for default?)
+    // Actually, `tasks` here are TaskModels. If they are created from routines, they should inherit data.
+    // Ensure we are consistent. Currently getRoutineTasksForDate returns tasks from `taskList`.
+    // We trust `taskList` state. But we might want to "repair" order if it's completely wrong compared to routines?
+    // For now, let's assume `reorderTasks` keeps them in sync.
+
     // If this is a vacation day, filter to only show routines with isActiveOnVacationDays = true
     if (VacationDateProvider().isVacationDay(date)) {
       tasks = tasks.where((task) {
@@ -2043,6 +2099,7 @@ class TaskProvider with ChangeNotifier {
               priority: routine.priority,
               categoryId: routine.categoryId,
               subtasks: routine.subtasks,
+              sortOrder: routine.sortOrder, // Inherit sortOrder from routine
             ))
         .toList();
 
@@ -2056,7 +2113,27 @@ class TaskProvider with ChangeNotifier {
       LogService.debug('🏖️ Ghost vacation day filter applied: ${tasks.length} active ghost routines on vacation');
     }
 
-    sortTasksByPriorityAndTime(tasks);
+    // sortOrder'a göre sırala (yüksekten düşüğe) -> yani en yüksek sortOrder en üstte
+    // Eğer sortOrder'lar eşitse veya 0 ise, eskiye dönüş (Priority ve Time)
+    tasks.sort((a, b) {
+      // Önce sortOrder
+      int sortCompare = b.sortOrder.compareTo(a.sortOrder);
+      if (sortCompare != 0) return sortCompare;
+
+      // Eşitse Priority
+      int priorityCompare = a.priority.compareTo(b.priority);
+      if (priorityCompare != 0) return priorityCompare;
+
+      // Eşitse Saat
+      if (a.time != null && b.time != null) {
+        return (a.time!.hour * 60 + a.time!.minute).compareTo(b.time!.hour * 60 + b.time!.minute);
+      } else if (a.time != null) {
+        return -1;
+      } else if (b.time != null) {
+        return 1;
+      }
+      return 0;
+    });
     return tasks;
   }
 

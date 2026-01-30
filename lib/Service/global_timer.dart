@@ -25,6 +25,9 @@ class GlobalTimer {
   // Bellek içi guard: Aynı oturumda (app çalışırken) aynı item için alarmı tekrar tetiklemeyi engeller
   static final Set<int> _storeItemAlarmTriggeredMemory = <int>{};
 
+  // Map to store duration of tasks when timer started
+  final Map<int, Duration> activeTaskStartDurations = {};
+
   Timer? _timer;
 
   void startStopTimer({
@@ -58,7 +61,10 @@ class GlobalTimer {
 
         // Timer başlangıç zamanını kaydet
         prefs.setString('timer_start_time_${taskModel.id}', DateTime.now().millisecondsSinceEpoch.toString());
+        // Timer başlangıç zamanını kaydet
+        prefs.setString('timer_start_time_${taskModel.id}', DateTime.now().millisecondsSinceEpoch.toString());
         prefs.setString('timer_start_duration_${taskModel.id}', taskModel.currentDuration!.inSeconds.toString());
+        activeTaskStartDurations[taskModel.id] = taskModel.currentDuration!;
 
         // Son güncelleme zamanını kaydet
         prefs.setString('task_last_update_${taskModel.id}', DateTime.now().toIso8601String());
@@ -118,7 +124,10 @@ class GlobalTimer {
 
           // Timer bilgilerini temizle
           prefs.remove('timer_start_time_${taskModel.id}');
+          // Timer bilgilerini temizle
+          prefs.remove('timer_start_time_${taskModel.id}');
           prefs.remove('timer_start_duration_${taskModel.id}');
+          activeTaskStartDurations.remove(taskModel.id);
           prefs.remove('task_last_update_${taskModel.id}');
           prefs.remove('task_last_progress_${taskModel.id}');
         }
@@ -306,28 +315,11 @@ class GlobalTimer {
                 if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
                   LogService.debug('🔥 TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
 
-                  // Cancel the scheduled notification first
-                  NotificationService().cancelNotificationOrAlarm(storeItem.id + 100000);
-
-                  // Show timer completion alarm (only once when timer reaches zero)
-                  NotificationService().scheduleNotification(
-                    id: storeItem.id + 200000, // Different ID for completion notification
-                    title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
-                    desc: LocaleKeys.item_expired_desc.tr(),
-                    scheduledDate: DateTime.now(), // Schedule it to trigger immediately
-                    isAlarm: true, // Always show alarm when timer completes
-                  );
-
-                  // Auto-dismiss notification after 10 seconds
-                  Future.delayed(const Duration(seconds: 10), () {
-                    NotificationService().cancelNotificationOrAlarm(storeItem.id + 200000);
-                  });
-
                   // Mark alarm as triggered so it won't trigger again
                   await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
                   _storeItemAlarmTriggeredMemory.add(storeItem.id);
 
-                  LogService.debug('🔥 ALARM TRIGGERED AND MARKED FOR STORE ITEM: ${storeItem.title}');
+                  LogService.debug('🔥 ALARM TRIGGERED MARKER SET FOR STORE ITEM: ${storeItem.title}');
                 } else {
                   LogService.debug('🔥 ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
                 }
@@ -375,6 +367,12 @@ class GlobalTimer {
       if (task.isTimerActive == true) {
         final lastUpdateStr = prefs.getString('task_last_update_${task.id}');
         final lastProgressStr = prefs.getString('task_last_progress_${task.id}');
+
+        // Initialize start duration if present
+        final startDurationStr = prefs.getString('timer_start_duration_${task.id}');
+        if (startDurationStr != null) {
+          activeTaskStartDurations[task.id] = Duration(seconds: int.parse(startDurationStr));
+        }
 
         if (lastUpdateStr != null && lastProgressStr != null) {
           final lastUpdate = DateTime.parse(lastUpdateStr);
@@ -425,20 +423,9 @@ class GlobalTimer {
             String? alarmTriggeredStr = prefs.getString('store_item_alarm_triggered_${storeItem.id}');
             bool alarmTriggered = alarmTriggeredStr != null && alarmTriggeredStr == 'true';
             if (!alarmTriggered && !_storeItemAlarmTriggeredMemory.contains(storeItem.id)) {
-              LogService.debug('🔥 [RESUME] TRIGGERING ALARM FOR STORE ITEM: ${storeItem.title}');
-              NotificationService().scheduleNotification(
-                id: storeItem.id + 200000,
-                title: LocaleKeys.item_expired_title.tr(args: [storeItem.title]),
-                desc: LocaleKeys.item_expired_desc.tr(),
-                scheduledDate: DateTime.now(),
-                isAlarm: true,
-              );
-              Future.delayed(const Duration(seconds: 10), () {
-                NotificationService().cancelNotificationOrAlarm(storeItem.id + 200000);
-              });
               await prefs.setString('store_item_alarm_triggered_${storeItem.id}', 'true');
               _storeItemAlarmTriggeredMemory.add(storeItem.id);
-              LogService.debug('🔥 [RESUME] ALARM TRIGGERED FOR STORE ITEM: ${storeItem.title}');
+              LogService.debug('🔥 [RESUME] ALARM MARKER SET FOR STORE ITEM: ${storeItem.title}');
             } else {
               LogService.debug('🔥 [RESUME] ALARM ALREADY TRIGGERED FOR STORE ITEM: ${storeItem.title} - SKIPPING');
             }
