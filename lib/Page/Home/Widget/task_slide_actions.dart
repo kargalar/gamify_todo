@@ -269,7 +269,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         LogService.debug('📌 Task ${widget.taskModel.id} - Pin toggle: $isPinned -> ${!isPinned}');
         await taskProvider.toggleTaskPin(widget.taskModel.id);
       },
-      backgroundColor: isPinned ? AppColors.grey : AppColors.green,
+      backgroundColor: isPinned ? AppColors.grey : AppColors.yellow,
       icon: isPinned ? Icons.push_pin_outlined : Icons.push_pin,
       foregroundColor: AppColors.white,
       // label: isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.PinTask.tr(),

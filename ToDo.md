@@ -14,7 +14,6 @@ windows sync
 
 Yeni task eklendigimde alttam mesaj gelmesin
 
-Next level da quckbottok sheette klavyeden alt satira geç e basinca description girme kismi gorunur Olsun ve description yazilsin
 
 store page de appardan Reset store progress deyince ilerleme sıfırlanıyor ama itemlarin logoları silinmiyor. Silinmeli.
 

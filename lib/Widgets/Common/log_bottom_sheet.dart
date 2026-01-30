@@ -192,6 +192,7 @@ class _LogBottomSheetState extends State<LogBottomSheet> {
             onChange: (val) {
               setState(() => _value = val);
             },
+            // ignore: deprecated_member_use
             snapToMins: 1.0,
           ),
         ),

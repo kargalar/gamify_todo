@@ -24,6 +24,7 @@ class QuickAddTaskProvider with ChangeNotifier {
   int? _earlyReminderMinutes;
   int _targetCount = 1; // Counter için hedef sayısı
   Duration _remainingDuration = const Duration(hours: 0, minutes: 0); // Duration için kalan süre
+  bool _isDescriptionVisible = false;
 
   // Getters
   DateTime? get selectedDate => _selectedDate;
@@ -35,6 +36,7 @@ class QuickAddTaskProvider with ChangeNotifier {
   int? get earlyReminderMinutes => _earlyReminderMinutes;
   int get targetCount => _targetCount;
   Duration get remainingDuration => _remainingDuration;
+  bool get isDescriptionVisible => _isDescriptionVisible;
 
   QuickAddTaskProvider() {
     _selectedDate = DateTime.now();
@@ -44,6 +46,12 @@ class QuickAddTaskProvider with ChangeNotifier {
   /// Task name güncelle
   void updateTaskName(String value) {
     taskNameController.text = value;
+    notifyListeners();
+  }
+
+  /// Show description field
+  void showDescription() {
+    _isDescriptionVisible = true;
     notifyListeners();
   }
 
@@ -170,6 +178,7 @@ class QuickAddTaskProvider with ChangeNotifier {
     _earlyReminderMinutes = null;
     _targetCount = 1;
     _remainingDuration = const Duration(hours: 0, minutes: 0);
+    _isDescriptionVisible = false;
     LogService.debug('🔄 QuickAddTaskProvider reset');
     notifyListeners();
   }

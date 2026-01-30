@@ -37,14 +37,17 @@ class QuickAddTaskNameField extends StatelessWidget {
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
         filled: false,
       ),
       textInputAction: TextInputAction.next,
-      onSubmitted: (_) {
+      onEditingComplete: () {
         // Enter tuşuna basıldığında description'a geç
-        LogService.debug('📝 Enter pressed in task name field, moving to description');
-        onFieldSubmitted?.requestFocus();
+        LogService.debug('📝 Enter (editing complete) pressed in task name field, moving to description');
+        provider.showDescription();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          onFieldSubmitted?.requestFocus();
+        });
       },
     );
   }

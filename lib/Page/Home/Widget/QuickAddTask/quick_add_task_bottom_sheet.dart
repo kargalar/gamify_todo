@@ -142,6 +142,39 @@ class _QuickAddTaskBottomSheetState extends State<QuickAddTaskBottomSheet> {
                   ),
                   const SizedBox(height: 12),
 
+                  // Description input field
+                  if (provider.isDescriptionVisible) ...[
+                    TextField(
+                      controller: provider.descriptionController,
+                      focusNode: provider.descriptionFocus,
+                      textCapitalization: TextCapitalization.sentences,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: AppColors.text,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: LocaleKeys.Description.tr(),
+                        hintStyle: TextStyle(
+                          color: AppColors.text.withValues(alpha: 0.4),
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: 4,
+                        ),
+                        filled: false,
+                      ),
+                      maxLines: 3,
+                      minLines: 1,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+
                   // Options row - Date, Priority, Type, Notification
                   _buildOptionsRow(),
                   const SizedBox(height: 16),

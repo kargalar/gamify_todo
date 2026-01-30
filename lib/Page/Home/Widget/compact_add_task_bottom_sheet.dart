@@ -135,19 +135,50 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Task name input field & More Details
                   Row(
                     children: [
                       Expanded(
-                        // Task name input field
                         child: QuickAddTaskNameField(
                           onFieldSubmitted: provider.descriptionFocus,
                         ),
                       ),
-                      // Handle bar with More Details button
                       _buildHeaderWithMoreDetails(provider),
                     ],
                   ),
-                  // const SizedBox(height: 12),
+
+                  // Description input field
+                  if (provider.isDescriptionVisible) ...[
+                    TextField(
+                      controller: provider.descriptionController,
+                      focusNode: provider.descriptionFocus,
+                      textCapitalization: TextCapitalization.sentences,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: AppColors.text,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: LocaleKeys.Description.tr(),
+                        hintStyle: TextStyle(
+                          color: AppColors.text.withValues(alpha: 0.4),
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: 0,
+                        ),
+                        filled: false,
+                      ),
+                      maxLines: 12,
+                      minLines: 1,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                   // Options row - Date, Priority, Type, Notification
                   _buildOptionsRow(),
@@ -166,7 +197,7 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
 
   Widget _buildHeaderWithMoreDetails(QuickAddTaskProvider provider) {
     return SizedBox(
-      height: 50,
+      height: 40,
       child: TextButton(
         onPressed: () {
           _transferDataAndNavigate(provider);
