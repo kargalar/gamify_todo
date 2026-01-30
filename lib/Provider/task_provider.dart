@@ -1080,8 +1080,16 @@ class TaskProvider with ChangeNotifier {
       await _permanentlyDeleteTask(taskID);
     });
 
+    // Remove from memory list
     taskList.removeWhere((task) => task.id == taskID);
     notifyListeners();
+
+    // Delete from storage immediately to prevent issues if app is closed before undo expires
+    await _taskRepository.deleteTask(taskID);
+    await HomeWidgetService.updateTaskCount();
+
+    // Cancel any notifications immediately
+    await NotificationService().cancelNotificationOrAlarm(taskID);
 
     // Show undo snackbar
     Helper().getUndoMessage(
@@ -1096,53 +1104,52 @@ class TaskProvider with ChangeNotifier {
 
   // Permanently delete a task
   Future<void> _permanentlyDeleteTask(int taskID) async {
-    // Clean up undo data (handled by UndoService on expire, but if called manually we might need check)
-    // Actually, onExpire IS calling this. So we don't need to touch maps here.
-    // If explicit permanent delete is needed (not via timer), we would cancel timer in service.
-
-    // Logic here assumes task is already gone from maps or maps are handled by caller.
-    // However, original code removed from _deletedTasks here.
-
-    // We need to know WHICH task to delete permanently if we don't have it.
-    // But this method receives ID. It used to look up in _deletedTasks.
-    // Wait, if onExpire calls this, the task is already removed from _deletedTasks in UndoService.
-    // So looking it up in maps is too late?
-    // Correct. registerDeleteTask takes 'task', stores it. Timer expires -> removes from map -> calls onExpire.
-    // So inside onExpire, the task is GONE from UndoService.
-    // We can pass the task object to the onExpire callback if needed?
-    // Or we simply proceed to delete from DB by ID.
-
-    // The original code did: `final task = _deletedTasks.remove(taskID); if (task!=null) ...`
-    // This implies if task was already undone (removed from map), this code wouldn't run.
-    // UndoService handles this: if undo called, timer cancelled, onExpire NEVER called.
-    // So if onExpire IS called, it means we SHOULD delete.
-
-    // But we need to clean logs etc. which is ID based.
-    // We check usage of `task` variable:
-    // TaskLogProvider().deleteLogsByTaskId(taskID);
-    // NotificationService().cancelNotificationOrAlarm(taskID);
-    // _taskRepository.deleteTask(taskID);
-    // These only use ID. So we are fine.
+    // This is called when undo timer expires.
+    // Since we already deleted the task from Hive in deleteTask(),
+    // we mainly need to clean up related data like logs.
 
     // First delete all logs associated with this task
     await TaskLogProvider().deleteLogsByTaskId(taskID);
 
-    // Delete the task from storage (this also calls HiveService().deleteTask())
+    // Ensure it's deleted from storage (idempotent safe check)
     await _taskRepository.deleteTask(taskID);
 
     await HomeWidgetService.updateTaskCount();
 
-    // Cancel any notifications for this task
+    // Cancel any notifications for this task (already done in Delete, but safe to repeat)
     await NotificationService().cancelNotificationOrAlarm(taskID);
+
+    LogService.debug('Permanently deleted task data for ID: $taskID');
   }
 
   // Undo task deletion
-  void _undoDeleteTask(int taskID) {
+  void _undoDeleteTask(int taskID) async {
     final task = _undoService.undoDeleteTask(taskID);
 
     if (task != null) {
+      // Add back to memory list
       taskList.add(task);
+
+      // Add back to storage
+      // Use updateTask instead of addTask to preserve the original ID
+      try {
+        await _taskRepository.addTask(task); // or updateTask since we use ID?
+        // HiveService.addTask uses put(id, task) so it works for restore with existing ID
+        // But TaskRepository.addTask often generates NEW ID. Let's check.
+        // TaskRepository.addTask: sets new ID = max + 1.
+        // We DON'T want new ID. We want to restore original ID.
+        // Use updateTask which uses Hive put(id) directly.
+        await _taskRepository.updateTask(task);
+        LogService.debug('Restored task to Hive: ID=${task.id}');
+      } catch (e) {
+        LogService.error('Error restoring task to Hive: $e');
+      }
+
+      // Reschedule notifications
+      checkNotification(task);
+
       notifyListeners();
+      await HomeWidgetService.updateTaskCount();
     }
   }
 

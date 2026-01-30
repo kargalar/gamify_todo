@@ -20,7 +20,9 @@ Tam ekran Timer için Timer aktofken basılı tutulması gereksin??
 
 projelerdeki notlar kısmınını kaldır????????
 
+windows sync
 
+tasarım iyileştirme.
 
 
 

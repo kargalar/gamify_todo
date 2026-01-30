@@ -2,24 +2,20 @@
 
 daha anlasılır istatistikler.
 
-Task silip hemen uygulamdan cikinca sorun var. undo butonu işlevi için yaptığımız sistemden kaynaklı. bunu çözmeliyiz. hemen çıkarsam tekrar girdiğimde task silinmemiş oluyor. undo mesaj butonu gidene kadar bekleyip çıakrsam o zaman düzgünce silniiyor. ben sile bastıktan sonra direkt çıksam da sikinmiş olmalı. ama undo butonuna basarsam da geri getirebilmeliyim
-
-bildirim ve alarm kurma kodalrı her yerde aynı mı ve kullanıcıın local zaman dilimine göre mi ayaralnıyor?
-
-
-
 
 skil details update
 
 ○ Timer task ile 8 saat calsitim ama credi o artmadı gibi kontrol testi yap.
     Bu sruecte uygulamayı bircon kez aç kapa yaptım. Belki etkiliyordu4.
     
-○ Taskların recent loglarda lig ekleme seçeneği yok. Bu seçeneği düzgün ekle ve manuel düzeltme widgetını kaldır. Lig ekleme butonu hem üstte olsun hem recent logda olsun
+Log ekleme butonu hem üstte olsun hem recent logda olsun
 
 ○ Farklı bir günde quick task eklerken ikincide sifirlandigimda bugüne geliyor seçili güne degil
 
 ○ Proje task editlerken save, cancel butonlarına gerek yok. Otomatik kaydedilsin
+
 ○ Rutinlerin sıralamalarını degsitiridigimde gelecek ve geçmiş de o sirada sıfırlanmalı
+
 ○ Tatilde olsam bile gcemis rutinler fail oluyor.
     Günler de fail olarak işaretleniyor kontrol et düzelt oluyor
 
@@ -29,9 +25,7 @@ projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve cle
 
 item timer 0 altına inice 2 tane bildrimi geliyor.
 
-windows sync
 
-tasarım iyileştirme.
 
 
 
