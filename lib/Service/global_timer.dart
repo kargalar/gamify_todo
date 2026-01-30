@@ -252,7 +252,11 @@ class GlobalTimer {
               }
 
               // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma (hedef >= 0 ise)
-              if (task.status != TaskStatusEnum.DONE && task.remainingDuration != null && task.remainingDuration!.inSeconds >= 0 && task.currentDuration! >= task.remainingDuration!) {
+              // Fix: 0 duration tasks should only complete if they have SOME progress (>0)
+              bool isZeroDurationTask = task.remainingDuration != null && task.remainingDuration!.inSeconds == 0;
+              bool hasProgress = task.currentDuration != null && task.currentDuration!.inSeconds > 0;
+
+              if (task.status != TaskStatusEnum.DONE && task.remainingDuration != null && ((!isZeroDurationTask && task.currentDuration! >= task.remainingDuration!) || (isZeroDurationTask && hasProgress))) {
                 // Clear any existing status before setting to COMPLETED
                 task.status = TaskStatusEnum.DONE;
                 shouldUpdateWidget = true;

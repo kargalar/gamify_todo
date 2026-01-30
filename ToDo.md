@@ -1,25 +1,11 @@
 
 
-tasarım iyileştirme.
-
 daha anlasılır istatistikler.
 
-windows sync
-
-<!-- taskı oluturup ilk girişte null hatasıç.  -->
-
-projelerin altındaki task itemlarda öyle olsun
-
-
-
-
-
-
-Task silip hemen uygulamdan cikinca sorun var. undo butonu işlevi için yaptığımız sistemden kaynaklı. buun çözmeliyiz. hemenç ıkarsam tekrar girdiğimde rask silinmemiş oluyor. ondo mesaj butonu gidene kadar bekleyip çıakrsam o zaman düzgünce silniiyor. ben sile bastıktan sonra direkt çıksam da sikinmiş olmalı. ama undo butonuna basarsam da geri getirebilmeliyim
+Task silip hemen uygulamdan cikinca sorun var. undo butonu işlevi için yaptığımız sistemden kaynaklı. bunu çözmeliyiz. hemen çıkarsam tekrar girdiğimde task silinmemiş oluyor. undo mesaj butonu gidene kadar bekleyip çıakrsam o zaman düzgünce silniiyor. ben sile bastıktan sonra direkt çıksam da sikinmiş olmalı. ama undo butonuna basarsam da geri getirebilmeliyim
 
 bildirim ve alarm kurma kodalrı her yerde aynı mı ve kullanıcıın local zaman dilimine göre mi ayaralnıyor?
 
-hedef süre 0 olan tasklarda, geçen sürenin 0 dan büyük olduğu durumlarda done olması gerekiyor. timer aktifken done yazıyor amatiner durudulaunca task done olarak gösterilmiyor. bu sorunu düzelt.
 
 
 
@@ -42,3 +28,12 @@ skil details update
 projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve clean code prensiplerini uygula. bunu için gerekirse sistemi değiştirmekten çekinme. önemli olan temiz kod olmalı. lib altındaki bütün dosyaları kontrol ettiğinden emin ol
 
 item timer 0 altına inice 2 tane bildrimi geliyor.
+
+windows sync
+
+tasarım iyileştirme.
+
+
+
+
+
