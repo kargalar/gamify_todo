@@ -261,7 +261,7 @@ class _ProjectNotesSectionState extends State<ProjectNotesSection> {
                 }
                 LogService.debug('🗑️ Note deleted: ${note.title}');
               },
-              backgroundColor: AppColors.red,
+              backgroundColor: AppColors.matteRed,
               foregroundColor: AppColors.white,
               icon: Icons.delete,
             ),

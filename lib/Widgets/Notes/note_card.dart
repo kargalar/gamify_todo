@@ -96,7 +96,7 @@ class NoteCard extends StatelessWidget {
           }
         },
         borderRadius: BorderRadius.circular(12),
-        backgroundColor: AppColors.matteGreen,
+        backgroundColor: AppColors.matteYellow,
         foregroundColor: AppColors.white,
         icon: note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
       ),

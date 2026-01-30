@@ -6,6 +6,7 @@ import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Service/alarm_sound_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Page/Settings/widget/alarm_type_section.dart';
 import 'package:just_audio/just_audio.dart';
 
 /// Alarm sound selection dialog
@@ -112,9 +113,10 @@ class _AlarmSoundSelectionDialogState extends State<AlarmSoundSelectionDialog> {
 
       // Get the sound file path
       final sound = _alarmSoundService.getSoundById(soundId);
-      final soundPath = 'sounds/${sound.fileName}';
+      // Ensure full asset path is used. 'assets/' prefix is required for setAsset
+      final soundPath = 'assets/sounds/${sound.fileName}';
 
-      LogService.debug('AlarmSoundSelectionDialog: Starting preview for: $soundId, path: assets/$soundPath');
+      LogService.debug('AlarmSoundSelectionDialog: Starting preview for: $soundId, path: $soundPath');
 
       // Update state IMMEDIATELY to show stop icon
       if (mounted) {
@@ -124,7 +126,12 @@ class _AlarmSoundSelectionDialogState extends State<AlarmSoundSelectionDialog> {
       }
 
       // Play audio using just_audio (NO NOTIFICATION!)
-      await _audioPlayer.setAsset('assets/$soundPath');
+      // Explicitly stop and reset to ensure no caching issues
+      await _audioPlayer.stop();
+      await _audioPlayer.seek(Duration.zero);
+
+      // Load the new asset
+      await _audioPlayer.setAsset(soundPath);
       await _audioPlayer.setLoopMode(LoopMode.one); // Loop the sound
       await _audioPlayer.play();
 
@@ -228,26 +235,38 @@ class _AlarmSoundSelectionDialogState extends State<AlarmSoundSelectionDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Item Alarm Section
-                  _buildAlarmTypeSection(
+                  AlarmTypeSection(
                     title: '🎯 Task Items',
                     description: 'Alarm sound for regular task items',
                     alarmType: AlarmType.item,
+                    selectedSoundId: _getSelectedSoundId(AlarmType.item),
+                    playingSoundId: _playingSoundId,
+                    onPlayPreview: _playPreview,
+                    onSelectSound: _selectSound,
                   ),
                   const SizedBox(height: 20),
 
                   // Scheduled Alarm Section
-                  _buildAlarmTypeSection(
+                  AlarmTypeSection(
                     title: '📅 Scheduled Tasks',
                     description: 'Alarm sound for scheduled tasks',
                     alarmType: AlarmType.scheduled,
+                    selectedSoundId: _getSelectedSoundId(AlarmType.scheduled),
+                    playingSoundId: _playingSoundId,
+                    onPlayPreview: _playPreview,
+                    onSelectSound: _selectSound,
                   ),
                   const SizedBox(height: 20),
 
                   // Timer Alarm Section
-                  _buildAlarmTypeSection(
+                  AlarmTypeSection(
                     title: '⏱️ Timer Completed',
                     description: 'Alarm sound when timer reaches target duration',
                     alarmType: AlarmType.timer,
+                    selectedSoundId: _getSelectedSoundId(AlarmType.timer),
+                    playingSoundId: _playingSoundId,
+                    onPlayPreview: _playPreview,
+                    onSelectSound: _selectSound,
                   ),
                 ],
               ),
@@ -267,93 +286,6 @@ class _AlarmSoundSelectionDialogState extends State<AlarmSoundSelectionDialog> {
             style: TextStyle(color: AppColors.main),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildAlarmTypeSection({
-    required String title,
-    required String description,
-    required AlarmType alarmType,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          description,
-          style: TextStyle(
-            fontSize: 12,
-            color: AppColors.text.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...AlarmSoundService.availableSounds.map((sound) {
-          final isSelected = _getSelectedSoundId(alarmType) == sound.id;
-          final isPlaying = _playingSoundId == sound.id;
-
-          // Debug: Log state for each sound
-          if (isPlaying) {
-            LogService.debug('AlarmSoundSelectionDialog: UI - Sound ${sound.id} is PLAYING, showing STOP icon');
-          }
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Container(
-              decoration: BoxDecoration(
-                color: isPlaying ? AppColors.dirtyRed.withValues(alpha: 0.1) : (isSelected ? AppColors.main.withValues(alpha: 0.1) : AppColors.panelBackground),
-                borderRadius: AppColors.borderRadiusAll,
-                border: isPlaying ? Border.all(color: AppColors.dirtyRed, width: 2) : (isSelected ? Border.all(color: AppColors.main, width: 2) : null),
-              ),
-              child: ListTile(
-                dense: true,
-                leading: IconButton(
-                  icon: Icon(
-                    isPlaying ? Icons.stop_circle : Icons.play_circle,
-                    color: isPlaying ? AppColors.dirtyRed : AppColors.main,
-                    size: 32,
-                  ),
-                  onPressed: () async {
-                    await _playPreview(sound.id);
-                  },
-                  tooltip: isPlaying ? 'Stop preview' : 'Play preview',
-                ),
-                title: Text(
-                  sound.name,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? AppColors.main : AppColors.text,
-                  ),
-                ),
-                subtitle: Text(
-                  sound.description,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.text.withValues(alpha: 0.6),
-                  ),
-                ),
-                trailing: isSelected
-                    ? Icon(
-                        Icons.check_circle,
-                        color: AppColors.main,
-                        size: 20,
-                      )
-                    : const SizedBox(width: 20), // Placeholder for alignment
-                onTap: () async {
-                  await _selectSound(sound.id, alarmType);
-                },
-              ),
-            ),
-          );
-        }),
       ],
     );
   }

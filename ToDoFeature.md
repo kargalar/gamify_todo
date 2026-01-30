@@ -1,4 +1,5 @@
 attachments ve tema geçici olarak kaldırıldı
+export zip oalrak dosyalarla birlikte verilecek
 
 rutinin veya taskın type değiştirilebilsin.
     rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nıasl olur. o da ilerlemeyi fıtrılayarak çok güzel olur.
@@ -7,11 +8,8 @@ rutinin veya taskın type değiştirilebilsin.
 
 Disiplin sistemi
 
-Repeat days dal all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi veya ayın belli gunlerinde seçilebilsin
-    Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. O tasklar ya en yakın diğer gund egisterilwin ya da gisterilmesin
-NOTE: bildirimleri de bunne göre güncellemelisin
-
 analitics. hangi sayfaya tıklamış falan.
+galiba privacy policy ve googleplay de de birşeyler güncellemem gerekebilir.
 
 Alarm ses seçiminde hep aynısı çalıyor
     Varsyailan alarm di di di dit olsun
@@ -20,7 +18,7 @@ Tam ekran Timer için Timer aktofken basılı tutulması gereksin??
 
 projelerdeki notlar kısmınını kaldır????????
 
-windows sync
+önce firebase sync yap sonra windows için de dene. aynı anda kullanımı test et.
 
 tasarım iyileştirme.
 
@@ -35,6 +33,13 @@ daha anlasılır istatistikler.
 
 
 
+
+Timer task ile 8 saat calsitim ama credi o kadar artmadı gibi kontrol testi yap.
+    Bu sruecte uygulamayı bircon kez aç kapa yaptım. Belki etkiliyordur.
+kodların mantığını kontrol et. bir sorun, mantık hatası var mı.
+
+
+home daki headerlar da sıralanabilsin.
 
 
 

@@ -1,6 +1,5 @@
 botomsheet tam ekran olabilsin
 
-
 TASK ekledikten sonra geri tuşuna basınca sadece klavye kapanmasın bottom sheet de kapatilsin direkt
 
 Gelecek rutinlerde desc ve subtask olanları kontrol et

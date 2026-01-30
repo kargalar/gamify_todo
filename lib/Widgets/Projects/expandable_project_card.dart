@@ -191,7 +191,7 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
           if (widget.onPin != null)
             SlidableAction(
               onPressed: (_) => widget.onPin!(),
-              backgroundColor: AppColors.matteGreen,
+              backgroundColor: AppColors.matteYellow,
               borderRadius: BorderRadius.circular(12),
               padding: const EdgeInsets.symmetric(horizontal: 20),
               foregroundColor: AppColors.white,
