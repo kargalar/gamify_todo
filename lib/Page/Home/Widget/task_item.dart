@@ -9,7 +9,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/description_editor.dart';
 import 'package:next_level/Page/Timer/full_screen_timer_page.dart';
-import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/subtasks_bottom_sheet.dart';
+import 'package:next_level/Page/Home/Widget/subtasks_sheet.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_location.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_time.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/title_and_decription.dart';
@@ -578,7 +578,26 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      builder: (context) => SubtasksBottomSheet(taskModel: widget.taskModel),
+      builder: (context) => SubtasksSheet(
+        taskModel: widget.taskModel,
+        subtasks: widget.taskModel.subtasks ?? [],
+        onAdd: (title, description) {
+          final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+          taskProvider.addSubtask(widget.taskModel, title, description);
+        },
+        onEdit: (subtask, title, description) {
+          final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+          taskProvider.updateSubtask(widget.taskModel, subtask, title, description);
+        },
+        onDelete: (subtask) {
+          final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+          taskProvider.removeSubtask(widget.taskModel, subtask);
+        },
+        onToggleVisibility: () {
+          final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+          taskProvider.toggleTaskSubtaskVisibility(widget.taskModel);
+        },
+      ),
     );
   }
 

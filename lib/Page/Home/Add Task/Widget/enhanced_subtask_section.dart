@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_dialog.dart';
-import 'package:next_level/Page/Home/Add%20Task/Widget/subtask_manager.dart';
+import 'package:next_level/Page/Home/Widget/subtasks_sheet.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:provider/provider.dart';
@@ -212,21 +212,6 @@ class _EnhancedSubtaskSectionState extends State<EnhancedSubtaskSection> {
     }
   }
 
-  void _toggleSubtaskCompletion(int index) {
-    final addTaskProvider = context.read<AddTaskProvider>();
-
-    // Check if this subtask is being completed (not already completed)
-    final bool isSubtaskBeingCompleted = !addTaskProvider.subtasks[index].isCompleted;
-
-    if (isSubtaskBeingCompleted) {
-      // Add haptic feedback when completing a subtask
-      HapticFeedback.lightImpact();
-    }
-
-    addTaskProvider.toggleSubtaskCompletion(index);
-    setState(() {}); // Refresh the UI
-  }
-
   void _showSubtasksBottomSheet() {
     final addTaskProvider = context.read<AddTaskProvider>();
     addTaskProvider.unfocusAll();
@@ -236,14 +221,77 @@ class _EnhancedSubtaskSectionState extends State<EnhancedSubtaskSection> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      builder: (context) => SubtasksBottomSheet(
-        onAddSubtask: () => _showSubtaskDialog(),
-        onEditSubtask: (subtask) => _showSubtaskDialog(subtask: subtask),
-        onToggleSubtask: _toggleSubtaskCompletion,
-        onRemoveSubtask: (index) {
-          final addTaskProvider = context.read<AddTaskProvider>();
-          addTaskProvider.removeSubtask(index);
-          setState(() {}); // Refresh the UI
+      builder: (context) => SubtasksSheet(
+        subtasks: addTaskProvider.subtasks,
+        onAdd: (title, description) {
+          _addNewSubtask(title, description);
+          setState(() {});
+        },
+        onEdit: (subtask, title, description) {
+          _editExistingSubtask(subtask, title, description);
+          setState(() {});
+        },
+        onDelete: (subtask) {
+          final index = addTaskProvider.subtasks.indexWhere((s) => s.id == subtask.id);
+          if (index != -1) {
+            addTaskProvider.removeSubtask(index);
+            setState(() {});
+          }
+        },
+        // IMPORTANT: We need SubtasksSheet to trigger the toggle too if a user clicks checkbox in sheet
+        // Since SubtasksSheet uses SubtaskItem, and SubtaskItem handles toggle internally via provider?
+        // Wait, SubtaskItem uses TaskProvider, but here we are in AddTaskProvider context!
+        // SubtaskItem logic:
+        // final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+        // taskProvider.toggleSubtaskCompletion(widget.taskModel, widget.subtask);
+        //
+        // This is a problem. The existing SubtaskItem is coupled to TaskProvider and a specific TaskModel.
+        // In AddTaskPage, we haven't saved the task yet (or we are editing a copy).
+        // The previous SubtasksBottomSheet implementation in subtask_manager.dart created its own ReorderableListView with _buildSubtaskItem.
+        // My new SubtasksSheet uses SubtaskItem which is coupled to TaskProvider.
+        //
+        // I should have realized SubtaskItem is coupled.
+        //
+        // Quick fix: Update SubtaskItem to accept an onToggle callback and only use TaskProvider if onToggle is null.
+        // Or better: Pass the logic to SubtasksSheet and let it handle everything.
+        //
+        // In SubtasksSheet, I'm already passing onEdit and onDelete.
+        // I should also pass onToggle.
+        // And SubtaskItem should use callback if provided.
+        //
+        // I will first modify SubtaskItem to support callback for toggle.
+        onToggle: (subtask) {
+          final index = addTaskProvider.subtasks.indexWhere((s) => s.id == subtask.id);
+          if (index != -1) {
+            // Haptic is handled in onToggle usually or here?
+            // The unused method had haptic. SubtaskItem has haptic for checkbox.
+            // SubtaskItem logic: if being completed, plays animation (haptic commented out there currently, but `TaskItem` has haptic).
+            // `SubtaskManager` had haptic.
+            // My new SubtasksSheet logic relies on SubtaskItem.
+            // In SubtaskItem, I commented out haptic impact?
+            // Let's re-read SubtaskItem. I uncommented haptic? No, it was commented.
+            // " // HapticFeedback.lightImpact();"
+            // I should probably move haptic logic to here if I want it consistent?
+            // Or let SubtaskItem handle it.
+            //
+            // Let's check the old implementation of `_toggleSubtaskCompletion` in `enhanced_subtask_section.dart`:
+            /*
+            final bool isSubtaskBeingCompleted = !addTaskProvider.subtasks[index].isCompleted;
+            if (isSubtaskBeingCompleted) {
+              HapticFeedback.lightImpact();
+            }
+            addTaskProvider.toggleSubtaskCompletion(index);
+            setState(() {});
+            */
+            //
+            // I should preserve this behavior.
+            final bool isSubtaskBeingCompleted = !addTaskProvider.subtasks[index].isCompleted;
+            if (isSubtaskBeingCompleted) {
+              HapticFeedback.lightImpact();
+            }
+            addTaskProvider.toggleSubtaskCompletion(index);
+            setState(() {});
+          }
         },
       ),
     );

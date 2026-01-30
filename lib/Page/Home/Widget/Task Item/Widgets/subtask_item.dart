@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:next_level/Core/helper.dart';
@@ -13,6 +14,7 @@ class SubtaskItem extends StatefulWidget {
   final TaskModel taskModel;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final Function(SubTaskModel subtask)? onToggle;
 
   const SubtaskItem({
     super.key,
@@ -20,6 +22,7 @@ class SubtaskItem extends StatefulWidget {
     required this.taskModel,
     this.onEdit,
     this.onDelete,
+    this.onToggle,
   });
 
   @override
@@ -89,6 +92,7 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     // Check if this subtask is visually completed (for animation state)
     final bool isVisuallyCompleted = _isVisuallyCompleted || widget.subtask.isCompleted;
+    final actionItemPadding = const EdgeInsets.symmetric(horizontal: 10);
 
     return AnimatedBuilder(
       animation: Listenable.merge([_completionAnimationController]),
@@ -101,28 +105,44 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
               color: _backgroundColorAnimation.value,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Dismissible(
+            child: Slidable(
               key: Key('subtask_${widget.subtask.id}'),
-              background: Container(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.red.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 10),
-                child: const Icon(
-                  Icons.delete_rounded,
-                  color: AppColors.red,
-                  size: 16,
-                ),
+              startActionPane: ActionPane(
+                motion: const ScrollMotion(),
+                extentRatio: 0.25,
+                children: [
+                  SlidableAction(
+                    onPressed: (context) {
+                      if (widget.onEdit != null) {
+                        widget.onEdit!();
+                      }
+                    },
+                    backgroundColor: AppColors.matteBlue,
+                    foregroundColor: AppColors.white,
+                    icon: Icons.edit,
+                    borderRadius: BorderRadius.circular(12),
+                    padding: actionItemPadding,
+                  ),
+                ],
               ),
-              direction: DismissDirection.endToStart,
-              onDismissed: (direction) {
-                if (widget.onDelete != null) {
-                  widget.onDelete!();
-                }
-              },
+              endActionPane: ActionPane(
+                motion: const ScrollMotion(),
+                extentRatio: 0.25,
+                children: [
+                  SlidableAction(
+                    onPressed: (context) {
+                      if (widget.onDelete != null) {
+                        widget.onDelete!();
+                      }
+                    },
+                    backgroundColor: AppColors.matteRed,
+                    foregroundColor: AppColors.white,
+                    icon: Icons.delete,
+                    borderRadius: BorderRadius.circular(12),
+                    padding: actionItemPadding,
+                  ),
+                ],
+              ),
               child: InkWell(
                 onTap: () {
                   if (widget.onEdit != null) {
@@ -144,23 +164,23 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                       width: 1,
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      // Checkbox with animation
-                      InkWell(
-                        onTap: () {
-                          _toggleSubtaskCompletion();
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    child: Row(
+                      children: [
+                        // Checkbox with animation
+                        InkWell(
+                          onTap: () {
+                            _toggleSubtaskCompletion();
+                          },
+                          borderRadius: BorderRadius.circular(12),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            width: 20,
-                            height: 20,
+                            width: 22,
+                            height: 22,
                             decoration: BoxDecoration(
                               color: isVisuallyCompleted ? AppColors.main : Colors.transparent,
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(6),
                               border: Border.all(
                                 color: _isFutureTask()
                                     ? AppColors.text.withValues(alpha: 0.1) // Very faded for future routines
@@ -172,54 +192,57 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
                                 ? const Center(
                                     child: Icon(
                                       Icons.check,
-                                      size: 14,
+                                      size: 16,
                                       color: Colors.white,
                                     ),
                                   )
                                 : null,
                           ),
                         ),
-                      ), // Title and description
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title with animation
-                            Text(
-                              widget.subtask.title,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: isVisuallyCompleted ? FontWeight.normal : FontWeight.bold,
-                                decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
-                                color: (widget.taskModel.routineID != null && widget.taskModel.taskDate != null && _isFutureTask())
-                                    ? AppColors.text.withValues(alpha: 0.4) // Faded for future routines
-                                    : (isVisuallyCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text),
-                              ),
-                            ),
+                        const SizedBox(width: 12),
 
-                            // Description if available
-                            if (widget.subtask.description != null && widget.subtask.description!.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Text(
-                                  widget.subtask.description!,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: _isFutureTask()
-                                        ? AppColors.text.withValues(alpha: 0.3) // Faded for future routines
-                                        : AppColors.text.withValues(alpha: 0.6),
-                                    decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                        // Title and description
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Title with animation
+                              Text(
+                                widget.subtask.title,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: isVisuallyCompleted ? FontWeight.normal : FontWeight.w500,
+                                  decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
+                                  color: (widget.taskModel.routineID != null && widget.taskModel.taskDate != null && _isFutureTask())
+                                      ? AppColors.text.withValues(alpha: 0.4) // Faded for future routines
+                                      : (isVisuallyCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text),
                                 ),
                               ),
-                          ],
+
+                              // Description if available
+                              if (widget.subtask.description != null && widget.subtask.description!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    widget.subtask.description!,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: _isFutureTask()
+                                          ? AppColors.text.withValues(alpha: 0.3) // Faded for future routines
+                                          : AppColors.text.withValues(alpha: 0.6),
+                                      decoration: isVisuallyCompleted ? TextDecoration.lineThrough : null,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -266,13 +289,21 @@ class _SubtaskItemState extends State<SubtaskItem> with TickerProviderStateMixin
       // Then play the animation, and complete the subtask when animation finishes
       _playCompletionAnimation(() {
         // Actually complete the subtask after animation
-        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-        taskProvider.toggleSubtaskCompletion(widget.taskModel, widget.subtask);
+        if (widget.onToggle != null) {
+          widget.onToggle!(widget.subtask);
+        } else {
+          final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+          taskProvider.toggleSubtaskCompletion(widget.taskModel, widget.subtask);
+        }
       });
     } else {
       // For uncompleting subtasks, handle the action immediately
-      final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-      taskProvider.toggleSubtaskCompletion(widget.taskModel, widget.subtask);
+      if (widget.onToggle != null) {
+        widget.onToggle!(widget.subtask);
+      } else {
+        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+        taskProvider.toggleSubtaskCompletion(widget.taskModel, widget.subtask);
+      }
       setState(() {});
     }
   }

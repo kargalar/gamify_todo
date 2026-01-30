@@ -233,7 +233,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     goBack();
                   },
                   child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                     child: Icon(Icons.arrow_back_ios),
                   ),
                 ),
