@@ -278,6 +278,47 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                   icon: const Icon(Icons.post_add),
                   tooltip: LocaleKeys.AddManualLog.tr(),
                 ),
+              if (addTaskProvider.editTask != null && !widget.isTemplateMode)
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'delete_task') {
+                      // Unfocus all fields before showing dialog
+                      addTaskProvider.unfocusAll();
+                      FocusScope.of(context).unfocus();
+
+                      await Helper().getDialog(
+                        message: LocaleKeys.AreYouSureDelete.tr(),
+                        onAccept: () async {
+                          NavigatorService().goBackNavbar();
+
+                          if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
+                            await taskProvider.deleteTask(addTaskProvider.editTask!.id);
+                          } else {
+                            await taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
+                          }
+                        },
+                      );
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem<String>(
+                      value: 'delete_task',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: AppColors.red),
+                          const SizedBox(width: 8),
+                          Text(
+                            LocaleKeys.Delete.tr(),
+                            style: const TextStyle(
+                              color: AppColors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
           body: SingleChildScrollView(
@@ -386,42 +427,6 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                       ),
 
                     const SizedBox(height: 20),
-                    if (addTaskProvider.editTask != null && !widget.isTemplateMode)
-                      InkWell(
-                        borderRadius: AppColors.borderRadiusAll,
-                        onTap: () async {
-                          // Unfocus all fields before showing dialog
-                          addTaskProvider.unfocusAll();
-                          FocusScope.of(context).unfocus();
-
-                          await Helper().getDialog(
-                            message: LocaleKeys.AreYouSureDelete.tr(),
-                            onAccept: () async {
-                              NavigatorService().goBackNavbar();
-
-                              if (addTaskProvider.editTask != null && addTaskProvider.editTask!.routineID == null) {
-                                await taskProvider.deleteTask(addTaskProvider.editTask!.id);
-                              } else {
-                                await taskProvider.deleteRoutine(addTaskProvider.editTask!.routineID!);
-                              }
-                            },
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: AppColors.borderRadiusAll,
-                            color: AppColors.red,
-                          ),
-                          child: Text(
-                            LocaleKeys.Delete.tr(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 30),
                   ],
                 )),
           ),

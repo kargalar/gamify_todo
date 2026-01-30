@@ -8,6 +8,8 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/duraiton_picker.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
 
+import 'package:next_level/Widgets/Common/log_bottom_sheet.dart';
+
 import 'package:next_level/Page/Store/Widget/set_credit.dart';
 import 'package:next_level/Widgets/Common/recent_logs_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
@@ -128,6 +130,38 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
     }
   }
 
+  void _showAddLogDialog() async {
+    if (widget.editItemModel == null) return;
+
+    final result = await showModalBottomSheet<dynamic>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => LogBottomSheet(
+        type: widget.editItemModel!.type,
+        isEdit: false,
+      ),
+    );
+
+    if (result != null) {
+      TaskProgressViewModel.addStoreItemLog(
+        itemId: widget.editItemModel!.id,
+        action: "Manual Entry",
+        value: result,
+        type: widget.editItemModel!.type,
+        affectsProgress: true,
+      );
+      _loadLogs();
+      Helper().getMessage(
+        message: LocaleKeys.Success.tr(),
+        status: StatusEnum.SUCCESS,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -167,11 +201,27 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     ),
                   ),
                 ),
-              if (widget.editItemModel != null)
+              if (widget.editItemModel != null) ...[
+                IconButton(
+                  onPressed: _showAddLogDialog,
+                  icon: const Icon(Icons.post_add),
+                  tooltip: LocaleKeys.AddManualLog.tr(),
+                ),
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'reset_item_progress') {
                       _showResetItemProgressDialog();
+                    } else if (value == 'delete_item') {
+                      addStoreItemProvider.unfocusAll();
+                      FocusScope.of(context).unfocus();
+
+                      Helper().getDialog(
+                        message: "Are you sure you want to delete this item?",
+                        onAccept: () {
+                          storeProvider.deleteItem(widget.editItemModel!.id);
+                          NavigatorService().goBackNavbar();
+                        },
+                      );
                     }
                   },
                   itemBuilder: (BuildContext context) => [
@@ -185,8 +235,25 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                         ],
                       ),
                     ),
+                    PopupMenuItem<String>(
+                      value: 'delete_item',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: AppColors.red),
+                          const SizedBox(width: 8),
+                          Text(
+                            LocaleKeys.Delete.tr(),
+                            style: const TextStyle(
+                              color: AppColors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
+              ],
             ],
           ),
           body: SingleChildScrollView(
@@ -308,40 +375,6 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                         await TaskProgressViewModel.clearStoreItemLogs(widget.editItemModel!.id); // Used editItemModel!.id
                         _loadLogs();
                       },
-                    ),
-                  ],
-                  if (widget.editItemModel != null) ...[
-                    const SizedBox(height: 20),
-                    Center(
-                      child: InkWell(
-                        borderRadius: AppColors.borderRadiusAll,
-                        onTap: () {
-                          addStoreItemProvider.unfocusAll();
-                          FocusScope.of(context).unfocus();
-
-                          Helper().getDialog(
-                            message: "Are you sure you want to delete this item?",
-                            onAccept: () {
-                              storeProvider.deleteItem(widget.editItemModel!.id);
-                              NavigatorService().goBackNavbar();
-                            },
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          decoration: BoxDecoration(
-                            borderRadius: AppColors.borderRadiusAll,
-                            color: AppColors.red,
-                          ),
-                          child: Text(
-                            LocaleKeys.Delete.tr(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.white,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                   const SizedBox(height: 40),
