@@ -1,7 +1,5 @@
 
-○ İcon arka oaln siyah olsun
-
-taskı editleyip çıkınca aktif timer devam etsin.
+timer aktid bir taskın add task page sayfasına girip (yani düzenleme sayfası)  geri çıkarsam timer durduruluyor. durdurulmamamlı.
 
 tasarım iyileştirme.
 
@@ -16,7 +14,7 @@ projelerin altındaki task itemlarda öyle olsun
 
 
 
-store page de appardan Reset store progress deyince ilerleme sıfırlanıyor ama itemlarin logoları silinmiyor. Silinmeli.
+
 
 Task silip hemen uygulamdan cikinca sorun var. undo butonu işlevi için yaptığımız sistemden kaynaklı. buun çözmeliyiz. hemenç ıkarsam tekrar girdiğimde rask silinmemiş oluyor. ondo mesaj butonu gidene kadar bekleyip çıakrsam o zaman düzgünce silniiyor. ben sile bastıktan sonra direkt çıksam da sikinmiş olmalı. ama undo butonuna basarsam da geri getirebilmeliyim
 
@@ -26,6 +24,7 @@ hedef süre 0 olan tasklarda, geçen sürenin 0 dan büyük olduğu durumlarda d
 
 
 
+skil details update
 
 ○ Timer task ile 8 saat calsitim ama credi o artmadı gibi kontrol testi yap.
     Bu sruecte uygulamayı bircon kez aç kapa yaptım. Belki etkiliyordu4.

@@ -14,6 +14,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
 import 'package:provider/provider.dart';
 
 class StorePage extends StatefulWidget {
@@ -276,6 +277,9 @@ class _StorePageState extends State<StorePage> {
         }
 
         await HiveService().updateItem(item);
+
+        // Clear logs for this item
+        await TaskProgressViewModel.clearStoreItemLogs(item.id);
       }
 
       // Update the provider to reflect changes in UI
