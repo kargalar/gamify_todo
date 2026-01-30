@@ -17,26 +17,14 @@ bildirim icon
 
 projelerin taskları onaylayınca yeşil olması yerine farklı bir şekilde belirtelim tamamlandığını
 
-Telefon kilit ekranda, aktif Timer bildirimi next level yazmak yerine taskın adı yazsın.
-    Yani şuan şöyel görünüyor: "NextLevel . 15:47". Ama şöyle görünmeli: "Read Book . 15:47"
-
 timer task başlatılırken bildirim izinlerini kontrol et. izin yoksa kullanıcıyı uyar.
 
 <!-- Goals feature -->
 
-taskalrın edit progressi rutinlerinki gibi olsun
 
-edit log store item için de aynı olsun
+Tasc actionda tepki versin baisnda inwekk
 
-store item davaranışı tasklarda olduğu gibi olsun
-
-Store itemlarda alarmlarda olduğu gibi buton yok. Ayninolsun
-
-Streaki guncelleyince geçmiş günleri etkilememesi lazım
-
-Tasc actionda tepki versin baisnda
-
-Store İrem da renk seçilebilsin
+Store İrem da renk seçilebilsin???
 
  Store İrem alına appardaki guncellensin
 
