@@ -80,10 +80,6 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
         _quickAddProvider.setLoading(false);
 
         // Show success feedback
-        Helper().getMessage(
-          message: '${LocaleKeys.AddTask.tr()}: ${taskModel.title}',
-          status: StatusEnum.SUCCESS,
-        );
       }
     } catch (e) {
       if (mounted) {

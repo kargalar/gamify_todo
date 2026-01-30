@@ -12,7 +12,6 @@ windows sync
 <!-- taskı oluturup ilk girişte null hatasıç.  -->
 
 
-Yeni task eklendigimde alttam mesaj gelmesin
 
 
 store page de appardan Reset store progress deyince ilerleme sıfırlanıyor ama itemlarin logoları silinmiyor. Silinmeli.
