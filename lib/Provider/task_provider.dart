@@ -1927,6 +1927,17 @@ class TaskProvider with ChangeNotifier {
                   routine.sortOrder = newSortOrder;
                   updatedRoutines.add(routine);
                   LogService.debug('  🔄 Synced Routine ${routine.id} sortOrder: $newSortOrder');
+
+                  // Propagate sort order to ALL existing tasks for this routine (e.g. Today's tasks)
+                  for (final t in taskList) {
+                    if (t.routineID == routine.id && t.sortOrder != newSortOrder) {
+                      t.sortOrder = newSortOrder;
+                      if (!updatedTasks.contains(t)) {
+                        updatedTasks.add(t);
+                      }
+                      LogService.debug('    ↳ Propagated to Task ${t.id} (Routine ${routine.id})');
+                    }
+                  }
                 }
               } catch (_) {
                 LogService.error('Routine not found for task ${task.id} (routineID: ${task.routineID})');
