@@ -141,7 +141,26 @@ class TaskProvider with ChangeNotifier {
         second: 59,
       );
 
-      if (taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
+      // Check for vacation exemption
+      bool isExemptFromOverdue = false;
+      if (taskModel.routineID != null) {
+        // Only check for routines
+        final isVacation = VacationDateProvider().isVacationDay(taskModel.taskDate!);
+        if (isVacation) {
+          try {
+            // Find routine to check if it should be active on vacation
+            final routine = routineList.firstWhere((r) => r.id == taskModel.routineID);
+            if (!routine.isActiveOnVacationDays) {
+              isExemptFromOverdue = true;
+              LogService.debug('Vacation exemption: Task ${taskModel.title} (ID=${taskModel.id}) skipped overdue status');
+            }
+          } catch (_) {
+            // Routine not found, ignore
+          }
+        }
+      }
+
+      if (!isExemptFromOverdue && taskDateTime.isBefore(now) && taskModel.status != TaskStatusEnum.DONE) {
         // Task date is in the past, mark as overdue only if not already completed
         LogService.debug('Setting newly created task status to overdue due to past date: ID=${taskModel.id}, Title=${taskModel.title}');
         taskModel.status = TaskStatusEnum.OVERDUE;

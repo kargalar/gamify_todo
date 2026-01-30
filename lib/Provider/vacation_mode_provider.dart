@@ -20,6 +20,7 @@ class VacationModeProvider extends ChangeNotifier {
   /// Initialize vacation mode settings
   Future<void> initialize() async {
     await _loadVacationModeSettings();
+    await _backfillVacationDates();
   }
 
   /// Load vacation mode settings from SharedPreferences
@@ -31,6 +32,56 @@ class VacationModeProvider extends ChangeNotifier {
     } catch (e) {
       LogService.error('Error loading vacation mode settings: $e');
       _isVacationModeEnabled = false;
+    }
+  }
+
+  /// Backfill vacation dates if vacation mode is enabled and there are gaps
+  Future<void> _backfillVacationDates() async {
+    if (!_isVacationModeEnabled) return;
+
+    final provider = VacationDateProvider();
+    await provider.initialize(); // Ensure box is open
+
+    final allDates = provider.getAllVacationDates();
+    if (allDates.isEmpty) return;
+
+    // Find latest date using simple string comparison or parsing
+    // Since dateString is YYYY-MM-DD, string comparison works for sorting?
+    // Better to parse to be safe.
+    DateTime? latestDate;
+
+    for (var dateModel in allDates) {
+      // Manual parsing since VacationDateModel model import might be tricky without seeing it,
+      // but we can use DateTime.parse on dateString if it is ISO 8601 YYYY-MM-DD.
+      // Checking VacationDateProvider.dart: dataString = VacationDateModel.dateToString(date);
+      // Let's just assume valid format or adding Model import.
+      try {
+        final date = DateTime.parse(dateModel.dateString);
+        if (latestDate == null || date.isAfter(latestDate)) {
+          latestDate = date;
+        }
+      } catch (e) {
+        // ignore invalid formats
+      }
+    }
+
+    if (latestDate == null) return;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final latest = DateTime(latestDate.year, latestDate.month, latestDate.day);
+
+    // If latest vacation date is before today (e.g. yesterday or older), fill the gap
+    if (latest.isBefore(today)) {
+      LogService.debug('VacationMode: Backfilling vacation dates from ${latest.toIso8601String()} to ${today.toIso8601String()}');
+
+      // Start from the day after latest
+      var date = latest.add(const Duration(days: 1));
+
+      while (date.isBefore(today) || date.isAtSameMomentAs(today)) {
+        await provider.setDateVacation(date, true);
+        date = date.add(const Duration(days: 1));
+      }
     }
   }
 

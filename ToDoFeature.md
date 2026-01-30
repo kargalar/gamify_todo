@@ -24,6 +24,11 @@ windows sync
 
 tasarım iyileştirme.
 
+projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve clean code prensiplerini uygula. bunu için gerekirse sistemi değiştirmekten çekinme. önemli olan temiz kod olmalı. lib altındaki bütün dosyaları kontrol ettiğinden emin ol
+
+skil details update
+
+daha anlasılır istatistikler.
 
 
 
