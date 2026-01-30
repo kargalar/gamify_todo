@@ -167,10 +167,12 @@ class QuickAddTaskProvider with ChangeNotifier {
   }
 
   /// Formu reset et
-  void reset() {
+  void reset({bool keepDate = false}) {
     taskNameController.clear();
     descriptionController.clear();
-    _selectedDate = DateTime.now();
+    if (!keepDate) {
+      _selectedDate = DateTime.now();
+    }
     _selectedTime = null;
     _selectedTaskType = TaskTypeEnum.CHECKBOX;
     _priority = 3;

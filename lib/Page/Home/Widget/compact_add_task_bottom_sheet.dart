@@ -72,7 +72,7 @@ class _CompactAddTaskBottomSheetState extends State<CompactAddTaskBottomSheet> {
         );
 
         // Reset form
-        _quickAddProvider.reset();
+        _quickAddProvider.reset(keepDate: true);
 
         // Request focus back to task name for quick consecutive task adding
         _quickAddProvider.taskNameFocus.requestFocus();
