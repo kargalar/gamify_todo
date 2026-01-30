@@ -230,49 +230,51 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
             ],
           ),
         ),
-        ReorderableListView(
-          shrinkWrap: true,
-          buildDefaultDragHandles: false,
-          physics: const NeverScrollableScrollPhysics(),
-          proxyDecorator: (child, index, animation) {
-            return Material(
-              color: Colors.transparent,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 1.0, end: 1.05).animate(
-                  CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: ReorderableListView(
+            shrinkWrap: true,
+            buildDefaultDragHandles: false,
+            physics: const NeverScrollableScrollPhysics(),
+            proxyDecorator: (child, index, animation) {
+              return Material(
+                color: Colors.transparent,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 1.0, end: 1.05).animate(
+                    CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+                  ),
+                  child: child,
                 ),
-                child: child,
-              ),
-            );
-          },
-          onReorder: (oldIndex, newIndex) async {
-            if (oldIndex < newIndex) newIndex -= 1;
+              );
+            },
+            onReorder: (oldIndex, newIndex) async {
+              if (oldIndex < newIndex) newIndex -= 1;
 
-            setState(() {
-              final item = _subtasks.removeAt(oldIndex);
-              _subtasks.insert(newIndex, item);
-            });
+              setState(() {
+                final item = _subtasks.removeAt(oldIndex);
+                _subtasks.insert(newIndex, item);
+              });
 
-            final provider = context.read<ProjectsProvider>();
-            for (int i = 0; i < _subtasks.length; i++) {
-              _subtasks[i].orderIndex = i;
-              await provider.updateSubtask(_subtasks[i]);
-            }
+              final provider = context.read<ProjectsProvider>();
+              for (int i = 0; i < _subtasks.length; i++) {
+                _subtasks[i].orderIndex = i;
+                await provider.updateSubtask(_subtasks[i]);
+              }
 
-            if (mounted) {
-              setState(() {});
-              widget.onTasksChanged();
-            }
+              if (mounted) {
+                setState(() {});
+                widget.onTasksChanged();
+              }
 
-            LogService.debug('✅ Tasks reordered in ${widget.project.title}');
-          },
-          children: _subtasks.asMap().entries.map((entry) {
-            final index = entry.key;
-            final task = entry.value;
-            return _buildTaskItem(context, task, index);
-          }).toList(),
+              LogService.debug('✅ Tasks reordered in ${widget.project.title}');
+            },
+            children: _subtasks.asMap().entries.map((entry) {
+              final index = entry.key;
+              final task = entry.value;
+              return _buildTaskItem(context, task, index);
+            }).toList(),
+          ),
         ),
-        const SizedBox(height: 12),
       ],
     );
   }
@@ -284,38 +286,10 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
       child: Slidable(
         key: ValueKey(task.id),
         endActionPane: ActionPane(
-          motion: const DrawerMotion(),
-          dismissible: DismissiblePane(
-            dismissThreshold: 0.3,
-            closeOnCancel: true,
-            confirmDismiss: () async {
-              return true;
-            },
-            onDismissed: () async {
-              // Store deleted task for undo
-              _deletedTask = task;
-              _deletedTaskIndex = _subtasks.indexOf(task);
-
-              final provider = context.read<ProjectsProvider>();
-              await provider.deleteSubtask(task.id);
-              widget.onTasksChanged();
-
-              Helper().getUndoMessage(
-                message: 'Task deleted',
-                onUndo: () async {
-                  if (_deletedTask != null) {
-                    final provider = context.read<ProjectsProvider>();
-                    await provider.addSubtask(_deletedTask!);
-                    widget.onTasksChanged();
-
-                    _deletedTask = null;
-                    _deletedTaskIndex = null;
-                  }
-                },
-              );
-              LogService.debug('🗑️ Task deleted: ${task.title}');
-            },
-          ),
+          extentRatio: 0.2,
+          motion: const ScrollMotion(),
+          closeThreshold: 0.1,
+          openThreshold: 0.1,
           children: [
             SlidableAction(
               onPressed: (_) async {
@@ -342,7 +316,8 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
                 );
                 LogService.debug('🗑️ Task deleted: ${task.title}');
               },
-              backgroundColor: AppColors.red,
+              backgroundColor: AppColors.matteRed,
+              borderRadius: BorderRadius.circular(12),
               foregroundColor: AppColors.white,
               icon: Icons.delete,
             ),
@@ -382,72 +357,74 @@ class _ProjectTasksSectionState extends State<ProjectTasksSection> {
               ),
             );
           },
-          child: Container(
-            key: ValueKey(task.id),
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  task.isCompleted ? AppColors.green.withValues(alpha: 0.05) : AppColors.panelBackground2,
-                  AppColors.panelBackground2.withValues(alpha: 0.7),
-                ],
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Container(
+              key: ValueKey(task.id),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    task.isCompleted ? AppColors.green.withValues(alpha: 0.05) : AppColors.panelBackground2,
+                    AppColors.panelBackground2.withValues(alpha: 0.7),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: task.isCompleted ? AppColors.green.withValues(alpha: 0.2) : AppColors.panelBackground2,
+                  width: 1,
+                ),
               ),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: task.isCompleted ? AppColors.green.withValues(alpha: 0.2) : AppColors.panelBackground2,
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () async {
-                    final provider = context.read<ProjectsProvider>();
-                    await provider.toggleSubtaskCompleted(task.id);
-                    widget.onTasksChanged();
-                    LogService.debug('✅ Task toggled: ${task.title}');
-                  },
-                  child: Container(
-                    color: AppColors.transparent,
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(
-                      task.isCompleted ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                      color: task.isCompleted ? AppColors.green : AppColors.text.withValues(alpha: 0.4),
-                      size: 18,
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      final provider = context.read<ProjectsProvider>();
+                      await provider.toggleSubtaskCompleted(task.id);
+                      widget.onTasksChanged();
+                      LogService.debug('✅ Task toggled: ${task.title}');
+                    },
+                    child: Container(
+                      color: AppColors.transparent,
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(
+                        task.isCompleted ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+                        color: task.isCompleted ? AppColors.green : AppColors.text.withValues(alpha: 0.4),
+                        size: 18,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        task.title,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-                          color: task.isCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text,
-                        ),
-                      ),
-                      if (task.description != null && task.description!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          task.description!,
+                          task.title,
                           style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.text.withValues(alpha: 0.5),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                             decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                            color: task.isCompleted ? AppColors.text.withValues(alpha: 0.5) : AppColors.text,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
+                        if (task.description != null && task.description!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            task.description!,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppColors.text.withValues(alpha: 0.5),
+                              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

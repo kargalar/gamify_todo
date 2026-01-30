@@ -11,6 +11,8 @@ windows sync
 
 <!-- taskı oluturup ilk girişte null hatasıç.  -->
 
+projelerin altındaki task itemlarda öyle olsun
+
 
 
 

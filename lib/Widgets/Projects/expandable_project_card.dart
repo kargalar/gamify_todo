@@ -185,38 +185,40 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
     return Slidable(
       key: ValueKey(widget.project.id),
       endActionPane: ActionPane(
+        extentRatio: 0.6,
         motion: const DrawerMotion(),
         children: [
           if (widget.onPin != null)
             SlidableAction(
               onPressed: (_) => widget.onPin!(),
-              backgroundColor: AppColors.green,
-              padding: const EdgeInsets.all(0),
+              backgroundColor: AppColors.matteGreen,
+              borderRadius: BorderRadius.circular(12),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               foregroundColor: AppColors.white,
               icon: widget.project.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-              label: widget.project.isPinned ? 'unpin'.tr() : 'pin'.tr(),
             ),
           if (widget.onArchive != null)
             SlidableAction(
               onPressed: (_) => widget.onArchive!(),
-              padding: const EdgeInsets.all(0),
-              backgroundColor: AppColors.orange,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              backgroundColor: AppColors.matteOrange,
+              borderRadius: BorderRadius.circular(12),
               foregroundColor: AppColors.white,
               icon: widget.project.isArchived ? Icons.unarchive : Icons.archive,
-              label: widget.project.isArchived ? 'unarchive'.tr() : 'archive'.tr(),
             ),
           if (widget.onDelete != null)
             SlidableAction(
               onPressed: (_) => widget.onDelete!(),
-              padding: const EdgeInsets.all(0),
-              backgroundColor: AppColors.red,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              backgroundColor: AppColors.matteRed,
+              borderRadius: BorderRadius.circular(12),
               foregroundColor: AppColors.white,
               icon: Icons.delete,
-              label: 'delete'.tr(),
             ),
         ],
       ),
       startActionPane: ActionPane(
+        extentRatio: 0.4,
         motion: const DrawerMotion(),
         dismissible: DismissiblePane(
           dismissThreshold: 0.3,
@@ -232,8 +234,9 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
             onPressed: (_) {
               _showEditProjectBottomSheet();
             },
-            backgroundColor: AppColors.blue,
-            padding: const EdgeInsets.all(0),
+            backgroundColor: AppColors.matteBlue,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            borderRadius: BorderRadius.circular(12),
             foregroundColor: AppColors.white,
             icon: Icons.edit,
             label: 'edit'.tr(),

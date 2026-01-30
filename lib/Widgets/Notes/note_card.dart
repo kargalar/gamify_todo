@@ -54,7 +54,7 @@ class NoteCard extends StatelessWidget {
           : null,
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: 0.6,
+        extentRatio: 0.7,
         children: endActions,
       ),
       child: _buildContent(context),
@@ -66,12 +66,13 @@ class NoteCard extends StatelessWidget {
       // Edit action on the left side (slide right to reveal)
       if (onEdit != null)
         SlidableAction(
-          padding: const EdgeInsets.all(0),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           onPressed: (context) {
             LogService.debug('✏️ Note ${note.id} - Edit operation started');
             onEdit!();
           },
-          backgroundColor: AppColors.blue,
+          borderRadius: BorderRadius.circular(12),
+          backgroundColor: AppColors.matteBlue,
           foregroundColor: AppColors.white,
           icon: Icons.edit,
           label: 'Edit'.tr(),
@@ -83,7 +84,7 @@ class NoteCard extends StatelessWidget {
     return [
       // Pin action
       SlidableAction(
-        padding: const EdgeInsets.all(0),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         onPressed: (context) async {
           LogService.debug('📌 Note ${note.id} - Pin toggle: ${note.isPinned} -> ${!note.isPinned}');
           final provider = context.read<NotesProvider>();
@@ -94,13 +95,13 @@ class NoteCard extends StatelessWidget {
             LogService.error('❌ Note ${note.id} - Pin operation failed');
           }
         },
-        backgroundColor: AppColors.green,
+        borderRadius: BorderRadius.circular(12),
+        backgroundColor: AppColors.matteGreen,
         foregroundColor: AppColors.white,
         icon: note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-        label: note.isPinned ? 'unpin'.tr() : 'pin'.tr(),
       ),
       SlidableAction(
-        padding: const EdgeInsets.all(0),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         onPressed: (context) async {
           LogService.debug('📦 Note ${note.id} - Archive toggle started');
           final provider = context.read<NotesProvider>();
@@ -111,13 +112,13 @@ class NoteCard extends StatelessWidget {
             LogService.error('❌ Note ${note.id} - Archive operation failed');
           }
         },
-        backgroundColor: AppColors.orange,
+        borderRadius: BorderRadius.circular(12),
+        backgroundColor: AppColors.matteOrange,
         foregroundColor: AppColors.white,
         icon: note.isArchived ? Icons.unarchive : Icons.archive,
-        label: note.isArchived ? 'unarchive'.tr() : 'archive'.tr(),
       ),
       SlidableAction(
-        padding: const EdgeInsets.all(0),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         onPressed: (context) async {
           LogService.debug('🗑️ Note ${note.id} - Delete operation started');
           if (onDelete != null) {
@@ -127,10 +128,10 @@ class NoteCard extends StatelessWidget {
             LogService.error('⚠️ Note ${note.id} - onDelete callback null');
           }
         },
-        backgroundColor: AppColors.red,
+        borderRadius: BorderRadius.circular(12),
+        backgroundColor: AppColors.matteRed,
         foregroundColor: AppColors.white,
         icon: Icons.delete,
-        label: 'delete'.tr(),
       ),
     ];
   }

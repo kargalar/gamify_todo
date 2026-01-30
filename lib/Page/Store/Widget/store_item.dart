@@ -64,6 +64,7 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
       child: Slidable(
         key: ValueKey(widget.storeItemModel.id),
         startActionPane: ActionPane(
+          extentRatio: 0.4,
           dismissible: DismissiblePane(
             dismissThreshold: 0.3,
             closeOnCancel: true,
@@ -93,9 +94,11 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
                       (value) => StoreProvider().setStateItems(),
                     );
               },
-              backgroundColor: AppColors.main,
+              backgroundColor: AppColors.matteBlue,
+              borderRadius: BorderRadius.circular(12),
               foregroundColor: Colors.white,
               icon: Icons.edit,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               label: LocaleKeys.Edit.tr(),
             ),
           ],

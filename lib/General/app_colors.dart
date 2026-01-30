@@ -65,6 +65,15 @@ class AppColors {
   static const Color deepPurple = Color.fromARGB(255, 96, 3, 158);
   static const Color lightGreen = Color.fromARGB(255, 137, 224, 140);
 
+  // Matte Colors
+  static const Color matteRed = Color.fromARGB(255, 195, 85, 85);
+  static const Color matteBlue = Color.fromARGB(255, 85, 145, 195);
+  static const Color matteOrange = Color.fromARGB(255, 195, 135, 85);
+  static const Color matteYellow = Color.fromARGB(255, 195, 185, 85);
+  static const Color matteGrey = Color.fromARGB(255, 120, 120, 120);
+  static const Color mattePurple = Color.fromARGB(255, 145, 85, 195);
+  static const Color matteGreen = Color.fromARGB(255, 85, 195, 105);
+
   // General Colors
   static Color get cursor {
     if (isDark) {

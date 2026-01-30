@@ -49,7 +49,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
     // Sadece non-routine tasklar için edit action göster
     final bool isNotRoutine = widget.taskModel.routineID == null;
-    final double extentRatio = isNotRoutine ? 0.6 : 0.3;
+    final double extentRatio = isNotRoutine ? 0.4 : 0.2;
 
     return ActionPane(
       motion: const ScrollMotion(),
@@ -102,7 +102,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
     return ActionPane(
       motion: const ScrollMotion(),
-      extentRatio: canPin ? 0.5 : 0.3,
+      extentRatio: canPin ? 0.6 : 0.2,
       closeThreshold: 0.1,
       openThreshold: 0.1,
       dismissible: DismissiblePane(
@@ -153,7 +153,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         // Animasyon bittikten sonra cancel işlemi yapılacak
         // Bu işlem artık task_item.dart'ta _playCancelAnimation içinde yapılacak
       },
-      backgroundColor: AppColors.purple,
+      backgroundColor: AppColors.mattePurple,
+      borderRadius: BorderRadius.circular(12),
       icon: Icons.block,
       // label: LocaleKeys.Cancel.tr(),
       padding: actionItemPadding,
@@ -180,7 +181,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         // Animasyon bittikten sonra fail işlemi yapılacak
         // Bu işlem artık task_item.dart'ta _playFailAnimation içinde yapılacak
       },
-      backgroundColor: AppColors.red,
+      backgroundColor: AppColors.matteRed,
+      borderRadius: BorderRadius.circular(12),
       icon: Icons.close,
       // label: LocaleKeys.Failed.tr(),
       padding: actionItemPadding,
@@ -201,7 +203,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
           );
         }
       },
-      backgroundColor: AppColors.orange,
+      backgroundColor: AppColors.matteOrange,
+      borderRadius: BorderRadius.circular(12),
       icon: Icons.calendar_month,
       // label: LocaleKeys.ChangeDate.tr(),
       padding: actionItemPadding,
@@ -217,7 +220,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
           await taskProvider.deleteRoutine(widget.taskModel.routineID!);
         }
       },
-      backgroundColor: AppColors.red,
+      backgroundColor: AppColors.matteRed,
+      borderRadius: BorderRadius.circular(12),
       icon: Icons.delete,
       // label: LocaleKeys.Delete.tr(),
       padding: actionItemPadding,
@@ -252,7 +256,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
           });
         }
       },
-      backgroundColor: AppColors.blue,
+      backgroundColor: AppColors.matteBlue,
+      borderRadius: BorderRadius.circular(12),
       icon: Icons.edit,
       foregroundColor: AppColors.white,
       // label: LocaleKeys.Edit.tr(),
@@ -269,7 +274,8 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
         LogService.debug('📌 Task ${widget.taskModel.id} - Pin toggle: $isPinned -> ${!isPinned}');
         await taskProvider.toggleTaskPin(widget.taskModel.id);
       },
-      backgroundColor: isPinned ? AppColors.grey : AppColors.yellow,
+      backgroundColor: isPinned ? AppColors.matteGrey : AppColors.matteYellow,
+      borderRadius: BorderRadius.circular(12),
       icon: isPinned ? Icons.push_pin_outlined : Icons.push_pin,
       foregroundColor: AppColors.white,
       // label: isPinned ? LocaleKeys.UnpinTask.tr() : LocaleKeys.PinTask.tr(),
