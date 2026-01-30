@@ -99,7 +99,7 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context),
+          if (widget.logs.isNotEmpty) _buildHeader(context),
           if (widget.logs.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0),

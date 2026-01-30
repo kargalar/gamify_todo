@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/trait_model.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/compact_trait_chip.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/create_trait_bottom_sheet.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/trait_item.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
@@ -247,105 +248,18 @@ class _CompactTraitOptionsState extends State<CompactTraitOptions> {
                   ),
                 )
               else
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 90), // Increased to allow more space for wrapping
-                    child: SingleChildScrollView(
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: selectedTraits.map((trait) => _buildCompactTraitItem(context, trait)).toList(),
-                      ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 90), // Increased to allow more space for wrapping
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      runSpacing: 8,
+                      children: selectedTraits.map((trait) => CompactTraitChip(trait: trait)).toList(),
                     ),
                   ),
                 ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCompactTraitItem(BuildContext context, TraitModel trait) {
-    final addTaskProvider = context.read<AddTaskProvider>();
-
-    return Container(
-      height: 32,
-      decoration: BoxDecoration(
-        color: trait.color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: trait.color.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Trait icon with background
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: trait.color.withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                trait.icon,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-
-          // Trait title
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              trait.title,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: trait.color,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
-          // Remove button
-          Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                addTaskProvider.unfocusAll();
-                addTaskProvider.selectedTraits.remove(trait);
-                setState(() {});
-              },
-              child: Container(
-                width: 24,
-                height: 24,
-                margin: const EdgeInsets.only(right: 4),
-                decoration: BoxDecoration(
-                  color: trait.color.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.close,
-                    size: 12,
-                    color: trait.color,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
