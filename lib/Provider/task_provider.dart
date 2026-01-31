@@ -40,6 +40,8 @@ class TaskProvider with ChangeNotifier {
     await loadShowCompletedState();
     // Task'lerin sortOrder değerlerini migrate et
     await _migrateSortOrder();
+    // 0 duration task'ların statülerini düzelt
+    await _fixZeroDurationTaskStatuses();
   }
 
   TaskRepository _taskRepository = TaskRepository();
@@ -2843,6 +2845,44 @@ class TaskProvider with ChangeNotifier {
         ); // Update UI
         notifyListeners();
       }
+    }
+  }
+
+  Future<void> _fixZeroDurationTaskStatuses() async {
+    LogService.debug('🔄 TaskProvider: Checking for inconsistent 0-duration tasks...');
+    bool anyChanged = false;
+
+    // Safety check - if taskList is empty, we might not have loaded tasks yet?
+    // addTask adds to this list.
+    // _taskRepository.getAllTasks() is not visible here but taskList is populated somewhere?
+    // Wait, where is taskList populated?
+    // It seems taskList is just a list in memory.
+    // Assuming taskList is populated before init() is finished or just after app start.
+    // Actually, init() is called in main.dart? No, it's called somewhere.
+    // Let's assume taskList is populated.
+
+    // Fetch all tasks directly from repository to ensure we check everything
+    final allTasks = await _taskRepository.getTasks();
+
+    for (var task in allTasks) {
+      if (task.type == TaskTypeEnum.TIMER) {
+        bool isZeroDurationTask = task.remainingDuration != null && task.remainingDuration!.inSeconds == 0;
+        bool hasProgress = task.currentDuration != null && task.currentDuration!.inSeconds > 0;
+
+        // Logic from GlobalTimer: 0 duration tasks with progress should be DONE
+        if (isZeroDurationTask && hasProgress && task.status != TaskStatusEnum.DONE) {
+          LogService.debug('🔧 Fixing inconsistent task status for: ${task.title} (ID: ${task.id})');
+          task.status = TaskStatusEnum.DONE;
+          await task.save(); // Directly save to Hive
+          await _taskRepository.updateTask(task); // Also update via repository wrapper if distinct
+          anyChanged = true;
+        }
+      }
+    }
+
+    if (anyChanged) {
+      notifyListeners();
+      LogService.debug('✅ TaskProvider: Fixed inconsistent 0-duration tasks.');
     }
   }
 }

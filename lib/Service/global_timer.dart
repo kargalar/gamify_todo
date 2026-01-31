@@ -16,6 +16,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
 
 class GlobalTimer {
   static final GlobalTimer _instance = GlobalTimer._internal();
@@ -27,6 +28,33 @@ class GlobalTimer {
 
   // Map to store duration of tasks when timer started
   final Map<int, Duration> activeTaskStartDurations = {};
+
+  // Helper method to check and update task completion status
+  bool checkAndUpdateTaskStatus(TaskModel task) {
+    if (task.type != TaskTypeEnum.TIMER) return false;
+
+    bool isZeroDurationTask = task.remainingDuration != null && task.remainingDuration!.inSeconds == 0;
+    bool hasProgress = task.currentDuration != null && task.currentDuration!.inSeconds > 0;
+
+    // Check if completion condition is met
+    // 1. Normal task: current >= remaining
+    // 2. Zero duration task: current > 0 (has progress)
+    bool isCompleted = (!isZeroDurationTask && task.remainingDuration != null && task.currentDuration! >= task.remainingDuration!) || (isZeroDurationTask && hasProgress);
+
+    bool statusChanged = false;
+    if (isCompleted && task.status != TaskStatusEnum.DONE) {
+      task.status = TaskStatusEnum.DONE;
+      statusChanged = true;
+    } else if (!isCompleted && task.status == TaskStatusEnum.DONE) {
+      // Optional: Un-complete if progress drops below target?
+      // Usually we don't automatically un-complete unless it's strictly tracking progress.
+      // For now, let's mirror TaskProgressViewModel logic:
+      task.status = null;
+      statusChanged = true;
+    }
+
+    return statusChanged;
+  }
 
   Timer? _timer;
 
@@ -137,6 +165,9 @@ class GlobalTimer {
         NotificationService().cancelNotificationOrAlarm(taskModel.id + 100000);
         NotificationService().cancelNotificationOrAlarm(taskModel.id + 200000); // Tamamlanma bildirimini de iptal et
       }
+
+      // Status kontrolü yap
+      checkAndUpdateTaskStatus(taskModel);
 
       // Sunucuya güncelleme gönder
       TaskRepository().updateTask(taskModel);
@@ -261,15 +292,12 @@ class GlobalTimer {
               }
 
               // Hedef süreye ulaşıldığında task'ı tamamla ama timer'ı durdurma (hedef >= 0 ise)
-              // Fix: 0 duration tasks should only complete if they have SOME progress (>0)
-              bool isZeroDurationTask = task.remainingDuration != null && task.remainingDuration!.inSeconds == 0;
-              bool hasProgress = task.currentDuration != null && task.currentDuration!.inSeconds > 0;
-
-              if (task.status != TaskStatusEnum.DONE && task.remainingDuration != null && ((!isZeroDurationTask && task.currentDuration! >= task.remainingDuration!) || (isZeroDurationTask && hasProgress))) {
-                // Clear any existing status before setting to COMPLETED
-                task.status = TaskStatusEnum.DONE;
+              bool statusChanged = checkAndUpdateTaskStatus(task);
+              if (statusChanged && task.status == TaskStatusEnum.DONE) {
                 shouldUpdateWidget = true;
+              }
 
+              if (task.status == TaskStatusEnum.DONE) {
                 // Zamanlanmış alarmı iptal etme; yalnızca alarm çalsın istiyoruz
 
                 // Timer tamamlandığında log oluşturma - sadece timer durdurulduğunda log oluşturulacak
@@ -280,9 +308,6 @@ class GlobalTimer {
 
                 // Veritabanını güncelle
                 TaskRepository().updateTask(task);
-
-                // Task Provider'a otomatik bildirim kontrolü çağırma
-                // (Tamamlandı durumunda planlı alarmın iptal edilmesini istemiyoruz)
               }
 
               if (task.currentDuration!.inSeconds % 60 == 0) {
@@ -392,6 +417,9 @@ class GlobalTimer {
 
             // Store the last known foreground timestamp
             await prefs.setString('last_foreground_time', now.toIso8601String());
+
+            // Ensure status is up to date after background duration update
+            checkAndUpdateTaskStatus(task);
 
             TaskRepository().updateTask(task);
             AppHelper().addCreditByProgress(difference);
