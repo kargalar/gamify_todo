@@ -496,6 +496,46 @@ class AddTaskProvider with ChangeNotifier {
     }
   }
 
+  // Reset all state to default values
+  void reset() {
+    editTask = null;
+    isPreFilledFromQuickAdd = false;
+    taskNameController.clear();
+    descriptionController.clear();
+    locationController.clear();
+
+    // Reset timer
+    pauseDescriptionTimer();
+    _descriptionTimeSpent = Duration.zero;
+    _descriptionStartTime = null;
+
+    selectedTime = null;
+    selectedDate = DateTime.now();
+    isNotificationOn = false;
+    isAlarmOn = false;
+    targetCount = 1;
+    taskDuration = const Duration(hours: 0, minutes: 0);
+    selectedTaskType = TaskTypeEnum.CHECKBOX;
+    selectedDays = [];
+    isRoutine = false;
+    selectedTraits = [];
+    priority = 3;
+    subtasks = [];
+    categoryId = null;
+    earlyReminderMinutes = null;
+    isPinned = false;
+
+    attachmentPaths = [];
+
+    _deletedSubtasks.clear();
+    for (final timer in _undoTimers.values) {
+      timer.cancel();
+    }
+    _undoTimers.clear();
+
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     // Cancel any pending undo timers

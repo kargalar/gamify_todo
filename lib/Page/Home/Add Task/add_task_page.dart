@@ -139,6 +139,8 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
     if (_taskDetailViewModel != null) {
       _taskDetailViewModel!.dispose();
     }
+    // Reset provider state when leaving the page
+    addTaskProvider.reset();
     super.dispose();
   }
 
