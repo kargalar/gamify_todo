@@ -366,7 +366,6 @@ class NotificationService {
             scheduledTZDate,
             notificationDetails(false),
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            matchDateTimeComponents: DateTimeComponents.dateAndTime,
             payload: notificationPayload,
           );
           LogService.debug('✅ Notification scheduled successfully (safeId: $safeId)');
