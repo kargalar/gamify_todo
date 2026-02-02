@@ -191,7 +191,7 @@ class _TaskListState extends State<TaskList> {
 
                 // Normal tasks (including active timer tasks) - now collapsible
                 if (allTasksWithTimers.isNotEmpty) ...[
-                  NormalTasksHeader(tasks: allTasksWithTimers),
+                  NormalTasksHeader(tasks: allTasksWithTimers, selectedDate: pageDate),
                 ],
 
                 // Routine Tasks - now collapsible (includes both regular and ghost routines)
@@ -199,6 +199,7 @@ class _TaskListState extends State<TaskList> {
                   RoutineTasksHeader(
                     routineTasks: selectedDateRutinTaskList,
                     ghostRoutineTasks: selectedDateGhostRutinTaskList,
+                    selectedDate: pageDate,
                   ),
                 ],
 
@@ -231,12 +232,13 @@ class _TaskListState extends State<TaskList> {
                   RoutineTasksHeader(
                     routineTasks: archivedRoutines,
                     ghostRoutineTasks: const [],
+                    selectedDate: DateTime.now(),
                   ),
                 ],
 
                 // Archived tasks section
                 if (archivedTasks.isNotEmpty) ...[
-                  NormalTasksHeader(tasks: archivedTasks),
+                  NormalTasksHeader(tasks: archivedTasks, selectedDate: DateTime.now()),
                 ],
 
                 // navbar space

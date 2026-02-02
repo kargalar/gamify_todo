@@ -9,6 +9,7 @@ import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Page/Home/Widget/task_item.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Enum/task_status_enum.dart';
 
 class PinnedTasksHeader extends StatefulWidget {
   final List<TaskModel> pinnedTasks;
@@ -86,6 +87,16 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
       return const SizedBox.shrink();
     }
 
+    // Get ALL pinned tasks from TaskProvider (unfiltered)
+    final taskProvider = TaskProvider();
+    final allPinnedTasks = taskProvider.getPinnedTasksForToday();
+
+    // Calculate counts from ALL pinned tasks, not just filtered ones
+    final doneCount = allPinnedTasks.where((t) => t.status == TaskStatusEnum.DONE).length;
+    final failedCount = allPinnedTasks.where((t) => t.status == TaskStatusEnum.FAILED).length;
+    final overdueCount = allPinnedTasks.where((t) => t.status == TaskStatusEnum.OVERDUE).length;
+    final inProgressCount = allPinnedTasks.where((t) => t.status == null || (t.status != TaskStatusEnum.DONE && t.status != TaskStatusEnum.FAILED && t.status != TaskStatusEnum.OVERDUE)).length;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.yellow.withValues(alpha: 0.01), // Light yellow background - matching overdue style
@@ -121,22 +132,116 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
                   ),
                   const SizedBox(width: 6),
 
-                  // Count badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.yellow.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${widget.pinnedTasks.length}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.yellow,
+                  // In-progress count badge (tasks that are not done or failed)
+                  if (inProgressCount > 0)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.yellow.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '$inProgressCount',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.yellow,
+                        ),
                       ),
                     ),
-                  ),
+
+                  // Done count badge
+                  if (doneCount > 0) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.check_circle,
+                            size: 10,
+                            color: Colors.green,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '$doneCount',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Failed count badge
+                  if (failedCount > 0) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.cancel,
+                            size: 10,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '$failedCount',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Overdue count badge
+                  if (overdueCount > 0) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.schedule,
+                            size: 10,
+                            color: AppColors.orange,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '$overdueCount',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
 
                   const Spacer(),
 
