@@ -126,9 +126,8 @@ class TaskProvider with ChangeNotifier {
 
   Future<void> addTask(TaskModel taskModel) async {
     // En yüksek sortOrder değerini bul ve 1 ekle (yeni task en üstte olacak)
-    final maxSortOrder = taskList.isEmpty ? 0 : taskList.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b);
     if (taskModel.sortOrder == 0) {
-      taskModel.sortOrder = maxSortOrder + 1;
+      taskModel.sortOrder = _getNextSortOrder();
     }
 
     final int taskId = await _taskRepository.addTask(taskModel);
@@ -196,6 +195,13 @@ class TaskProvider with ChangeNotifier {
     routineModel.id = routineId;
 
     routineList.add(routineModel);
+  }
+
+  // Helper method to get the next sort order
+  int _getNextSortOrder() {
+    if (taskList.isEmpty) return 1;
+    final maxSortOrder = taskList.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b);
+    return maxSortOrder + 1;
   }
 
   Future<void> editTask({
@@ -2570,6 +2576,7 @@ class TaskProvider with ChangeNotifier {
               ))
           .toList(),
       earlyReminderMinutes: routine.earlyReminderMinutes,
+      sortOrder: _getNextSortOrder(), // Assign sortOrder to ensure correct ordering
     );
 
     // Add to task list and save
