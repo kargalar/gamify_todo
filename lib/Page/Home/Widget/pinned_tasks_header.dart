@@ -266,157 +266,55 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
             axisAlignment: -1.0,
             child: Column(
               children: [
-                _buildGroupedTaskList(),
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: widget.pinnedTasks.length,
+                  padding: EdgeInsets.zero,
+                  buildDefaultDragHandles: false,
+                  proxyDecorator: (child, index, animation) {
+                    return AnimatedBuilder(
+                      animation: animation,
+                      builder: (BuildContext context, Widget? child) {
+                        final double animValue = Curves.easeInOut.transform(animation.value);
+                        final double elevation = lerpDouble(0, 6, animValue)!;
+                        final double scale = lerpDouble(1.0, 1.02, animValue)!;
+                        return Transform.scale(
+                          scale: scale,
+                          child: Material(
+                            elevation: elevation,
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: child,
+                    );
+                  },
+                  onReorder: (int oldIndex, int newIndex) {
+                    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+                    taskProvider.reorderTasks(
+                      oldIndex: oldIndex,
+                      newIndex: newIndex,
+                      isPinnedList: true,
+                      isRoutineList: false,
+                      isOverdueList: false,
+                    );
+                  },
+                  itemBuilder: (context, index) {
+                    final task = widget.pinnedTasks[index];
+                    return ReorderableDelayedDragStartListener(
+                      key: ValueKey(task.key),
+                      index: index,
+                      child: TaskItem(
+                        taskModel: task,
+                        showDate: true, // Show date for pinned tasks
+                      ),
+                    );
+                  },
+                ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGroupedTaskList() {
-    // Group tasks by date
-    final Map<String, List<TaskModel>> groupedTasks = {};
-
-    for (final task in widget.pinnedTasks) {
-      String dateKey;
-      if (task.taskDate == null) {
-        dateKey = 'no_date';
-      } else {
-        final now = DateTime.now();
-        final today = DateTime(now.year, now.month, now.day);
-        final dateOnly = DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day);
-
-        if (dateOnly.isAtSameMomentAs(today)) {
-          dateKey = 'today';
-        } else if (dateOnly.isBefore(today)) {
-          dateKey = 'past_${DateFormat('yyyy-MM-dd').format(task.taskDate!)}';
-        } else {
-          dateKey = 'future_${DateFormat('yyyy-MM-dd').format(task.taskDate!)}';
-        }
-      }
-
-      if (!groupedTasks.containsKey(dateKey)) {
-        groupedTasks[dateKey] = [];
-      }
-      groupedTasks[dateKey]!.add(task);
-    }
-
-    // Sort groups: no_date -> today -> past (newest first) -> future (oldest first)
-    final sortedKeys = groupedTasks.keys.toList()
-      ..sort((a, b) {
-        if (a == 'no_date') return -1;
-        if (b == 'no_date') return 1;
-        if (a == 'today') return -1;
-        if (b == 'today') return 1;
-        if (a.startsWith('past_') && b.startsWith('past_')) {
-          return b.compareTo(a); // Newer dates first for past
-        }
-        if (a.startsWith('past_')) return -1;
-        if (b.startsWith('past_')) return 1;
-        return a.compareTo(b); // Older dates first for future
-      });
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final dateKey in sortedKeys) ...[
-          _buildDateHeader(dateKey, groupedTasks[dateKey]!.first),
-          _buildReorderableTaskGroup(groupedTasks[dateKey]!),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildReorderableTaskGroup(List<TaskModel> tasks) {
-    return ReorderableListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: tasks.length,
-      padding: EdgeInsets.zero,
-      buildDefaultDragHandles: false,
-      proxyDecorator: (child, index, animation) {
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (BuildContext context, Widget? child) {
-            final double animValue = Curves.easeInOut.transform(animation.value);
-            final double elevation = lerpDouble(0, 6, animValue)!;
-            final double scale = lerpDouble(1.0, 1.02, animValue)!;
-            return Transform.scale(
-              scale: scale,
-              child: Material(
-                elevation: elevation,
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
-                child: child,
-              ),
-            );
-          },
-          child: child,
-        );
-      },
-      onReorder: (int oldIndex, int newIndex) {
-        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-        taskProvider.reorderTasks(
-          oldIndex: oldIndex,
-          newIndex: newIndex,
-          isPinnedList: true,
-          isRoutineList: false,
-          isOverdueList: false,
-        );
-      },
-      itemBuilder: (context, index) {
-        final task = tasks[index];
-        return ReorderableDelayedDragStartListener(
-          key: ValueKey(task.key),
-          index: index,
-          child: TaskItem(taskModel: task),
-        );
-      },
-    );
-  }
-
-  Widget _buildDateHeader(String dateKey, TaskModel sampleTask) {
-    Color dateColor;
-    String dateText;
-    IconData icon;
-
-    if (dateKey == 'no_date') {
-      dateColor = Colors.grey;
-      dateText = LocaleKeys.NoDate.tr();
-      icon = Icons.event_busy;
-    } else if (dateKey == 'today') {
-      dateColor = Colors.green;
-      dateText = LocaleKeys.Today.tr();
-      icon = Icons.calendar_today;
-    } else if (dateKey.startsWith('past_')) {
-      dateColor = Colors.red;
-      dateText = DateFormat('dd MMM yyyy').format(sampleTask.taskDate!);
-      icon = Icons.calendar_today;
-    } else {
-      // Future
-      dateColor = Colors.blue;
-      dateText = DateFormat('dd MMM yyyy').format(sampleTask.taskDate!);
-      icon = Icons.calendar_today;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 13,
-            color: dateColor,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            dateText,
-            style: TextStyle(
-              fontSize: 12,
-              color: dateColor,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],

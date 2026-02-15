@@ -10,3 +10,9 @@ Repeat days da all yanına custom ekle orada 2 haftada 1 yıllık aylık gibi ve
     Eğer her ay olmayan gunlerdede ise mesel 31 30 gibi. O tasklar ya en yakın diğer gund egisterilwin ya da gisterilmesin
 NOTE: bildirimleri de buna göre güncellemelisin
 
+○ Sonraki güne geçince sıra bozuluyor
+○ Reset store progress deyince tüm logolar da silinmeli
+○ Ayarlardaki weekly önceki haftalara gecis yaoilabilsin
+○ Dünün taskına bugün log eklerken sorunlu2
+○ Next level alarm 3 saat geç
+○ Pinlenen tasklar tarihe gore ayrílmak yerine overdue tasklarda oldugu gibisadece yanına tarihi yazsın yeterli.
