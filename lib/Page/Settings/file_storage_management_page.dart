@@ -24,6 +24,8 @@ import 'package:next_level/Page/Home/Add Task/add_task_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/trait_provider.dart';
 import 'package:next_level/Provider/store_provider.dart';
+import 'package:next_level/Provider/user_provider.dart';
+import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
 
 class FileStorageManagementPage extends StatefulWidget {
   const FileStorageManagementPage({super.key});
@@ -465,6 +467,8 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                       message: 'Reset all store item purchase history? This action cannot be undone.',
                       onAccept: () async {
                         try {
+                          await UserProvider().resetCredit();
+
                           final storeProvider = StoreProvider();
 
                           // Reset all store items' progress to their initial values
@@ -483,6 +487,7 @@ class _FileStorageManagementPageState extends State<FileStorageManagementPage> {
                             }
 
                             await HiveService().updateItem(item);
+                            await TaskProgressViewModel.clearStoreItemLogs(item.id);
                           }
 
                           // Update the provider to reflect changes in UI
