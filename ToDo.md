@@ -14,4 +14,3 @@ NOTE: bildirimleri de buna göre güncellemelisin
 ○ Ayarlardaki weekly önceki haftalara gecis yaoilabilsin
 ○ Dünün taskına bugün log eklerken sorunlu2
 ○ Next level alarm 3 saat geç
-○ Pinlenen tasklar tarihe gore ayrílmak yerine overdue tasklarda oldugu gibisadece yanına tarihi yazsın yeterli.
