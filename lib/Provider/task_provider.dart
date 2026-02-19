@@ -260,14 +260,10 @@ class TaskProvider with ChangeNotifier {
           task.skillIDList = taskModel.skillIDList;
 
           // Update remainingDuration and targetCount for all tasks, but preserve current progress for today's task
-          if (task.taskDate != null && task.taskDate!.isSameDay(DateTime.now())) {
-            // For today's task, use the new values from taskModel
-            task.remainingDuration = taskModel.remainingDuration;
-            task.targetCount = taskModel.targetCount;
-          } else {
-            // For past and future tasks, also update to new values but preserve any progress
-            // For future tasks, this ensures they get the updated targets
-            // For past tasks, this keeps them consistent with the routine template
+          // Only update for today and future tasks. Past tasks should keep their original targets.
+          final isPastTask = task.taskDate != null && task.taskDate!.isBeforeDay(DateTime.now());
+
+          if (!isPastTask) {
             task.remainingDuration = taskModel.remainingDuration;
             task.targetCount = taskModel.targetCount;
           }
