@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:next_level/Core/Handlers/task_action_handler.dart';
+import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/add_task_page.dart';
 import 'package:next_level/Provider/task_provider.dart';
@@ -45,11 +46,11 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
 
   ActionPane? startPane() {
     // Ghost routine task kontrolü (taskDate gelecekte ise)
-    final bool isGhostRoutine = widget.taskModel.routineID != null && widget.taskModel.taskDate != null && widget.taskModel.taskDate!.isAfter(DateTime.now());
+    final bool isGhostRoutine = widget.taskModel.routineID != null && widget.taskModel.taskDate != null && widget.taskModel.taskDate!.isAfterDay(DateTime.now());
 
-    // Sadece non-routine tasklar için edit action göster
-    final bool isNotRoutine = widget.taskModel.routineID == null;
-    final double extentRatio = isNotRoutine ? 0.4 : 0.2;
+    // Ghost routine harici tüm tasklarda (Routine dahil) Edit + Fail göster (0.4)
+    // Ghost routinelerde sadece Edit göster (0.2)
+    final double extentRatio = isGhostRoutine ? 0.2 : 0.4;
 
     return ActionPane(
       motion: const ScrollMotion(),
