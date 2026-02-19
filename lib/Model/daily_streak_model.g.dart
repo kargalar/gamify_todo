@@ -8,7 +8,7 @@ part of 'daily_streak_model.dart';
 
 class DailyStreakModelAdapter extends TypeAdapter<DailyStreakModel> {
   @override
-  final int typeId = 8;
+  final int typeId = 17;
 
   @override
   DailyStreakModel read(BinaryReader reader) {
@@ -45,9 +45,5 @@ class DailyStreakModelAdapter extends TypeAdapter<DailyStreakModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DailyStreakModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is DailyStreakModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

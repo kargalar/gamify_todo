@@ -18,7 +18,7 @@ class DurationCalculator {
   /// Calculate total duration logged for the given date.
   /// Sums up durations from task logs and includes running timers' currentDuration.
   static Duration calculateTotalDurationForDate(DateTime date) {
-    LogService.debug('DurationCalculator: Calculating total duration for date: $date');
+    // LogService.debug('DurationCalculator: Calculating total duration for date: $date');
 
     // Aggregate from logs
     final logs = TaskLogProvider().taskLogList;
@@ -110,21 +110,15 @@ class DurationCalculator {
 
         if (sessionDelta > Duration.zero) {
           total += sessionDelta;
-          LogService.debug('DurationCalculator: Added active session delta: ${sessionDelta.compactFormat()} for task ${task.title} (current: ${current.compactFormat()}, start: ${startDuration.compactFormat()})');
-        } else {
-          LogService.debug('DurationCalculator: Skipped active timer for task ${task.title} because session delta <= 0');
         }
       }
     }
 
-    LogService.debug('DurationCalculator: Total duration calculated: ${total.compactFormat()}');
     return total;
   }
 
   /// Get breakdown of contributions for the given date: list of maps with title and duration.
   static List<Map<String, dynamic>> getContributionsForDate(DateTime date) {
-    LogService.debug('DurationCalculator: Calculating contributions for date: $date');
-
     final Map<int, Duration> perTask = {};
     final Set<String> processedTaskDates = {};
     final Map<int, int> counterTaskCounts = {};
@@ -239,7 +233,7 @@ class DurationCalculator {
     if (checkDate.isBefore(today)) {
       final persistedStreak = DailyStreakProvider().getStreakForDate(date);
       if (persistedStreak != null) {
-        LogService.debug('DurationCalculator: Found persisted streak for $date: met=${persistedStreak.isMet}');
+        // LogService.debug('DurationCalculator: Found persisted streak for $date: met=${persistedStreak.isMet}');
         return persistedStreak.isMet;
       }
     }
@@ -250,17 +244,17 @@ class DurationCalculator {
     final double hours = StreakSettingsProvider().streakMinimumHours;
     final streakDuration = hours > 0 ? Duration(minutes: (hours * 60).toInt()) : const Duration(hours: 1);
 
-    LogService.debug('DurationCalculator: Streak status for ${date.toIso8601String()}: totalDuration=${totalDuration.inMinutes}min, streakDuration=${streakDuration.inMinutes}min');
+    // LogService.debug('DurationCalculator: Streak status for ${date.toIso8601String()}: totalDuration=${totalDuration.inMinutes}min, streakDuration=${streakDuration.inMinutes}min');
 
     // If no logs for this date, return null (no data)
     final hasLogs = TaskLogProvider().taskLogList.any((log) => log.logDate.isSameDay(date));
     if (!hasLogs) {
-      LogService.debug('DurationCalculator: No logs found for date, returning null');
+      // LogService.debug('DurationCalculator: No logs found for date, returning null');
       return null;
     }
 
     final result = totalDuration >= streakDuration;
-    LogService.debug('DurationCalculator: Streak ${result ? "MET ✅" : "NOT MET ❌"}');
+    // LogService.debug('DurationCalculator: Streak ${result ? "MET ✅" : "NOT MET ❌"}');
     return result;
   }
 

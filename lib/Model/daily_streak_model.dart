@@ -2,7 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'daily_streak_model.g.dart';
 
-@HiveType(typeId: 8) // Ensure this ID is unique
+@HiveType(typeId: 17) // Ensure this ID is unique
 class DailyStreakModel extends HiveObject {
   @HiveField(0)
   DateTime date; // The date of the streak record
