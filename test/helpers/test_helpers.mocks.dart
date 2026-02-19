@@ -3,29 +3,29 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
-import 'dart:ui' as _i14;
+import 'dart:async' as _i4;
+import 'dart:ui' as _i15;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i18;
+import 'package:mockito/src/dummies.dart' as _i19;
 import 'package:next_level/Enum/task_status_enum.dart' as _i22;
-import 'package:next_level/Model/category_model.dart' as _i9;
-import 'package:next_level/Model/routine_model.dart' as _i7;
-import 'package:next_level/Model/store_item_model.dart' as _i5;
-import 'package:next_level/Model/subtask_model.dart' as _i15;
-import 'package:next_level/Model/task_log_model.dart' as _i10;
-import 'package:next_level/Model/task_model.dart' as _i8;
-import 'package:next_level/Model/trait_model.dart' as _i6;
-import 'package:next_level/Model/user_model.dart' as _i4;
-import 'package:next_level/Provider/task_log_provider.dart' as _i19;
-import 'package:next_level/Provider/task_provider.dart' as _i21;
-import 'package:next_level/Repository/category_repository.dart' as _i17;
-import 'package:next_level/Repository/routine_repository.dart' as _i12;
-import 'package:next_level/Repository/task_log_repository.dart' as _i20;
-import 'package:next_level/Repository/task_repository.dart' as _i11;
-import 'package:next_level/Service/hive_service.dart' as _i2;
-import 'package:next_level/Service/home_widget_helper.dart' as _i16;
-import 'package:next_level/Service/undo_service.dart' as _i13;
+import 'package:next_level/Model/category_model.dart' as _i10;
+import 'package:next_level/Model/routine_model.dart' as _i8;
+import 'package:next_level/Model/store_item_model.dart' as _i6;
+import 'package:next_level/Model/subtask_model.dart' as _i16;
+import 'package:next_level/Model/task_log_model.dart' as _i11;
+import 'package:next_level/Model/task_model.dart' as _i9;
+import 'package:next_level/Model/trait_model.dart' as _i7;
+import 'package:next_level/Model/user_model.dart' as _i5;
+import 'package:next_level/Provider/task_log_provider.dart' as _i20;
+import 'package:next_level/Provider/task_provider.dart' as _i2;
+import 'package:next_level/Repository/category_repository.dart' as _i18;
+import 'package:next_level/Repository/routine_repository.dart' as _i13;
+import 'package:next_level/Repository/task_log_repository.dart' as _i21;
+import 'package:next_level/Repository/task_repository.dart' as _i12;
+import 'package:next_level/Service/hive_service.dart' as _i3;
+import 'package:next_level/Service/home_widget_helper.dart' as _i17;
+import 'package:next_level/Service/undo_service.dart' as _i14;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -40,8 +40,18 @@ import 'package:next_level/Service/undo_service.dart' as _i13;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeDateTime_0 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_0(
+class _FakeTaskProvider_0 extends _i1.SmartFake implements _i2.TaskProvider {
+  _FakeTaskProvider_0(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeDateTime_1 extends _i1.SmartFake implements DateTime {
+  _FakeDateTime_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -53,313 +63,326 @@ class _FakeDateTime_0 extends _i1.SmartFake implements DateTime {
 /// A class which mocks [HiveService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockHiveService extends _i1.Mock implements _i2.HiveService {
+class MockHiveService extends _i1.Mock implements _i3.HiveService {
   MockHiveService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<void> addUser(_i4.UserModel? userModel) => (super.noSuchMethod(
+  _i4.Future<void> addUser(_i5.UserModel? userModel) => (super.noSuchMethod(
         Invocation.method(
           #addUser,
           [userModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<_i4.UserModel?> getUser(int? id) => (super.noSuchMethod(
+  _i4.Future<_i5.UserModel?> getUser(int? id) => (super.noSuchMethod(
         Invocation.method(
           #getUser,
           [id],
         ),
-        returnValue: _i3.Future<_i4.UserModel?>.value(),
-      ) as _i3.Future<_i4.UserModel?>);
+        returnValue: _i4.Future<_i5.UserModel?>.value(),
+      ) as _i4.Future<_i5.UserModel?>);
 
   @override
-  _i3.Future<void> updateUser(_i4.UserModel? userModel) => (super.noSuchMethod(
+  _i4.Future<void> updateUser(_i5.UserModel? userModel) => (super.noSuchMethod(
         Invocation.method(
           #updateUser,
           [userModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<List<_i4.UserModel>> getUsers() => (super.noSuchMethod(
+  _i4.Future<List<_i5.UserModel>> getUsers() => (super.noSuchMethod(
         Invocation.method(
           #getUsers,
           [],
         ),
-        returnValue: _i3.Future<List<_i4.UserModel>>.value(<_i4.UserModel>[]),
-      ) as _i3.Future<List<_i4.UserModel>>);
+        returnValue: _i4.Future<List<_i5.UserModel>>.value(<_i5.UserModel>[]),
+      ) as _i4.Future<List<_i5.UserModel>>);
 
   @override
-  _i3.Future<void> addItem(_i5.ItemModel? itemModel) => (super.noSuchMethod(
+  _i4.Future<void> addItem(_i6.ItemModel? itemModel) => (super.noSuchMethod(
         Invocation.method(
           #addItem,
           [itemModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<List<_i5.ItemModel>> getItems() => (super.noSuchMethod(
+  _i4.Future<List<_i6.ItemModel>> getItems() => (super.noSuchMethod(
         Invocation.method(
           #getItems,
           [],
         ),
-        returnValue: _i3.Future<List<_i5.ItemModel>>.value(<_i5.ItemModel>[]),
-      ) as _i3.Future<List<_i5.ItemModel>>);
+        returnValue: _i4.Future<List<_i6.ItemModel>>.value(<_i6.ItemModel>[]),
+      ) as _i4.Future<List<_i6.ItemModel>>);
 
   @override
-  _i3.Future<void> updateItem(_i5.ItemModel? itemModel) => (super.noSuchMethod(
+  _i4.Future<void> updateItem(_i6.ItemModel? itemModel) => (super.noSuchMethod(
         Invocation.method(
           #updateItem,
           [itemModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteItem(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteItem(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteItem,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addTrait(_i6.TraitModel? traitModel) => (super.noSuchMethod(
+  _i4.Future<void> addTrait(_i7.TraitModel? traitModel) => (super.noSuchMethod(
         Invocation.method(
           #addTrait,
           [traitModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<List<_i6.TraitModel>> getTraits() => (super.noSuchMethod(
+  _i4.Future<List<_i7.TraitModel>> getTraits() => (super.noSuchMethod(
         Invocation.method(
           #getTraits,
           [],
         ),
-        returnValue: _i3.Future<List<_i6.TraitModel>>.value(<_i6.TraitModel>[]),
-      ) as _i3.Future<List<_i6.TraitModel>>);
+        returnValue: _i4.Future<List<_i7.TraitModel>>.value(<_i7.TraitModel>[]),
+      ) as _i4.Future<List<_i7.TraitModel>>);
 
   @override
-  _i3.Future<void> updateTrait(_i6.TraitModel? traitModel) => (super.noSuchMethod(
+  _i4.Future<void> updateTrait(_i7.TraitModel? traitModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateTrait,
           [traitModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteTrait(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteTrait(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteTrait,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
+  _i4.Future<void> addRoutine(_i8.RoutineModel? routineModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #addRoutine,
           [routineModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<List<_i7.RoutineModel>> getRoutines() => (super.noSuchMethod(
+  _i4.Future<List<_i8.RoutineModel>> getRoutines() => (super.noSuchMethod(
         Invocation.method(
           #getRoutines,
           [],
         ),
-        returnValue: _i3.Future<List<_i7.RoutineModel>>.value(<_i7.RoutineModel>[]),
-      ) as _i3.Future<List<_i7.RoutineModel>>);
+        returnValue:
+            _i4.Future<List<_i8.RoutineModel>>.value(<_i8.RoutineModel>[]),
+      ) as _i4.Future<List<_i8.RoutineModel>>);
 
   @override
-  _i3.Future<void> updateRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
+  _i4.Future<void> updateRoutine(_i8.RoutineModel? routineModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateRoutine,
           [routineModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteRoutine(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteRoutine(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteRoutine,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addTask(_i8.TaskModel? taskModel) => (super.noSuchMethod(
+  _i4.Future<void> addTask(_i9.TaskModel? taskModel) => (super.noSuchMethod(
         Invocation.method(
           #addTask,
           [taskModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<List<_i8.TaskModel>> getTasks() => (super.noSuchMethod(
+  _i4.Future<List<_i9.TaskModel>> getTasks() => (super.noSuchMethod(
         Invocation.method(
           #getTasks,
           [],
         ),
-        returnValue: _i3.Future<List<_i8.TaskModel>>.value(<_i8.TaskModel>[]),
-      ) as _i3.Future<List<_i8.TaskModel>>);
+        returnValue: _i4.Future<List<_i9.TaskModel>>.value(<_i9.TaskModel>[]),
+      ) as _i4.Future<List<_i9.TaskModel>>);
 
   @override
-  _i3.Future<void> updateTask(_i8.TaskModel? taskModel) => (super.noSuchMethod(
+  _i4.Future<void> updateTask(_i9.TaskModel? taskModel) => (super.noSuchMethod(
         Invocation.method(
           #updateTask,
           [taskModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteTask(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteTask(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteTask,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
+  _i4.Future<void> addCategory(_i10.CategoryModel? categoryModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #addCategory,
           [categoryModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<List<_i9.CategoryModel>> getCategories() => (super.noSuchMethod(
+  _i4.Future<List<_i10.CategoryModel>> getCategories() => (super.noSuchMethod(
         Invocation.method(
           #getCategories,
           [],
         ),
-        returnValue: _i3.Future<List<_i9.CategoryModel>>.value(<_i9.CategoryModel>[]),
-      ) as _i3.Future<List<_i9.CategoryModel>>);
+        returnValue:
+            _i4.Future<List<_i10.CategoryModel>>.value(<_i10.CategoryModel>[]),
+      ) as _i4.Future<List<_i10.CategoryModel>>);
 
   @override
-  _i3.Future<void> updateCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
+  _i4.Future<void> updateCategory(_i10.CategoryModel? categoryModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateCategory,
           [categoryModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteCategory(String? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteCategory(String? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteCategory,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> clearCategoryBox() => (super.noSuchMethod(
+  _i4.Future<void> clearCategoryBox() => (super.noSuchMethod(
         Invocation.method(
           #clearCategoryBox,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addTaskLog(_i10.TaskLogModel? taskLogModel) => (super.noSuchMethod(
+  _i4.Future<void> addTaskLog(_i11.TaskLogModel? taskLogModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #addTaskLog,
           [taskLogModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<List<_i10.TaskLogModel>> getTaskLogs() => (super.noSuchMethod(
+  _i4.Future<List<_i11.TaskLogModel>> getTaskLogs() => (super.noSuchMethod(
         Invocation.method(
           #getTaskLogs,
           [],
         ),
-        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
-      ) as _i3.Future<List<_i10.TaskLogModel>>);
+        returnValue:
+            _i4.Future<List<_i11.TaskLogModel>>.value(<_i11.TaskLogModel>[]),
+      ) as _i4.Future<List<_i11.TaskLogModel>>);
 
   @override
-  _i3.Future<List<_i10.TaskLogModel>> getTaskLogsByTaskId(int? taskId) => (super.noSuchMethod(
+  _i4.Future<List<_i11.TaskLogModel>> getTaskLogsByTaskId(int? taskId) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getTaskLogsByTaskId,
           [taskId],
         ),
-        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
-      ) as _i3.Future<List<_i10.TaskLogModel>>);
+        returnValue:
+            _i4.Future<List<_i11.TaskLogModel>>.value(<_i11.TaskLogModel>[]),
+      ) as _i4.Future<List<_i11.TaskLogModel>>);
 
   @override
-  _i3.Future<List<_i10.TaskLogModel>> getTaskLogsByRoutineId(int? routineId) => (super.noSuchMethod(
+  _i4.Future<List<_i11.TaskLogModel>> getTaskLogsByRoutineId(int? routineId) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getTaskLogsByRoutineId,
           [routineId],
         ),
-        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
-      ) as _i3.Future<List<_i10.TaskLogModel>>);
+        returnValue:
+            _i4.Future<List<_i11.TaskLogModel>>.value(<_i11.TaskLogModel>[]),
+      ) as _i4.Future<List<_i11.TaskLogModel>>);
 
   @override
-  _i3.Future<void> deleteTaskLog(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteTaskLog(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteTaskLog,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> createTasksFromRoutines() => (super.noSuchMethod(
+  _i4.Future<void> createTasksFromRoutines() => (super.noSuchMethod(
         Invocation.method(
           #createTasksFromRoutines,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteAllData({
+  _i4.Future<void> deleteAllData({
     bool? isLogout = false,
     bool? isImport = false,
   }) =>
@@ -372,49 +395,49 @@ class MockHiveService extends _i1.Mock implements _i2.HiveService {
             #isImport: isImport,
           },
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<String?> exportData() => (super.noSuchMethod(
+  _i4.Future<String?> exportData() => (super.noSuchMethod(
         Invocation.method(
           #exportData,
           [],
         ),
-        returnValue: _i3.Future<String?>.value(),
-      ) as _i3.Future<String?>);
+        returnValue: _i4.Future<String?>.value(),
+      ) as _i4.Future<String?>);
 
   @override
-  _i3.Future<bool> importData() => (super.noSuchMethod(
+  _i4.Future<bool> importData() => (super.noSuchMethod(
         Invocation.method(
           #importData,
           [],
         ),
-        returnValue: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+        returnValue: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
 
   @override
-  _i3.Future<void> resetAllRoutineProgress() => (super.noSuchMethod(
+  _i4.Future<void> resetAllRoutineProgress() => (super.noSuchMethod(
         Invocation.method(
           #resetAllRoutineProgress,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [TaskRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskRepository extends _i1.Mock implements _i11.TaskRepository {
+class MockTaskRepository extends _i1.Mock implements _i12.TaskRepository {
   MockTaskRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  void setHiveService(_i2.HiveService? service) => super.noSuchMethod(
+  void setHiveService(_i3.HiveService? service) => super.noSuchMethod(
         Invocation.method(
           #setHiveService,
           [service],
@@ -423,54 +446,54 @@ class MockTaskRepository extends _i1.Mock implements _i11.TaskRepository {
       );
 
   @override
-  _i3.Future<List<_i8.TaskModel>> getTasks() => (super.noSuchMethod(
+  _i4.Future<List<_i9.TaskModel>> getTasks() => (super.noSuchMethod(
         Invocation.method(
           #getTasks,
           [],
         ),
-        returnValue: _i3.Future<List<_i8.TaskModel>>.value(<_i8.TaskModel>[]),
-      ) as _i3.Future<List<_i8.TaskModel>>);
+        returnValue: _i4.Future<List<_i9.TaskModel>>.value(<_i9.TaskModel>[]),
+      ) as _i4.Future<List<_i9.TaskModel>>);
 
   @override
-  _i3.Future<int> addTask(_i8.TaskModel? taskModel) => (super.noSuchMethod(
+  _i4.Future<int> addTask(_i9.TaskModel? taskModel) => (super.noSuchMethod(
         Invocation.method(
           #addTask,
           [taskModel],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<void> updateTask(_i8.TaskModel? taskModel) => (super.noSuchMethod(
+  _i4.Future<void> updateTask(_i9.TaskModel? taskModel) => (super.noSuchMethod(
         Invocation.method(
           #updateTask,
           [taskModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteTask(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteTask(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteTask,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [RoutineRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRoutineRepository extends _i1.Mock implements _i12.RoutineRepository {
+class MockRoutineRepository extends _i1.Mock implements _i13.RoutineRepository {
   MockRoutineRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  void setHiveService(_i2.HiveService? service) => super.noSuchMethod(
+  void setHiveService(_i3.HiveService? service) => super.noSuchMethod(
         Invocation.method(
           #setHiveService,
           [service],
@@ -479,48 +502,51 @@ class MockRoutineRepository extends _i1.Mock implements _i12.RoutineRepository {
       );
 
   @override
-  _i3.Future<List<_i7.RoutineModel>> getRoutines() => (super.noSuchMethod(
+  _i4.Future<List<_i8.RoutineModel>> getRoutines() => (super.noSuchMethod(
         Invocation.method(
           #getRoutines,
           [],
         ),
-        returnValue: _i3.Future<List<_i7.RoutineModel>>.value(<_i7.RoutineModel>[]),
-      ) as _i3.Future<List<_i7.RoutineModel>>);
+        returnValue:
+            _i4.Future<List<_i8.RoutineModel>>.value(<_i8.RoutineModel>[]),
+      ) as _i4.Future<List<_i8.RoutineModel>>);
 
   @override
-  _i3.Future<int> addRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
+  _i4.Future<int> addRoutine(_i8.RoutineModel? routineModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #addRoutine,
           [routineModel],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<void> updateRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
+  _i4.Future<void> updateRoutine(_i8.RoutineModel? routineModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateRoutine,
           [routineModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteRoutine(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteRoutine(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteRoutine,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [UndoService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUndoService extends _i1.Mock implements _i13.UndoService {
+class MockUndoService extends _i1.Mock implements _i14.UndoService {
   MockUndoService() {
     _i1.throwOnMissingStub(this);
   }
@@ -536,8 +562,8 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
 
   @override
   void registerDeleteTask(
-    _i8.TaskModel? task, {
-    _i14.VoidCallback? onExpire,
+    _i9.TaskModel? task, {
+    _i15.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -549,15 +575,16 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i8.TaskModel? undoDeleteTask(int? taskId) => (super.noSuchMethod(Invocation.method(
+  _i9.TaskModel? undoDeleteTask(int? taskId) =>
+      (super.noSuchMethod(Invocation.method(
         #undoDeleteTask,
         [taskId],
-      )) as _i8.TaskModel?);
+      )) as _i9.TaskModel?);
 
   @override
   void registerDeleteRoutine(
-    _i7.RoutineModel? routine, {
-    _i14.VoidCallback? onExpire,
+    _i8.RoutineModel? routine, {
+    _i15.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -569,16 +596,17 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i7.RoutineModel? undoDeleteRoutine(int? routineId) => (super.noSuchMethod(Invocation.method(
+  _i8.RoutineModel? undoDeleteRoutine(int? routineId) =>
+      (super.noSuchMethod(Invocation.method(
         #undoDeleteRoutine,
         [routineId],
-      )) as _i7.RoutineModel?);
+      )) as _i8.RoutineModel?);
 
   @override
   void registerDeleteSubtask(
     int? taskId,
-    _i15.SubTaskModel? subtask, {
-    _i14.VoidCallback? onExpire,
+    _i16.SubTaskModel? subtask, {
+    _i15.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -593,7 +621,7 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i15.SubTaskModel? undoDeleteSubtask(
+  _i16.SubTaskModel? undoDeleteSubtask(
     int? taskId,
     int? subtaskId,
   ) =>
@@ -603,13 +631,13 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
           taskId,
           subtaskId,
         ],
-      )) as _i15.SubTaskModel?);
+      )) as _i16.SubTaskModel?);
 
   @override
   void registerDateChange(
     int? taskId,
-    _i13.TaskDateChangeData? data, {
-    _i14.VoidCallback? onExpire,
+    _i14.TaskDateChangeData? data, {
+    _i15.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -624,16 +652,17 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskDateChangeData? undoDateChange(int? taskId) => (super.noSuchMethod(Invocation.method(
+  _i14.TaskDateChangeData? undoDateChange(int? taskId) =>
+      (super.noSuchMethod(Invocation.method(
         #undoDateChange,
         [taskId],
-      )) as _i13.TaskDateChangeData?);
+      )) as _i14.TaskDateChangeData?);
 
   @override
   void registerCompletion(
     int? taskId,
-    _i13.TaskCompletionData? data, {
-    _i14.VoidCallback? onExpire,
+    _i14.TaskCompletionData? data, {
+    _i15.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -648,16 +677,17 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskCompletionData? undoCompletion(int? taskId) => (super.noSuchMethod(Invocation.method(
+  _i14.TaskCompletionData? undoCompletion(int? taskId) =>
+      (super.noSuchMethod(Invocation.method(
         #undoCompletion,
         [taskId],
-      )) as _i13.TaskCompletionData?);
+      )) as _i14.TaskCompletionData?);
 
   @override
   void registerCancellation(
     int? taskId,
-    _i13.TaskCancellationData? data, {
-    _i14.VoidCallback? onExpire,
+    _i14.TaskCancellationData? data, {
+    _i15.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -672,16 +702,17 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskCancellationData? undoCancellation(int? taskId) => (super.noSuchMethod(Invocation.method(
+  _i14.TaskCancellationData? undoCancellation(int? taskId) =>
+      (super.noSuchMethod(Invocation.method(
         #undoCancellation,
         [taskId],
-      )) as _i13.TaskCancellationData?);
+      )) as _i14.TaskCancellationData?);
 
   @override
   void registerFailure(
     int? taskId,
-    _i13.TaskFailureData? data, {
-    _i14.VoidCallback? onExpire,
+    _i14.TaskFailureData? data, {
+    _i15.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -696,100 +727,105 @@ class MockUndoService extends _i1.Mock implements _i13.UndoService {
       );
 
   @override
-  _i13.TaskFailureData? undoFailure(int? taskId) => (super.noSuchMethod(Invocation.method(
+  _i14.TaskFailureData? undoFailure(int? taskId) =>
+      (super.noSuchMethod(Invocation.method(
         #undoFailure,
         [taskId],
-      )) as _i13.TaskFailureData?);
+      )) as _i14.TaskFailureData?);
 }
 
 /// A class which mocks [HomeWidgetHelper].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockHomeWidgetHelper extends _i1.Mock implements _i16.HomeWidgetHelper {
+class MockHomeWidgetHelper extends _i1.Mock implements _i17.HomeWidgetHelper {
   MockHomeWidgetHelper() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<void> updateAllWidgets() => (super.noSuchMethod(
+  _i4.Future<void> updateAllWidgets() => (super.noSuchMethod(
         Invocation.method(
           #updateAllWidgets,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [CategoryRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCategoryRepository extends _i1.Mock implements _i17.CategoryRepository {
+class MockCategoryRepository extends _i1.Mock
+    implements _i18.CategoryRepository {
   MockCategoryRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<List<_i9.CategoryModel>> getCategories() => (super.noSuchMethod(
+  _i4.Future<List<_i10.CategoryModel>> getCategories() => (super.noSuchMethod(
         Invocation.method(
           #getCategories,
           [],
         ),
-        returnValue: _i3.Future<List<_i9.CategoryModel>>.value(<_i9.CategoryModel>[]),
-      ) as _i3.Future<List<_i9.CategoryModel>>);
+        returnValue:
+            _i4.Future<List<_i10.CategoryModel>>.value(<_i10.CategoryModel>[]),
+      ) as _i4.Future<List<_i10.CategoryModel>>);
 
   @override
-  _i3.Future<String> addCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
+  _i4.Future<String> addCategory(_i10.CategoryModel? categoryModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #addCategory,
           [categoryModel],
         ),
-        returnValue: _i3.Future<String>.value(_i18.dummyValue<String>(
+        returnValue: _i4.Future<String>.value(_i19.dummyValue<String>(
           this,
           Invocation.method(
             #addCategory,
             [categoryModel],
           ),
         )),
-      ) as _i3.Future<String>);
+      ) as _i4.Future<String>);
 
   @override
-  _i3.Future<void> updateCategory(_i9.CategoryModel? categoryModel) => (super.noSuchMethod(
+  _i4.Future<void> updateCategory(_i10.CategoryModel? categoryModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateCategory,
           [categoryModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteCategory(String? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteCategory(String? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteCategory,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [TaskLogProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
+class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
   MockTaskLogProvider() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i10.TaskLogModel> get taskLogList => (super.noSuchMethod(
+  List<_i11.TaskLogModel> get taskLogList => (super.noSuchMethod(
         Invocation.getter(#taskLogList),
-        returnValue: <_i10.TaskLogModel>[],
-      ) as List<_i10.TaskLogModel>);
+        returnValue: <_i11.TaskLogModel>[],
+      ) as List<_i11.TaskLogModel>);
 
   @override
-  set taskLogList(List<_i10.TaskLogModel>? _taskLogList) => super.noSuchMethod(
+  set taskLogList(List<_i11.TaskLogModel>? _taskLogList) => super.noSuchMethod(
         Invocation.setter(
           #taskLogList,
           _taskLogList,
@@ -798,13 +834,22 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
       );
 
   @override
+  _i2.TaskProvider get taskProvider => (super.noSuchMethod(
+        Invocation.getter(#taskProvider),
+        returnValue: _FakeTaskProvider_0(
+          this,
+          Invocation.getter(#taskProvider),
+        ),
+      ) as _i2.TaskProvider);
+
+  @override
   bool get hasListeners => (super.noSuchMethod(
         Invocation.getter(#hasListeners),
         returnValue: false,
       ) as bool);
 
   @override
-  void setRepository(_i20.TaskLogRepository? repo) => super.noSuchMethod(
+  void setRepository(_i21.TaskLogRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setRepository,
           [repo],
@@ -813,7 +858,16 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
       );
 
   @override
-  void setTaskProvider(_i21.TaskProvider? provider) => super.noSuchMethod(
+  void setTaskRepository(_i12.TaskRepository? repo) => super.noSuchMethod(
+        Invocation.method(
+          #setTaskRepository,
+          [repo],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setTaskProvider(_i2.TaskProvider? provider) => super.noSuchMethod(
         Invocation.method(
           #setTaskProvider,
           [provider],
@@ -822,18 +876,18 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
       );
 
   @override
-  _i3.Future<void> loadTaskLogs() => (super.noSuchMethod(
+  _i4.Future<void> loadTaskLogs() => (super.noSuchMethod(
         Invocation.method(
           #loadTaskLogs,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addTaskLog(
-    _i8.TaskModel? taskModel, {
+  _i4.Future<void> addTaskLog(
+    _i9.TaskModel? taskModel, {
     DateTime? customLogDate,
     Duration? customDuration,
     int? customCount,
@@ -850,69 +904,70 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
             #customStatus: customStatus,
           },
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  List<_i10.TaskLogModel> getLogsByTaskId(int? taskId) => (super.noSuchMethod(
+  List<_i11.TaskLogModel> getLogsByTaskId(int? taskId) => (super.noSuchMethod(
         Invocation.method(
           #getLogsByTaskId,
           [taskId],
         ),
-        returnValue: <_i10.TaskLogModel>[],
-      ) as List<_i10.TaskLogModel>);
+        returnValue: <_i11.TaskLogModel>[],
+      ) as List<_i11.TaskLogModel>);
 
   @override
-  List<_i10.TaskLogModel> getLogsByRoutineId(int? routineId) => (super.noSuchMethod(
+  List<_i11.TaskLogModel> getLogsByRoutineId(int? routineId) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getLogsByRoutineId,
           [routineId],
         ),
-        returnValue: <_i10.TaskLogModel>[],
-      ) as List<_i10.TaskLogModel>);
+        returnValue: <_i11.TaskLogModel>[],
+      ) as List<_i11.TaskLogModel>);
 
   @override
-  List<_i10.TaskLogModel> getRecentLogs(int? count) => (super.noSuchMethod(
+  List<_i11.TaskLogModel> getRecentLogs(int? count) => (super.noSuchMethod(
         Invocation.method(
           #getRecentLogs,
           [count],
         ),
-        returnValue: <_i10.TaskLogModel>[],
-      ) as List<_i10.TaskLogModel>);
+        returnValue: <_i11.TaskLogModel>[],
+      ) as List<_i11.TaskLogModel>);
 
   @override
-  _i3.Future<void> deleteLogsByTaskId(int? taskId) => (super.noSuchMethod(
+  _i4.Future<void> deleteLogsByTaskId(int? taskId) => (super.noSuchMethod(
         Invocation.method(
           #deleteLogsByTaskId,
           [taskId],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteLogsByRoutineId(int? routineId) => (super.noSuchMethod(
+  _i4.Future<void> deleteLogsByRoutineId(int? routineId) => (super.noSuchMethod(
         Invocation.method(
           #deleteLogsByRoutineId,
           [routineId],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> clearAllLogs() => (super.noSuchMethod(
+  _i4.Future<void> clearAllLogs() => (super.noSuchMethod(
         Invocation.method(
           #clearAllLogs,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteLogByTaskIdAndStatus(
+  _i4.Future<void> deleteLogByTaskIdAndStatus(
     int? taskId,
     _i22.TaskStatusEnum? status,
   ) =>
@@ -924,32 +979,71 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
             status,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> updateCounterTaskLogStatuses(_i8.TaskModel? updatedTask) => (super.noSuchMethod(
+  _i4.Future<void> deleteTaskLog(int? logId) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteTaskLog,
+          [logId],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> editTaskLog(
+    int? logId,
+    dynamic newValue,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #editTaskLog,
+          [
+            logId,
+            newValue,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> updateCounterTaskLogStatuses(_i9.TaskModel? updatedTask) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateCounterTaskLogStatuses,
           [updatedTask],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> updateTimerTaskLogStatuses(_i8.TaskModel? updatedTask) => (super.noSuchMethod(
+  _i4.Future<void> updateTimerTaskLogStatuses(_i9.TaskModel? updatedTask) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateTimerTaskLogStatuses,
           [updatedTask],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  void addListener(_i14.VoidCallback? listener) => super.noSuchMethod(
+  _i4.Future<void> recalculateTaskProgress(int? taskId) => (super.noSuchMethod(
+        Invocation.method(
+          #recalculateTaskProgress,
+          [taskId],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  void addListener(_i15.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -958,7 +1052,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
       );
 
   @override
-  void removeListener(_i14.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i15.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],
@@ -988,75 +1082,77 @@ class MockTaskLogProvider extends _i1.Mock implements _i19.TaskLogProvider {
 /// A class which mocks [TaskLogRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskLogRepository extends _i1.Mock implements _i20.TaskLogRepository {
+class MockTaskLogRepository extends _i1.Mock implements _i21.TaskLogRepository {
   MockTaskLogRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<List<_i10.TaskLogModel>> getTaskLogs() => (super.noSuchMethod(
+  _i4.Future<List<_i11.TaskLogModel>> getTaskLogs() => (super.noSuchMethod(
         Invocation.method(
           #getTaskLogs,
           [],
         ),
-        returnValue: _i3.Future<List<_i10.TaskLogModel>>.value(<_i10.TaskLogModel>[]),
-      ) as _i3.Future<List<_i10.TaskLogModel>>);
+        returnValue:
+            _i4.Future<List<_i11.TaskLogModel>>.value(<_i11.TaskLogModel>[]),
+      ) as _i4.Future<List<_i11.TaskLogModel>>);
 
   @override
-  _i3.Future<int> addTaskLog(_i10.TaskLogModel? taskLog) => (super.noSuchMethod(
+  _i4.Future<int> addTaskLog(_i11.TaskLogModel? taskLog) => (super.noSuchMethod(
         Invocation.method(
           #addTaskLog,
           [taskLog],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 
   @override
-  _i3.Future<void> updateTaskLog(_i10.TaskLogModel? taskLog) => (super.noSuchMethod(
+  _i4.Future<void> updateTaskLog(_i11.TaskLogModel? taskLog) =>
+      (super.noSuchMethod(
         Invocation.method(
           #updateTaskLog,
           [taskLog],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteTaskLog(int? id) => (super.noSuchMethod(
+  _i4.Future<void> deleteTaskLog(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteTaskLog,
           [id],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<int> generateNextId() => (super.noSuchMethod(
+  _i4.Future<int> generateNextId() => (super.noSuchMethod(
         Invocation.method(
           #generateNextId,
           [],
         ),
-        returnValue: _i3.Future<int>.value(0),
-      ) as _i3.Future<int>);
+        returnValue: _i4.Future<int>.value(0),
+      ) as _i4.Future<int>);
 }
 
 /// A class which mocks [TaskProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
+class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
   MockTaskProvider() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i7.RoutineModel> get routineList => (super.noSuchMethod(
+  List<_i8.RoutineModel> get routineList => (super.noSuchMethod(
         Invocation.getter(#routineList),
-        returnValue: <_i7.RoutineModel>[],
-      ) as List<_i7.RoutineModel>);
+        returnValue: <_i8.RoutineModel>[],
+      ) as List<_i8.RoutineModel>);
 
   @override
-  set routineList(List<_i7.RoutineModel>? _routineList) => super.noSuchMethod(
+  set routineList(List<_i8.RoutineModel>? _routineList) => super.noSuchMethod(
         Invocation.setter(
           #routineList,
           _routineList,
@@ -1065,13 +1161,13 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  List<_i8.TaskModel> get taskList => (super.noSuchMethod(
+  List<_i9.TaskModel> get taskList => (super.noSuchMethod(
         Invocation.getter(#taskList),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  set taskList(List<_i8.TaskModel>? _taskList) => super.noSuchMethod(
+  set taskList(List<_i9.TaskModel>? _taskList) => super.noSuchMethod(
         Invocation.setter(
           #taskList,
           _taskList,
@@ -1082,7 +1178,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
   @override
   DateTime get selectedDate => (super.noSuchMethod(
         Invocation.getter(#selectedDate),
-        returnValue: _FakeDateTime_0(
+        returnValue: _FakeDateTime_1(
           this,
           Invocation.getter(#selectedDate),
         ),
@@ -1143,17 +1239,17 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       ) as bool);
 
   @override
-  _i3.Future<void> init() => (super.noSuchMethod(
+  _i4.Future<void> init() => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  void setTaskRepository(_i11.TaskRepository? repo) => super.noSuchMethod(
+  void setTaskRepository(_i12.TaskRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setTaskRepository,
           [repo],
@@ -1162,7 +1258,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void setRoutineRepository(_i12.RoutineRepository? repo) => super.noSuchMethod(
+  void setRoutineRepository(_i13.RoutineRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setRoutineRepository,
           [repo],
@@ -1171,7 +1267,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void setUndoService(_i13.UndoService? service) => super.noSuchMethod(
+  void setUndoService(_i14.UndoService? service) => super.noSuchMethod(
         Invocation.method(
           #setUndoService,
           [service],
@@ -1180,7 +1276,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void setHomeWidgetHelper(_i16.HomeWidgetHelper? helper) => super.noSuchMethod(
+  void setHomeWidgetHelper(_i17.HomeWidgetHelper? helper) => super.noSuchMethod(
         Invocation.method(
           #setHomeWidgetHelper,
           [helper],
@@ -1189,7 +1285,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void setCategoryRepository(_i17.CategoryRepository? repo) => super.noSuchMethod(
+  void setCategoryRepository(_i18.CategoryRepository? repo) =>
+      super.noSuchMethod(
         Invocation.method(
           #setCategoryRepository,
           [repo],
@@ -1198,7 +1295,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void setTaskLogProvider(_i19.TaskLogProvider? provider) => super.noSuchMethod(
+  void setTaskLogProvider(_i20.TaskLogProvider? provider) => super.noSuchMethod(
         Invocation.method(
           #setTaskLogProvider,
           [provider],
@@ -1207,27 +1304,27 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  _i3.Future<void> loadCategories() => (super.noSuchMethod(
+  _i4.Future<void> loadCategories() => (super.noSuchMethod(
         Invocation.method(
           #loadCategories,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> loadShowCompletedState() => (super.noSuchMethod(
+  _i4.Future<void> loadShowCompletedState() => (super.noSuchMethod(
         Invocation.method(
           #loadShowCompletedState,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> updateRoutineVacationStatus(
+  _i4.Future<void> updateRoutineVacationStatus(
     int? routineId,
     bool? isActiveOnVacationDays,
   ) =>
@@ -1239,32 +1336,33 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
             isActiveOnVacationDays,
           ],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> addTask(_i8.TaskModel? taskModel) => (super.noSuchMethod(
+  _i4.Future<void> addTask(_i9.TaskModel? taskModel) => (super.noSuchMethod(
         Invocation.method(
           #addTask,
           [taskModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<dynamic> addRoutine(_i7.RoutineModel? routineModel) => (super.noSuchMethod(
+  _i4.Future<dynamic> addRoutine(_i8.RoutineModel? routineModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #addRoutine,
           [routineModel],
         ),
-        returnValue: _i3.Future<dynamic>.value(),
-      ) as _i3.Future<dynamic>);
+        returnValue: _i4.Future<dynamic>.value(),
+      ) as _i4.Future<dynamic>);
 
   @override
-  _i3.Future<void> editTask({
-    required _i8.TaskModel? taskModel,
+  _i4.Future<void> editTask({
+    required _i9.TaskModel? taskModel,
     required List<int>? selectedDays,
   }) =>
       (super.noSuchMethod(
@@ -1276,9 +1374,9 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
             #selectedDays: selectedDays,
           },
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void updateItems() => super.noSuchMethod(
@@ -1299,8 +1397,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  _i3.Future<void> updateTaskDate({
-    required _i8.TaskModel? taskModel,
+  _i4.Future<void> updateTaskDate({
+    required _i9.TaskModel? taskModel,
     required DateTime? selectedDate,
     bool? showUndo = true,
   }) =>
@@ -1314,13 +1412,13 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
             #showUndo: showUndo,
           },
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
   void changeTaskDateWithoutDialog({
-    required _i8.TaskModel? taskModel,
+    required _i9.TaskModel? taskModel,
     required DateTime? newDate,
     bool? showUndo = true,
   }) =>
@@ -1338,7 +1436,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void checkTaskStatusForNotifications(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void checkTaskStatusForNotifications(_i9.TaskModel? taskModel) =>
+      super.noSuchMethod(
         Invocation.method(
           #checkTaskStatusForNotifications,
           [taskModel],
@@ -1347,7 +1446,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void checkNotification(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void checkNotification(_i9.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #checkNotification,
           [taskModel],
@@ -1356,7 +1455,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void cancelTask(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void cancelTask(_i9.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #cancelTask,
           [taskModel],
@@ -1365,7 +1464,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void failedTask(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void failedTask(_i9.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #failedTask,
           [taskModel],
@@ -1374,37 +1473,37 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  _i3.Future<void> skipRoutinesForDate(DateTime? date) => (super.noSuchMethod(
+  _i4.Future<void> skipRoutinesForDate(DateTime? date) => (super.noSuchMethod(
         Invocation.method(
           #skipRoutinesForDate,
           [date],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteTask(int? taskID) => (super.noSuchMethod(
+  _i4.Future<void> deleteTask(int? taskID) => (super.noSuchMethod(
         Invocation.method(
           #deleteTask,
           [taskID],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> deleteRoutine(int? routineID) => (super.noSuchMethod(
+  _i4.Future<void> deleteRoutine(int? routineID) => (super.noSuchMethod(
         Invocation.method(
           #deleteRoutine,
           [routineID],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  void completeRoutine(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void completeRoutine(_i9.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #completeRoutine,
           [taskModel],
@@ -1413,37 +1512,39 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  _i3.Future<void> changeShowCompleted() => (super.noSuchMethod(
+  _i4.Future<void> changeShowCompleted() => (super.noSuchMethod(
         Invocation.method(
           #changeShowCompleted,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> setSelectedCategory(String? categoryId) => (super.noSuchMethod(
+  _i4.Future<void> setSelectedCategory(String? categoryId) =>
+      (super.noSuchMethod(
         Invocation.method(
           #setSelectedCategory,
           [categoryId],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<void> toggleShowArchived() => (super.noSuchMethod(
+  _i4.Future<void> toggleShowArchived() => (super.noSuchMethod(
         Invocation.method(
           #toggleShowArchived,
           [],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  void toggleTaskSubtaskVisibility(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void toggleTaskSubtaskVisibility(_i9.TaskModel? taskModel) =>
+      super.noSuchMethod(
         Invocation.method(
           #toggleTaskSubtaskVisibility,
           [taskModel],
@@ -1453,7 +1554,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
 
   @override
   void addSubtask(
-    _i8.TaskModel? taskModel,
+    _i9.TaskModel? taskModel,
     String? subtaskTitle, [
     String? description,
   ]) =>
@@ -1471,8 +1572,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
 
   @override
   void removeSubtask(
-    _i8.TaskModel? taskModel,
-    _i15.SubTaskModel? subtask, {
+    _i9.TaskModel? taskModel,
+    _i16.SubTaskModel? subtask, {
     bool? showUndo = true,
   }) =>
       super.noSuchMethod(
@@ -1488,7 +1589,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void clearSubtasks(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void clearSubtasks(_i9.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #clearSubtasks,
           [taskModel],
@@ -1498,8 +1599,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
 
   @override
   void toggleSubtaskCompletion(
-    _i8.TaskModel? taskModel,
-    _i15.SubTaskModel? subtask, {
+    _i9.TaskModel? taskModel,
+    _i16.SubTaskModel? subtask, {
     bool? showUndo = true,
   }) =>
       super.noSuchMethod(
@@ -1516,8 +1617,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
 
   @override
   void updateSubtask(
-    _i8.TaskModel? taskModel,
-    _i15.SubTaskModel? subtask,
+    _i9.TaskModel? taskModel,
+    _i16.SubTaskModel? subtask,
     String? title,
     String? description,
   ) =>
@@ -1535,7 +1636,8 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void sortTasksByPriorityAndTime(List<_i8.TaskModel>? tasks) => super.noSuchMethod(
+  void sortTasksByPriorityAndTime(List<_i9.TaskModel>? tasks) =>
+      super.noSuchMethod(
         Invocation.method(
           #sortTasksByPriorityAndTime,
           [tasks],
@@ -1544,42 +1646,42 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  List<_i8.TaskModel> getTasksForDate(DateTime? date) => (super.noSuchMethod(
+  List<_i9.TaskModel> getTasksForDate(DateTime? date) => (super.noSuchMethod(
         Invocation.method(
           #getTasksForDate,
           [date],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  List<_i8.TaskModel> getPinnedTasksForToday() => (super.noSuchMethod(
+  List<_i9.TaskModel> getPinnedTasksForToday() => (super.noSuchMethod(
         Invocation.method(
           #getPinnedTasksForToday,
           [],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  _i3.Future<void> toggleTaskPin(int? taskId) => (super.noSuchMethod(
+  _i4.Future<void> toggleTaskPin(int? taskId) => (super.noSuchMethod(
         Invocation.method(
           #toggleTaskPin,
           [taskId],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  _i3.Future<bool> reorderTasks({
+  _i4.Future<bool> reorderTasks({
     required int? oldIndex,
     required int? newIndex,
     required bool? isPinnedList,
     required bool? isRoutineList,
     required bool? isOverdueList,
-    bool? isGhostRoutineList,
-    List<_i8.TaskModel>? explicitList,
+    bool? isGhostRoutineList = false,
+    List<_i9.TaskModel>? explicitList,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1595,48 +1697,51 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
             #explicitList: explicitList,
           },
         ),
-        returnValue: _i3.Future<bool>.value(false),
-      ) as _i3.Future<bool>);
+        returnValue: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
 
   @override
-  List<_i8.TaskModel> getRoutineTasksForDate(DateTime? date) => (super.noSuchMethod(
+  List<_i9.TaskModel> getRoutineTasksForDate(DateTime? date) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getRoutineTasksForDate,
           [date],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  List<_i8.TaskModel> getGhostRoutineTasksForDate(DateTime? date) => (super.noSuchMethod(
+  List<_i9.TaskModel> getGhostRoutineTasksForDate(DateTime? date) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getGhostRoutineTasksForDate,
           [date],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  List<_i8.TaskModel> getTasksByCategoryId(String? categoryId) => (super.noSuchMethod(
+  List<_i9.TaskModel> getTasksByCategoryId(String? categoryId) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getTasksByCategoryId,
           [categoryId],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  List<_i8.TaskModel> getAllTasks() => (super.noSuchMethod(
+  List<_i9.TaskModel> getAllTasks() => (super.noSuchMethod(
         Invocation.method(
           #getAllTasks,
           [],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
   void completeTaskWithUndo(
-    _i8.TaskModel? taskModel, {
+    _i9.TaskModel? taskModel, {
     bool? showUndo = true,
   }) =>
       super.noSuchMethod(
@@ -1649,44 +1754,44 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  _i3.Future<void> unarchiveRoutine(int? routineID) => (super.noSuchMethod(
+  _i4.Future<void> unarchiveRoutine(int? routineID) => (super.noSuchMethod(
         Invocation.method(
           #unarchiveRoutine,
           [routineID],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  List<_i8.TaskModel> getOverdueTasks() => (super.noSuchMethod(
+  List<_i9.TaskModel> getOverdueTasks() => (super.noSuchMethod(
         Invocation.method(
           #getOverdueTasks,
           [],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  List<_i7.RoutineModel> getArchivedRoutines() => (super.noSuchMethod(
+  List<_i8.RoutineModel> getArchivedRoutines() => (super.noSuchMethod(
         Invocation.method(
           #getArchivedRoutines,
           [],
         ),
-        returnValue: <_i7.RoutineModel>[],
-      ) as List<_i7.RoutineModel>);
+        returnValue: <_i8.RoutineModel>[],
+      ) as List<_i8.RoutineModel>);
 
   @override
-  List<_i8.TaskModel> getArchivedTasks() => (super.noSuchMethod(
+  List<_i9.TaskModel> getArchivedTasks() => (super.noSuchMethod(
         Invocation.method(
           #getArchivedTasks,
           [],
         ),
-        returnValue: <_i8.TaskModel>[],
-      ) as List<_i8.TaskModel>);
+        returnValue: <_i9.TaskModel>[],
+      ) as List<_i9.TaskModel>);
 
   @override
-  void showTaskFailureUndo(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void showTaskFailureUndo(_i9.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #showTaskFailureUndo,
           [taskModel],
@@ -1696,7 +1801,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
 
   @override
   void showTaskFailureUndoWithPreviousStatus(
-    _i8.TaskModel? taskModel,
+    _i9.TaskModel? taskModel,
     _i22.TaskStatusEnum? previousStatus,
   ) =>
       super.noSuchMethod(
@@ -1711,7 +1816,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void showTaskCancellationUndo(_i8.TaskModel? taskModel) => super.noSuchMethod(
+  void showTaskCancellationUndo(_i9.TaskModel? taskModel) => super.noSuchMethod(
         Invocation.method(
           #showTaskCancellationUndo,
           [taskModel],
@@ -1721,7 +1826,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
 
   @override
   void showTaskCancellationUndoWithPreviousStatus(
-    _i8.TaskModel? taskModel,
+    _i9.TaskModel? taskModel,
     _i22.TaskStatusEnum? previousStatus,
   ) =>
       super.noSuchMethod(
@@ -1736,17 +1841,18 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  _i3.Future<void> unarchiveTask(_i8.TaskModel? taskModel) => (super.noSuchMethod(
+  _i4.Future<void> unarchiveTask(_i9.TaskModel? taskModel) =>
+      (super.noSuchMethod(
         Invocation.method(
           #unarchiveTask,
           [taskModel],
         ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 
   @override
-  void addListener(_i14.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i15.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -1755,7 +1861,7 @@ class MockTaskProvider extends _i1.Mock implements _i21.TaskProvider {
       );
 
   @override
-  void removeListener(_i14.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i15.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],

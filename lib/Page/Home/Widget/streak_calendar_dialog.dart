@@ -213,7 +213,11 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
         } else {
           try {
             final isMet = DurationCalculator.calculateStreakStatusForDate(checkDate); // checkDate kullan
-            if (isMet == null) {
+
+            if (isToday && (isMet == null || isMet == false)) {
+              // Bugün ve henüz tamamlanmamış -> In Progress (Mavi)
+              statusColor = const Color.fromARGB(255, 60, 135, 197);
+            } else if (isMet == null) {
               statusColor = Colors.grey;
             } else {
               statusColor = isMet ? Colors.green : Colors.red;

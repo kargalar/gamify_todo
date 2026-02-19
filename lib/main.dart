@@ -28,6 +28,7 @@ import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Provider/task_template_provider.dart';
 import 'package:next_level/Service/task_template_service.dart';
 import 'package:get/route_manager.dart';
+import 'package:next_level/Provider/daily_streak_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -58,6 +59,10 @@ void main() async {
   final streakSettingsProvider = StreakSettingsProvider();
   await streakSettingsProvider.initialize();
 
+  // Initialize DailyStreakProvider
+  final dailyStreakProvider = DailyStreakProvider();
+  await dailyStreakProvider.initialize();
+
   // Initialize NavbarVisibilityProvider
   final navbarVisibilityProvider = NavbarVisibilityProvider();
 
@@ -77,6 +82,7 @@ void main() async {
       ChangeNotifierProvider.value(value: vacationModeProvider),
       ChangeNotifierProvider.value(value: vacationDateProvider),
       ChangeNotifierProvider.value(value: streakSettingsProvider),
+      ChangeNotifierProvider.value(value: dailyStreakProvider),
       ChangeNotifierProvider(create: (context) => StoreProvider()),
       ChangeNotifierProvider(create: (context) => AddTaskProvider()),
       ChangeNotifierProvider(create: (context) => QuickAddTaskProvider()),

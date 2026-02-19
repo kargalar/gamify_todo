@@ -165,14 +165,13 @@ class StreakStatusWidget extends StatelessWidget {
               // 1. Vacation günleri: turuncu
               // 2. Tomorrow: mavi
               // 3. Diğer future günler: mavi
-              // 4. Geçmiş günler: yeşil (başarılı) veya kırmızı (başarısız)
+              // 4. Bugün ve henüz tamamlanmamış: mavi (In Progress)
+              // 5. Geçmiş günler: yeşil (başarılı) veya kırmızı (başarısız)
               final color = isVacation
                   ? Colors.orange
-                  : isTomorrow
+                  : (isTomorrow || isFuture || (isToday && isMet != true))
                       ? Colors.blue
-                      : isFuture
-                          ? Colors.blue
-                          : (isMet == null ? Colors.grey : (isMet == true ? Colors.green : Colors.red));
+                      : (isMet == true ? Colors.green : Colors.red);
 
               return Column(
                 children: [
@@ -190,7 +189,7 @@ class StreakStatusWidget extends StatelessWidget {
                     child: Icon(
                       isVacation
                           ? Icons.beach_access
-                          : isFuture
+                          : (isFuture || (isToday && isMet != true))
                               ? Icons.schedule
                               : (isMet == null ? Icons.help_outline : (isMet == true ? Icons.check : Icons.close)),
                       size: 16,

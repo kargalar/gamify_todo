@@ -38,6 +38,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Model/daily_streak_model.dart';
 
 class HiveService {
   // TODO: singleton yap ve shared pefi de buradan çağır ??
@@ -49,6 +50,7 @@ class HiveService {
   static const String _taskBoxName = 'taskBox';
   static const String _taskLogBoxName = 'taskLogBox';
   static const String _categoryBoxName = 'categoryBox_v2';
+  static const String _dailyStreakBoxName = 'dailyStreakBox';
 
   Future<Box<UserModel>> get _userBox async => await Hive.openBox<UserModel>(_userBoxName);
   Future<Box<ItemModel>> get _itemBox async => await Hive.openBox<ItemModel>(_itemBoxName);
@@ -57,6 +59,7 @@ class HiveService {
   Future<Box<TaskModel>> get _taskBox async => await Hive.openBox<TaskModel>(_taskBoxName);
   Future<Box<TaskLogModel>> get _taskLogBox async => await Hive.openBox<TaskLogModel>(_taskLogBoxName);
   Future<Box<CategoryModel>> get _categoryBox async => await Hive.openBox<CategoryModel>(_categoryBoxName);
+  Future<Box<DailyStreakModel>> get _dailyStreakBox async => await Hive.openBox<DailyStreakModel>(_dailyStreakBoxName);
 
   // User methods
   Future<void> addUser(UserModel userModel) async {
@@ -292,6 +295,30 @@ class HiveService {
     await box.delete(id);
   }
 
+  // Daily Streak methods
+  Future<void> addDailyStreak(DailyStreakModel streakModel) async {
+    final box = await _dailyStreakBox;
+    // Use date as key to ensure uniqueness per day
+    final key = "${streakModel.date.year}-${streakModel.date.month}-${streakModel.date.day}";
+    await box.put(key, streakModel);
+  }
+
+  Future<DailyStreakModel?> getDailyStreak(DateTime date) async {
+    final box = await _dailyStreakBox;
+    final key = "${date.year}-${date.month}-${date.day}";
+    return box.get(key);
+  }
+
+  Future<List<DailyStreakModel>> getAllDailyStreaks() async {
+    final box = await _dailyStreakBox;
+    return box.values.toList();
+  }
+
+  Future<void> clearDailyStreakBox() async {
+    final box = await _dailyStreakBox;
+    await box.clear();
+  }
+
   Future<void> createTasksFromRoutines() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final DateTime today = DateTime.now();
@@ -466,6 +493,9 @@ class HiveService {
 
       final box7 = await _categoryBox;
       await box7.clear();
+
+      final box8 = await _dailyStreakBox;
+      await box8.clear();
 
       // Clear SharedPreferences
       final prefs = await SharedPreferences.getInstance();

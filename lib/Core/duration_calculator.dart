@@ -10,6 +10,7 @@ import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Service/global_timer.dart';
+import 'package:next_level/Provider/daily_streak_provider.dart';
 
 /// DurationCalculator handles all duration-related calculations for HomeViewModel.
 /// It aggregates durations from task logs, running timers, and provides breakdowns.
@@ -230,6 +231,19 @@ class DurationCalculator {
 
   /// Calculate if the streak target was met for a given date
   static bool? calculateStreakStatusForDate(DateTime date) {
+    // Check if we have a persisted record for this date (only for past dates)
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final checkDate = DateTime(date.year, date.month, date.day);
+
+    if (checkDate.isBefore(today)) {
+      final persistedStreak = DailyStreakProvider().getStreakForDate(date);
+      if (persistedStreak != null) {
+        LogService.debug('DurationCalculator: Found persisted streak for $date: met=${persistedStreak.isMet}');
+        return persistedStreak.isMet;
+      }
+    }
+
     final totalDuration = calculateTotalDurationForDate(date);
 
     // Get streak duration from settings
