@@ -1,4 +1,3 @@
-
 Telefon kilit ekranda, aktif Timer bildirimi next level yazmak yerine taskın adı yazsın.
     Yani şuan şöyel görünüyor: "NextLevel . 15:47". Ama şöyle görünmeli: "Read Book . 15:47"
 
@@ -14,3 +13,6 @@ NOTE: bildirimleri de buna göre güncellemelisin
 ○ Ayarlardaki weekly önceki haftalara gecis yaoilabilsin
 ○ Dünün taskına bugün log eklerken sorunlu2
 ○ Next level alarm 3 saat geç
+
+
+skill details page tasarım olarak baya kötü. uygulamanın temal temasına uygun şekilde iyileştirmeler yapaplım. istediğini silip kaldırabilirsin tamamen serbestsin.

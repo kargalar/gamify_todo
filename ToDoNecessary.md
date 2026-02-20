@@ -21,7 +21,6 @@ timer task başlatılırken bildirim izinlerini kontrol et. izin yoksa kullanıc
 
 <!-- Goals feature -->
 
-
 Tasc actionda tepki versin baisnda inwekk
 
 Store İrem da renk seçilebilsin???

@@ -1,23 +1,23 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:next_level/Core/extensions.dart';
-import 'package:next_level/Core/helper.dart';
-import 'package:next_level/General/app_colors.dart';
-import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:next_level/Service/navigator_service.dart';
-import 'package:next_level/Provider/task_provider.dart';
-import 'package:next_level/Provider/trait_provider.dart';
+import 'package:get/route_manager.dart';
+
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Model/trait_model.dart';
-import 'package:get/route_manager.dart';
-import 'package:next_level/Page/Task Detail Page/routine_detail_page.dart';
-import 'package:next_level/Page/Home/Add Task/add_task_page.dart';
-import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Page/Trait%20Detail%20Page/widget/monthly_comparison_chart.dart';
+import 'package:next_level/Page/Trait%20Detail%20Page/widget/trait_duration_card.dart';
+import 'package:next_level/Page/Trait%20Detail%20Page/widget/trait_header_card.dart';
 import 'package:next_level/Page/Trait%20Detail%20Page/widget/trait_progress_summary.dart';
+import 'package:next_level/Page/Trait%20Detail%20Page/widget/trait_related_tasks_section.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
+import 'package:next_level/Provider/trait_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Service/navigator_service.dart';
 
 class TraitDetailPage extends StatefulWidget {
   const TraitDetailPage({
@@ -58,31 +58,25 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   }
 
   void calculateTotalDurationFromLogs() {
-    // İlgili tüm taskları al
     final tasksWithTrait = TaskProvider().taskList.where((task) => (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false)).toList();
 
     LogService.debug('Tasks with trait ${widget.traitModel.id}: ${tasksWithTrait.length}');
 
-    // Log tabanlı toplam ilerleme, log yoksa state fallback
     totalDuration = Duration.zero;
     for (final task in tasksWithTrait) {
       final taskDuration = calculateTaskDuration(task);
       totalDuration += taskDuration;
       LogService.debug('Task ${task.id} (${task.title}): duration $taskDuration');
     }
-    LogService.debug('Total duration for trait ${widget.traitModel.id}: $totalDuration');
   }
 
   void findRelatedTasks() {
-    // Tüm taskları al
     List<TaskModel> allTasks = TaskProvider().taskList;
 
-    // Trait ile ilgili taskları bul (sadece progress'i olanları)
     for (var task in allTasks) {
       bool hasThisTrait = (task.attributeIDList?.contains(widget.traitModel.id) ?? false) || (task.skillIDList?.contains(widget.traitModel.id) ?? false);
 
       if (hasThisTrait) {
-        // Sadece progress'i olan task'ları ekle
         Duration taskDuration = calculateTaskDuration(task);
         if (taskDuration > Duration.zero) {
           if (task.routineID != null) {
@@ -94,17 +88,14 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       }
     }
 
-    // Süreye göre sırala (büyükten küçüğe) - süre aynı olanlar için en son tarihe göre sırala
-    relatedTasks.sort((a, b) {
+    // Sort by duration descending, then date descending
+    int compareTasks(TaskModel a, TaskModel b) {
       Duration aDuration = calculateTaskDuration(a);
       Duration bDuration = calculateTaskDuration(b);
 
-      // Önce süreye göre sırala
       if (aDuration != bDuration) {
         return bDuration.compareTo(aDuration);
       }
-
-      // Süreler eşitse tarihe göre sırala (en yeni önce)
       if (a.taskDate != null && b.taskDate != null) {
         return b.taskDate!.compareTo(a.taskDate!);
       } else if (a.taskDate != null) {
@@ -112,34 +103,15 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       } else if (b.taskDate != null) {
         return 1;
       }
-
       return 0;
-    });
+    }
 
-    relatedRoutines.sort((a, b) {
-      Duration aDuration = calculateTaskDuration(a);
-      Duration bDuration = calculateTaskDuration(b);
-
-      // Önce süreye göre sırala
-      if (aDuration != bDuration) {
-        return bDuration.compareTo(aDuration);
-      }
-
-      // Süreler eşitse tarihe göre sırala (en yeni önce)
-      if (a.taskDate != null && b.taskDate != null) {
-        return b.taskDate!.compareTo(a.taskDate!);
-      } else if (a.taskDate != null) {
-        return -1;
-      } else if (b.taskDate != null) {
-        return 1;
-      }
-
-      return 0;
-    });
+    relatedTasks.sort(compareTasks);
+    relatedRoutines.sort(compareTasks);
   }
 
   Duration calculateTaskDuration(TaskModel task) {
-    // Önce loglara göre hesapla; yoksa state'e göre
+    // Check logs first, then state fallback
     final fromLogs = _calculateTaskDurationFromLogs(task);
     if (fromLogs > Duration.zero) return fromLogs;
 
@@ -149,27 +121,21 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
     } else if (task.type == TaskTypeEnum.COUNTER) {
       return (task.remainingDuration ?? Duration.zero) * (task.currentCount ?? 0);
     } else {
-      // CHECKBOX
       return task.status == TaskStatusEnum.DONE ? (task.remainingDuration ?? Duration.zero) : Duration.zero;
     }
   }
 
-  // Log tabanlı tek task ilerleme hesabı (tüm zamanlar)
   Duration _calculateTaskDurationFromLogs(TaskModel task) {
     final logs = TaskLogProvider().getLogsByTaskId(task.id);
     if (logs.isEmpty) {
-      LogService.debug('No logs for task ${task.id}');
       return Duration.zero;
     }
-
-    LogService.debug('Task ${task.id} has ${logs.length} logs');
 
     Duration total = Duration.zero;
     if (task.type == TaskTypeEnum.TIMER) {
       for (final l in logs) {
         if (l.duration != null) total += l.duration!;
       }
-      LogService.debug('Timer task ${task.id}: total duration $total');
     } else if (task.type == TaskTypeEnum.COUNTER) {
       final per = task.remainingDuration ?? Duration.zero;
       int count = 0;
@@ -177,9 +143,7 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
         count += l.count ?? 0;
       }
       total = per * count;
-      LogService.debug('Counter task ${task.id}: per $per, total count $count, total duration $total');
     } else if (task.type == TaskTypeEnum.CHECKBOX) {
-      // Gün başına tek sayım (aynı gün birden fazla DONE varsa 1 kabul)
       final Set<String> doneDays = {};
       for (final l in logs) {
         if (l.status == TaskStatusEnum.DONE) {
@@ -188,464 +152,136 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
       }
       final per = task.remainingDuration ?? Duration.zero;
       total = per * doneDays.length;
-      LogService.debug('Checkbox task ${task.id}: per $per, done days ${doneDays.length}, total duration $total');
     }
     return total;
-  }
-
-  // Helper methods for status display
-  Color _getStatusColor(TaskStatusEnum status) {
-    switch (status) {
-      case TaskStatusEnum.DONE:
-        return AppColors.green;
-      case TaskStatusEnum.FAILED:
-        return AppColors.red;
-      case TaskStatusEnum.CANCEL:
-        return AppColors.purple;
-      case TaskStatusEnum.ARCHIVED:
-        return AppColors.blue;
-      case TaskStatusEnum.OVERDUE:
-        return AppColors.orange;
-    }
-  }
-
-  String _getStatusText(TaskStatusEnum status) {
-    switch (status) {
-      case TaskStatusEnum.DONE:
-        return LocaleKeys.Done.tr();
-      case TaskStatusEnum.FAILED:
-        return LocaleKeys.Failed.tr();
-      case TaskStatusEnum.CANCEL:
-        return LocaleKeys.Cancelled.tr();
-      case TaskStatusEnum.ARCHIVED:
-        return LocaleKeys.Archived.tr();
-      case TaskStatusEnum.OVERDUE:
-        return LocaleKeys.Overdue.tr();
-    }
   }
 
   @override
   void initState() {
     super.initState();
-
     traitTitleController.text = widget.traitModel.title;
     traitIcon = widget.traitModel.icon;
     selectedColor = widget.traitModel.color;
-
-    // Log verilerine göre trait ile ilgili toplam süreyi hesapla
     calculateTotalDurationFromLogs();
-
-    // İlgili görevleri bul
     findRelatedTasks();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '${widget.traitModel.title} Detail',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        leading: InkWell(
-          borderRadius: AppColors.borderRadiusAll,
-          onTap: () => NavigatorService().back(),
-          child: const Icon(Icons.arrow_back_ios),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Trait Info Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.panelBackground2,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: traitTitleController,
-                            textCapitalization: TextCapitalization.sentences,
-                            onChanged: (value) {
-                              _saveTraitChanges();
-                            },
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: LocaleKeys.Name.tr(),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: AppColors.panelBackground2.withValues(alpha: 0.5),
-                            ),
-                          ),
+      backgroundColor: AppColors.panelBackground,
+      body: CustomScrollView(
+        slivers: [
+          // Elegant Sliver App Bar
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 120,
+            backgroundColor: AppColors.panelBackground,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios, color: AppColors.text),
+              onPressed: () => NavigatorService().back(),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: AppColors.red),
+                onPressed: () {
+                  // Show confirmation dialog before deleting
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: AppColors.panelBackground,
+                      title: Text(LocaleKeys.Delete.tr()),
+                      content: Text("Are you sure you want to delete this trait?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(LocaleKeys.Cancel.tr(), style: TextStyle(color: AppColors.text)),
                         ),
-                        const SizedBox(width: 12),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () async {
-                            traitIcon = await Helper().showEmojiPicker(context);
-                            setState(() {});
-                            _saveTraitChanges();
+                        TextButton(
+                          onPressed: () {
+                            TraitProvider().removeTrait(widget.traitModel.id);
+                            Navigator.pop(context);
+                            Get.back();
                           },
-                          child: Container(
-                            height: 56,
-                            width: 56,
-                            decoration: BoxDecoration(
-                              color: selectedColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Center(
-                              child: Text(
-                                traitIcon,
-                                style: const TextStyle(fontSize: 28),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () async {
-                            selectedColor = await Helper().selectColor();
-                            setState(() {});
-                            _saveTraitChanges();
-                          },
-                          child: Container(
-                            height: 56,
-                            width: 56,
-                            decoration: BoxDecoration(
-                              color: selectedColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
+                          child: Text(LocaleKeys.Delete.tr(), style: const TextStyle(color: AppColors.red, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-
-              const SizedBox(height: 24),
-
-              // Total Duration Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: selectedColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      totalDuration.toLevel(),
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: selectedColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      totalDuration.textShort2hour(),
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: selectedColor.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Progress Summary
-              TraitProgressSummary(
-                traitModel: widget.traitModel,
-                selectedColor: selectedColor,
-                totalDuration: totalDuration,
-              ),
-
-              const SizedBox(height: 24),
-
-              // Monthly Comparison Chart
-              MonthlyComparisonChart(
-                traitModel: widget.traitModel,
-                selectedColor: selectedColor,
-              ),
-
-              const SizedBox(height: 24),
-
-              // Related Tasks Section
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          LocaleKeys.RelatedTasks.tr(),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        relatedTasks.isEmpty
-                            ? Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.panelBackground2.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  LocaleKeys.NoTasksWithProgressFound.tr(),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              )
-                            : ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: relatedTasks.length,
-                                itemBuilder: (context, index) {
-                                  final TaskModel task = relatedTasks[index];
-                                  // Log verilerine göre task süresini hesapla
-                                  Duration taskDuration = calculateTaskDuration(task);
-
-                                  return InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: () async {
-                                      // Navigate to task detail/edit page
-                                      await NavigatorService().goTo(
-                                        AddTaskPage(editTask: task),
-                                        transition: Transition.rightToLeft,
-                                      );
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: task.status == TaskStatusEnum.ARCHIVED ? AppColors.panelBackground2.withValues(alpha: 0.5) : AppColors.panelBackground2,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: task.status == TaskStatusEnum.ARCHIVED ? Border.all(color: Colors.grey.withValues(alpha: 0.3), width: 1) : null,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  task.title,
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: task.status == TaskStatusEnum.ARCHIVED ? Colors.grey : AppColors.text,
-                                                    decoration: task.status == TaskStatusEnum.ARCHIVED ? TextDecoration.lineThrough : TextDecoration.none,
-                                                  ),
-                                                ),
-                                              ),
-                                              if (task.status != null) ...[
-                                                const SizedBox(width: 8),
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                                  decoration: BoxDecoration(
-                                                    color: _getStatusColor(task.status!),
-                                                    borderRadius: BorderRadius.circular(4),
-                                                  ),
-                                                  child: Text(
-                                                    _getStatusText(task.status!),
-                                                    style: const TextStyle(
-                                                      fontSize: 10,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey[400],
-                                                ),
-                                              ),
-                                              const Spacer(),
-                                              Text(
-                                                taskDuration.textShort2hour(),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppColors.text,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Related Routines",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        relatedRoutines.isEmpty
-                            ? Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.panelBackground2.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  "No routines with progress found",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              )
-                            : ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: relatedRoutines.length,
-                                itemBuilder: (context, index) {
-                                  final TaskModel task = relatedRoutines[index];
-                                  // Log verilerine göre task süresini hesapla
-                                  Duration taskDuration = calculateTaskDuration(task);
-
-                                  // Artık task duration hesaplaması calculateTaskDuration metodunda yapılıyor
-
-                                  return InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: () async {
-                                      // Navigate to routine task detail page
-                                      await NavigatorService().goTo(
-                                        RoutineDetailPage(taskModel: task),
-                                        transition: Transition.rightToLeft,
-                                      );
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.panelBackground2,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            task.title,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                task.taskDate != null ? task.taskDate!.toLocal().toString().split(' ')[0] : "No date",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey[400],
-                                                ),
-                                              ),
-                                              const Spacer(),
-                                              Text(
-                                                taskDuration.textShort2hour(),
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: AppColors.text,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-
-              // Delete Button
-              Center(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    TraitProvider().removeTrait(widget.traitModel.id);
-                    Get.back();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: AppColors.red.withValues(alpha: 0.9),
-                    ),
-                    child: Text(
-                      LocaleKeys.Delete.tr(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              const SizedBox(width: 8),
             ],
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
+              title: Text(
+                '${widget.traitModel.title} Detail',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                  fontSize: 20,
+                ),
+              ),
+            ),
           ),
-        ),
+
+          // Main Content
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Header settings card
+                TraitHeaderCard(
+                  traitModel: widget.traitModel,
+                  titleController: traitTitleController,
+                  icon: traitIcon,
+                  selectedColor: selectedColor,
+                  onSave: () => setState(() => _saveTraitChanges()),
+                  onIconChanged: (newIcon) => setState(() => traitIcon = newIcon),
+                  onColorChanged: (newColor) => setState(() => selectedColor = newColor),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Total Duration Card
+                TraitDurationCard(
+                  totalDuration: totalDuration,
+                  selectedColor: selectedColor,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Progress Summary
+                TraitProgressSummary(
+                  traitModel: widget.traitModel,
+                  selectedColor: selectedColor,
+                  totalDuration: totalDuration,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Monthly Chart
+                MonthlyComparisonChart(
+                  traitModel: widget.traitModel,
+                  selectedColor: selectedColor,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Related Tasks/Routines Section
+                TraitRelatedTasksSection(
+                  relatedTasks: relatedTasks,
+                  relatedRoutines: relatedRoutines,
+                  calculateTaskDuration: calculateTaskDuration,
+                  selectedColor: selectedColor,
+                ),
+
+                const SizedBox(height: 48), // Bottom padding
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }

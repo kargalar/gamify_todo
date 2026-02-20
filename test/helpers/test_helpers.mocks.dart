@@ -4,28 +4,29 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
-import 'dart:ui' as _i15;
+import 'dart:ui' as _i16;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i19;
-import 'package:next_level/Enum/task_status_enum.dart' as _i22;
+import 'package:mockito/src/dummies.dart' as _i20;
+import 'package:next_level/Enum/task_status_enum.dart' as _i23;
 import 'package:next_level/Model/category_model.dart' as _i10;
+import 'package:next_level/Model/daily_streak_model.dart' as _i12;
 import 'package:next_level/Model/routine_model.dart' as _i8;
 import 'package:next_level/Model/store_item_model.dart' as _i6;
-import 'package:next_level/Model/subtask_model.dart' as _i16;
+import 'package:next_level/Model/subtask_model.dart' as _i17;
 import 'package:next_level/Model/task_log_model.dart' as _i11;
 import 'package:next_level/Model/task_model.dart' as _i9;
 import 'package:next_level/Model/trait_model.dart' as _i7;
 import 'package:next_level/Model/user_model.dart' as _i5;
-import 'package:next_level/Provider/task_log_provider.dart' as _i20;
+import 'package:next_level/Provider/task_log_provider.dart' as _i21;
 import 'package:next_level/Provider/task_provider.dart' as _i2;
-import 'package:next_level/Repository/category_repository.dart' as _i18;
-import 'package:next_level/Repository/routine_repository.dart' as _i13;
-import 'package:next_level/Repository/task_log_repository.dart' as _i21;
-import 'package:next_level/Repository/task_repository.dart' as _i12;
+import 'package:next_level/Repository/category_repository.dart' as _i19;
+import 'package:next_level/Repository/routine_repository.dart' as _i14;
+import 'package:next_level/Repository/task_log_repository.dart' as _i22;
+import 'package:next_level/Repository/task_repository.dart' as _i13;
 import 'package:next_level/Service/hive_service.dart' as _i3;
-import 'package:next_level/Service/home_widget_helper.dart' as _i17;
-import 'package:next_level/Service/undo_service.dart' as _i14;
+import 'package:next_level/Service/home_widget_helper.dart' as _i18;
+import 'package:next_level/Service/undo_service.dart' as _i15;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -372,6 +373,48 @@ class MockHiveService extends _i1.Mock implements _i3.HiveService {
       ) as _i4.Future<void>);
 
   @override
+  _i4.Future<void> addDailyStreak(_i12.DailyStreakModel? streakModel) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #addDailyStreak,
+          [streakModel],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<_i12.DailyStreakModel?> getDailyStreak(DateTime? date) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getDailyStreak,
+          [date],
+        ),
+        returnValue: _i4.Future<_i12.DailyStreakModel?>.value(),
+      ) as _i4.Future<_i12.DailyStreakModel?>);
+
+  @override
+  _i4.Future<List<_i12.DailyStreakModel>> getAllDailyStreaks() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getAllDailyStreaks,
+          [],
+        ),
+        returnValue: _i4.Future<List<_i12.DailyStreakModel>>.value(
+            <_i12.DailyStreakModel>[]),
+      ) as _i4.Future<List<_i12.DailyStreakModel>>);
+
+  @override
+  _i4.Future<void> clearDailyStreakBox() => (super.noSuchMethod(
+        Invocation.method(
+          #clearDailyStreakBox,
+          [],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
   _i4.Future<void> createTasksFromRoutines() => (super.noSuchMethod(
         Invocation.method(
           #createTasksFromRoutines,
@@ -431,7 +474,7 @@ class MockHiveService extends _i1.Mock implements _i3.HiveService {
 /// A class which mocks [TaskRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskRepository extends _i1.Mock implements _i12.TaskRepository {
+class MockTaskRepository extends _i1.Mock implements _i13.TaskRepository {
   MockTaskRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -487,7 +530,7 @@ class MockTaskRepository extends _i1.Mock implements _i12.TaskRepository {
 /// A class which mocks [RoutineRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRoutineRepository extends _i1.Mock implements _i13.RoutineRepository {
+class MockRoutineRepository extends _i1.Mock implements _i14.RoutineRepository {
   MockRoutineRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -546,7 +589,7 @@ class MockRoutineRepository extends _i1.Mock implements _i13.RoutineRepository {
 /// A class which mocks [UndoService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUndoService extends _i1.Mock implements _i14.UndoService {
+class MockUndoService extends _i1.Mock implements _i15.UndoService {
   MockUndoService() {
     _i1.throwOnMissingStub(this);
   }
@@ -563,7 +606,7 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
   @override
   void registerDeleteTask(
     _i9.TaskModel? task, {
-    _i15.VoidCallback? onExpire,
+    _i16.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -584,7 +627,7 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
   @override
   void registerDeleteRoutine(
     _i8.RoutineModel? routine, {
-    _i15.VoidCallback? onExpire,
+    _i16.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -605,8 +648,8 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
   @override
   void registerDeleteSubtask(
     int? taskId,
-    _i16.SubTaskModel? subtask, {
-    _i15.VoidCallback? onExpire,
+    _i17.SubTaskModel? subtask, {
+    _i16.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -621,7 +664,7 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
       );
 
   @override
-  _i16.SubTaskModel? undoDeleteSubtask(
+  _i17.SubTaskModel? undoDeleteSubtask(
     int? taskId,
     int? subtaskId,
   ) =>
@@ -631,13 +674,13 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
           taskId,
           subtaskId,
         ],
-      )) as _i16.SubTaskModel?);
+      )) as _i17.SubTaskModel?);
 
   @override
   void registerDateChange(
     int? taskId,
-    _i14.TaskDateChangeData? data, {
-    _i15.VoidCallback? onExpire,
+    _i15.TaskDateChangeData? data, {
+    _i16.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -652,17 +695,17 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
       );
 
   @override
-  _i14.TaskDateChangeData? undoDateChange(int? taskId) =>
+  _i15.TaskDateChangeData? undoDateChange(int? taskId) =>
       (super.noSuchMethod(Invocation.method(
         #undoDateChange,
         [taskId],
-      )) as _i14.TaskDateChangeData?);
+      )) as _i15.TaskDateChangeData?);
 
   @override
   void registerCompletion(
     int? taskId,
-    _i14.TaskCompletionData? data, {
-    _i15.VoidCallback? onExpire,
+    _i15.TaskCompletionData? data, {
+    _i16.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -677,17 +720,17 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
       );
 
   @override
-  _i14.TaskCompletionData? undoCompletion(int? taskId) =>
+  _i15.TaskCompletionData? undoCompletion(int? taskId) =>
       (super.noSuchMethod(Invocation.method(
         #undoCompletion,
         [taskId],
-      )) as _i14.TaskCompletionData?);
+      )) as _i15.TaskCompletionData?);
 
   @override
   void registerCancellation(
     int? taskId,
-    _i14.TaskCancellationData? data, {
-    _i15.VoidCallback? onExpire,
+    _i15.TaskCancellationData? data, {
+    _i16.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -702,17 +745,17 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
       );
 
   @override
-  _i14.TaskCancellationData? undoCancellation(int? taskId) =>
+  _i15.TaskCancellationData? undoCancellation(int? taskId) =>
       (super.noSuchMethod(Invocation.method(
         #undoCancellation,
         [taskId],
-      )) as _i14.TaskCancellationData?);
+      )) as _i15.TaskCancellationData?);
 
   @override
   void registerFailure(
     int? taskId,
-    _i14.TaskFailureData? data, {
-    _i15.VoidCallback? onExpire,
+    _i15.TaskFailureData? data, {
+    _i16.VoidCallback? onExpire,
   }) =>
       super.noSuchMethod(
         Invocation.method(
@@ -727,17 +770,17 @@ class MockUndoService extends _i1.Mock implements _i14.UndoService {
       );
 
   @override
-  _i14.TaskFailureData? undoFailure(int? taskId) =>
+  _i15.TaskFailureData? undoFailure(int? taskId) =>
       (super.noSuchMethod(Invocation.method(
         #undoFailure,
         [taskId],
-      )) as _i14.TaskFailureData?);
+      )) as _i15.TaskFailureData?);
 }
 
 /// A class which mocks [HomeWidgetHelper].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockHomeWidgetHelper extends _i1.Mock implements _i17.HomeWidgetHelper {
+class MockHomeWidgetHelper extends _i1.Mock implements _i18.HomeWidgetHelper {
   MockHomeWidgetHelper() {
     _i1.throwOnMissingStub(this);
   }
@@ -757,7 +800,7 @@ class MockHomeWidgetHelper extends _i1.Mock implements _i17.HomeWidgetHelper {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCategoryRepository extends _i1.Mock
-    implements _i18.CategoryRepository {
+    implements _i19.CategoryRepository {
   MockCategoryRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -779,7 +822,7 @@ class MockCategoryRepository extends _i1.Mock
           #addCategory,
           [categoryModel],
         ),
-        returnValue: _i4.Future<String>.value(_i19.dummyValue<String>(
+        returnValue: _i4.Future<String>.value(_i20.dummyValue<String>(
           this,
           Invocation.method(
             #addCategory,
@@ -813,7 +856,7 @@ class MockCategoryRepository extends _i1.Mock
 /// A class which mocks [TaskLogProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
+class MockTaskLogProvider extends _i1.Mock implements _i21.TaskLogProvider {
   MockTaskLogProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -849,7 +892,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
       ) as bool);
 
   @override
-  void setRepository(_i21.TaskLogRepository? repo) => super.noSuchMethod(
+  void setRepository(_i22.TaskLogRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setRepository,
           [repo],
@@ -858,7 +901,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
       );
 
   @override
-  void setTaskRepository(_i12.TaskRepository? repo) => super.noSuchMethod(
+  void setTaskRepository(_i13.TaskRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setTaskRepository,
           [repo],
@@ -891,7 +934,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
     DateTime? customLogDate,
     Duration? customDuration,
     int? customCount,
-    _i22.TaskStatusEnum? customStatus,
+    _i23.TaskStatusEnum? customStatus,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -969,7 +1012,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
   @override
   _i4.Future<void> deleteLogByTaskIdAndStatus(
     int? taskId,
-    _i22.TaskStatusEnum? status,
+    _i23.TaskStatusEnum? status,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1043,7 +1086,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
       ) as _i4.Future<void>);
 
   @override
-  void addListener(_i15.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i16.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -1052,7 +1095,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
       );
 
   @override
-  void removeListener(_i15.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i16.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],
@@ -1082,7 +1125,7 @@ class MockTaskLogProvider extends _i1.Mock implements _i20.TaskLogProvider {
 /// A class which mocks [TaskLogRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTaskLogRepository extends _i1.Mock implements _i21.TaskLogRepository {
+class MockTaskLogRepository extends _i1.Mock implements _i22.TaskLogRepository {
   MockTaskLogRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -1249,7 +1292,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       ) as _i4.Future<void>);
 
   @override
-  void setTaskRepository(_i12.TaskRepository? repo) => super.noSuchMethod(
+  void setTaskRepository(_i13.TaskRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setTaskRepository,
           [repo],
@@ -1258,7 +1301,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       );
 
   @override
-  void setRoutineRepository(_i13.RoutineRepository? repo) => super.noSuchMethod(
+  void setRoutineRepository(_i14.RoutineRepository? repo) => super.noSuchMethod(
         Invocation.method(
           #setRoutineRepository,
           [repo],
@@ -1267,7 +1310,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       );
 
   @override
-  void setUndoService(_i14.UndoService? service) => super.noSuchMethod(
+  void setUndoService(_i15.UndoService? service) => super.noSuchMethod(
         Invocation.method(
           #setUndoService,
           [service],
@@ -1276,7 +1319,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       );
 
   @override
-  void setHomeWidgetHelper(_i17.HomeWidgetHelper? helper) => super.noSuchMethod(
+  void setHomeWidgetHelper(_i18.HomeWidgetHelper? helper) => super.noSuchMethod(
         Invocation.method(
           #setHomeWidgetHelper,
           [helper],
@@ -1285,7 +1328,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       );
 
   @override
-  void setCategoryRepository(_i18.CategoryRepository? repo) =>
+  void setCategoryRepository(_i19.CategoryRepository? repo) =>
       super.noSuchMethod(
         Invocation.method(
           #setCategoryRepository,
@@ -1295,7 +1338,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       );
 
   @override
-  void setTaskLogProvider(_i20.TaskLogProvider? provider) => super.noSuchMethod(
+  void setTaskLogProvider(_i21.TaskLogProvider? provider) => super.noSuchMethod(
         Invocation.method(
           #setTaskLogProvider,
           [provider],
@@ -1573,7 +1616,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
   @override
   void removeSubtask(
     _i9.TaskModel? taskModel,
-    _i16.SubTaskModel? subtask, {
+    _i17.SubTaskModel? subtask, {
     bool? showUndo = true,
   }) =>
       super.noSuchMethod(
@@ -1600,7 +1643,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
   @override
   void toggleSubtaskCompletion(
     _i9.TaskModel? taskModel,
-    _i16.SubTaskModel? subtask, {
+    _i17.SubTaskModel? subtask, {
     bool? showUndo = true,
   }) =>
       super.noSuchMethod(
@@ -1618,7 +1661,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
   @override
   void updateSubtask(
     _i9.TaskModel? taskModel,
-    _i16.SubTaskModel? subtask,
+    _i17.SubTaskModel? subtask,
     String? title,
     String? description,
   ) =>
@@ -1802,7 +1845,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
   @override
   void showTaskFailureUndoWithPreviousStatus(
     _i9.TaskModel? taskModel,
-    _i22.TaskStatusEnum? previousStatus,
+    _i23.TaskStatusEnum? previousStatus,
   ) =>
       super.noSuchMethod(
         Invocation.method(
@@ -1827,7 +1870,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
   @override
   void showTaskCancellationUndoWithPreviousStatus(
     _i9.TaskModel? taskModel,
-    _i22.TaskStatusEnum? previousStatus,
+    _i23.TaskStatusEnum? previousStatus,
   ) =>
       super.noSuchMethod(
         Invocation.method(
@@ -1852,7 +1895,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       ) as _i4.Future<void>);
 
   @override
-  void addListener(_i15.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i16.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -1861,7 +1904,7 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       );
 
   @override
-  void removeListener(_i15.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i16.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],
