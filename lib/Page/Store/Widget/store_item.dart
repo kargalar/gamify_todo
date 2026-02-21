@@ -5,6 +5,8 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/General/accessible.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Store/add_store_item_page.dart';
+import 'package:next_level/Page/Store/Widget/store_item_buy_button.dart';
+import 'package:next_level/Page/Store/Widget/store_item_type_icon.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_progress_view_model.dart';
 import 'package:next_level/Provider/user_provider.dart';
 import 'package:next_level/Service/global_timer.dart';
@@ -31,176 +33,62 @@ class StoreItem extends StatefulWidget {
   State<StoreItem> createState() => _StoreItemState();
 }
 
-class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  bool _isHovering = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.01).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
+class _StoreItemState extends State<StoreItem> {
+  ItemModel get _item => widget.storeItemModel;
+  bool get _isTimerActive => _item.isTimerActive ?? false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Slidable(
-        key: ValueKey(widget.storeItemModel.id),
-        startActionPane: ActionPane(
-          extentRatio: 0.4,
-          dismissible: DismissiblePane(
-            dismissThreshold: 0.3,
-            closeOnCancel: true,
-            confirmDismiss: () async {
-              await NavigatorService()
-                  .goTo(
-                    AddStoreItemPage(editItemModel: widget.storeItemModel),
-                    transition: Transition.size,
-                  )
-                  .then(
-                    (value) => StoreProvider().setStateItems(),
-                  );
-              return false;
-            },
-            onDismissed: () {},
-          ),
-          motion: const ScrollMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (_) async {
-                await NavigatorService()
-                    .goTo(
-                      AddStoreItemPage(editItemModel: widget.storeItemModel),
-                      transition: Transition.size,
-                    )
-                    .then(
-                      (value) => StoreProvider().setStateItems(),
-                    );
-              },
-              backgroundColor: AppColors.matteBlue,
-              borderRadius: BorderRadius.circular(12),
-              foregroundColor: Colors.white,
-              icon: Icons.edit,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              label: LocaleKeys.Edit.tr(),
-            ),
-          ],
-        ),
-        child: MouseRegion(
-          onEnter: (_) {
-            setState(() {
-              _isHovering = true;
-              _animationController.forward();
-            });
-          },
-          onExit: (_) {
-            setState(() {
-              _isHovering = false;
-              _animationController.reverse();
-            });
-          },
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: AppColors.borderRadiusAll,
-              child: InkWell(
-                borderRadius: AppColors.borderRadiusAll,
-                splashColor: AppColors.panelBackground.withValues(alpha: 0.9),
-                highlightColor: AppColors.panelBackground.withValues(alpha: 0.1),
-                onTap: storeItemAction,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.panelBackground.withValues(alpha: 0.8),
-                        AppColors.panelBackground2.withValues(alpha: 0.6),
-                      ],
-                    ),
-                    borderRadius: AppColors.borderRadiusAll,
-                    border: Border.all(
-                      color: AppColors.main.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.black.withValues(alpha: 0.1),
-                        blurRadius: _isHovering ? 50 : 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      // Icon on the left
-                      _buildTypeIcon(),
-                      const SizedBox(width: 16),
-
-                      // Title and Description in the middle
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.storeItemModel.title,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.text,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (widget.storeItemModel.description != null && widget.storeItemModel.description!.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.storeItemModel.description!,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.grey,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      // Remaining amount and button on the right
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildRemainingAmount(),
-                          const SizedBox(height: 8),
-                          _buildBuyButton(),
-                        ],
-                      ),
-                    ],
-                  ),
+        key: ValueKey(_item.id),
+        startActionPane: _buildEditAction(),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            splashColor: AppColors.main.withValues(alpha: 0.08),
+            highlightColor: AppColors.main.withValues(alpha: 0.04),
+            onTap: _handleItemAction,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.panelBackground.withValues(alpha: 0.85),
+                    AppColors.panelBackground2.withValues(alpha: 0.5),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: _isTimerActive ? AppColors.main.withValues(alpha: 0.4) : AppColors.panelBackground2.withValues(alpha: 0.5),
+                  width: _isTimerActive ? 1.5 : 1,
+                ),
+                boxShadow: _isTimerActive
+                    ? [
+                        BoxShadow(
+                          color: AppColors.main.withValues(alpha: 0.1),
+                          blurRadius: 12,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  StoreItemTypeIcon(
+                    type: _item.type,
+                    isTimerActive: _isTimerActive,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(child: _buildTitleSection()),
+                  const SizedBox(width: 10),
+                  _buildRightSection(),
+                ],
               ),
             ),
           ),
@@ -209,91 +97,132 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildTypeIcon() {
-    IconData iconData;
+  // ──────────────────── UI BUILDERS ────────────────────
 
-    switch (widget.storeItemModel.type) {
-      case TaskTypeEnum.TIMER:
-        iconData = (widget.storeItemModel.isTimerActive ?? false) ? Icons.pause : Icons.play_arrow;
-        break;
-      case TaskTypeEnum.COUNTER:
-        iconData = Icons.add;
-        break;
-      case TaskTypeEnum.CHECKBOX:
-        iconData = Icons.check_box;
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.main.withValues(alpha: 0.8),
-            AppColors.main.withValues(alpha: 0.6),
-          ],
+  ActionPane _buildEditAction() {
+    return ActionPane(
+      extentRatio: 0.4,
+      dismissible: DismissiblePane(
+        dismissThreshold: 0.3,
+        closeOnCancel: true,
+        confirmDismiss: () async {
+          await NavigatorService()
+              .goTo(
+                AddStoreItemPage(editItemModel: _item),
+                transition: Transition.size,
+              )
+              .then((_) => StoreProvider().setStateItems());
+          return false;
+        },
+        onDismissed: () {},
+      ),
+      motion: const ScrollMotion(),
+      children: [
+        SlidableAction(
+          onPressed: (_) async {
+            await NavigatorService()
+                .goTo(
+                  AddStoreItemPage(editItemModel: _item),
+                  transition: Transition.size,
+                )
+                .then((_) => StoreProvider().setStateItems());
+          },
+          backgroundColor: AppColors.matteBlue,
+          borderRadius: BorderRadius.circular(14),
+          foregroundColor: Colors.white,
+          icon: Icons.edit_rounded,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          label: LocaleKeys.Edit.tr(),
         ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.main.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Icon(
-        iconData,
-        size: 24,
-        color: AppColors.white,
-      ),
+      ],
     );
   }
 
-  Widget _buildRemainingAmount() {
-    if (widget.storeItemModel.type == TaskTypeEnum.CHECKBOX) {
-      return const SizedBox();
-    }
+  Widget _buildTitleSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _item.title,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppColors.text,
+            letterSpacing: 0.1,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (_item.description != null && _item.description!.isNotEmpty) ...[
+          const SizedBox(height: 3),
+          Text(
+            _item.description!,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppColors.text.withValues(alpha: 0.4),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ],
+    );
+  }
 
-    String valueText;
-    Color textColor;
-    IconData iconData;
+  Widget _buildRightSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_item.type != TaskTypeEnum.CHECKBOX) ...[
+          _buildRemainingBadge(),
+          const SizedBox(height: 6),
+        ],
+        StoreItemBuyButton(
+          amountText: _buildAmountText(),
+          credit: _item.credit,
+          onTap: _handlePurchase,
+        ),
+      ],
+    );
+  }
 
-    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
-      valueText = "${widget.storeItemModel.currentCount}";
-      textColor = AppColors.text;
-      iconData = Icons.numbers;
+  Widget _buildRemainingBadge() {
+    final String valueText;
+    final Color badgeColor;
+    final IconData iconData;
+
+    if (_item.type == TaskTypeEnum.COUNTER) {
+      valueText = '${_item.currentCount}';
+      badgeColor = AppColors.text;
+      iconData = Icons.numbers_rounded;
     } else {
-      // TIMER
-      valueText = widget.storeItemModel.currentDuration!.textShortDynamic();
-      textColor = (widget.storeItemModel.isTimerActive ?? false) ? AppColors.main : AppColors.text;
-      iconData = Icons.timer;
+      valueText = _item.currentDuration!.textShortDynamic();
+      badgeColor = _isTimerActive ? AppColors.main : AppColors.text;
+      iconData = Icons.timer_rounded;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.panelBackground2.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.main.withValues(alpha: 0.2), width: 1),
+        color: badgeColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: badgeColor.withValues(alpha: 0.15),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            iconData,
-            size: 14,
-            color: textColor,
-          ),
+          Icon(iconData, size: 13, color: badgeColor.withValues(alpha: 0.7)),
           const SizedBox(width: 4),
           Text(
             valueText,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: textColor,
+              color: badgeColor.withValues(alpha: 0.9),
             ),
           ),
         ],
@@ -301,157 +230,69 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildBuyButton() {
-    String actionText;
-    String amountText;
-
-    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
-      amountText = "${widget.storeItemModel.addCount}";
-    } else {
-      amountText = widget.storeItemModel.addDuration?.textLongDynamicWithoutZero() ?? "";
+  String _buildAmountText() {
+    if (_item.type == TaskTypeEnum.COUNTER) {
+      return '${_item.addCount}';
     }
-
-    if (widget.storeItemModel.credit == 0) {
-      actionText = LocaleKeys.Add.tr();
-    } else {
-      actionText = LocaleKeys.Buy.tr();
-    }
-
-    return InkWell(
-      borderRadius: AppColors.borderRadiusAll,
-      onTap: () async {
-        // Null check for loginUser
-        if (loginUser == null) {
-          LogService.error('❌ Store Item Purchase: loginUser is null');
-          return;
-        }
-
-        // Deduct credit (can go negative)
-        loginUser!.userCredit -= widget.storeItemModel.credit;
-
-        dynamic value; // Değişiklik miktarı
-
-        if (widget.storeItemModel.type == TaskTypeEnum.TIMER) {
-          widget.storeItemModel.currentDuration = widget.storeItemModel.currentDuration! + widget.storeItemModel.addDuration!;
-          value = widget.storeItemModel.addDuration; // Eklenen süre miktarı
-        } else {
-          widget.storeItemModel.currentCount = widget.storeItemModel.currentCount! + widget.storeItemModel.addCount!;
-          value = widget.storeItemModel.addCount; // Eklenen sayı miktarı
-        }
-
-        // Log kaydini oluştur - purchase satın alındığı için kredi harcanır (negatif)
-        TaskProgressViewModel.addStoreItemLog(
-          itemId: widget.storeItemModel.id,
-          action: "Purchase",
-          value: value, // Değişiklik miktarı (item arttırıldığı miktarı)
-          type: widget.storeItemModel.type,
-          isPurchase: true, // Satın alma işlemi
-        );
-
-        // Kredi harcaması ayrı olarak log'lanır (negatif kredi)
-        // Bu müşteri tarafından görülebilmesi için daily transactions'a eklemelidir
-        LogService.debug('💰 Store Item Purchase: ${widget.storeItemModel.title} - Credit cost: -${widget.storeItemModel.credit}');
-
-        await UserRepository().updateUser(loginUser!);
-        await StoreRepository().updateItem(widget.storeItemModel);
-
-        // Sync with UserProvider to update UI
-        UserProvider().setUser(loginUser!);
-
-        StoreProvider().setStateItems();
-      },
-      child: Container(
-        height: 32,
-        constraints: const BoxConstraints(minWidth: 100),
-        decoration: BoxDecoration(
-          borderRadius: AppColors.borderRadiusAll,
-          gradient: LinearGradient(
-            colors: [AppColors.main.withAlpha(150), AppColors.main],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.main.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Action + Amount
-            Text(
-              "$actionText $amountText",
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            // Credit amount (if not zero)
-            if (widget.storeItemModel.credit != 0) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "${widget.storeItemModel.credit}",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      Icons.monetization_on,
-                      size: 12,
-                      color: Color.fromARGB(255, 226, 230, 0),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
+    return _item.addDuration?.textLongDynamicWithoutZero() ?? '';
   }
 
-  void storeItemAction() async {
-    dynamic value; // Değişiklik miktarı
-    String action; // Action türü
+  // ──────────────────── ACTIONS ────────────────────
 
-    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER) {
-      widget.storeItemModel.currentCount = widget.storeItemModel.currentCount! - 1;
-      value = -1; // Kullanılan miktar (negatif)
-      action = "Usage";
-      StoreRepository().updateItem(widget.storeItemModel);
-      // TODO: - olursa disiplin düşecek
+  Future<void> _handlePurchase() async {
+    if (loginUser == null) {
+      LogService.error('❌ Store Item Purchase: loginUser is null');
+      return;
+    }
+
+    loginUser!.userCredit -= _item.credit;
+
+    dynamic value;
+
+    if (_item.type == TaskTypeEnum.TIMER) {
+      _item.currentDuration = _item.currentDuration! + _item.addDuration!;
+      value = _item.addDuration;
     } else {
-      // Timer için timer aktif durumunu kaydet
-      bool wasTimerActive = widget.storeItemModel.isTimerActive ?? false;
+      _item.currentCount = _item.currentCount! + _item.addCount!;
+      value = _item.addCount;
+    }
 
-      // Eğer timer durdurulacaksa, önce elapsed time'ı hesapla
+    TaskProgressViewModel.addStoreItemLog(
+      itemId: _item.id,
+      action: 'Purchase',
+      value: value,
+      type: _item.type,
+      isPurchase: true,
+    );
+
+    LogService.debug('💰 Store Item Purchase: ${_item.title} - Credit cost: -${_item.credit}');
+
+    await UserRepository().updateUser(loginUser!);
+    await StoreRepository().updateItem(_item);
+
+    UserProvider().setUser(loginUser!);
+    StoreProvider().setStateItems();
+  }
+
+  void _handleItemAction() async {
+    dynamic value;
+    String action;
+
+    if (_item.type == TaskTypeEnum.COUNTER) {
+      _item.currentCount = _item.currentCount! - 1;
+      value = -1;
+      action = 'Usage';
+      StoreRepository().updateItem(_item);
+    } else {
+      bool wasTimerActive = _isTimerActive;
+
       Duration? elapsedTime;
       if (wasTimerActive) {
         final prefs = await SharedPreferences.getInstance();
-        String? timerStartTimeStr = prefs.getString('item_timer_start_time_${widget.storeItemModel.id}');
-        String? timerStartDurationStr = prefs.getString('item_timer_start_duration_${widget.storeItemModel.id}');
+        String? timerStartTimeStr = prefs.getString('item_timer_start_time_${_item.id}');
+        String? timerStartDurationStr = prefs.getString('item_timer_start_duration_${_item.id}');
 
-        LogService.debug('DEBUG: Timer will be stopped for item ${widget.storeItemModel.id}');
+        LogService.debug('DEBUG: Timer will be stopped for item ${_item.id}');
         LogService.debug('DEBUG: timerStartTimeStr = $timerStartTimeStr');
         LogService.debug('DEBUG: timerStartDurationStr = $timerStartDurationStr');
 
@@ -459,7 +300,6 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
           DateTime timerStartTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timerStartTimeStr));
           DateTime currentTime = DateTime.now();
 
-          // Geçen süreyi hesapla (timer ne kadar çalıştı)
           elapsedTime = currentTime.difference(timerStartTime);
 
           LogService.debug('DEBUG: timerStartTime = $timerStartTime');
@@ -469,22 +309,15 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
         }
       }
 
-      // Timer'ı başlat/durdur
-      GlobalTimer().startStopTimer(
-        storeItemModel: widget.storeItemModel,
-      );
+      GlobalTimer().startStopTimer(storeItemModel: _item);
 
-      // Timer durumuna göre log oluştur
-      if (!wasTimerActive && (widget.storeItemModel.isTimerActive ?? false)) {
-        // Timer başlatıldı
-        action = "Timer Started";
-        value = Duration.zero; // Başlangıçta değişiklik yok
-      } else if (wasTimerActive && !(widget.storeItemModel.isTimerActive ?? false)) {
-        // Timer durduruldu - önceden hesaplanan elapsed time'ı kullan
-        action = "Timer Stopped";
+      if (!wasTimerActive && _isTimerActive) {
+        action = 'Timer Started';
+        value = Duration.zero;
+      } else if (wasTimerActive && !_isTimerActive) {
+        action = 'Timer Stopped';
 
         if (elapsedTime != null) {
-          // Store item timer'ları geri sayım yapar, kullanılan süre negatif olarak log'lanır
           value = -elapsedTime;
           LogService.debug('DEBUG: value to log = ${value.inSeconds} seconds');
           LogService.debug('DEBUG: value.inMinutes = ${value.inMinutes}, value.inSeconds % 60 = ${value.inSeconds % 60}');
@@ -493,21 +326,19 @@ class _StoreItemState extends State<StoreItem> with SingleTickerProviderStateMix
           value = Duration.zero;
         }
       } else {
-        // Durum değişmedi
         value = Duration.zero;
-        action = "Timer Action";
+        action = 'Timer Action';
       }
 
-      StoreRepository().updateItem(widget.storeItemModel);
+      StoreRepository().updateItem(_item);
     }
 
-    // Log kaydını oluştur - sadece anlamlı değişiklikler için
-    if (widget.storeItemModel.type == TaskTypeEnum.COUNTER || (widget.storeItemModel.type == TaskTypeEnum.TIMER && action == "Timer Stopped")) {
+    if (_item.type == TaskTypeEnum.COUNTER || (_item.type == TaskTypeEnum.TIMER && action == 'Timer Stopped')) {
       TaskProgressViewModel.addStoreItemLog(
-        itemId: widget.storeItemModel.id,
+        itemId: _item.id,
         action: action,
         value: value,
-        type: widget.storeItemModel.type,
+        type: _item.type,
       );
     }
 
