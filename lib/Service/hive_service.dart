@@ -416,31 +416,34 @@ class HiveService {
     }
 
     if (TaskProvider().taskList.isNotEmpty) {
-      // Mark past tasks as overdue and past routines as failed (only if they are not already completed)
+      // Collect unique past dates that have tasks being auto-failed
+      final Set<String> processedDates = {};
+
+      // Mark past tasks as failed (only if they are not already completed)
       for (TaskModel task in TaskProvider().taskList) {
         if (task.status == null && task.taskDate != null && task.taskDate!.isBeforeDay(today)) {
-          if (task.routineID != null) {
-            // Routine tasks that are past due should be marked as failed
-            task.status = TaskStatusEnum.FAILED;
+          // Both routine and regular tasks should be marked as failed
+          task.status = TaskStatusEnum.FAILED;
 
-            // Create log for failed routine task
-            TaskLogProvider().addTaskLog(
-              task,
-              customStatus: TaskStatusEnum.FAILED,
-            );
-          } else {
-            // Regular tasks that are past due should be marked as overdue
-            task.status = TaskStatusEnum.OVERDUE;
-
-            // Create log for overdue task
-            TaskLogProvider().addTaskLog(
-              task,
-              customStatus: TaskStatusEnum.OVERDUE,
-            );
-          }
+          // Create log for failed task (this triggers -1 DP per task via addTaskLog)
+          TaskLogProvider().addTaskLog(
+            task,
+            customStatus: TaskStatusEnum.FAILED,
+          );
 
           updateTask(task);
+
+          // Track the date for daily penalty bonus calculation
+          final dateKey = '${task.taskDate!.year}-${task.taskDate!.month}-${task.taskDate!.day}';
+          processedDates.add(dateKey);
         }
+      }
+
+      // Apply daily penalty bonuses for each past day that had auto-failed tasks
+      for (final dateKey in processedDates) {
+        final parts = dateKey.split('-');
+        final pastDate = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+        await TaskProvider().checkDailyDPBonuses(pastDate);
       }
     }
 

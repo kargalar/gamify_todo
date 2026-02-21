@@ -132,6 +132,20 @@ class DisciplineInfoDialog extends StatelessWidget {
             points: '-1 ${LocaleKeys.DisciplinePoints.tr()}',
             pointsColor: Colors.red,
           ),
+          _buildRuleItem(
+            icon: Icons.dangerous_outlined,
+            iconColor: Colors.red.shade700,
+            title: LocaleKeys.FailedAllTasks.tr(),
+            points: '-2 ${LocaleKeys.DisciplinePoints.tr()}',
+            pointsColor: Colors.red.shade700,
+          ),
+          _buildRuleItem(
+            icon: Icons.heart_broken_outlined,
+            iconColor: Colors.red.shade900,
+            title: LocaleKeys.FailedAllRoutines.tr(),
+            points: '-5 ${LocaleKeys.DisciplinePoints.tr()}',
+            pointsColor: Colors.red.shade900,
+          ),
 
           const SizedBox(height: 24),
 

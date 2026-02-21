@@ -26,13 +26,15 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       disciplinePoints: fields[6] == null ? 0 : fields[6] as int,
       lastRoutineBonusDate: fields[7] as DateTime?,
       lastTaskBonusDate: fields[8] as DateTime?,
+      lastRoutinePenaltyDate: fields[9] as DateTime?,
+      lastTaskPenaltyDate: fields[10] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,16 +52,16 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(7)
       ..write(obj.lastRoutineBonusDate)
       ..writeByte(8)
-      ..write(obj.lastTaskBonusDate);
+      ..write(obj.lastTaskBonusDate)
+      ..writeByte(9)
+      ..write(obj.lastRoutinePenaltyDate)
+      ..writeByte(10)
+      ..write(obj.lastTaskPenaltyDate);
   }
 
   @override
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is UserModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is UserModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

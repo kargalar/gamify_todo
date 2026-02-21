@@ -104,4 +104,20 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> setLastRoutinePenaltyDate(DateTime? date) async {
+    if (_currentUser != null) {
+      _currentUser!.lastRoutinePenaltyDate = date;
+      await HiveService().updateUser(_currentUser!);
+      notifyListeners();
+    }
+  }
+
+  Future<void> setLastTaskPenaltyDate(DateTime? date) async {
+    if (_currentUser != null) {
+      _currentUser!.lastTaskPenaltyDate = date;
+      await HiveService().updateUser(_currentUser!);
+      notifyListeners();
+    }
+  }
 }

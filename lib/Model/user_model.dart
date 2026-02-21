@@ -22,6 +22,10 @@ class UserModel extends HiveObject {
   DateTime? lastRoutineBonusDate;
   @HiveField(8)
   DateTime? lastTaskBonusDate;
+  @HiveField(9)
+  DateTime? lastRoutinePenaltyDate;
+  @HiveField(10)
+  DateTime? lastTaskPenaltyDate;
 
   UserModel({
     required this.id,
@@ -33,6 +37,8 @@ class UserModel extends HiveObject {
     this.disciplinePoints = 0,
     this.lastRoutineBonusDate,
     this.lastTaskBonusDate,
+    this.lastRoutinePenaltyDate,
+    this.lastTaskPenaltyDate,
   });
   factory UserModel.fromJson(Map<String, dynamic> json) {
     Duration stringToDuration(String timeString) {
@@ -50,6 +56,8 @@ class UserModel extends HiveObject {
       disciplinePoints: json['discipline_points'] ?? 0,
       lastRoutineBonusDate: json['last_routine_bonus_date'] != null ? DateTime.parse(json['last_routine_bonus_date']) : null,
       lastTaskBonusDate: json['last_task_bonus_date'] != null ? DateTime.parse(json['last_task_bonus_date']) : null,
+      lastRoutinePenaltyDate: json['last_routine_penalty_date'] != null ? DateTime.parse(json['last_routine_penalty_date']) : null,
+      lastTaskPenaltyDate: json['last_task_penalty_date'] != null ? DateTime.parse(json['last_task_penalty_date']) : null,
     );
   }
 
@@ -72,6 +80,8 @@ class UserModel extends HiveObject {
       'discipline_points': disciplinePoints,
       'last_routine_bonus_date': lastRoutineBonusDate?.toIso8601String(),
       'last_task_bonus_date': lastTaskBonusDate?.toIso8601String(),
+      'last_routine_penalty_date': lastRoutinePenaltyDate?.toIso8601String(),
+      'last_task_penalty_date': lastTaskPenaltyDate?.toIso8601String(),
     };
   }
 }

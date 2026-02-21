@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const NoArchivedRoutines = 'NoArchivedRoutines';
   static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
   static const Daily = 'Daily';
@@ -674,6 +674,8 @@ abstract class  LocaleKeys {
   static const CompletedAllRoutines = 'CompletedAllRoutines';
   static const HowToLoseDP = 'HowToLoseDP';
   static const FailedTaskOrRoutine = 'FailedTaskOrRoutine';
+  static const FailedAllTasks = 'FailedAllTasks';
+  static const FailedAllRoutines = 'FailedAllRoutines';
   static const CurrentDP = 'CurrentDP';
   static const GotIt = 'GotIt';
   static const LevelReckless = 'LevelReckless';
@@ -686,5 +688,4 @@ abstract class  LocaleKeys {
   static const LevelLegendary = 'LevelLegendary';
   static const LevelSpartan = 'LevelSpartan';
   static const LevelWise = 'LevelWise';
-
 }

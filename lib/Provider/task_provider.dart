@@ -1374,68 +1374,115 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future<void> checkDailyDPBonuses(DateTime date) async {
-    final now = DateTime.now();
-    if (!date.isSameDay(now)) return;
+    // Check bonuses/penalties for any date, not just today
 
     final userProvider = UserProvider();
 
-    // -- Check Routines (taskId = -10) --
-    final routinesForToday = getRoutineTasksForDate(now);
-    if (routinesForToday.isNotEmpty) {
-      bool allRoutinesDone = routinesForToday.every((routine) => routine.status == TaskStatusEnum.DONE);
-      final hasRoutineBonusToday = userProvider.currentUser?.lastRoutineBonusDate?.isSameDay(now) ?? false;
+    // -- Check Routines (taskId = -10 for bonus, -11 for penalty) --
+    final routinesForDate = getRoutineTasksForDate(date);
+    if (routinesForDate.isNotEmpty) {
+      bool allRoutinesDone = routinesForDate.every((routine) => routine.status == TaskStatusEnum.DONE);
+      bool allRoutinesFailed = routinesForDate.every((routine) => routine.status == TaskStatusEnum.FAILED);
+      final hasRoutineBonusForDate = userProvider.currentUser?.lastRoutineBonusDate?.isSameDay(date) ?? false;
+      final hasRoutinePenaltyForDate = userProvider.currentUser?.lastRoutinePenaltyDate?.isSameDay(date) ?? false;
 
-      if (allRoutinesDone && !hasRoutineBonusToday) {
+      if (allRoutinesDone && !hasRoutineBonusForDate) {
         // GRANT BONUS
         await userProvider.updateDisciplinePoints(5);
-        await userProvider.setLastRoutineBonusDate(now);
+        await userProvider.setLastRoutineBonusDate(date);
         LogService.debug('Granted daily routine DP bonus! (+5)');
 
         await TaskLogProvider().addSystemLog(TaskLogModel(
           id: DateTime.now().millisecondsSinceEpoch,
           taskId: -10, // Daily Routine Bonus
-          logDate: now,
+          logDate: date,
           taskTitle: 'Daily Routine Bonus',
           status: TaskStatusEnum.DONE,
         ));
-      } else if (!allRoutinesDone && hasRoutineBonusToday) {
+      } else if (!allRoutinesDone && hasRoutineBonusForDate) {
         // REVOKE BONUS
         await userProvider.updateDisciplinePoints(-5);
         await userProvider.setLastRoutineBonusDate(null); // Clear bonus date
         LogService.debug('Revoked daily routine DP bonus! (-5)');
 
-        // Remove the system log for today
-        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-10, now);
+        // Remove the system log for this date
+        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-10, date);
+      }
+
+      // PENALTY: All routines failed
+      if (allRoutinesFailed && !hasRoutinePenaltyForDate) {
+        await userProvider.updateDisciplinePoints(-5);
+        await userProvider.setLastRoutinePenaltyDate(date);
+        LogService.debug('Applied daily routine DP penalty! (-5)');
+
+        await TaskLogProvider().addSystemLog(TaskLogModel(
+          id: DateTime.now().millisecondsSinceEpoch + 1,
+          taskId: -11, // Daily Routine Penalty
+          logDate: date,
+          taskTitle: 'Daily Routine Penalty',
+          status: TaskStatusEnum.FAILED,
+        ));
+      } else if (!allRoutinesFailed && hasRoutinePenaltyForDate) {
+        // REVOKE PENALTY
+        await userProvider.updateDisciplinePoints(5);
+        await userProvider.setLastRoutinePenaltyDate(null);
+        LogService.debug('Revoked daily routine DP penalty! (+5)');
+
+        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-11, date);
       }
     }
 
-    // -- Check Tasks (taskId = -20) --
-    final tasksForToday = getTasksForDate(now).where((t) => t.routineID == null).toList();
-    if (tasksForToday.isNotEmpty) {
-      bool allTasksDone = tasksForToday.every((task) => task.status == TaskStatusEnum.DONE);
-      final hasTaskBonusToday = userProvider.currentUser?.lastTaskBonusDate?.isSameDay(now) ?? false;
+    // -- Check Tasks (taskId = -20 for bonus, -21 for penalty) --
+    final tasksForDate = getTasksForDate(date).where((t) => t.routineID == null).toList();
+    if (tasksForDate.isNotEmpty) {
+      bool allTasksDone = tasksForDate.every((task) => task.status == TaskStatusEnum.DONE);
+      bool allTasksFailed = tasksForDate.every((task) => task.status == TaskStatusEnum.FAILED);
+      final hasTaskBonusForDate = userProvider.currentUser?.lastTaskBonusDate?.isSameDay(date) ?? false;
+      final hasTaskPenaltyForDate = userProvider.currentUser?.lastTaskPenaltyDate?.isSameDay(date) ?? false;
 
-      if (allTasksDone && !hasTaskBonusToday) {
+      if (allTasksDone && !hasTaskBonusForDate) {
         // GRANT BONUS
         await userProvider.updateDisciplinePoints(2);
-        await userProvider.setLastTaskBonusDate(now);
+        await userProvider.setLastTaskBonusDate(date);
         LogService.debug('Granted daily task DP bonus! (+2)');
 
         await TaskLogProvider().addSystemLog(TaskLogModel(
           id: DateTime.now().millisecondsSinceEpoch,
           taskId: -20, // Daily Task Bonus
-          logDate: now,
+          logDate: date,
           taskTitle: 'Daily Task Bonus',
           status: TaskStatusEnum.DONE,
         ));
-      } else if (!allTasksDone && hasTaskBonusToday) {
+      } else if (!allTasksDone && hasTaskBonusForDate) {
         // REVOKE BONUS
         await userProvider.updateDisciplinePoints(-2);
         await userProvider.setLastTaskBonusDate(null); // Clear bonus date
         LogService.debug('Revoked daily task DP bonus! (-2)');
 
-        // Remove the system log for today
-        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-20, now);
+        // Remove the system log for this date
+        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-20, date);
+      }
+
+      // PENALTY: All tasks failed
+      if (allTasksFailed && !hasTaskPenaltyForDate) {
+        await userProvider.updateDisciplinePoints(-2);
+        await userProvider.setLastTaskPenaltyDate(date);
+        LogService.debug('Applied daily task DP penalty! (-2)');
+
+        await TaskLogProvider().addSystemLog(TaskLogModel(
+          id: DateTime.now().millisecondsSinceEpoch + 1,
+          taskId: -21, // Daily Task Penalty
+          logDate: date,
+          taskTitle: 'Daily Task Penalty',
+          status: TaskStatusEnum.FAILED,
+        ));
+      } else if (!allTasksFailed && hasTaskPenaltyForDate) {
+        // REVOKE PENALTY
+        await userProvider.updateDisciplinePoints(2);
+        await userProvider.setLastTaskPenaltyDate(null);
+        LogService.debug('Revoked daily task DP penalty! (+2)');
+
+        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-21, date);
       }
     }
   }

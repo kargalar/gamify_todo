@@ -670,6 +670,8 @@
     "CompletedAllRoutines": "Completed All Routines (Daily)",
     "HowToLoseDP": "How to Lose Points?",
     "FailedTaskOrRoutine": "Task / Routine Failure",
+    "FailedAllTasks": "Failed All Tasks (Daily)",
+    "FailedAllRoutines": "Failed All Routines (Daily)",
     "CurrentDP": "Current Points: {} DP",
     "GotIt": "Got It",
     "LevelReckless": "Reckless",
