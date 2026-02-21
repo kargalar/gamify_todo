@@ -20,3 +20,7 @@ NOTE: bildirimleri de buna göre güncellemelisin
 
 
 yeni template oluşturduktan sonra task add task page den çıkmıyor save deyidikten sonra
+
+
+
+release modda homscreen widget yok. ben bir ara böyle ayarlamıtım şimdi düzeltmek istiyorum. düzelt.

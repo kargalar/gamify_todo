@@ -39,6 +39,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/daily_streak_model.dart';
+import 'package:archive/archive_io.dart';
+import 'package:path/path.dart' as path;
 
 class HiveService {
   // TODO: singleton yap ve shared pefi de buradan çağır ??
@@ -555,13 +557,12 @@ class HiveService {
     try {
       final now = DateTime.now();
       final fileName = 'gamify_todo_backup_${now.year}${now.month}${now.day}_${now.hour}${now.minute}.json';
-      late final String filePath;
+      String filePath;
 
       // Get application documents directory
       final directory = await getApplicationDocumentsDirectory();
       filePath = '${directory.path}/$fileName';
 
-      final file = File(filePath);
       final Map<String, dynamic> allData = {};
 
       // Export users
@@ -636,6 +637,15 @@ class HiveService {
       }
       allData["projects"] = projectMap;
 
+      // Export Daily Streaks
+      final dailyStreakBox = await _dailyStreakBox;
+      final dailyStreakMap = {};
+      for (var key in dailyStreakBox.keys) {
+        final streak = dailyStreakBox.get(key);
+        if (streak != null) dailyStreakMap[key.toString()] = streak.toJson();
+      }
+      allData[_dailyStreakBoxName] = dailyStreakMap;
+
       // Export notes
       final notes = await NotesService().getNotes();
       final noteMap = {};
@@ -689,13 +699,45 @@ class HiveService {
       allData["SharedPreferances"] = sharedPrefsMap;
 
       final jsonString = jsonEncode(allData);
-      await file.writeAsString(jsonString);
+
+      // Create a temporary directory for grouping files into zip
+      final tempDir = Directory('${directory.path}/temp_gamify_export_${DateTime.now().millisecondsSinceEpoch}');
+      await tempDir.create();
+
+      // Write JSON backup
+      final jsonFile = File('${tempDir.path}/gamify_todo_backup.json');
+      await jsonFile.writeAsString(jsonString);
+
+      // Create attachments folder inside the temp dir and copy files
+      final tempAttachmentsDir = Directory('${tempDir.path}/attachments');
+      await tempAttachmentsDir.create();
+      final actualAttachmentsDir = await FileStorageService.instance.getAttachmentsDirectory();
+
+      if (await actualAttachmentsDir.exists()) {
+        final attachmentFiles = actualAttachmentsDir.listSync();
+        for (var fileEntity in attachmentFiles) {
+          if (fileEntity is File) {
+            String fileName = path.basename(fileEntity.path);
+            await fileEntity.copy('${tempAttachmentsDir.path}/$fileName');
+          }
+        }
+      }
+
+      // Encode the directory into a zip file
+      var encoder = ZipFileEncoder();
+      filePath = '${directory.path}/$fileName.zip';
+      encoder.create(filePath);
+      encoder.addDirectory(tempDir);
+      encoder.close();
+
+      // Clean up the temporary directory
+      await tempDir.delete(recursive: true);
 
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(filePath)],
           text: 'Gamify Todo Backup',
-          subject: 'Backup File',
+          subject: 'Gamify Todo Backup Archive',
         ),
       );
       LogService.debug('File Shared: $filePath');
@@ -717,13 +759,13 @@ class HiveService {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['json'],
+        allowedExtensions: ['zip'],
       );
 
       if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
+        final zipFile = File(result.files.single.path!);
 
-        if (await file.exists()) {
+        if (await zipFile.exists()) {
           // Show loading dialog
           Get.dialog(
             LoadingDialog(
@@ -733,11 +775,59 @@ class HiveService {
             barrierDismissible: false,
           );
 
-          final content = await file.readAsString();
+          // Get temp directory for extraction
+          final directory = await getApplicationDocumentsDirectory();
+          final tempExtractDir = Directory('${directory.path}/temp_gamify_import_${DateTime.now().millisecondsSinceEpoch}');
+          await tempExtractDir.create();
+
+          // Extract the zip file
+          final bytes = await zipFile.readAsBytes();
+          final archive = ZipDecoder().decodeBytes(bytes);
+
+          for (final file in archive) {
+            final filename = file.name;
+            if (file.isFile) {
+              final data = file.content as List<int>;
+              File('${tempExtractDir.path}/$filename')
+                ..createSync(recursive: true)
+                ..writeAsBytesSync(data);
+            } else {
+              Directory('${tempExtractDir.path}/$filename').createSync(recursive: true);
+            }
+          }
+
+          // Locate the JSON backup file
+          final jsonFile = File('${tempExtractDir.path}/gamify_todo_backup.json');
+          if (!await jsonFile.exists()) {
+            await tempExtractDir.delete(recursive: true);
+            throw Exception('Backup JSON file not found in the archive.');
+          }
+
+          final content = await jsonFile.readAsString();
           final Map<String, dynamic> allData = jsonDecode(content);
 
           // Clear existing data first (this will also clear SharedPreferences)
           await deleteAllData(isImport: true);
+
+          // Restore attachments
+          final tempAttachmentsDir = Directory('${tempExtractDir.path}/attachments');
+          if (await tempAttachmentsDir.exists()) {
+            final actualAttachmentsDir = await FileStorageService.instance.getAttachmentsDirectory();
+            if (!await actualAttachmentsDir.exists()) {
+              await actualAttachmentsDir.create(recursive: true);
+            }
+
+            final attachmentFiles = tempAttachmentsDir.listSync();
+            for (var fileEntity in attachmentFiles) {
+              if (fileEntity is File) {
+                String fileName = path.basename(fileEntity.path);
+                await fileEntity.copy('${actualAttachmentsDir.path}/$fileName');
+              }
+            }
+          }
+
+          // Cleanup temp extraction directory
+          await tempExtractDir.delete(recursive: true);
 
           // Import users
           final userBox = await _userBox;
@@ -817,6 +907,17 @@ class HiveService {
               await ProjectsService().addProject(project);
             }
             await ProjectsProvider().loadProjects();
+          }
+
+          // Import Daily Streaks if they exist
+          final dailyStreakBox = await _dailyStreakBox;
+          if (allData.containsKey(_dailyStreakBoxName)) {
+            final streakData = allData[_dailyStreakBoxName] as Map<String, dynamic>;
+            for (var entry in streakData.entries) {
+              final streak = DailyStreakModel.fromJson(entry.value);
+              await dailyStreakBox.put(entry.key, streak);
+            }
+            LogService.debug('✅ Imported ${streakData.length} daily streaks');
           }
 
           // Import notes if they exist

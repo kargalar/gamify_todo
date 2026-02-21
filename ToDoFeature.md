@@ -1,5 +1,4 @@
-attachments ve tema geçici olarak kaldırıldı
-export zip oalrak dosyalarla birlikte verilecek
+tema geçici olarak kaldırıldı
 
 rutinin veya taskın type değiştirilebilsin.
     rutinlerlde gelecek rutinlerin hemen deiştirilir ama ilerlemes oan bir task nıasl olur. o da ilerlemeyi fıtrılayarak çok güzel olur.

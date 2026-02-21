@@ -14,6 +14,7 @@ import 'package:next_level/Page/Home/Add%20Task/Widget/pin_task_switch.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_task_type.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/select_target_count.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/task_name.dart';
+import 'package:next_level/Page/Home/Add%20Task/Widget/file_attachment_widget.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:next_level/Widgets/Common/log_bottom_sheet.dart';
 
@@ -390,9 +391,8 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
                     const CompactTraitOptions(),
                     const SizedBox(height: 10),
                     // File attachment widget
-                    // !!! geçcici oalrak kaldırıldı
-                    // const FileAttachmentWidget(),
-                    // const SizedBox(height: 10),
+                    const FileAttachmentWidget(),
+                    const SizedBox(height: 10),
 
                     // Add Recent Logs section for edit task (not for template mode)
                     if (addTaskProvider.editTask != null && _taskDetailViewModel != null && !widget.isTemplateMode)
