@@ -364,42 +364,73 @@ class Helper {
     Color selectedColor = AppColors.main;
 
     final List<Color> colors = [
-      Colors.red,
-      Colors.green,
-      Colors.blue,
-      Colors.yellow,
-      Colors.purple,
-      Colors.orange,
-      Colors.pink,
-      Colors.teal,
-      Colors.brown,
-      Colors.grey,
+      AppColors.main,
+      AppColors.red,
+      AppColors.orange,
+      AppColors.orange2,
+      AppColors.yellow,
+      AppColors.green,
+      AppColors.blue,
+      AppColors.purple,
+      AppColors.deepPurple,
+      AppColors.pink,
+      const Color(0xFF009688), // teal
+      const Color(0xFF3F51B5), // indigo
+      const Color(0xFF795548), // brown
+      const Color(0xFF9E9E9E), // grey
+      const Color(0xFF607D8B), // blueGrey
     ];
 
     await Get.dialog(
       AlertDialog(
-        content: Wrap(
-          children: List.generate(
-            colors.length,
-            (index) => InkWell(
-              borderRadius: AppColors.borderRadiusAll,
-              onTap: () {
-                selectedColor = colors[index];
-                Get.back();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: colors[index],
-                    borderRadius: AppColors.borderRadiusAll,
-                  ),
-                ),
+        contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              LocaleKeys.SelectColor.tr(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
               ),
             ),
-          ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: colors.map((color) {
+                return GestureDetector(
+                  onTap: () {
+                    selectedColor = color;
+                    Get.back();
+                  },
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          color.withValues(alpha: 0.9),
+                          color,
+                        ],
+                        center: const Alignment(-0.3, -0.3),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ),
       ),
     );

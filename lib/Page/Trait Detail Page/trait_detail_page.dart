@@ -174,8 +174,6 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
         slivers: [
           // Elegant Sliver App Bar
           SliverAppBar(
-            pinned: true,
-            expandedHeight: 120,
             backgroundColor: AppColors.panelBackground,
             elevation: 0,
             leading: IconButton(
@@ -213,17 +211,6 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
               ),
               const SizedBox(width: 8),
             ],
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
-              title: Text(
-                '${widget.traitModel.title} Detail',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.text,
-                  fontSize: 20,
-                ),
-              ),
-            ),
           ),
 
           // Main Content
