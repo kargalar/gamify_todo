@@ -1,5 +1,6 @@
 package app.nextlevel
 
+
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -38,7 +39,7 @@ class TaskWidgetProvider : AppWidgetProvider() {
                 android.util.Log.d("TaskWidgetProvider", "=== WIDGET UPDATE ===")
                 android.util.Log.d("TaskWidgetProvider", "Task count: $taskCount")
 
-                // Header: show "Today" and task count
+                // Header
                 views.setTextViewText(R.id.header_text, "Today")
                 val countLabel = if (taskCount == 1) "$taskCount task" else "$taskCount tasks"
                 views.setTextViewText(R.id.task_count_text, countLabel)
@@ -50,7 +51,6 @@ class TaskWidgetProvider : AppWidgetProvider() {
                     views.setViewVisibility(R.id.empty_state, View.VISIBLE)
                     views.setTextViewText(R.id.empty_state, "🎉 No tasks for today!")
                 } else {
-                    // Bind ListView to RemoteViewsService for display-only list
                     val svcIntent = Intent(context, TaskWidgetService::class.java)
                     svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     svcIntent.data = Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME))

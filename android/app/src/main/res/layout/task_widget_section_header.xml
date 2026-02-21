@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="SECTION"
-        android:textColor="#7070A0"
+        android:textColor="#606060"
         android:textSize="10sp"
         android:textStyle="bold"
         android:letterSpacing="0.15" />

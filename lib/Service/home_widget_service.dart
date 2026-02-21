@@ -29,6 +29,7 @@ class HomeWidgetService {
   static const String taskDetailsKey = 'taskDetails';
   static const String totalWorkSecKey = 'totalWorkSec';
   static const String widgetEventSeqKey = 'widget_event_seq';
+
   static Timer? _midnightTimer;
   static Timer? _eventTimer;
   static int? _lastEventSeq;
@@ -122,12 +123,16 @@ class HomeWidgetService {
 
       // Helper to build task detail map
       Map<String, dynamic> buildTaskDetail(TaskModel task, String section) {
+        String statusStr = '';
+        if (task.status == TaskStatusEnum.DONE) statusStr = 'DONE';
+        if (task.status == TaskStatusEnum.FAILED) statusStr = 'FAILED';
+        if (task.status == TaskStatusEnum.OVERDUE) statusStr = 'OVERDUE';
         return {
           'id': task.id,
           'title': task.title,
           'type': task.type.toString().split('.').last,
           'section': section,
-          'isDone': task.status == TaskStatusEnum.DONE,
+          'status': statusStr,
           'currentCount': task.currentCount ?? 0,
           'targetCount': task.targetCount ?? 0,
           'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
