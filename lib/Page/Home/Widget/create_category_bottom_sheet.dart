@@ -8,8 +8,10 @@ import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/add_task_provider.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
-import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Widgets/Common/color_picker_row.dart';
+import 'package:next_level/Widgets/Common/icon_picker_grid.dart';
+import 'package:provider/provider.dart';
 
 class CreateCategoryBottomSheet extends StatefulWidget {
   final CategoryModel? categoryModel;
@@ -26,52 +28,56 @@ class CreateCategoryBottomSheet extends StatefulWidget {
 }
 
 class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
-  final TextEditingController categoryTitleController = TextEditingController();
-  Color selectedColor = AppColors.main;
-  CategoryType selectedCategoryType = CategoryType.task;
-  IconData selectedIcon = Icons.category;
+  final TextEditingController _titleController = TextEditingController();
+  Color _selectedColor = AppColors.main;
+  CategoryType _selectedCategoryType = CategoryType.task;
+  IconData _selectedIcon = Icons.category;
+
+  bool get _isEditing => widget.categoryModel != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.categoryModel != null) {
-      categoryTitleController.text = widget.categoryModel!.title;
-      selectedColor = widget.categoryModel!.color;
-      selectedCategoryType = widget.categoryModel!.categoryType;
+    if (_isEditing) {
+      _titleController.text = widget.categoryModel!.title;
+      _selectedColor = widget.categoryModel!.color;
+      _selectedCategoryType = widget.categoryModel!.categoryType;
       if (widget.categoryModel!.iconCodePoint != null) {
-        selectedIcon = CategoryIcons.getIconByCodePoint(widget.categoryModel!.iconCodePoint!) ?? Icons.category;
+        _selectedIcon = CategoryIcons.getIconByCodePoint(widget.categoryModel!.iconCodePoint!) ?? Icons.category;
       }
     } else if (widget.initialCategoryType != null) {
-      selectedCategoryType = widget.initialCategoryType!;
-      LogService.debug('🎨 CreateCategoryBottomSheet: Initial category type set to: $selectedCategoryType');
+      _selectedCategoryType = widget.initialCategoryType!;
+      LogService.debug('🎨 CreateCategoryBottomSheet: Initial category type set to: $_selectedCategoryType');
     } else {
-      LogService.debug('⚠️ CreateCategoryBottomSheet: No initial category type provided, using default: $selectedCategoryType');
+      LogService.debug('⚠️ CreateCategoryBottomSheet: No initial category type provided, using default: $_selectedCategoryType');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return Container(
       padding: EdgeInsets.only(
-        top: 20,
+        top: 16,
         left: 20,
         right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: bottomInset + 20,
       ),
       decoration: BoxDecoration(
         color: AppColors.background,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        border: const Border(
-          top: BorderSide(color: AppColors.dirtyWhite),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        border: Border(
+          top: BorderSide(
+            color: _selectedColor.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
+            color: _selectedColor.withValues(alpha: 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, -8),
           ),
         ],
       ),
@@ -80,348 +86,245 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Handle bar
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.text.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-
-            // Header
-            Row(
-              children: [
-                Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: selectedColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  widget.categoryModel == null ? LocaleKeys.CreateCategory.tr() : LocaleKeys.EditCategory.tr(),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Category Name Input
-            TextField(
-              controller: categoryTitleController,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: LocaleKeys.CategoryName.tr(),
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade200),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade200),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: selectedColor),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Color Picker Label
-            Text(
-              LocaleKeys.SelectColor.tr(),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            _buildHandle(),
             const SizedBox(height: 12),
-
-            // Color Picker
-            _buildColorPicker(),
+            _buildHeader(),
             const SizedBox(height: 20),
-
-            // Icon Picker Label
-            Text(
-              LocaleKeys.SelectIcon.tr(),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Icon Picker
-            _buildIconPicker(),
+            _buildNameField(),
             const SizedBox(height: 24),
-
-            // Action Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // Delete Button (only for editing)
-                if (widget.categoryModel != null)
-                  TextButton.icon(
-                    onPressed: () {
-                      // Show confirmation dialog
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(LocaleKeys.Delete.tr()),
-                          content: Text(LocaleKeys.DeleteCategoryConfirmation.tr()),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(LocaleKeys.Cancel.tr()),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                Navigator.pop(context); // Close dialog
-                                LogService.debug('🗑️ CreateCategoryBottomSheet: Deleting category ${widget.categoryModel!.id}');
-                                await context.read<CategoryProvider>().deleteCategory(widget.categoryModel!);
-                                LogService.debug('✅ CreateCategoryBottomSheet: Category deleted, closing bottom sheet');
-                                if (context.mounted) {
-                                  Navigator.pop(context, true); // Close bottom sheet and return true to indicate deletion
-                                }
-                              },
-                              child: Text(
-                                LocaleKeys.Delete.tr(),
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    label: Text(
-                      LocaleKeys.Delete.tr(),
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                const Spacer(),
-                // Cancel Button
-                OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.grey.shade300),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  child: Text(LocaleKeys.Cancel.tr()),
-                ),
-                const SizedBox(width: 12),
-                // Save Button
-                ElevatedButton(
-                  onPressed: _saveCategory,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: selectedColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  child: Text(LocaleKeys.Save.tr()),
-                ),
-              ],
+            _buildSectionLabel(LocaleKeys.SelectColor.tr()),
+            const SizedBox(height: 10),
+            ColorPickerRow(
+              selectedColor: _selectedColor,
+              onColorSelected: (color) => setState(() => _selectedColor = color),
             ),
+            const SizedBox(height: 24),
+            _buildSectionLabel(LocaleKeys.SelectIcon.tr()),
+            const SizedBox(height: 10),
+            IconPickerGrid(
+              selectedIcon: _selectedIcon,
+              accentColor: _selectedColor,
+              onIconSelected: (icon) => setState(() => _selectedIcon = icon),
+            ),
+            const SizedBox(height: 28),
+            _buildActionButtons(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildColorPicker() {
-    final List<Color> colors = [
-      AppColors.main,
-      AppColors.red,
-      AppColors.orange,
-      AppColors.orange2,
-      AppColors.yellow,
-      AppColors.green,
-      AppColors.blue,
-      AppColors.purple,
-      AppColors.deepPurple,
-      AppColors.pink,
-      Colors.teal,
-      Colors.indigo,
-      Colors.brown,
-      Colors.grey,
-      Colors.blueGrey,
-    ];
-
-    return SizedBox(
-      height: 50,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: colors.map((color) {
-          final isSelected = selectedColor == color;
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedColor = color;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: isSelected ? 50 : 40,
-                height: isSelected ? 50 : 40,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? Colors.white : Colors.transparent,
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    if (isSelected)
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.4),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                  ],
-                ),
-                child: isSelected
-                    ? const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 20,
-                      )
-                    : null,
-              ),
-            ),
-          );
-        }).toList(),
+  Widget _buildHandle() {
+    return Center(
+      child: Container(
+        width: 36,
+        height: 4,
+        decoration: BoxDecoration(
+          color: AppColors.text.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(2),
+        ),
       ),
     );
   }
 
-  Widget _buildIconPicker() {
-    final List<IconData> icons = [
-      Icons.category,
-      Icons.work,
-      Icons.home,
-      Icons.school,
-      Icons.shopping_cart,
-      Icons.fitness_center,
-      Icons.restaurant,
-      Icons.local_cafe,
-      Icons.flight,
-      Icons.beach_access,
-      Icons.music_note,
-      Icons.movie,
-      Icons.sports_soccer,
-      Icons.pets,
-      Icons.favorite,
-      Icons.star,
-      Icons.lightbulb,
-      Icons.palette,
-      Icons.code,
-      Icons.computer,
-      Icons.phone,
-      Icons.email,
-      Icons.chat,
-      Icons.notifications,
-      Icons.calendar_today,
-      Icons.event,
-      Icons.alarm,
-      Icons.access_time,
-      Icons.attach_money,
-      Icons.account_balance,
-      Icons.credit_card,
-      Icons.local_hospital,
-      Icons.medical_services,
-      Icons.healing,
-      Icons.directions_car,
-      Icons.directions_bike,
-      Icons.directions_bus,
-      Icons.train,
-      Icons.local_shipping,
-      Icons.book,
-      Icons.menu_book,
-      Icons.library_books,
-      Icons.article,
-      Icons.description,
-      Icons.folder,
-      Icons.folder_open,
-      Icons.insert_drive_file,
-      Icons.cloud,
-      Icons.cloud_upload,
-      Icons.cloud_download,
-    ];
-
-    // 2 satır için GridView kullan
-    return SizedBox(
-      height: 110, // 2 satır için yeterli yükseklik
-      child: GridView.builder(
-        scrollDirection: Axis.horizontal,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2 satır
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 1, // Kare şeklinde
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        // Animated color preview with icon
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                _selectedColor.withValues(alpha: 0.3),
+                _selectedColor.withValues(alpha: 0.1),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _selectedColor.withValues(alpha: 0.4),
+            ),
+          ),
+          child: Icon(
+            _selectedIcon,
+            color: _selectedColor,
+            size: 20,
+          ),
         ),
-        itemCount: icons.length,
-        itemBuilder: (context, index) {
-          final icon = icons[index];
-          final isSelected = selectedIcon.codePoint == icon.codePoint;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedIcon = icon;
-              });
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              decoration: BoxDecoration(
-                color: isSelected ? selectedColor.withValues(alpha: 0.2) : AppColors.panelBackground,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected ? selectedColor : Colors.grey.shade300,
-                  width: isSelected ? 2 : 1,
-                ),
-                boxShadow: [
-                  if (isSelected)
-                    BoxShadow(
-                      color: selectedColor.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                ],
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            _isEditing ? LocaleKeys.EditCategory.tr() : LocaleKeys.CreateCategory.tr(),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ),
+        if (_isEditing) _buildDeleteButton(),
+      ],
+    );
+  }
+
+  Widget _buildSectionLabel(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: AppColors.text.withValues(alpha: 0.5),
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
+  Widget _buildNameField() {
+    return TextField(
+      controller: _titleController,
+      textCapitalization: TextCapitalization.sentences,
+      style: const TextStyle(fontSize: 15),
+      decoration: InputDecoration(
+        hintText: LocaleKeys.CategoryName.tr(),
+        hintStyle: TextStyle(
+          color: AppColors.text.withValues(alpha: 0.3),
+        ),
+        filled: true,
+        fillColor: AppColors.panelBackground,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: AppColors.panelBackground2.withValues(alpha: 0.5),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: _selectedColor.withValues(alpha: 0.6),
+            width: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _confirmDelete,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.red.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(
+            Icons.delete_outline_rounded,
+            color: AppColors.red,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        // Cancel
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(
+                color: AppColors.panelBackground2.withValues(alpha: 0.6),
               ),
-              child: Icon(
-                icon,
-                color: isSelected ? selectedColor : AppColors.text,
-                size: isSelected ? 24 : 20,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: Text(
+              LocaleKeys.Cancel.tr(),
+              style: TextStyle(
+                color: AppColors.text.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w600,
               ),
             ),
-          );
-        },
+          ),
+        ),
+        const SizedBox(width: 12),
+        // Save
+        Expanded(
+          flex: 2,
+          child: ElevatedButton(
+            onPressed: _saveCategory,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _selectedColor,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: Text(
+              LocaleKeys.Save.tr(),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(LocaleKeys.Delete.tr()),
+        content: Text(LocaleKeys.DeleteCategoryConfirmation.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(LocaleKeys.Cancel.tr()),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              LogService.debug('🗑️ CreateCategoryBottomSheet: Deleting category ${widget.categoryModel!.id}');
+              await context.read<CategoryProvider>().deleteCategory(widget.categoryModel!);
+              LogService.debug('✅ CreateCategoryBottomSheet: Category deleted, closing bottom sheet');
+              if (context.mounted) {
+                Navigator.pop(context, true);
+              }
+            },
+            child: Text(
+              LocaleKeys.Delete.tr(),
+              style: const TextStyle(color: AppColors.red),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Future<void> _saveCategory() async {
-    if (categoryTitleController.text.trim().isEmpty) {
+    if (_titleController.text.trim().isEmpty) {
       Helper().getMessage(
         message: LocaleKeys.CategoryNameEmpty.tr(),
         status: StatusEnum.WARNING,
@@ -431,18 +334,16 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
 
     final categoryProvider = context.read<CategoryProvider>();
 
-    if (widget.categoryModel == null) {
-      // Create new category
+    if (!_isEditing) {
       final newCategory = CategoryModel(
         id: '',
-        title: categoryTitleController.text.trim(),
-        colorValue: selectedColor.toARGB32(),
-        iconCodePoint: selectedIcon.codePoint,
-        categoryType: selectedCategoryType,
+        title: _titleController.text.trim(),
+        colorValue: _selectedColor.toARGB32(),
+        iconCodePoint: _selectedIcon.codePoint,
+        categoryType: _selectedCategoryType,
       );
       LogService.debug('🆕 CreateCategoryBottomSheet: Creating new category: ${newCategory.title}, type: ${newCategory.categoryType}');
 
-      // Add category to provider
       try {
         await categoryProvider.addCategory(newCategory);
         LogService.debug('✅ CreateCategoryBottomSheet: Category added to provider');
@@ -457,26 +358,22 @@ class _CreateCategoryBottomSheetState extends State<CreateCategoryBottomSheet> {
         return;
       }
 
-      // Auto-select the newly created category
       if (mounted) {
         final addTaskProvider = Provider.of<AddTaskProvider>(context, listen: false);
         addTaskProvider.updateCategory(newCategory.id);
       }
 
-      // Return the newly created category
       if (mounted) {
         Navigator.pop(context, newCategory);
       }
     } else {
-      // Update existing category (categoryType DEĞİŞTİRİLMEZ)
-      widget.categoryModel!.title = categoryTitleController.text.trim();
-      widget.categoryModel!.colorValue = selectedColor.toARGB32();
-      widget.categoryModel!.iconCodePoint = selectedIcon.codePoint;
-      // categoryType is not changed - stays as it was created on which page
+      widget.categoryModel!.title = _titleController.text.trim();
+      widget.categoryModel!.colorValue = _selectedColor.toARGB32();
+      widget.categoryModel!.iconCodePoint = _selectedIcon.codePoint;
       await categoryProvider.updateCategory(widget.categoryModel!);
 
       if (mounted) {
-        Navigator.pop(context, false); // false = kategori güncellendi
+        Navigator.pop(context, false);
       }
     }
   }
