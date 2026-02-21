@@ -1,4 +1,6 @@
 Analyzing gamify_todo...                                        
 
-   info - The imported package 'collection' isn't a dependency of the importing package - lib\Provider\daily_streak_provider.dart:2:8 - depend_on_referenced_packages
+  error - The getter 'cardBackground' isn't defined for the type 'AppColors' - lib\Widgets\Projects\expandable_project_card.dart:322:46 - undefined_getter
+  error - The getter 'cardBackground' isn't defined for the type 'AppColors' - lib\Widgets\Projects\expandable_project_card.dart:361:40 - undefined_getter
+  error - The getter 'dividerColor' isn't defined for the type 'AppColors' - lib\Widgets\Projects\expandable_project_card.dart:364:42 - undefined_getter
 

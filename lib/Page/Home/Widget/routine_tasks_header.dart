@@ -381,7 +381,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                     itemBuilder: (context, index) {
                       final task = widget.routineTasks[index];
                       return ReorderableDelayedDragStartListener(
-                        key: ValueKey(task.key),
+                        key: ValueKey('routine_${task.id}'),
                         index: index,
                         child: TaskItem(
                           taskModel: task,

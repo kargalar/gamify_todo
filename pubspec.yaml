@@ -127,6 +127,7 @@ dependencies:
 
   # Wakelock
   wakelock_plus: ^1.2.8
+  collection: ^1.19.1
   
 
 

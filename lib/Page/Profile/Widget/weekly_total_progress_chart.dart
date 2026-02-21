@@ -16,6 +16,8 @@ import 'package:next_level/Model/task_log_model.dart';
 // Displays total time spent on all tasks per day
 // Data shows a single line representing total work time per day
 
+enum ChartType { xp, dp }
+
 enum ProgressPeriod { week, month, year }
 
 class WeeklyTotalProgressChart extends StatefulWidget {
@@ -27,6 +29,7 @@ class WeeklyTotalProgressChart extends StatefulWidget {
 
 class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
   ProgressPeriod _period = ProgressPeriod.week;
+  ChartType _chartType = ChartType.xp;
   int _pageOffset = 0;
 
   String _getDateRangeLabel() {
@@ -49,7 +52,7 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
     }
   }
 
-  Map<DateTime, Duration> _aggregateDaily(DateTime start, DateTime endInclusive) {
+  Map<DateTime, Duration> _aggregateDailyXP(DateTime start, DateTime endInclusive) {
     Map<DateTime, Duration> totals = {};
     List<TaskLogModel> logs = TaskLogProvider().taskLogList;
     Set<String> processedTaskDates = {};
@@ -83,14 +86,34 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
     return totals;
   }
 
-  Map<DateTime, Duration> _weeklyData() {
+  Map<DateTime, int> _aggregateDailyDP(DateTime start, DateTime endInclusive) {
+    Map<DateTime, int> totals = {};
+    List<TaskLogModel> logs = TaskLogProvider().taskLogList;
+    for (var log in logs) {
+      if (log.logDate.isBefore(start) || log.logDate.isAfter(endInclusive)) continue;
+      DateTime dateKey = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
+      totals[dateKey] ??= 0;
+      if (log.taskId == -10) {
+        totals[dateKey] = totals[dateKey]! + 5;
+      } else if (log.taskId == -20) {
+        totals[dateKey] = totals[dateKey]! + 2;
+      } else if (log.status == TaskStatusEnum.DONE) {
+        totals[dateKey] = totals[dateKey]! + 1;
+      } else if (log.status == TaskStatusEnum.FAILED) {
+        totals[dateKey] = totals[dateKey]! - 1;
+      }
+    }
+    return totals;
+  }
+
+  Map<DateTime, Duration> _weeklyDataXP() {
     DateTime now = DateTime.now();
     DateTime monday = now.subtract(Duration(days: now.weekday - 1));
     monday = monday.add(Duration(days: _pageOffset * 7));
     monday = DateTime(monday.year, monday.month, monday.day);
     DateTime sunday = monday.add(const Duration(days: 6));
 
-    var data = _aggregateDaily(monday, DateTime(sunday.year, sunday.month, sunday.day, 23, 59, 59));
+    var data = _aggregateDailyXP(monday, DateTime(sunday.year, sunday.month, sunday.day, 23, 59, 59));
 
     // Fill gaps
     for (int i = 0; i < 7; i++) {
@@ -100,12 +123,29 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
     return data;
   }
 
-  Map<DateTime, Duration> _monthlyData() {
+  Map<DateTime, int> _weeklyDataDP() {
+    DateTime now = DateTime.now();
+    DateTime monday = now.subtract(Duration(days: now.weekday - 1));
+    monday = monday.add(Duration(days: _pageOffset * 7));
+    monday = DateTime(monday.year, monday.month, monday.day);
+    DateTime sunday = monday.add(const Duration(days: 6));
+
+    var data = _aggregateDailyDP(monday, DateTime(sunday.year, sunday.month, sunday.day, 23, 59, 59));
+
+    // Fill gaps
+    for (int i = 0; i < 7; i++) {
+      DateTime day = monday.add(Duration(days: i));
+      data.putIfAbsent(DateTime(day.year, day.month, day.day), () => 0);
+    }
+    return data;
+  }
+
+  Map<DateTime, Duration> _monthlyDataXP() {
     DateTime now = DateTime.now();
     DateTime first = DateTime(now.year, now.month + _pageOffset, 1);
     DateTime last = DateTime(first.year, first.month + 1, 0);
 
-    var data = _aggregateDaily(first, DateTime(last.year, last.month, last.day, 23, 59, 59));
+    var data = _aggregateDailyXP(first, DateTime(last.year, last.month, last.day, 23, 59, 59));
 
     // Fill gaps
     int daysInMonth = last.day;
@@ -116,7 +156,23 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
     return data;
   }
 
-  Map<DateTime, Duration> _yearlyMonthlyData() {
+  Map<DateTime, int> _monthlyDataDP() {
+    DateTime now = DateTime.now();
+    DateTime first = DateTime(now.year, now.month + _pageOffset, 1);
+    DateTime last = DateTime(first.year, first.month + 1, 0);
+
+    var data = _aggregateDailyDP(first, DateTime(last.year, last.month, last.day, 23, 59, 59));
+
+    // Fill gaps
+    int daysInMonth = last.day;
+    for (int i = 0; i < daysInMonth; i++) {
+      DateTime day = first.add(Duration(days: i));
+      data.putIfAbsent(DateTime(day.year, day.month, day.day), () => 0);
+    }
+    return data;
+  }
+
+  Map<DateTime, Duration> _yearlyMonthlyDataXP() {
     DateTime now = DateTime.now();
     Map<DateTime, Duration> monthTotals = {};
     List<TaskLogModel> logs = TaskLogProvider().taskLogList;
@@ -155,14 +211,50 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
     return monthTotals;
   }
 
-  Map<DateTime, Duration> _currentData() {
-    switch (_period) {
-      case ProgressPeriod.week:
-        return _weeklyData();
-      case ProgressPeriod.month:
-        return _monthlyData();
-      case ProgressPeriod.year:
-        return _yearlyMonthlyData();
+  Map<DateTime, int> _yearlyMonthlyDataDP() {
+    DateTime now = DateTime.now();
+    Map<DateTime, int> monthTotals = {};
+    List<TaskLogModel> logs = TaskLogProvider().taskLogList;
+    int targetYear = now.year + _pageOffset;
+    for (var log in logs) {
+      if (log.logDate.year != targetYear) continue;
+      DateTime monthKey = DateTime(log.logDate.year, log.logDate.month, 1);
+      monthTotals[monthKey] ??= 0;
+      if (log.taskId == -10) {
+        monthTotals[monthKey] = monthTotals[monthKey]! + 5;
+      } else if (log.taskId == -20) {
+        monthTotals[monthKey] = monthTotals[monthKey]! + 2;
+      } else if (log.status == TaskStatusEnum.DONE) {
+        monthTotals[monthKey] = monthTotals[monthKey]! + 1;
+      } else if (log.status == TaskStatusEnum.FAILED) {
+        monthTotals[monthKey] = monthTotals[monthKey]! - 1;
+      }
+    }
+    for (int m = 1; m <= 12; m++) {
+      monthTotals.putIfAbsent(DateTime(targetYear, m, 1), () => 0);
+    }
+    return monthTotals;
+  }
+
+  dynamic _currentData() {
+    if (_chartType == ChartType.xp) {
+      switch (_period) {
+        case ProgressPeriod.week:
+          return _weeklyDataXP();
+        case ProgressPeriod.month:
+          return _monthlyDataXP();
+        case ProgressPeriod.year:
+          return _yearlyMonthlyDataXP();
+      }
+    } else {
+      switch (_period) {
+        case ProgressPeriod.week:
+          return _weeklyDataDP();
+        case ProgressPeriod.month:
+          return _monthlyDataDP();
+        case ProgressPeriod.year:
+          return _yearlyMonthlyDataDP();
+      }
     }
   }
 
@@ -170,12 +262,64 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
   Widget build(BuildContext context) {
     // keep viewModel read for potential future use
     context.read<ProfileViewModel>();
-    final totalDurations = _currentData();
-    Duration totalDuration = totalDurations.values.fold(Duration.zero, (p, c) => p + c);
-    // Saniyeleri kaldır: sadece saat ve dakika (veya sadece dakika)
-    final int h = totalDuration.inHours;
-    final int m = totalDuration.inMinutes.remainder(60);
-    String durationText = h > 0 ? "$h${LocaleKeys.h.tr()} $m${LocaleKeys.m.tr()}" : "$m${LocaleKeys.m.tr()}";
+    final totalData = _currentData();
+
+    Widget headerInfo;
+    if (_chartType == ChartType.xp) {
+      Duration totalDuration = (totalData as Map<DateTime, Duration>).values.fold(Duration.zero, (p, c) => p + c);
+      final int h = totalDuration.inHours;
+      final int m = totalDuration.inMinutes.remainder(60);
+      String durationText = h > 0 ? "$h${LocaleKeys.h.tr()} $m${LocaleKeys.m.tr()}" : "$m${LocaleKeys.m.tr()}";
+
+      headerInfo = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _getDateRangeLabel(),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            durationText,
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      );
+    } else {
+      int totalDP = (totalData as Map<DateTime, int>).values.fold(0, (p, c) => p + c);
+      String sign = totalDP > 0 ? '+' : '';
+
+      headerInfo = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _getDateRangeLabel(),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$sign$totalDP DP',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -203,42 +347,41 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
         children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              headerInfo,
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    _getDateRangeLabel(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _ChartTypeSwitcher(
+                      chartType: _chartType,
+                      onChanged: (ct) => setState(() {
+                        _chartType = ct;
+                      }),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    durationText,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _PeriodSwitcher(
+                      period: _period,
+                      onChanged: (p) => setState(() {
+                        _period = p;
+                        _pageOffset = 0;
+                      }),
                     ),
                   ),
                 ],
-              ),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: _PeriodSwitcher(
-                  period: _period,
-                  onChanged: (p) => setState(() {
-                    _period = p;
-                    _pageOffset = 0;
-                  }),
-                ),
               ),
             ],
           ),
@@ -259,11 +402,56 @@ class _WeeklyTotalProgressChartState extends State<WeeklyTotalProgressChart> {
                   });
                 }
               },
-              child: _ProgressBarChart(period: _period, data: totalDurations),
+              child: _ProgressBarChart(
+                period: _period,
+                chartType: _chartType,
+                data: totalData,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ChartTypeSwitcher extends StatelessWidget {
+  final ChartType chartType;
+  final ValueChanged<ChartType> onChanged;
+  const _ChartTypeSwitcher({required this.chartType, required this.onChanged});
+
+  Widget _btn(String label, ChartType ct) {
+    final bool selected = chartType == ct;
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: () => onChanged(ct),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: selected ? AppColors.main : Colors.white.withValues(alpha: 0.7),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _btn("XP", ChartType.xp),
+        const SizedBox(width: 4),
+        _btn(LocaleKeys.DisciplinePoints.tr(), ChartType.dp),
+      ],
     );
   }
 }
@@ -313,26 +501,36 @@ class _PeriodSwitcher extends StatelessWidget {
 
 class _ProgressBarChart extends StatelessWidget {
   final ProgressPeriod period;
-  final Map<DateTime, Duration> data;
-  const _ProgressBarChart({required this.period, required this.data});
+  final ChartType chartType;
+  final dynamic data;
+  const _ProgressBarChart({
+    required this.period,
+    required this.chartType,
+    required this.data,
+  });
 
   void _showDayDetails(BuildContext context, DateTime date) {
-    DayDetailBottomSheet.show(context: context, date: date);
+    DayDetailBottomSheet.show(context: context, date: date, isDp: chartType == ChartType.dp);
   }
 
   @override
   Widget build(BuildContext context) {
-    double maxHours = 0;
-    List<DateTime> orderedKeys = data.keys.toList()..sort();
-    DateTime now = DateTime.now();
-    // Reference date for the chart view (based on first key or now if empty)
+    double maxYValue = 0;
+    double minYValue = 0;
 
-    // Mevcut ekran genişliği (aylık görünümde bar width hesaplamak için)
+    // Create ordered keys
+    List<DateTime> orderedKeys = [];
+    if (chartType == ChartType.xp) {
+      orderedKeys = (data as Map<DateTime, Duration>).keys.toList()..sort();
+    } else {
+      orderedKeys = (data as Map<DateTime, int>).keys.toList()..sort();
+    }
+    DateTime now = DateTime.now();
+
     final double screenWidth = MediaQuery.of(context).size.width;
-    double dynamicMonthBarWidth = 10; // default
-    double dynamicMonthGroupSpace = 2; // default
-    // Aylık görünümde etiketler: ilk gün, son gün ve her 3. gün
-    // Aylık görünümde etiketler: ilk gün, son gün ve her 3. gün
+    double dynamicMonthBarWidth = 10;
+    double dynamicMonthGroupSpace = 2;
+
     if (period == ProgressPeriod.month) {
       int daysInMonth = orderedKeys.length;
       double horizontalPadding = 32;
@@ -345,16 +543,26 @@ class _ProgressBarChart extends StatelessWidget {
     List<BarChartGroupData> groups = [];
     for (int i = 0; i < orderedKeys.length; i++) {
       final date = orderedKeys[i];
-      double hours = (data[date]?.inSeconds.toDouble() ?? 0) / 3600;
-      if (hours > 24) hours = hours % 24;
-      if (hours > maxHours) maxHours = hours;
+      double yValue = 0;
+
+      if (chartType == ChartType.xp) {
+        yValue = ((data[date] as Duration?)?.inSeconds.toDouble() ?? 0) / 3600;
+        if (yValue > 24) yValue = yValue % 24;
+      } else {
+        yValue = (data[date] as int?)?.toDouble() ?? 0;
+      }
+
+      if (yValue > maxYValue) maxYValue = yValue;
+      if (yValue < minYValue) minYValue = yValue;
+
       bool isToday = date.day == now.day && date.month == now.month && date.year == now.year;
+
       groups.add(
         BarChartGroupData(
           x: i,
           barRods: [
             BarChartRodData(
-              toY: hours,
+              toY: yValue,
               width: period == ProgressPeriod.month ? dynamicMonthBarWidth : 18,
               borderRadius: BorderRadius.circular(3),
               gradient: LinearGradient(
@@ -367,6 +575,17 @@ class _ProgressBarChart extends StatelessWidget {
         ),
       );
     }
+
+    // Scale interval for displaying axis accurately
+    maxYValue = maxYValue <= 0 && minYValue >= 0 ? 1 : maxYValue;
+    double interval = 1;
+    if (chartType == ChartType.xp) {
+      interval = maxYValue <= 4 ? 1 : (maxYValue / 4);
+    } else {
+      double range = maxYValue - minYValue;
+      interval = range <= 4 ? 1 : (range / 4).ceilToDouble();
+    }
+    if (interval == 0) interval = 1;
 
     Widget bottomTitle(double value, TitleMeta meta) {
       final int index = value.toInt();
@@ -381,10 +600,8 @@ class _ProgressBarChart extends StatelessWidget {
         bool isLast = index == orderedKeys.length - 1;
         bool show = isFirst || isLast || isToday || (index % 3 == 0);
         if (!isToday) {
-          // Bugünün yanındaki günler gösterilmesin (en az 1 gün boşluk)
           final todayIndex = orderedKeys.indexWhere((d) => d.day == now.day && d.month == now.month && d.year == now.year);
           if (todayIndex != -1 && (index == todayIndex - 1 || index == todayIndex + 1)) {
-            // İlk/son hariç komşu günleri gizle
             if (!isFirst && !isLast) show = false;
           }
         }
@@ -408,15 +625,27 @@ class _ProgressBarChart extends StatelessWidget {
     }
 
     Widget leftTitle(double value, TitleMeta meta) {
-      int hours = value.round();
-      return Text(
-        '$hours${LocaleKeys.h.tr()}',
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-          color: Colors.white,
-        ),
-      );
+      if (chartType == ChartType.xp) {
+        int hours = value.round();
+        return Text(
+          '$hours${LocaleKeys.h.tr()}',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            color: Colors.white,
+          ),
+        );
+      } else {
+        int points = value.round();
+        return Text(
+          '$points',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            color: Colors.white,
+          ),
+        );
+      }
     }
 
     final chart = BarChart(
@@ -428,7 +657,6 @@ class _ProgressBarChart extends StatelessWidget {
               final touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
               if (touchedIndex >= 0 && touchedIndex < orderedKeys.length) {
                 final selectedDate = orderedKeys[touchedIndex];
-                // Show day details bottom sheet (only for week/month, not year)
                 if (period != ProgressPeriod.year) {
                   _showDayDetails(context, selectedDate);
                 }
@@ -440,15 +668,29 @@ class _ProgressBarChart extends StatelessWidget {
               DateTime date = orderedKeys[group.x.toInt()];
               final dateFormat = DateFormat(period == ProgressPeriod.year ? 'MMM yyyy' : 'EEE, d MMM', context.locale.languageCode);
               final dateStr = dateFormat.format(date);
-              final duration = data[period == ProgressPeriod.year ? DateTime(date.year, date.month, 1) : DateTime(date.year, date.month, date.day)] ?? Duration.zero;
-              return BarTooltipItem(
-                '$dateStr\n${duration.textShort2hour()}',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              );
+
+              if (chartType == ChartType.xp) {
+                final duration = (data[period == ProgressPeriod.year ? DateTime(date.year, date.month, 1) : DateTime(date.year, date.month, date.day)] as Duration?) ?? Duration.zero;
+                return BarTooltipItem(
+                  '$dateStr\n${duration.textShort2hour()}',
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                );
+              } else {
+                final points = (data[period == ProgressPeriod.year ? DateTime(date.year, date.month, 1) : DateTime(date.year, date.month, date.day)] as int?) ?? 0;
+                String sign = points > 0 ? '+' : '';
+                return BarTooltipItem(
+                  '$dateStr\n$sign$points DP',
+                  const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                );
+              }
             },
             tooltipMargin: 8,
             tooltipPadding: const EdgeInsets.all(8),
@@ -470,7 +712,7 @@ class _ProgressBarChart extends StatelessWidget {
               showTitles: true,
               reservedSize: 40,
               getTitlesWidget: leftTitle,
-              interval: maxHours <= 4 ? 1 : (maxHours / 4),
+              interval: interval,
             ),
           ),
           rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -485,8 +727,8 @@ class _ProgressBarChart extends StatelessWidget {
           ),
         ),
         barGroups: groups,
-        maxY: maxHours,
-        minY: 0,
+        maxY: maxYValue,
+        minY: minYValue < 0 ? minYValue : 0,
         alignment: period == ProgressPeriod.month ? BarChartAlignment.start : BarChartAlignment.spaceAround,
         groupsSpace: period == ProgressPeriod.month ? dynamicMonthGroupSpace : 4,
       ),

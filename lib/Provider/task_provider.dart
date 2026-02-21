@@ -21,7 +21,9 @@ import 'package:next_level/Model/subtask_model.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Model/task_log_model.dart';
 import 'package:next_level/Provider/vacation_date_provider.dart';
+import 'package:next_level/Provider/user_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/Service/undo_service.dart';
 
@@ -186,6 +188,8 @@ class TaskProvider with ChangeNotifier {
 
     // Update home widget when task is added
     await _homeWidgetHelper.updateAllWidgets();
+
+    await checkDailyDPBonuses(taskModel.taskDate ?? DateTime.now());
 
     notifyListeners();
   }
@@ -1124,6 +1128,8 @@ class TaskProvider with ChangeNotifier {
       taskName: task.title,
       taskModel: task, // Task detay sayfasına gitmek için
     );
+
+    await checkDailyDPBonuses(task.taskDate ?? DateTime.now());
   }
 
   // Permanently delete a task
@@ -1257,6 +1263,8 @@ class TaskProvider with ChangeNotifier {
       taskName: routineModel.title,
       taskModel: associatedTasks.isNotEmpty ? associatedTasks.first : null, // İlk task'ı göster
     );
+
+    await checkDailyDPBonuses(DateTime.now());
   }
 
   // Permanently delete a routine
@@ -1277,9 +1285,6 @@ class TaskProvider with ChangeNotifier {
 
       // Delete the task
       await _taskRepository.deleteTask(task.id);
-
-      // Remove from UndoService if separately registered?
-      // If we didn't register them separately, we don't need to do anything.
     }
 
     // Delete the routine
@@ -1366,6 +1371,73 @@ class TaskProvider with ChangeNotifier {
     await prefs.setBool('show_completed', showCompleted);
 
     notifyListeners();
+  }
+
+  Future<void> checkDailyDPBonuses(DateTime date) async {
+    final now = DateTime.now();
+    if (!date.isSameDay(now)) return;
+
+    final userProvider = UserProvider();
+
+    // -- Check Routines (taskId = -10) --
+    final routinesForToday = getRoutineTasksForDate(now);
+    if (routinesForToday.isNotEmpty) {
+      bool allRoutinesDone = routinesForToday.every((routine) => routine.status == TaskStatusEnum.DONE);
+      final hasRoutineBonusToday = userProvider.currentUser?.lastRoutineBonusDate?.isSameDay(now) ?? false;
+
+      if (allRoutinesDone && !hasRoutineBonusToday) {
+        // GRANT BONUS
+        await userProvider.updateDisciplinePoints(5);
+        await userProvider.setLastRoutineBonusDate(now);
+        LogService.debug('Granted daily routine DP bonus! (+5)');
+
+        await TaskLogProvider().addSystemLog(TaskLogModel(
+          id: DateTime.now().millisecondsSinceEpoch,
+          taskId: -10, // Daily Routine Bonus
+          logDate: now,
+          taskTitle: 'Daily Routine Bonus',
+          status: TaskStatusEnum.DONE,
+        ));
+      } else if (!allRoutinesDone && hasRoutineBonusToday) {
+        // REVOKE BONUS
+        await userProvider.updateDisciplinePoints(-5);
+        await userProvider.setLastRoutineBonusDate(null); // Clear bonus date
+        LogService.debug('Revoked daily routine DP bonus! (-5)');
+
+        // Remove the system log for today
+        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-10, now);
+      }
+    }
+
+    // -- Check Tasks (taskId = -20) --
+    final tasksForToday = getTasksForDate(now).where((t) => t.routineID == null).toList();
+    if (tasksForToday.isNotEmpty) {
+      bool allTasksDone = tasksForToday.every((task) => task.status == TaskStatusEnum.DONE);
+      final hasTaskBonusToday = userProvider.currentUser?.lastTaskBonusDate?.isSameDay(now) ?? false;
+
+      if (allTasksDone && !hasTaskBonusToday) {
+        // GRANT BONUS
+        await userProvider.updateDisciplinePoints(2);
+        await userProvider.setLastTaskBonusDate(now);
+        LogService.debug('Granted daily task DP bonus! (+2)');
+
+        await TaskLogProvider().addSystemLog(TaskLogModel(
+          id: DateTime.now().millisecondsSinceEpoch,
+          taskId: -20, // Daily Task Bonus
+          logDate: now,
+          taskTitle: 'Daily Task Bonus',
+          status: TaskStatusEnum.DONE,
+        ));
+      } else if (!allTasksDone && hasTaskBonusToday) {
+        // REVOKE BONUS
+        await userProvider.updateDisciplinePoints(-2);
+        await userProvider.setLastTaskBonusDate(null); // Clear bonus date
+        LogService.debug('Revoked daily task DP bonus! (-2)');
+
+        // Remove the system log for today
+        await TaskLogProvider().deleteSystemLogsForTaskAndDate(-20, now);
+      }
+    }
   }
 
   Future<void> setSelectedCategory(String? categoryId) async {

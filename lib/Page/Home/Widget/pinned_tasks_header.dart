@@ -305,7 +305,7 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
                   itemBuilder: (context, index) {
                     final task = widget.pinnedTasks[index];
                     return ReorderableDelayedDragStartListener(
-                      key: ValueKey(task.key),
+                      key: ValueKey('pinned_${task.id}'),
                       index: index,
                       child: TaskItem(
                         taskModel: task,

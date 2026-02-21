@@ -16,6 +16,13 @@ class UserModel extends HiveObject {
   int userCredit;
   @HiveField(5)
   String username;
+  @HiveField(6, defaultValue: 0)
+  int disciplinePoints;
+  @HiveField(7)
+  DateTime? lastRoutineBonusDate;
+  @HiveField(8)
+  DateTime? lastTaskBonusDate;
+
   UserModel({
     required this.id,
     required this.email,
@@ -23,6 +30,9 @@ class UserModel extends HiveObject {
     required this.username,
     this.creditProgress = const Duration(hours: 0, minutes: 0, seconds: 0),
     this.userCredit = 0,
+    this.disciplinePoints = 0,
+    this.lastRoutineBonusDate,
+    this.lastTaskBonusDate,
   });
   factory UserModel.fromJson(Map<String, dynamic> json) {
     Duration stringToDuration(String timeString) {
@@ -37,6 +47,9 @@ class UserModel extends HiveObject {
       username: json['username'],
       creditProgress: stringToDuration(json['credit_progress']),
       userCredit: json['user_credit'],
+      disciplinePoints: json['discipline_points'] ?? 0,
+      lastRoutineBonusDate: json['last_routine_bonus_date'] != null ? DateTime.parse(json['last_routine_bonus_date']) : null,
+      lastTaskBonusDate: json['last_task_bonus_date'] != null ? DateTime.parse(json['last_task_bonus_date']) : null,
     );
   }
 
@@ -56,6 +69,9 @@ class UserModel extends HiveObject {
       'username': username,
       'credit_progress': durationToString(creditProgress),
       'user_credit': userCredit,
+      'discipline_points': disciplinePoints,
+      'last_routine_bonus_date': lastRoutineBonusDate?.toIso8601String(),
+      'last_task_bonus_date': lastTaskBonusDate?.toIso8601String(),
     };
   }
 }

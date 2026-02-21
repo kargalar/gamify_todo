@@ -375,8 +375,10 @@ class _InboxTaskListState extends State<InboxTaskList> {
       },
       itemBuilder: (context, index) {
         final task = tasks[index];
+        // Ensure unique key across multiple ReorderableListViews
+        final uniqueKey = 'inbox_${groupDate.millisecondsSinceEpoch}_${task.id}';
         return ReorderableDelayedDragStartListener(
-          key: ValueKey(task.key),
+          key: ValueKey(uniqueKey),
           index: index,
           child: TaskItem(taskModel: task),
         );

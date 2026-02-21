@@ -1565,6 +1565,16 @@ class MockTaskProvider extends _i1.Mock implements _i2.TaskProvider {
       ) as _i4.Future<void>);
 
   @override
+  _i4.Future<void> checkDailyDPBonuses(DateTime? date) => (super.noSuchMethod(
+        Invocation.method(
+          #checkDailyDPBonuses,
+          [date],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
   _i4.Future<void> setSelectedCategory(String? categoryId) =>
       (super.noSuchMethod(
         Invocation.method(

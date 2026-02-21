@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Debug/widget_debug_page.dart';
 import 'package:next_level/Page/Profile/Widget/level_progress_card.dart';
+import 'package:next_level/Page/Profile/Widget/discipline_card.dart';
 import 'package:next_level/Page/Profile/Widget/trait_list.dart';
 import 'package:next_level/Page/Profile/Widget/weekly_total_progress_chart.dart';
 import 'package:next_level/Page/Settings/settings_page.dart';
@@ -115,6 +116,8 @@ class ProfilePageContent extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
+            DisciplineCard(),
+            SizedBox(height: 10),
             LevelProgressCard(),
             SizedBox(height: 20),
             WeeklyTotalProgressChart(),

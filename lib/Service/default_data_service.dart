@@ -4,7 +4,6 @@ import 'package:next_level/Enum/trait_type_enum.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Model/project_model.dart';
-import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
 import 'package:next_level/Model/store_item_model.dart';
 import 'package:next_level/Model/subtask_model.dart';
@@ -651,18 +650,6 @@ class DefaultDataService {
           orderIndex: 2,
         ));
         LogService.debug('✅ DefaultDataService: Q4 Planning projesine 3 subtask eklendi');
-
-        // Q4 Planning projesi için not
-        await projectsProvider.addProjectNote(ProjectNoteModel(
-          id: '${workProject.id}_note_1',
-          projectId: workProject.id,
-          title: 'Key Objectives',
-          content: '- Increase team productivity by 20%\n- Launch new product line\n- Improve customer satisfaction',
-          createdAt: now.subtract(const Duration(hours: 3)),
-          updatedAt: now.subtract(const Duration(hours: 3)),
-          orderIndex: 0,
-        ));
-        LogService.debug('✅ DefaultDataService: Q4 Planning projesine not eklendi');
       }
 
       // Kişisel Projeler kategorisinden proje
@@ -697,18 +684,6 @@ class DefaultDataService {
           orderIndex: 1,
         ));
         LogService.debug('✅ DefaultDataService: Learning Goals projesine 2 subtask eklendi');
-
-        // Learning Goals projesi için not
-        await projectsProvider.addProjectNote(ProjectNoteModel(
-          id: '${personalProject.id}_note_1',
-          projectId: personalProject.id,
-          title: 'Resources',
-          content: 'Online Courses:\n- Udemy Flutter Bootcamp\n- Coursera Machine Learning\n\nBooks:\n- Clean Code\n- Design Patterns',
-          createdAt: now.subtract(const Duration(days: 4)),
-          updatedAt: now.subtract(const Duration(days: 2)),
-          orderIndex: 0,
-        ));
-        LogService.debug('✅ DefaultDataService: Learning Goals projesine not eklendi');
       }
 
       // Hobi Projeleri kategorisinden proje
@@ -751,18 +726,6 @@ class DefaultDataService {
           orderIndex: 2,
         ));
         LogService.debug('✅ DefaultDataService: Home Garden projesine 3 subtask eklendi');
-
-        // Home Garden projesi için not
-        await projectsProvider.addProjectNote(ProjectNoteModel(
-          id: '${hobbyProject.id}_note_1',
-          projectId: hobbyProject.id,
-          title: 'Plant List',
-          content: 'Spring Plants:\n- Tulips\n- Daffodils\n- Pansies\n\nSummer Plants:\n- Roses\n- Lavender\n- Sunflowers',
-          createdAt: now.subtract(const Duration(days: 6)),
-          updatedAt: now.subtract(const Duration(days: 1)),
-          orderIndex: 0,
-        ));
-        LogService.debug('✅ DefaultDataService: Home Garden projesine not eklendi');
       }
 
       LogService.debug('✅ DefaultDataService: ${projectCategories.length} proje kategorisi için toplam 3 proje oluşturuldu');

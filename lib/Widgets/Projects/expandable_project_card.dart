@@ -11,21 +11,18 @@ import '../../General/category_icons.dart';
 import '../../Model/category_model.dart';
 import '../../Model/project_model.dart';
 import '../../Model/project_subtask_model.dart';
-import '../../Model/project_note_model.dart';
 import '../../Provider/projects_provider.dart';
 import '../../Service/logging_service.dart';
 import '../Common/add_item_dialog.dart';
 import '../Common/linkify_text.dart';
-import './add_project_note_bottom_sheet.dart';
 import './project_tasks_section.dart';
-import './project_notes_section.dart';
+import 'dart:ui';
 
 class ExpandableProjectCard extends StatefulWidget {
   final ProjectModel project;
   final CategoryModel? category;
   final int taskCount;
   final int completedTaskCount;
-  final int noteCount;
   final bool isExpanded;
   final VoidCallback onExpanded;
   final VoidCallback? onTap;
@@ -39,7 +36,6 @@ class ExpandableProjectCard extends StatefulWidget {
     this.category,
     this.taskCount = 0,
     this.completedTaskCount = 0,
-    this.noteCount = 0,
     this.isExpanded = false,
     required this.onExpanded,
     this.onTap,
@@ -54,7 +50,6 @@ class ExpandableProjectCard extends StatefulWidget {
 
 class _ExpandableProjectCardState extends State<ExpandableProjectCard> with SingleTickerProviderStateMixin {
   List<ProjectSubtaskModel> _subtasks = [];
-  List<ProjectNoteModel> _notes = [];
   bool _isLoadingDetails = false;
   late AnimationController _expandController;
   late Animation<double> _expandAnimation;
@@ -63,15 +58,15 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
   void initState() {
     super.initState();
     _expandController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
     _expandAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _expandController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _expandController, curve: Curves.easeInOutCubic),
     );
 
     if (widget.isExpanded) {
-      _expandController.forward();
+      _expandController.value = 1.0;
       _loadDetails();
     }
   }
@@ -99,7 +94,6 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
 
     final provider = context.read<ProjectsProvider>();
     _subtasks = await provider.getProjectSubtasks(widget.project.id);
-    _notes = await provider.getProjectNotes(widget.project.id);
 
     // Sort by orderIndex if available, then by createdAt
     _subtasks.sort((a, b) {
@@ -111,17 +105,8 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
       return b.createdAt.compareTo(a.createdAt);
     });
 
-    _notes.sort((a, b) {
-      final aOrder = a.orderIndex ?? 0;
-      final bOrder = b.orderIndex ?? 0;
-      if (aOrder != bOrder) {
-        return aOrder.compareTo(bOrder);
-      }
-      return b.createdAt.compareTo(a.createdAt);
-    });
-
     LogService.debug(
-      '📂 ExpandableProjectCard: Loaded ${_subtasks.length} tasks and ${_notes.length} notes for ${widget.project.title}',
+      '📂 ExpandableProjectCard: Loaded ${_subtasks.length} tasks for ${widget.project.title}',
     );
 
     if (mounted) {
@@ -135,47 +120,74 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
 
   @override
   Widget build(BuildContext context) {
-    final categoryColor = widget.category?.color ?? AppColors.grey;
+    final categoryColor = widget.category?.color ?? AppColors.main;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: AppColors.borderRadiusAll,
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.background.withValues(alpha: 0.9),
+            AppColors.panelBackground.withValues(alpha: 0.8),
+          ],
+        ),
         border: Border.all(
-          color: categoryColor.withValues(alpha: 0.4),
-          width: 2,
+          color: categoryColor.withValues(alpha: 0.15),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: categoryColor.withValues(alpha: 0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: categoryColor.withValues(alpha: 0.08),
+            blurRadius: 15,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: Column(
-          children: [
-            // Header (always visible)
-            _buildHeader(context, categoryColor),
-
-            // Expanded content (task and notes)
-            if (widget.isExpanded)
-              AnimatedBuilder(
-                animation: _expandAnimation,
-                builder: (context, child) {
-                  return ClipRect(
-                    child: Align(
-                      heightFactor: _expandAnimation.value,
-                      child: child,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              children: [
+                // Highlight Strip
+                Container(
+                  height: 4,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        categoryColor.withValues(alpha: 0.8),
+                        categoryColor.withValues(alpha: 0.3),
+                      ],
                     ),
-                  );
-                },
-                child: _buildExpandedContent(categoryColor),
-              ),
-          ],
+                  ),
+                ),
+
+                // Header
+                _buildHeader(context, categoryColor),
+
+                // Expanded content (tasks)
+                AnimatedBuilder(
+                  animation: _expandAnimation,
+                  builder: (context, child) {
+                    return ClipRect(
+                      child: Align(
+                        heightFactor: _expandAnimation.value,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _buildExpandedContent(categoryColor),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -192,33 +204,27 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
             SlidableAction(
               onPressed: (_) => widget.onPin!(),
               backgroundColor: AppColors.matteYellow,
-              borderRadius: BorderRadius.circular(12),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
               foregroundColor: AppColors.white,
               icon: widget.project.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
             ),
           if (widget.onArchive != null)
             SlidableAction(
               onPressed: (_) => widget.onArchive!(),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
               backgroundColor: AppColors.matteOrange,
-              borderRadius: BorderRadius.circular(12),
               foregroundColor: AppColors.white,
               icon: widget.project.isArchived ? Icons.unarchive : Icons.archive,
             ),
           if (widget.onDelete != null)
             SlidableAction(
               onPressed: (_) => widget.onDelete!(),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
               backgroundColor: AppColors.matteRed,
-              borderRadius: BorderRadius.circular(12),
               foregroundColor: AppColors.white,
               icon: Icons.delete,
             ),
         ],
       ),
       startActionPane: ActionPane(
-        extentRatio: 0.4,
+        extentRatio: 0.3,
         motion: const DrawerMotion(),
         dismissible: DismissiblePane(
           dismissThreshold: 0.3,
@@ -235,8 +241,6 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
               _showEditProjectBottomSheet();
             },
             backgroundColor: AppColors.matteBlue,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            borderRadius: BorderRadius.circular(12),
             foregroundColor: AppColors.white,
             icon: Icons.edit,
             label: 'edit'.tr(),
@@ -246,341 +250,168 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
       child: InkWell(
         onTap: _toggleExpand,
         onLongPress: widget.onTap,
-        borderRadius: AppColors.borderRadiusAll,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title row with expand button
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Icon/Color Badge
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: categoryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: categoryColor.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Icon(
+                      widget.category?.iconCodePoint != null ? CategoryIcons.getIconByCodePoint(widget.category!.iconCodePoint) : Icons.work_outline,
+                      color: categoryColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // Title and Category
                   Expanded(
-                    child: LinkifyText(
-                      text: widget.project.title,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onBackground,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Expand/collapse button
-                  GestureDetector(
-                    onTap: _toggleExpand,
-                    child: AnimatedBuilder(
-                      animation: _expandAnimation,
-                      builder: (context, child) {
-                        return Transform.rotate(
-                          angle: _expandAnimation.value * 3.14159,
-                          child: Icon(
-                            Icons.expand_more,
-                            color: categoryColor,
-                            size: 20,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LinkifyText(
+                          text: widget.project.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.3,
+                            color: AppColors.onBackground,
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  // Category badge
-                  if (widget.category != null) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: widget.category!.color.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: widget.category!.color.withValues(alpha: 0.3),
-                          width: 1,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.category!.iconCodePoint != null)
-                            Icon(
-                              CategoryIcons.getIconByCodePoint(widget.category!.iconCodePoint) ?? Icons.category,
-                              size: 14,
-                              color: widget.category!.color,
-                            ),
-                          const SizedBox(width: 4),
+                        const SizedBox(height: 4),
+                        if (widget.category != null)
                           Text(
                             widget.category!.title,
                             style: TextStyle(
-                              fontSize: 11,
-                              color: widget.category!.color,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: categoryColor.withValues(alpha: 0.8),
                             ),
                           ),
-                        ],
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
+
+                  // Expand Icon
+                  AnimatedBuilder(
+                    animation: _expandAnimation,
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: _expandAnimation.value * 3.14159,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.panelBackground,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.text.withValues(alpha: 0.6),
+                            size: 20,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
 
               // Description
               if (widget.project.description.isNotEmpty) ...[
-                const SizedBox(height: 4),
+                const SizedBox(height: 12),
                 LinkifyText(
                   text: widget.project.description,
                   style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.onBackground.withValues(alpha: 0.7),
-                    height: 1.3,
+                    fontSize: 13,
+                    color: AppColors.text,
+                    height: 1.4,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
 
-              // Status and counts
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
+
+              // Bottom Meta Row
               Row(
                 children: [
-                  // Pinned indicator
-                  if (widget.project.isPinned)
-                    Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        color: AppColors.yellow.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Icon(
-                        Icons.push_pin,
-                        size: 12,
-                        color: AppColors.yellow,
-                      ),
-                    ),
-
-                  // Archived indicator
-                  if (widget.project.isArchived)
-                    Container(
-                      padding: const EdgeInsets.all(3),
-                      margin: const EdgeInsets.only(left: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.orange.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Icon(
-                        Icons.archive,
-                        size: 12,
-                        color: AppColors.orange,
-                      ),
-                    ),
-
-                  const Spacer(),
-
-                  // Task count
+                  // Progress Badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppColors.green.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.panelBackground,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.text.withValues(alpha: 0.2),
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.check_box_outlined, size: 11, color: AppColors.green),
-                        const SizedBox(width: 3),
+                        Icon(Icons.task_alt_rounded, size: 14, color: widget.completedTaskCount == widget.taskCount && widget.taskCount > 0 ? AppColors.green : AppColors.text.withValues(alpha: 0.6)),
+                        const SizedBox(width: 4),
                         Text(
                           '${widget.completedTaskCount}/${widget.taskCount}',
-                          style: const TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.green,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: widget.completedTaskCount == widget.taskCount && widget.taskCount > 0 ? AppColors.green : AppColors.text,
                           ),
                         ),
                       ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 6),
-
-                  // Note count
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.yellow.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.note_outlined, size: 11, color: AppColors.yellow),
-                        const SizedBox(width: 3),
-                        Text(
-                          '${widget.noteCount}',
-                          style: const TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.yellow,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              // Date
-              const SizedBox(height: 6),
-              Text(
-                widget.project.createdAt.compactDate(),
-                style: TextStyle(
-                  fontSize: 9,
-                  color: AppColors.onBackground.withValues(alpha: 0.5),
-                ),
-              ),
-
-              // Quick action buttons
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  // Quick task button
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (context) => AddItemDialog(
-                            title: 'add_task'.tr(),
-                            icon: Icons.add_task,
-                            titleLabel: 'task_title'.tr(),
-                            titleHint: 'enter_task_title'.tr(),
-                            titleRequired: true,
-                            descriptionLabel: 'description'.tr(),
-                            descriptionHint: 'enter_task_description'.tr(),
-                            descriptionRequired: false,
-                            descriptionMaxLines: 3,
-                            descriptionMinLines: 1,
-                            showCancelButton: true,
-                            onSave: (title, description) async {
-                              if (title != null && title.isNotEmpty) {
-                                final provider = Provider.of<ProjectsProvider>(context, listen: false);
-                                final subtask = ProjectSubtaskModel(
-                                  id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
-                                  projectId: widget.project.id,
-                                  title: title,
-                                  description: description,
-                                  createdAt: DateTime.now(),
-                                );
-                                await provider.addSubtask(subtask);
-                                await _loadDetails();
-                                Helper().getMessage(
-                                  message: 'Task added successfully',
-                                  status: StatusEnum.SUCCESS,
-                                );
-                                LogService.debug('✅ Quick task added: $title');
-                              }
-                            },
-                            isEditing: false,
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.green.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColors.green.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.add_task,
-                              size: 12,
-                              color: AppColors.green,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              'Add Task',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: AppColors.green,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
 
                   const SizedBox(width: 8),
 
-                  // Quick note button
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (context) => AddProjectNoteBottomSheet(
-                            onSave: (title, content) async {
-                              final provider = Provider.of<ProjectsProvider>(context, listen: false);
-                              final note = ProjectNoteModel(
-                                id: 'note_${DateTime.now().millisecondsSinceEpoch}',
-                                projectId: widget.project.id,
-                                title: title,
-                                content: content,
-                                createdAt: DateTime.now(),
-                                updatedAt: DateTime.now(),
-                              );
-                              await provider.addProjectNote(note);
-                              await _loadDetails();
-                              Helper().getMessage(
-                                message: 'Note added successfully',
-                                status: StatusEnum.SUCCESS,
-                              );
-                              LogService.debug('✅ Quick note added: $title');
-                            },
-                          ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.yellow.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColors.yellow.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.note_add,
-                              size: 12,
-                              color: AppColors.yellow,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              'Add Note',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: AppColors.yellow,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
+                  // Action Indicators
+                  if (widget.project.isPinned)
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.yellow.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: const Icon(Icons.push_pin_rounded, size: 14, color: AppColors.yellow),
+                    ),
+
+                  if (widget.project.isArchived)
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      margin: const EdgeInsets.only(left: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.archive_rounded, size: 14, color: AppColors.orange),
+                    ),
+
+                  const Spacer(),
+
+                  // Date
+                  Text(
+                    widget.project.createdAt.compactDate(),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.text.withValues(alpha: 0.4),
                     ),
                   ),
                 ],
@@ -595,48 +426,111 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
   Widget _buildExpandedContent(Color categoryColor) {
     return Container(
       decoration: BoxDecoration(
+        color: AppColors.background.withValues(alpha: 0.5),
         border: Border(
           top: BorderSide(
-            color: categoryColor.withValues(alpha: 0.2),
+            color: categoryColor.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
       ),
-      child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-
-            // Tasks section
-            ProjectTasksSection(
+      child: Column(
+        children: [
+          // Tasks section
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: ProjectTasksSection(
               project: widget.project,
               tasks: _subtasks,
               onTasksChanged: _loadDetails,
             ),
+          ),
 
-            // Notes section
-            ProjectNotesSection(
-              project: widget.project,
-              notes: _notes,
-              onNotesChanged: _loadDetails,
-            ),
-
-            // Empty state
-            if (_subtasks.isEmpty && _notes.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  'No tasks or notes yet',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.text.withValues(alpha: 0.5),
-                    fontStyle: FontStyle.italic,
+          // Enhanced "Add Task" Button at the bottom
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: InkWell(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => AddItemDialog(
+                    title: 'add_task'.tr(),
+                    icon: Icons.add_task,
+                    titleLabel: 'task_title'.tr(),
+                    titleHint: 'enter_task_title'.tr(),
+                    titleRequired: true,
+                    descriptionLabel: 'description'.tr(),
+                    descriptionHint: 'enter_task_description'.tr(),
+                    descriptionRequired: false,
+                    descriptionMaxLines: 3,
+                    descriptionMinLines: 1,
+                    showCancelButton: true,
+                    onSave: (title, description) async {
+                      if (title != null && title.isNotEmpty) {
+                        final provider = Provider.of<ProjectsProvider>(context, listen: false);
+                        final subtask = ProjectSubtaskModel(
+                          id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
+                          projectId: widget.project.id,
+                          title: title,
+                          description: description,
+                          createdAt: DateTime.now(),
+                        );
+                        await provider.addSubtask(subtask);
+                        await _loadDetails();
+                        Helper().getMessage(
+                          message: 'Task added successfully',
+                          status: StatusEnum.SUCCESS,
+                        );
+                        LogService.debug('✅ Quick task added: $title');
+                      }
+                    },
+                    isEditing: false,
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      categoryColor.withValues(alpha: 0.15),
+                      categoryColor.withValues(alpha: 0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: categoryColor.withValues(alpha: 0.3),
+                    width: 1,
                   ),
                 ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_circle_outline_rounded,
+                      size: 18,
+                      color: categoryColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Add New Task',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: categoryColor,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -653,7 +547,6 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
     );
 
     if (result == true) {
-      // Refresh project data
       await _loadDetails();
       LogService.debug('✅ ExpandableProjectCard: Project updated, UI refreshed');
     }

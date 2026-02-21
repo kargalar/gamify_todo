@@ -15,4 +15,8 @@ NOTE: bildirimleri de buna göre güncellemelisin
 ○ Next level alarm 3 saat geç
 
 
-skill details page tasarım olarak baya kötü. uygulamanın temal temasına uygun şekilde iyileştirmeler yapaplım. istediğini silip kaldırabilirsin tamamen serbestsin.
+
+
+
+
+yeni template oluşturduktan sonra task add task page den çıkmıyor save deyidikten sonra

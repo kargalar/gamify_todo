@@ -6,6 +6,7 @@ import 'package:next_level/General/category_icons.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
 import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Widgets/Common/category_chip.dart';
 
 /// Common category filter widget used across Tasks, Notes, and Projects pages
 class CategoryFilterWidget extends StatelessWidget {
@@ -32,21 +33,19 @@ class CategoryFilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+    return SizedBox(
+      height: 42,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           // "All" option
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: _buildAllChip(context),
-          ),
+          _buildAllChip(),
+          const SizedBox(width: 8),
 
           // Categories
           ...categories.map((category) {
             final count = itemCounts?[category.id] ?? 0;
-            // Only show categories that have items (unless selected or showEmptyCategories is true)
             if (!showEmptyCategories && count == 0 && selectedCategoryId != category.id) {
               return const SizedBox.shrink();
             }
@@ -57,89 +56,34 @@ class CategoryFilterWidget extends StatelessWidget {
           }),
 
           // Add category button
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: _buildAddChip(context),
-          ),
+          _buildAddChip(context),
         ],
       ),
     );
   }
 
-  Widget _buildAllChip(BuildContext context) {
+  Widget _buildAllChip() {
     final isSelected = selectedCategoryId == null;
     final totalCount = itemCounts?.values.fold(0, (sum, count) => sum + count) ?? 0;
 
-    return FilterChip(
-      selected: isSelected,
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.all_inclusive,
-            size: 16,
-            color: isSelected ? Colors.black : AppColors.text,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            LocaleKeys.All.tr(),
-            style: TextStyle(
-              color: isSelected ? Colors.black : AppColors.text,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          if (itemCounts != null) ...[
-            const SizedBox(width: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.black.withValues(alpha: 0.3) : AppColors.panelBackground2,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '$totalCount',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : AppColors.text,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-      selectedColor: AppColors.text,
-      backgroundColor: AppColors.panelBackground,
-      checkmarkColor: Colors.black,
-      onSelected: (_) => onCategorySelected(null),
+    return CategoryChip(
+      label: LocaleKeys.All.tr(),
+      icon: Icons.all_inclusive_rounded,
+      isSelected: isSelected,
+      accentColor: AppColors.text,
+      count: itemCounts != null ? totalCount : null,
+      onTap: () => onCategorySelected(null),
     );
   }
 
   Widget _buildAddChip(BuildContext context) {
-    return FilterChip(
-      selected: false,
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.add,
-            size: 16,
-            color: AppColors.main,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            LocaleKeys.Add.tr(),
-            style: TextStyle(
-              color: AppColors.main,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: AppColors.panelBackground,
-      onSelected: (_) async {
+    return CategoryChip(
+      label: LocaleKeys.Add.tr(),
+      icon: Icons.add_rounded,
+      isSelected: false,
+      accentColor: AppColors.main,
+      onTap: () async {
         LogService.debug('➕ CategoryFilterWidget: Add category button pressed, type: $categoryType');
-        // Otomatik olarak doğru tip ile kategori oluştur
         final result = await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -152,7 +96,6 @@ class CategoryFilterWidget extends StatelessWidget {
 
         LogService.debug('✅ CategoryFilterWidget: Bottom sheet closed, result: $result');
 
-        // Kategori eklendikten sonra callback'i çağır
         if (context.mounted) {
           onCategoryAdded?.call();
         }
@@ -164,72 +107,17 @@ class CategoryFilterWidget extends StatelessWidget {
     final isSelected = selectedCategoryId == category.id;
     final categoryColor = category.colorValue != null ? Color(category.colorValue) : AppColors.main;
 
-    final chip = FilterChip(
-      selected: isSelected,
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (category.iconCodePoint != null) ...[
-            Icon(
-              CategoryIcons.getIconByCodePoint(category.iconCodePoint) ?? Icons.category,
-              size: 16,
-              color: isSelected ? Colors.white : categoryColor,
-            ),
-            const SizedBox(width: 6),
-          ],
-          Text(
-            category.name ?? (category.title ?? ''),
-            style: TextStyle(
-              color: isSelected ? Colors.white : categoryColor,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-          if (itemCounts != null) ...[
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withValues(alpha: 0.25) : AppColors.panelBackground,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: isSelected ? Colors.white.withValues(alpha: 0.3) : categoryColor.withValues(alpha: 0.2),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                '$count',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : categoryColor,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-      selectedColor: categoryColor,
-      backgroundColor: AppColors.panelBackground,
-      checkmarkColor: Colors.white,
-      side: BorderSide(
-        color: categoryColor,
-        width: isSelected ? 2 : 1.5,
-      ),
-      onSelected: (_) {
+    return CategoryChip(
+      label: category.name ?? (category.title ?? ''),
+      icon: category.iconCodePoint != null ? CategoryIcons.getIconByCodePoint(category.iconCodePoint) ?? Icons.category : null,
+      isSelected: isSelected,
+      accentColor: categoryColor,
+      count: itemCounts != null ? count : null,
+      onTap: () {
         LogService.debug('🏷️ CategoryFilterWidget: Category selected - ${category.name ?? category.title}');
         onCategorySelected(category.id);
       },
+      onLongPress: onCategoryLongPress != null ? () => onCategoryLongPress!(context, category) : null,
     );
-
-    // Add long press handler if provided
-    if (onCategoryLongPress != null) {
-      return GestureDetector(
-        onLongPress: () => onCategoryLongPress!(context, category),
-        child: chip,
-      );
-    }
-
-    return chip;
   }
 }

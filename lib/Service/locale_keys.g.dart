@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
   static const NoArchivedRoutines = 'NoArchivedRoutines';
   static const ArchivedRoutinesAppearHere = 'ArchivedRoutinesAppearHere';
   static const Daily = 'Daily';
@@ -664,4 +664,27 @@ abstract class LocaleKeys {
   static const enter_task_title = 'enter_task_title';
   static const enter_task_description = 'enter_task_description';
   static const description = 'description';
+  static const DisciplineLevel = 'DisciplineLevel';
+  static const DisciplinePoints = 'DisciplinePoints';
+  static const DisciplineSystem = 'DisciplineSystem';
+  static const DisciplineRulesSubtitle = 'DisciplineRulesSubtitle';
+  static const HowToEarnDP = 'HowToEarnDP';
+  static const CompletedTaskOrRoutine = 'CompletedTaskOrRoutine';
+  static const CompletedAllTasks = 'CompletedAllTasks';
+  static const CompletedAllRoutines = 'CompletedAllRoutines';
+  static const HowToLoseDP = 'HowToLoseDP';
+  static const FailedTaskOrRoutine = 'FailedTaskOrRoutine';
+  static const CurrentDP = 'CurrentDP';
+  static const GotIt = 'GotIt';
+  static const LevelReckless = 'LevelReckless';
+  static const LevelRookie = 'LevelRookie';
+  static const LevelConsistent = 'LevelConsistent';
+  static const LevelDisciplined = 'LevelDisciplined';
+  static const LevelDetermined = 'LevelDetermined';
+  static const LevelFocused = 'LevelFocused';
+  static const LevelMaster = 'LevelMaster';
+  static const LevelLegendary = 'LevelLegendary';
+  static const LevelSpartan = 'LevelSpartan';
+  static const LevelWise = 'LevelWise';
+
 }

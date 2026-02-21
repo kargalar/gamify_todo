@@ -306,7 +306,7 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
               itemBuilder: (context, index) {
                 final task = widget.tasks[index];
                 return ReorderableDelayedDragStartListener(
-                  key: ValueKey(task.key),
+                  key: ValueKey('normal_${task.id}'),
                   index: index,
                   child: TaskItem(taskModel: task),
                 );

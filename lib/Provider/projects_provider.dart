@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
-import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Model/category_model.dart';
 import 'package:next_level/Service/projects_service.dart';
 import 'package:next_level/Service/project_subtasks_service.dart';
-import 'package:next_level/Service/project_notes_service.dart';
 import 'package:next_level/Provider/category_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 
@@ -24,7 +22,6 @@ class ProjectsProvider with ChangeNotifier {
 
   final ProjectsService _projectsService = ProjectsService();
   final ProjectSubtasksService _subtasksService = ProjectSubtasksService();
-  final ProjectNotesService _notesService = ProjectNotesService();
 
   // State
   List<ProjectModel> _projects = [];
@@ -35,7 +32,6 @@ class ProjectsProvider with ChangeNotifier {
   bool _showArchivedOnly = false;
   String? _selectedCategoryId;
   int _taskCountVersion = 0;
-  int _noteCountVersion = 0;
 
   // Getters
   List<ProjectModel> get projects => _projects;
@@ -46,7 +42,6 @@ class ProjectsProvider with ChangeNotifier {
   bool get showArchivedOnly => _showArchivedOnly;
   String? get selectedCategoryId => _selectedCategoryId;
   int get taskCountVersion => _taskCountVersion;
-  int get noteCountVersion => _noteCountVersion;
 
   /// Kategorileri yükle (sadece project kategorileri)
   Future<void> loadCategories() async {
@@ -274,9 +269,8 @@ class ProjectsProvider with ChangeNotifier {
     try {
       LogService.debug('🗑️ ProjectsProvider: Deleting project and its data');
 
-      // Önce subtask ve notları sil
+      // Önce subtaskları sil
       await _subtasksService.deleteSubtasksByProjectId(projectId);
-      await _notesService.deleteNotesByProjectId(projectId);
 
       // Sonra projeyi sil
       final success = await _projectsService.deleteProject(projectId);
@@ -427,11 +421,6 @@ class ProjectsProvider with ChangeNotifier {
     return await _subtasksService.getSubtasksByProjectId(projectId);
   }
 
-  /// Projeye ait notları getir
-  Future<List<ProjectNoteModel>> getProjectNotes(String projectId) async {
-    return await _notesService.getNotesByProjectId(projectId);
-  }
-
   /// Subtask ekle
   Future<bool> addSubtask(ProjectSubtaskModel subtask) async {
     try {
@@ -496,54 +485,6 @@ class ProjectsProvider with ChangeNotifier {
     }
   }
 
-  /// Proje notu ekle
-  Future<bool> addProjectNote(ProjectNoteModel note) async {
-    try {
-      LogService.debug('➕ ProjectsProvider: Adding project note');
-      final success = await _notesService.addNote(note);
-      if (success) {
-        LogService.debug('✅ ProjectsProvider: Project note added successfully');
-        _incrementNoteCountVersion();
-      }
-      return success;
-    } catch (e) {
-      LogService.error('❌ ProjectsProvider: Error adding project note: $e');
-      return false;
-    }
-  }
-
-  /// Proje notunu güncelle
-  Future<bool> updateProjectNote(ProjectNoteModel note) async {
-    try {
-      LogService.debug('🔄 ProjectsProvider: Updating project note');
-      final success = await _notesService.updateNote(note);
-      if (success) {
-        LogService.debug('✅ ProjectsProvider: Project note updated successfully');
-        _incrementNoteCountVersion();
-      }
-      return success;
-    } catch (e) {
-      LogService.error('❌ ProjectsProvider: Error updating project note: $e');
-      return false;
-    }
-  }
-
-  /// Proje notunu sil
-  Future<bool> deleteProjectNote(String noteId) async {
-    try {
-      LogService.debug('🗑️ ProjectsProvider: Deleting project note');
-      final success = await _notesService.deleteNote(noteId);
-      if (success) {
-        LogService.debug('✅ ProjectsProvider: Project note deleted successfully');
-        _incrementNoteCountVersion();
-      }
-      return success;
-    } catch (e) {
-      LogService.error('❌ ProjectsProvider: Error deleting project note: $e');
-      return false;
-    }
-  }
-
   // Private methods
   void _setLoading(bool value) {
     _isLoading = value;
@@ -557,11 +498,6 @@ class ProjectsProvider with ChangeNotifier {
 
   void _incrementTaskCountVersion() {
     _taskCountVersion++;
-    notifyListeners();
-  }
-
-  void _incrementNoteCountVersion() {
-    _noteCountVersion++;
     notifyListeners();
   }
 

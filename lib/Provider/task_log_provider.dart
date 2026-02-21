@@ -8,6 +8,7 @@ import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Repository/task_log_repository.dart';
 import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Provider/user_provider.dart';
 
 class TaskLogProvider with ChangeNotifier {
   static final TaskLogProvider _instance = TaskLogProvider._internal();
@@ -85,8 +86,22 @@ class TaskLogProvider with ChangeNotifier {
         // Get the most recent log for this day
         TaskLogModel existingLog = sameDayLogs.first;
 
+        TaskStatusEnum? oldStatus = existingLog.status;
+        TaskStatusEnum? newStatus = customStatus ?? taskModel.status;
+
+        // DP Update Logic for Checkbox status changes
+        int dpChange = 0;
+        if (oldStatus != TaskStatusEnum.DONE && newStatus == TaskStatusEnum.DONE) dpChange += 1;
+        if (oldStatus == TaskStatusEnum.DONE && newStatus != TaskStatusEnum.DONE) dpChange -= 1;
+        if (oldStatus != TaskStatusEnum.FAILED && newStatus == TaskStatusEnum.FAILED) dpChange -= 1;
+        if (oldStatus == TaskStatusEnum.FAILED && newStatus != TaskStatusEnum.FAILED) dpChange += 1;
+        if (dpChange != 0) {
+          UserProvider().updateDisciplinePoints(dpChange);
+        }
+        taskProvider.checkDailyDPBonuses(logDate);
+
         // Update the existing log with the new status
-        existingLog.status = customStatus ?? taskModel.status;
+        existingLog.status = newStatus;
         existingLog.logDate = logDate; // Update timestamp to current time
 
         // Save the updated log
@@ -130,6 +145,16 @@ class TaskLogProvider with ChangeNotifier {
       GlobalTimer().startStopTimer(taskModel: taskModel, suppressStopLog: true);
     }
 
+    // DP Update Logic for initial log
+    TaskStatusEnum? freshStatus = customStatus ?? taskModel.status;
+    int dpChange = 0;
+    if (freshStatus == TaskStatusEnum.DONE) dpChange += 1;
+    if (freshStatus == TaskStatusEnum.FAILED) dpChange -= 1;
+    if (dpChange != 0) {
+      UserProvider().updateDisciplinePoints(dpChange);
+    }
+    taskProvider.checkDailyDPBonuses(logDate);
+
     await _repository.addTaskLog(taskLog);
     taskLogList.add(taskLog);
 
@@ -142,6 +167,21 @@ class TaskLogProvider with ChangeNotifier {
       await updateTimerTaskLogStatuses(taskModel);
     }
 
+    notifyListeners();
+  }
+
+  Future<void> addSystemLog(TaskLogModel systemLog) async {
+    await _repository.addTaskLog(systemLog);
+    taskLogList.add(systemLog);
+    notifyListeners();
+  }
+
+  Future<void> deleteSystemLogsForTaskAndDate(int taskId, DateTime date) async {
+    final logsToDelete = taskLogList.where((log) => log.taskId == taskId && log.logDate.year == date.year && log.logDate.month == date.month && log.logDate.day == date.day).toList();
+    for (final log in logsToDelete) {
+      await _repository.deleteTaskLog(log.id);
+      taskLogList.remove(log);
+    }
     notifyListeners();
   }
 
@@ -394,10 +434,18 @@ class TaskLogProvider with ChangeNotifier {
       task.currentCount = totalCount;
 
       // Update status if needed
-      if ((task.targetCount ?? 0) > 0 && totalCount >= task.targetCount!) {
-        if (task.status != TaskStatusEnum.DONE) task.status = TaskStatusEnum.DONE;
+      bool isDone = (task.targetCount ?? 0) > 0 && totalCount >= task.targetCount!;
+      if (isDone) {
+        if (task.status != TaskStatusEnum.DONE) {
+          task.status = TaskStatusEnum.DONE;
+          UserProvider().updateDisciplinePoints(1);
+          taskProvider.checkDailyDPBonuses(DateTime.now());
+        }
       } else {
-        if (task.status == TaskStatusEnum.DONE) task.status = null;
+        if (task.status == TaskStatusEnum.DONE) {
+          task.status = null;
+          UserProvider().updateDisciplinePoints(-1);
+        }
       }
     } else if (task.type == TaskTypeEnum.TIMER) {
       Duration totalDuration = Duration.zero;
@@ -409,10 +457,18 @@ class TaskLogProvider with ChangeNotifier {
       task.currentDuration = totalDuration;
 
       // Update status if needed
-      if ((task.remainingDuration ?? Duration.zero) > Duration.zero && totalDuration >= task.remainingDuration!) {
-        if (task.status != TaskStatusEnum.DONE) task.status = TaskStatusEnum.DONE;
+      bool isDone = (task.remainingDuration ?? Duration.zero) > Duration.zero && totalDuration >= task.remainingDuration!;
+      if (isDone) {
+        if (task.status != TaskStatusEnum.DONE) {
+          task.status = TaskStatusEnum.DONE;
+          UserProvider().updateDisciplinePoints(1);
+          taskProvider.checkDailyDPBonuses(DateTime.now());
+        }
       } else {
-        if (task.status == TaskStatusEnum.DONE) task.status = null;
+        if (task.status == TaskStatusEnum.DONE) {
+          task.status = null;
+          UserProvider().updateDisciplinePoints(-1);
+        }
       }
     }
 

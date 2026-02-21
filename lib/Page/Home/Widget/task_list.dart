@@ -157,10 +157,19 @@ class _TaskListState extends State<TaskList> {
     final List<TaskModel> overdueTasks = isToday ? vm.getOverdueTasks() : <TaskModel>[];
     // Get active timer tasks (shown regardless of other filters)
     final List<TaskModel> activeTimerTasks = vm.getActiveTimerTasks();
-    // Merge active timer tasks with normal task list
+
+    // Collect IDs of tasks already shown in other sections to avoid duplicates
+    final Set<int> pinnedIds = pinnedTasks.map((t) => t.id).toSet();
+    final Set<int> overdueIds = overdueTasks.map((t) => t.id).toSet();
+    final Set<int> existingTaskIds = selectedDateTaskList.map((t) => (t as TaskModel).id).toSet();
+
+    // Only add active timer tasks that aren't already in the list or other sections
+    final List<TaskModel> uniqueTimerTasks = activeTimerTasks.where((t) => !existingTaskIds.contains(t.id) && !pinnedIds.contains(t.id) && !overdueIds.contains(t.id)).toList();
+
+    // Merge active timer tasks with normal task list, excluding tasks shown elsewhere
     final List<dynamic> allTasksWithTimers = [
-      ...activeTimerTasks,
-      ...selectedDateTaskList,
+      ...uniqueTimerTasks,
+      ...selectedDateTaskList.where((t) => !pinnedIds.contains((t as TaskModel).id) && !overdueIds.contains(t.id)),
     ];
 
     // Check if there are any tasks to display

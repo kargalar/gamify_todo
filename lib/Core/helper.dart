@@ -19,7 +19,6 @@ import 'package:next_level/Model/vacation_date_model.dart';
 import 'package:next_level/Model/note_model.dart';
 import 'package:next_level/Model/project_model.dart';
 import 'package:next_level/Model/project_subtask_model.dart';
-import 'package:next_level/Model/project_note_model.dart';
 import 'package:next_level/Model/store_item_log_model.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Model/routine_model.dart';
@@ -61,7 +60,6 @@ class Helper {
     Hive.registerAdapter(NoteModelAdapter());
     Hive.registerAdapter(ProjectModelAdapter());
     Hive.registerAdapter(ProjectSubtaskModelAdapter());
-    Hive.registerAdapter(ProjectNoteModelAdapter());
     Hive.registerAdapter(TaskTypeEnumAdapter());
     Hive.registerAdapter(TraitTypeEnumAdapter());
     Hive.registerAdapter(TaskStatusEnumAdapter());

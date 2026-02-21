@@ -23,13 +23,16 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       username: fields[5] as String,
       creditProgress: fields[3] as Duration,
       userCredit: fields[4] as int,
+      disciplinePoints: fields[6] == null ? 0 : fields[6] as int,
+      lastRoutineBonusDate: fields[7] as DateTime?,
+      lastTaskBonusDate: fields[8] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +44,13 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(4)
       ..write(obj.userCredit)
       ..writeByte(5)
-      ..write(obj.username);
+      ..write(obj.username)
+      ..writeByte(6)
+      ..write(obj.disciplinePoints)
+      ..writeByte(7)
+      ..write(obj.lastRoutineBonusDate)
+      ..writeByte(8)
+      ..write(obj.lastTaskBonusDate);
   }
 
   @override

@@ -31,9 +31,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   Map<String, Map<String, int>> _projectTaskCounts = {}; // projectId -> {total, completed}
-  Map<String, int> _projectNoteCounts = {}; // projectId -> noteCount
   int _previousTaskCountVersion = 0;
-  int _previousNoteCountVersion = 0;
   final Set<String> _expandedProjectIds = {}; // Track which projects are expanded
 
   // Public method to show add project dialog from outside
@@ -48,10 +46,8 @@ class _ProjectsPageState extends State<ProjectsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<ProjectsProvider>();
       _previousTaskCountVersion = provider.taskCountVersion;
-      _previousNoteCountVersion = provider.noteCountVersion;
       await provider.loadProjects();
       await _loadProjectTaskCounts();
-      await _loadProjectNoteCounts();
       await _loadExpandedState();
     });
   }
@@ -112,23 +108,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
     }
   }
 
-  Future<void> _loadProjectNoteCounts() async {
-    final provider = context.read<ProjectsProvider>();
-    final newCounts = <String, int>{};
-
-    for (final project in provider.projects) {
-      // Notları say
-      final notes = await provider.getProjectNotes(project.id);
-      newCounts[project.id] = notes.length;
-    }
-
-    if (mounted) {
-      setState(() {
-        _projectNoteCounts = newCounts;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProjectsProvider>();
@@ -169,14 +148,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
               _previousTaskCountVersion = provider.taskCountVersion;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _loadProjectTaskCounts();
-              });
-            }
-
-            // Note count version değiştiğinde note count'larını yeniden yükle
-            if (provider.noteCountVersion != _previousNoteCountVersion) {
-              _previousNoteCountVersion = provider.noteCountVersion;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _loadProjectNoteCounts();
               });
             }
 
@@ -459,9 +430,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
     final taskCount = taskCounts['total'] ?? 0;
     final completedTaskCount = taskCounts['completed'] ?? 0;
 
-    // Get note count from cached data
-    final noteCount = _projectNoteCounts[project.id] ?? 0;
-
     final isExpanded = _expandedProjectIds.contains(project.id);
 
     return ExpandableProjectCard(
@@ -469,7 +437,6 @@ class _ProjectsPageState extends State<ProjectsPage> {
       category: category,
       taskCount: taskCount,
       completedTaskCount: completedTaskCount,
-      noteCount: noteCount,
       isExpanded: isExpanded,
       onExpanded: () {
         setState(() {
