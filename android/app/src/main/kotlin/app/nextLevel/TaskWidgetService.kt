@@ -2,10 +2,6 @@ package app.nextlevel
 
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import es.antonborri.home_widget.HomeWidgetPlugin
@@ -22,12 +18,12 @@ class TaskWidgetService : RemoteViewsService() {
             val id: Int,
             val title: String,
             val type: String,
-            val currentCount: Int,
-            val targetCount: Int,
-            val currentDurationSec: Int,
-            val targetDurationSec: Int,
-            val isTimerActive: Boolean,
-            val section: String = "TASKS"
+            val section: String = "TASKS",
+            val isDone: Boolean = false,
+            val currentCount: Int = 0,
+            val targetCount: Int = 0,
+            val currentDurationSec: Int = 0,
+            val targetDurationSec: Int = 0
         )
 
         // List item can be either a header or a task
@@ -38,23 +34,6 @@ class TaskWidgetService : RemoteViewsService() {
 
         private var tasks: List<TaskDetail> = emptyList()
         private var listItems: List<ListItem> = emptyList()
-        private val handler = Handler(Looper.getMainLooper())
-        private val refresher = object : Runnable {
-            override fun run() {
-                val hasActive = tasks.any { it.type == "TIMER" && it.isTimerActive }
-                if (hasActive) {
-                    // Ask AppWidgetManager to refresh list every second when timer is active
-                    val mgr = AppWidgetManager.getInstance(context)
-                    val cn = ComponentName(context, TaskWidgetProvider::class.java)
-                    val ids = mgr.getAppWidgetIds(cn)
-                    for (id in ids) {
-                        mgr.notifyAppWidgetViewDataChanged(id, R.id.task_list)
-                    }
-                    // Refresh every second to show live timer updates
-                    handler.postDelayed(this, 1000)
-                }
-            }
-        }
 
         override fun onCreate() {
             android.util.Log.d("TaskWidgetService", "onCreate called")
@@ -76,12 +55,12 @@ class TaskWidgetService : RemoteViewsService() {
                             id = o.optInt("id"),
                             title = o.optString("title"),
                             type = o.optString("type"),
+                            section = o.optString("section", "TASKS"),
+                            isDone = o.optBoolean("isDone", false),
                             currentCount = o.optInt("currentCount"),
                             targetCount = o.optInt("targetCount"),
                             currentDurationSec = o.optInt("currentDurationSec"),
-                            targetDurationSec = o.optInt("targetDurationSec"),
-                            isTimerActive = o.optBoolean("isTimerActive"),
-                            section = o.optString("section", "TASKS")
+                            targetDurationSec = o.optInt("targetDurationSec")
                         )
                     )
                 }
@@ -92,7 +71,6 @@ class TaskWidgetService : RemoteViewsService() {
                 var currentSection: String? = null
 
                 for (task in tasks) {
-                    // Add section header if section changed
                     if (task.section != currentSection) {
                         val headerTitle = when (task.section) {
                             "OVERDUE" -> "⚠️ OVERDUE"
@@ -111,22 +89,14 @@ class TaskWidgetService : RemoteViewsService() {
                 android.util.Log.d("TaskWidgetService", "Tasks count: ${tasks.size}")
                 android.util.Log.d("TaskWidgetService", "List items count: ${listItems.size}")
             } catch (e: Exception) {
-                // Keep previous list on parse/read failure to avoid flicker/empty state
                 android.util.Log.e("TaskWidgetService", "Error parsing task details", e)
                 e.printStackTrace()
-            } finally {
-                // Start/stop periodic refresh based on active timers
-                handler.removeCallbacks(refresher)
-                if (tasks.any { it.type == "TIMER" && it.isTimerActive }) {
-                    handler.post(refresher)
-                }
             }
         }
 
         override fun onDestroy() {
             tasks = emptyList()
             listItems = emptyList()
-            handler.removeCallbacks(refresher)
         }
 
         override fun getCount(): Int {
@@ -144,97 +114,54 @@ class TaskWidgetService : RemoteViewsService() {
             return when (val listItem = listItems[position]) {
                 is ListItem.Header -> {
                     android.util.Log.d("TaskWidgetService", "Creating header view: ${listItem.title}")
-                    // Create section header view
                     val rv = RemoteViews(context.packageName, R.layout.task_widget_section_header)
                     rv.setTextViewText(R.id.section_header_title, listItem.title)
-                    android.util.Log.d("TaskWidgetService", "Header view created successfully")
                     rv
                 }
                 is ListItem.Task -> {
                     android.util.Log.d("TaskWidgetService", "Creating task view: ${listItem.detail.title}")
-                    // Create task item view
                     val rv = RemoteViews(context.packageName, R.layout.task_widget_item)
                     val item = listItem.detail
 
-                    // Set title (no emoji prefix, header already shows section)
+                    // Set title
                     rv.setTextViewText(R.id.task_item_title, item.title)
 
-                    // Icon per type
-                    when (item.type) {
-                        "CHECKBOX" -> {
-                            rv.setImageViewResource(R.id.task_item_icon, android.R.drawable.checkbox_off_background)
-                            rv.setInt(R.id.task_item_icon, "setColorFilter", 0xFFAED581.toInt())
-                        }
-                        "COUNTER" -> {
-                            rv.setImageViewResource(R.id.task_item_icon, android.R.drawable.ic_menu_sort_by_size)
-                            rv.setInt(R.id.task_item_icon, "setColorFilter", 0xFFFFF176.toInt())
-                        }
-                        "TIMER" -> {
-                            // When timer is active, show pause icon (user can pause it)
-                            // When timer is inactive, show play icon (user can start it)
-                            val icon = if (item.isTimerActive) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
-                            val color = if (item.isTimerActive) 0xFF64B5F6.toInt() else 0xFF90A4AE.toInt()
-                            rv.setImageViewResource(R.id.task_item_icon, icon)
-                            rv.setInt(R.id.task_item_icon, "setColorFilter", color)
-                        }
+                    // Status dot color based on section and completion
+                    val dotDrawable = when {
+                        item.isDone -> R.drawable.status_dot_done
+                        item.section == "OVERDUE" -> R.drawable.status_dot_overdue
+                        else -> R.drawable.status_dot_pending
+                    }
+                    rv.setImageViewResource(R.id.task_status_dot, dotDrawable)
+
+                    // Title styling for completed tasks
+                    if (item.isDone) {
+                        rv.setTextColor(R.id.task_item_title, 0xFF555566.toInt())
+                    } else {
+                        rv.setTextColor(R.id.task_item_title, 0xFFE0E0E8.toInt())
                     }
 
-                    // Subtitle + progress
+                    // Subtitle — show progress info only
                     var sub = ""
-                    var progress = 0
-                    var max = 100
-                    // Hide timer badge by default
-                    rv.setViewVisibility(R.id.task_item_timer_badge, android.view.View.GONE)
                     when (item.type) {
                         "COUNTER" -> {
                             val tgt = if (item.targetCount > 0) item.targetCount else 1
-                            progress = ((item.currentCount.coerceAtLeast(0) * 100.0) / tgt).toInt().coerceIn(0, 100)
-                            sub = "${item.currentCount}/${tgt}"
+                            sub = "${item.currentCount}/$tgt"
                         }
                         "TIMER" -> {
-                            val tgt = if (item.targetDurationSec > 0) item.targetDurationSec else 1
-                            progress = ((item.currentDurationSec.coerceAtLeast(0) * 100.0) / tgt).toInt().coerceIn(0, 100)
                             val ss = item.currentDurationSec % 60
                             val mm = (item.currentDurationSec / 60) % 60
                             val hh = item.currentDurationSec / 3600
                             sub = String.format("%02d:%02d:%02d", hh, mm, ss)
-                            if (item.isTimerActive) {
-                                rv.setTextViewText(R.id.task_item_timer_badge, "RUNNING")
-                                rv.setViewVisibility(R.id.task_item_timer_badge, android.view.View.VISIBLE)
-                            }
-                        }
-                        else -> {
-                            // Checkbox
-                            sub = ""
                         }
                     }
                     rv.setTextViewText(R.id.task_item_sub, sub)
-                    rv.setProgressBar(R.id.task_item_progress, max, progress, false)
-
-                    // Set fill-in intent for item click
-                    val fillIn = Intent()
-                    fillIn.action = "es.antonborri.home_widget.action.BACKGROUND"
-                    val action = when (item.type) {
-                        "CHECKBOX" -> "toggleCheckbox"
-                        "COUNTER" -> "incrementCounter"
-                        "TIMER" -> "toggleTimer"
-                        else -> "noop"
+                    if (sub.isEmpty()) {
+                        rv.setViewVisibility(R.id.task_item_sub, android.view.View.GONE)
+                    } else {
+                        rv.setViewVisibility(R.id.task_item_sub, android.view.View.VISIBLE)
                     }
-                    // Use data Uri so it becomes available as queryParameters in Dart callback
-                    val safeTitle = java.net.URLEncoder.encode(item.title, "UTF-8")
-                    val dataUri = android.net.Uri.parse("homewidget://task?action=${action}&taskId=${item.id}&title=${safeTitle}")
-                    fillIn.data = dataUri
-                    // Also add as extra for HomeWidget plugin
-                    fillIn.putExtra("url", dataUri.toString())
-                    android.util.Log.d("TaskWidgetService", "Task click intent set: action=$action, taskId=${item.id}, uri=$dataUri")
-                    rv.setOnClickFillInIntent(R.id.task_item_root, fillIn)
-                    // Also attach to common child views for better hit area
-                    rv.setOnClickFillInIntent(R.id.task_item_title, fillIn)
-                    rv.setOnClickFillInIntent(R.id.task_item_icon, fillIn)
-                    rv.setOnClickFillInIntent(R.id.task_item_sub, fillIn)
-                    rv.setOnClickFillInIntent(R.id.task_item_progress, fillIn)
-                    rv.setOnClickFillInIntent(R.id.task_item_icon_container, fillIn)
-                    rv.setOnClickFillInIntent(R.id.task_item_content, fillIn)
+
                     android.util.Log.d("TaskWidgetService", "Task view created successfully")
                     rv
                 }

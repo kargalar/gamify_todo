@@ -5,88 +5,42 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@drawable/task_item_background"
-    android:padding="10dp"
-    android:clickable="true"
-    android:focusable="true">
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:gravity="center_vertical">
 
-    <!-- Icon container -->
-    <FrameLayout
-        android:id="@+id/task_item_icon_container"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_gravity="center_vertical"
-        android:background="@drawable/icon_bg"
-        android:layout_marginEnd="10dp">
+    <!-- Status dot -->
+    <ImageView
+        android:id="@+id/task_status_dot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:src="@drawable/status_dot_pending"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="Status" />
 
-        <ImageView
-            android:id="@+id/task_item_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center"
-            android:tint="#A5C6FF"
-            android:src="@android:drawable/ic_menu_my_calendar"/>
-    </FrameLayout>
-
-    <!-- Texts and progress -->
-    <LinearLayout
-        android:id="@+id/task_item_content"
+    <!-- Task title -->
+    <TextView
+        android:id="@+id/task_item_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:text="Task"
+        android:textColor="#E0E0E8"
+        android:textSize="13sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:letterSpacing="0.01" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/task_item_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Task"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end"/>
-
-            <TextView
-                android:id="@+id/task_item_timer_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/badge_active_bg"
-                android:textColor="#64B5F6"
-                android:textStyle="bold"
-                android:textSize="9sp"
-                android:paddingLeft="6dp"
-                android:paddingRight="6dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
-                android:text="RUNNING"
-                android:visibility="gone"/>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/task_item_sub"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#B0B0B0"
-            android:textSize="12sp"
-            android:layout_marginTop="2dp"
-            android:text=""/>
-
-        <ProgressBar
-            android:id="@+id/task_item_progress"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:layout_marginTop="4dp"
-            android:progressDrawable="@drawable/progress_bg"
-            android:indeterminate="false"
-            android:max="100"/>
-    </LinearLayout>
+    <!-- Subtitle (counter/timer info) -->
+    <TextView
+        android:id="@+id/task_item_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#666688"
+        android:textSize="11sp"
+        android:layout_marginStart="8dp"
+        android:text="" />
 
 </LinearLayout>

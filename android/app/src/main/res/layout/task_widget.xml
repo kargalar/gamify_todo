@@ -3,66 +3,38 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:padding="8dp"
-	android:background="#1F1F1F">
+	android:padding="12dp"
+	android:background="@drawable/widget_background">
 
-	<!-- Header with task count and work time -->
+	<!-- Header -->
 	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:padding="4dp"
-		android:background="@drawable/task_item_background">
-
-		<TextView
-			android:id="@+id/header_text"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="Today's Tasks"
-			android:textSize="11sp"
-			android:textColor="#B0B0B0"
-			android:gravity="center"
-			android:paddingBottom="2dp" />
-
-		<TextView
-			android:id="@+id/task_count_text"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textSize="24sp"
-			android:textColor="#64B5F6"
-			android:text="0"
-			android:textStyle="bold"
-			android:gravity="center" />
-	</LinearLayout>
-
-	<!-- Hide completed toggle -->
-	<LinearLayout
-		android:id="@+id/hide_completed_row"
+		android:id="@+id/widget_header"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
 		android:gravity="center_vertical"
-		android:paddingStart="6dp"
-		android:paddingEnd="6dp"
-		android:paddingTop="4dp"
-		android:paddingBottom="4dp"
-		android:layout_marginTop="4dp"
-		android:background="@drawable/task_item_background">
-
-		<ImageView
-				android:id="@+id/hide_completed_checkbox"
-				android:layout_width="18dp"
-				android:layout_height="18dp"
-				android:contentDescription="Hide completed toggle"
-				android:src="@android:drawable/checkbox_off_background"/>
+		android:paddingStart="4dp"
+		android:paddingEnd="4dp"
+		android:paddingBottom="8dp">
 
 		<TextView
+			android:id="@+id/header_text"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Today"
+			android:textSize="15sp"
+			android:textColor="#FFFFFF"
+			android:textStyle="bold"
+			android:letterSpacing="0.02" />
+
+		<TextView
+			android:id="@+id/task_count_text"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="Hide completed tasks"
-			android:textColor="#B0B0B0"
-			android:textSize="11sp"
-			android:paddingStart="6dp"/>
+			android:textSize="13sp"
+			android:textColor="#8888AA"
+			android:text="0 tasks" />
 	</LinearLayout>
 
 	<!-- Scrollable task list via RemoteViewsService -->
@@ -71,13 +43,11 @@
 		android:layout_width="match_parent"
 		android:layout_height="0dp"
 		android:layout_weight="1"
-		android:layout_marginTop="4dp"
 		android:divider="@android:color/transparent"
-		android:dividerHeight="6dp"
-		android:paddingStart="0dp"
-		android:paddingEnd="0dp"
-		android:paddingTop="2dp"
-		android:paddingBottom="2dp"/>
+		android:dividerHeight="2dp"
+		android:paddingTop="0dp"
+		android:paddingBottom="4dp"
+		android:scrollbars="none" />
 
 	<!-- Empty state when no tasks -->
 	<TextView
@@ -85,10 +55,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="Loading..."
-		android:textSize="12sp"
-		android:textColor="#B0B0B0"
+		android:textSize="13sp"
+		android:textColor="#666688"
 		android:gravity="center"
-		android:layout_marginTop="16dp"
-		android:padding="12dp" />
+		android:layout_marginTop="24dp"
+		android:padding="16dp" />
 
 </LinearLayout>

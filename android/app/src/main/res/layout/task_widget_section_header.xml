@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp"
     android:paddingTop="8dp"
     android:paddingBottom="4dp">
 
@@ -14,10 +14,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="SECTION"
-        android:textColor="#90CAF9"
-        android:textSize="11sp"
+        android:textColor="#7070A0"
+        android:textSize="10sp"
         android:textStyle="bold"
-        android:letterSpacing="0.1"/>
+        android:letterSpacing="0.15" />
 
 </LinearLayout>
-

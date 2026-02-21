@@ -7,15 +7,11 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Repository/task_repository.dart';
-import 'package:next_level/Service/global_timer.dart';
-import 'package:next_level/Service/notification_services.dart';
-import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Model/task_model.dart';
 import 'package:hive/hive.dart' as hive;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/Service/logging_service.dart';
 
@@ -32,9 +28,7 @@ class HomeWidgetService {
   static const String taskTitlesKey = 'taskTitles';
   static const String taskDetailsKey = 'taskDetails';
   static const String totalWorkSecKey = 'totalWorkSec';
-  static const String hideCompletedKey = 'hideCompleted';
   static const String widgetEventSeqKey = 'widget_event_seq';
-  static const String pendingCreditDeltaKey = 'pending_credit_delta_min';
   static Timer? _midnightTimer;
   static Timer? _eventTimer;
   static int? _lastEventSeq;
@@ -86,9 +80,6 @@ class HomeWidgetService {
       final today = DateTime.now();
       LogService.debug('Today date: $today');
 
-      // Read hide flag (default false)
-      final hideCompleted = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
-
       // Check vacation mode from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       final isVacationMode = prefs.getBool('vacation_mode_enabled') ?? false;
@@ -96,15 +87,9 @@ class HomeWidgetService {
 
       // Helper function to check if task should be included
       bool includeTask(TaskModel t, {bool isRoutine = false, bool isOverdue = false}) {
-        // OVERDUE tasks are ALWAYS shown (never hidden by hideCompleted)
+        // OVERDUE tasks are ALWAYS shown
         if (isOverdue) {
           return true;
-        }
-
-        // Hide completed tasks if flag is set (except active timers and overdue)
-        if (hideCompleted) {
-          final activeTimer = t.type == TaskTypeEnum.TIMER && (t.isTimerActive ?? false);
-          if (t.status != null && !activeTimer) return false;
         }
 
         // Don't show routines if vacation mode is active
@@ -117,7 +102,7 @@ class HomeWidgetService {
       final overdueTasks = allTasks.where((task) => task.status == TaskStatusEnum.OVERDUE && task.routineID == null && !task.isPinned && includeTask(task, isOverdue: true)).toList();
 
       // Get pinned tasks (all dates, non-routine, not done/cancelled/failed)
-      final pinnedTasks = allTasks.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.DONE && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED && includeTask(task)).toList();
+      final pinnedTasks = allTasks.where((task) => task.isPinned && task.routineID == null && task.status != TaskStatusEnum.CANCEL && task.status != TaskStatusEnum.FAILED && includeTask(task)).toList();
 
       // Get today's normal tasks (not pinned, not overdue, today's date)
       final todayTasks = allTasks.where((task) => task.taskDate?.isSameDay(today) == true && task.routineID == null && !task.isPinned && task.status != TaskStatusEnum.OVERDUE && includeTask(task)).toList();
@@ -135,64 +120,39 @@ class HomeWidgetService {
       // Build task details for progress display with section info
       final taskDetails = <Map<String, dynamic>>[];
 
-      // Add overdue tasks with section marker
-      for (var task in overdueTasks) {
-        taskDetails.add({
+      // Helper to build task detail map
+      Map<String, dynamic> buildTaskDetail(TaskModel task, String section) {
+        return {
           'id': task.id,
           'title': task.title,
           'type': task.type.toString().split('.').last,
+          'section': section,
+          'isDone': task.status == TaskStatusEnum.DONE,
           'currentCount': task.currentCount ?? 0,
           'targetCount': task.targetCount ?? 0,
           'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
           'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
-          'isTimerActive': task.isTimerActive ?? false,
-          'section': 'OVERDUE',
-        });
+        };
+      }
+
+      // Add overdue tasks with section marker
+      for (var task in overdueTasks) {
+        taskDetails.add(buildTaskDetail(task, 'OVERDUE'));
       }
 
       // Add pinned tasks with section marker
       for (var task in pinnedTasks) {
-        taskDetails.add({
-          'id': task.id,
-          'title': task.title,
-          'type': task.type.toString().split('.').last,
-          'currentCount': task.currentCount ?? 0,
-          'targetCount': task.targetCount ?? 0,
-          'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
-          'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
-          'isTimerActive': task.isTimerActive ?? false,
-          'section': 'PINNED',
-        });
+        taskDetails.add(buildTaskDetail(task, 'PINNED'));
       }
 
       // Add normal tasks with section marker
       for (var task in todayTasks) {
-        taskDetails.add({
-          'id': task.id,
-          'title': task.title,
-          'type': task.type.toString().split('.').last,
-          'currentCount': task.currentCount ?? 0,
-          'targetCount': task.targetCount ?? 0,
-          'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
-          'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
-          'isTimerActive': task.isTimerActive ?? false,
-          'section': 'TASKS',
-        });
+        taskDetails.add(buildTaskDetail(task, 'TASKS'));
       }
 
       // Add routine tasks with section marker
       for (var task in routineTasks) {
-        taskDetails.add({
-          'id': task.id,
-          'title': task.title,
-          'type': task.type.toString().split('.').last,
-          'currentCount': task.currentCount ?? 0,
-          'targetCount': task.targetCount ?? 0,
-          'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
-          'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
-          'isTimerActive': task.isTimerActive ?? false,
-          'section': 'ROUTINES',
-        });
+        taskDetails.add(buildTaskDetail(task, 'ROUTINES'));
       }
 
       // Calculate today's total work time from TIMER tasks (sum of currentDuration)
@@ -215,7 +175,6 @@ class HomeWidgetService {
       await HomeWidget.saveWidgetData(taskTitlesKey, jsonEncode(taskTitles));
       await HomeWidget.saveWidgetData(taskDetailsKey, jsonEncode(taskDetails));
       await HomeWidget.saveWidgetData(totalWorkSecKey, totalWorkSec);
-      await HomeWidget.saveWidgetData(hideCompletedKey, hideCompleted);
       LogService.debug('Task titles saved: ${jsonEncode(taskTitles)}');
       LogService.debug('Task details saved: ${jsonEncode(taskDetails)}');
       LogService.debug('Total work seconds saved: $totalWorkSec');
@@ -270,17 +229,6 @@ class HomeWidgetService {
           if (seq != _lastEventSeq) {
             LogService.debug('HomeWidget event detected: $_lastEventSeq -> $seq, refreshing tasks');
             _lastEventSeq = seq;
-            // Apply any pending credit delta computed in background isolate
-            final pending = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
-            if (pending != 0) {
-              LogService.debug('Applying pending credit delta (minutes): $pending');
-              try {
-                AppHelper().addCreditByProgress(Duration(minutes: pending));
-              } catch (e) {
-                LogService.error('apply pending credit error: $e');
-              }
-              await HomeWidget.saveWidgetData(pendingCreditDeltaKey, 0);
-            }
             // Reload task list from Hive to get widget changes
             try {
               final tasks = await TaskRepository().getTasks();
@@ -335,13 +283,6 @@ class HomeWidgetService {
         // Proceed anyway; boxes may still be accessible if already open
       }
 
-      // Ensure logs are loaded in this isolate so IDs and merges are correct
-      try {
-        await TaskLogProvider().loadTaskLogs();
-      } catch (e) {
-        LogService.error('TaskLogProvider.loadTaskLogs failed in background: $e');
-      }
-
       LogService.debug('=== WIDGET BACKGROUND CALLBACK ===');
       LogService.debug('URI: $uri');
       LogService.debug('Query params: ${uri?.queryParameters}');
@@ -354,148 +295,11 @@ class HomeWidgetService {
         return;
       }
 
-      if (action == 'toggleHideCompleted') {
-        LogService.debug('Toggling hide completed...');
-        final current = await HomeWidget.getWidgetData<bool>(hideCompletedKey, defaultValue: false) ?? false;
-        await HomeWidget.saveWidgetData(hideCompletedKey, !current);
-        await updateAllWidgets();
-        await _bumpWidgetEventSeq();
-        LogService.debug('Hide completed toggled to ${!current}');
-        return;
-      }
-
       if (action == 'refresh') {
         LogService.debug('Refreshing widget...');
-        // Explicit refresh requested by native side (e.g., date/time change)
         await updateAllWidgets();
         await _bumpWidgetEventSeq();
         return;
-      }
-
-      // Handle per-item actions
-      final taskIdStr = uri?.queryParameters['taskId'];
-      final taskId = taskIdStr != null ? int.tryParse(taskIdStr) : null;
-      final titleParam = uri?.queryParameters['title'];
-
-      LogService.debug('Task ID: $taskId, Title: $titleParam');
-
-      // Load the task directly from Hive
-      final tasks = await TaskRepository().getTasks();
-      TaskModel? task;
-      if (taskId != null && taskId > 0) {
-        final matches = tasks.where((t) => t.id == taskId);
-        if (matches.isNotEmpty) task = matches.first;
-      }
-      // Fallback by title for today's task if id missing or not found
-      if (task == null && titleParam != null && titleParam.isNotEmpty) {
-        final today = DateTime.now();
-        try {
-          task = tasks.firstWhere((t) => (t.title == titleParam) && (t.taskDate?.isSameDay(today) == true));
-        } catch (_) {}
-      }
-      if (task == null) {
-        LogService.debug('HomeWidget background: task not found id=$taskId title=$titleParam');
-        return;
-      }
-
-      LogService.debug('✅ Task found: ${task.title} (type: ${task.type})');
-
-      switch (action) {
-        case 'toggleCheckbox':
-          LogService.debug('🔘 Toggling checkbox for task: ${task.title}');
-          if (task.type.toString().contains('CHECKBOX')) {
-            // Toggle completion with date-aware logic and logging similar to TaskActionHandler
-            if (task.status == TaskStatusEnum.DONE) {
-              // Uncomplete: decide between OVERDUE vs in-progress
-              if (task.taskDate != null) {
-                final now = DateTime.now();
-                final taskDateTime = task.taskDate!.copyWith(
-                  hour: task.time?.hour ?? 23,
-                  minute: task.time?.minute ?? 59,
-                  second: 59,
-                );
-                if (taskDateTime.isBefore(now)) {
-                  task.status = TaskStatusEnum.OVERDUE;
-                  await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.OVERDUE);
-                } else {
-                  task.status = null;
-                  await TaskLogProvider().addTaskLog(task, customStatus: null);
-                }
-              } else {
-                task.status = null;
-                await TaskLogProvider().addTaskLog(task, customStatus: null);
-              }
-              // Queue negative credit for uncomplete
-              final mins = task.remainingDuration?.inMinutes ?? 0;
-              if (mins != 0) {
-                final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
-                await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur - mins);
-              }
-              await TaskRepository().updateTask(task);
-            } else {
-              task.status = TaskStatusEnum.DONE;
-              await TaskLogProvider().addTaskLog(task, customStatus: TaskStatusEnum.DONE);
-              // Queue positive credit for complete
-              final mins = task.remainingDuration?.inMinutes ?? 0;
-              if (mins != 0) {
-                final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
-                await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur + mins);
-              }
-              await TaskRepository().updateTask(task);
-            }
-            await updateAllWidgets();
-            await _bumpWidgetEventSeq();
-          }
-          break;
-        case 'incrementCounter':
-          LogService.debug('➕ Incrementing counter for task: ${task.title}');
-          if (task.type.toString().contains('COUNTER')) {
-            final prev = task.currentCount ?? 0;
-            task.currentCount = prev + 1;
-            LogService.debug('Counter incremented: $prev -> ${task.currentCount}');
-
-            // Hedefe ulaşıp ulaşmadığını kontrol et
-            final target = task.targetCount ?? 0;
-            bool willComplete = target > 0 && (task.currentCount ?? 0) >= target && task.status != TaskStatusEnum.DONE;
-
-            // Log the increment with DONE status if completing
-            await TaskLogProvider().addTaskLog(
-              task,
-              customCount: 1,
-              customStatus: willComplete ? TaskStatusEnum.DONE : null,
-            );
-
-            // Queue credit for one increment (mirror app logic)
-            final incMins = task.remainingDuration?.inMinutes ?? 0;
-            if (incMins != 0) {
-              final cur = await HomeWidget.getWidgetData<int>(pendingCreditDeltaKey, defaultValue: 0) ?? 0;
-              await HomeWidget.saveWidgetData(pendingCreditDeltaKey, cur + incMins);
-            }
-
-            // If reached target, mark as done (log already created above)
-            if (willComplete) {
-              task.status = TaskStatusEnum.DONE;
-            }
-
-            await TaskRepository().updateTask(task);
-            await updateAllWidgets();
-            await _bumpWidgetEventSeq();
-          }
-          break;
-        case 'toggleTimer':
-          if (task.type.toString().contains('TIMER')) {
-            // Initialize notifications just in case
-            try {
-              await NotificationService().init();
-            } catch (e) {
-              LogService.error('Notification init failed in background: $e');
-            }
-            LogService.debug('Background: toggling timer for task id=${task.id} title=${task.title}');
-            GlobalTimer().startStopTimer(taskModel: task);
-            await updateAllWidgets();
-            await _bumpWidgetEventSeq();
-          }
-          break;
       }
     } catch (e) {
       LogService.error('HomeWidget backgroundCallback error: $e');
