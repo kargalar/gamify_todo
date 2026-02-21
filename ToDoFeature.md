@@ -10,13 +10,9 @@ galiba privacy policy ve googleplay de de birşeyler güncellemem gerekebilir.
 Alarm ses seçiminde hep aynısı çalıyor
     Varsyailan alarm di di di dit olsun
 
-projelerdeki notlar kısmınını kaldır????????
-
 önce firebase sync yap sonra windows için de dene. aynı anda kullanımı test et.
 
 projedeki kodları incele. gereksiz ve tekrarlayan kodalrı düzelt. mvvm ve clean code prensiplerini uygula. bunu için gerekirse sistemi değiştirmekten çekinme. önemli olan temiz kod olmalı. lib altındaki bütün dosyaları kontrol ettiğinden emin ol
-
-skil details update
 
 Timer task ile 8 saat calsitim ama credi o kadar artmadı gibi kontrol testi yap.
     Bu sruecte uygulamayı bircon kez aç kapa yaptım. Belki etkiliyordur.

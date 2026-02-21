@@ -169,12 +169,12 @@ class _TraitDetailPageState extends State<TraitDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.panelBackground,
+      backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
           // Elegant Sliver App Bar
           SliverAppBar(
-            backgroundColor: AppColors.panelBackground,
+            backgroundColor: AppColors.background,
             elevation: 0,
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios, color: AppColors.text),

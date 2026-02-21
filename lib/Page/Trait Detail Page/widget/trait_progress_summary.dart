@@ -103,7 +103,7 @@ class TraitProgressSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.panelBackground2,
+        color: AppColors.panelBackgroundDark,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(

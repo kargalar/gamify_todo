@@ -43,7 +43,7 @@ class _TraitRelatedTasksSectionState extends State<TraitRelatedTasksSection> wit
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.panelBackground2.withValues(alpha: 0.3),
+        color: AppColors.panelBackgroundDark.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: widget.selectedColor.withValues(alpha: 0.1),
@@ -82,7 +82,7 @@ class _TraitRelatedTasksSectionState extends State<TraitRelatedTasksSection> wit
         Container(
           height: 48,
           decoration: BoxDecoration(
-            color: AppColors.panelBackground2,
+            color: AppColors.panelBackgroundDark,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
@@ -116,6 +117,82 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
 
   void _toggleExpand() {
     widget.onExpanded();
+  }
+
+  void _copyAllTasks() {
+    if (_subtasks.isEmpty) {
+      LogService.error('⚠️ No tasks to copy');
+      return;
+    }
+
+    final bulletList = _subtasks.map((task) {
+      final status = task.isCompleted ? '✓' : '○';
+      String result = '$status ${task.title}';
+      if (task.description != null && task.description!.isNotEmpty) {
+        result += '\n    ${task.description}';
+      }
+      return result;
+    }).join('\n');
+
+    Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
+      Helper().getMessage(message: '${_subtasks.length} tasks copied');
+      LogService.debug('✅ ${_subtasks.length} tasks copied to clipboard');
+    });
+  }
+
+  void _copyIncompleteTasks() {
+    final incomplete = _subtasks.where((t) => !t.isCompleted).toList();
+    if (incomplete.isEmpty) {
+      Helper().getMessage(message: 'No incomplete tasks', status: StatusEnum.INFO);
+      LogService.error('⚠️ No incomplete tasks to copy');
+      return;
+    }
+
+    final bulletList = incomplete.map((task) {
+      String result = '○ ${task.title}';
+      if (task.description != null && task.description!.isNotEmpty) {
+        result += '\n    ${task.description}';
+      }
+      return result;
+    }).join('\n');
+
+    Clipboard.setData(ClipboardData(text: bulletList)).then((_) {
+      Helper().getMessage(message: '${incomplete.length} incomplete tasks copied');
+      LogService.debug('✅ ${incomplete.length} incomplete tasks copied');
+    });
+  }
+
+  Future<void> _toggleShowCompletedTasks() async {
+    final provider = context.read<ProjectsProvider>();
+    final newShowOnlyIncomplete = widget.project.showOnlyIncompleteTasks != true;
+
+    widget.project.showOnlyIncompleteTasks = newShowOnlyIncomplete;
+    await provider.updateProject(widget.project);
+
+    await _loadDetails();
+
+    Helper().getMessage(message: newShowOnlyIncomplete ? 'Completed tasks hidden' : 'All tasks shown');
+    LogService.debug('✅ Show only incomplete: $newShowOnlyIncomplete');
+  }
+
+  Future<void> _completeAllTasks() async {
+    final provider = context.read<ProjectsProvider>();
+    for (final task in _subtasks) {
+      if (!task.isCompleted) {
+        await provider.toggleSubtaskCompleted(task.id);
+      }
+    }
+    await _loadDetails();
+    LogService.debug('✅ All tasks completed');
+  }
+
+  Future<void> _clearAllTasks() async {
+    final provider = context.read<ProjectsProvider>();
+    for (final task in _subtasks) {
+      await provider.deleteSubtask(task.id);
+    }
+    await _loadDetails();
+    LogService.debug('🗑️ All tasks deleted');
   }
 
   @override
@@ -307,6 +384,83 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
                       ],
                     ),
                   ),
+
+                  // Task Actions Menu
+                  if (widget.isExpanded)
+                    PopupMenuButton<String>(
+                      icon: Icon(Icons.more_vert, size: 18, color: AppColors.text.withValues(alpha: 0.6)),
+                      onSelected: (value) async {
+                        switch (value) {
+                          case 'copy_all':
+                            _copyAllTasks();
+                            break;
+                          case 'copy_incomplete':
+                            _copyIncompleteTasks();
+                            break;
+                          case 'toggle_completed':
+                            _toggleShowCompletedTasks();
+                            break;
+                          case 'complete_all':
+                            await _completeAllTasks();
+                            break;
+                          case 'clear_all':
+                            await _clearAllTasks();
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'copy_all',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.content_copy, size: 18),
+                              const SizedBox(width: 8),
+                              Text('Copy All'.tr()),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'copy_incomplete',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.content_copy, size: 18),
+                              const SizedBox(width: 8),
+                              Text('Copy Incomplete'.tr()),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'toggle_completed',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.visibility, size: 18),
+                              const SizedBox(width: 8),
+                              Text('Hide Completed'.tr()),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'complete_all',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.done_all, size: 18),
+                              const SizedBox(width: 8),
+                              Text('Complete All'.tr()),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'clear_all',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.clear_all, size: 18, color: Colors.red),
+                              const SizedBox(width: 8),
+                              Text('Clear All'.tr(), style: const TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
 
                   // Expand Icon
                   AnimatedBuilder(

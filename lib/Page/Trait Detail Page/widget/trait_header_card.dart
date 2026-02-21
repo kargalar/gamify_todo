@@ -30,7 +30,7 @@ class TraitHeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.panelBackground2,
+        color: AppColors.panelBackgroundDark,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
