@@ -884,7 +884,7 @@ class _AddTaskPageState extends State<AddTaskPage> with WidgetsBindingObserver {
       addTaskProvider.taskNameController.clear();
       addTaskProvider.descriptionController.clear();
       addTaskProvider.locationController.clear();
-      NavigatorService().back();
+      NavigatorService().goBackNavbar();
     } catch (e) {
       LogService.error('❌ Failed to save template: $e');
 
