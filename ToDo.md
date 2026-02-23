@@ -17,3 +17,11 @@ NOTE: bildirimleri de buna göre güncellemelisin
 
 
 
+○ Home screen widgetta taskların bildirim süreleri de gosterilsin
+    Ayrıca Timer taskalrda süre saat dakika olarak yazsın
+○ Task akide da sola lig ekleme butonu ekle
+○ Haftalık progress de bara basılı tutunca açılan listede bazı tasklar gosteriliyor ama hiçbir stuleri falan yok. Neden varlar anlamadım
+○ Projleer sayfası kasıyor
+○ Projelerdek add task butonu üste taşlı
+○ Task temlate deki akide butolnalr radiuslu olsun task itemdakingibi.
+○ Eğer Target 0 ise conuter ve time ricin. Task itme da targeti gidterme sadece currenti göster.

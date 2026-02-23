@@ -162,9 +162,9 @@ class _NavbarPageManagerState extends State<NavbarPageManager> with WidgetsBindi
 
       context.read<StoreProvider>().storeItemList = await StoreRepository().getItems();
       context.read<TraitProvider>().traitList = await TraitRepository().getTraits();
-      context.read<TaskProvider>().routineList = await RoutineRepository().getRoutines();
-      context.read<TaskProvider>().taskList = await TaskRepository().getTasks();
 
+      // Tasks and routines are already loaded in initApp() before DailyStreakProvider
+      // Just run routine task creation and timer restoration
       await HiveService().createTasksFromRoutines();
       await GlobalTimer().checkSavedTimers();
 

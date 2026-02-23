@@ -13,6 +13,8 @@ import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Service/home_widget_service.dart';
 import 'package:next_level/Repository/user_repository.dart';
+import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Repository/routine_repository.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
 import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/theme_provider.dart';
@@ -93,6 +95,12 @@ Future<void> initApp() async {
 
     // Initialize TaskProvider
     await TaskProvider().init();
+
+    // Load tasks and routines so they are available for DailyStreakProvider backfill
+    TaskProvider().taskList = await TaskRepository().getTasks();
+    TaskProvider().routineList = await RoutineRepository().getRoutines();
+    LogService.debug('✅ Tasks loaded: ${TaskProvider().taskList.length} tasks, ${TaskProvider().routineList.length} routines');
+
     // Load categories
     await TaskProvider().loadCategories();
 

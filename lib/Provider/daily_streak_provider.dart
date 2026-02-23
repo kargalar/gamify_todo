@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:next_level/Core/duration_calculator.dart';
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Model/daily_streak_model.dart';
 import 'package:next_level/Provider/streak_settings_provider.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
+import 'package:next_level/Provider/task_provider.dart';
 import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:next_level/Service/logging_service.dart';
@@ -23,8 +25,26 @@ class DailyStreakProvider extends ChangeNotifier {
     if (_isInitialized) return;
 
     try {
+      // One-time migration: clear corrupted streak records that were calculated
+      // when TaskProvider.taskList was empty (causing all isMet to be false).
+      final prefs = await SharedPreferences.getInstance();
+      const migrationKey = 'daily_streak_fix_v1';
+      if (prefs.getBool(migrationKey) != true) {
+        final oldCount = (await HiveService().getAllDailyStreaks()).length;
+        await HiveService().clearDailyStreakBox();
+        await prefs.setBool(migrationKey, true);
+        LogService.debug('DailyStreakProvider: Migration v1 - cleared $oldCount corrupted records for recalculation.');
+      }
+
       _history = await HiveService().getAllDailyStreaks();
       LogService.debug('DailyStreakProvider: Loaded ${_history.length} streak records.');
+
+      // Safety check: skip backfill if tasks are not loaded yet
+      if (TaskProvider().taskList.isEmpty) {
+        LogService.error('DailyStreakProvider: TaskProvider.taskList is empty! Skipping backfill to prevent corrupted records.');
+        _isInitialized = true;
+        return;
+      }
 
       await _backfillHistory();
       _isInitialized = true;
