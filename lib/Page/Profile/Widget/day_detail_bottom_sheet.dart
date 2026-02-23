@@ -601,11 +601,20 @@ class DayDetailBottomSheet extends StatelessWidget {
       }
     }
 
+    // Filter out tasks that have no meaningful data (no status, no duration, no count)
+    // These are "status reset" logs (e.g. task set to in-progress) that shouldn't be displayed
+    final meaningfulTasks = taskMap.values.where((task) {
+      // Always keep special bonus entries
+      if (task.taskId == -10 || task.taskId == -20) return true;
+      // Keep if task has any meaningful data
+      return task.status != null || task.duration > Duration.zero || task.count > 0;
+    }).toList();
+
     return _DaySummaryData(
       totalDuration: totalDuration,
       doneCount: doneCount,
       failedCount: failedCount,
-      taskDetails: taskMap.values.toList(),
+      taskDetails: meaningfulTasks,
       dpGained: dpGained,
       dpLost: dpLost,
     );

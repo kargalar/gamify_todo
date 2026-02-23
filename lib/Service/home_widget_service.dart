@@ -127,6 +127,15 @@ class HomeWidgetService {
         if (task.status == TaskStatusEnum.DONE) statusStr = 'DONE';
         if (task.status == TaskStatusEnum.FAILED) statusStr = 'FAILED';
         if (task.status == TaskStatusEnum.OVERDUE) statusStr = 'OVERDUE';
+
+        // Build notification time string (HH:mm) if notification is enabled
+        String? notificationTime;
+        if (task.isNotificationOn && task.time != null) {
+          final hour = task.time!.hour.toString().padLeft(2, '0');
+          final minute = task.time!.minute.toString().padLeft(2, '0');
+          notificationTime = '$hour:$minute';
+        }
+
         return {
           'id': task.id,
           'title': task.title,
@@ -137,6 +146,7 @@ class HomeWidgetService {
           'targetCount': task.targetCount ?? 0,
           'currentDurationSec': task.currentDuration?.inSeconds ?? 0,
           'targetDurationSec': task.remainingDuration?.inSeconds ?? 0,
+          'notificationTime': notificationTime,
         };
       }
 

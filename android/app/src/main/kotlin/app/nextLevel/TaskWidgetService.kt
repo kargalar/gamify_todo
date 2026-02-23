@@ -24,7 +24,8 @@ class TaskWidgetService : RemoteViewsService() {
             val currentCount: Int = 0,
             val targetCount: Int = 0,
             val currentDurationSec: Int = 0,
-            val targetDurationSec: Int = 0
+            val targetDurationSec: Int = 0,
+            val notificationTime: String? = null
         )
 
         private sealed class ListItem {
@@ -58,7 +59,8 @@ class TaskWidgetService : RemoteViewsService() {
                             currentCount = o.optInt("currentCount"),
                             targetCount = o.optInt("targetCount"),
                             currentDurationSec = o.optInt("currentDurationSec"),
-                            targetDurationSec = o.optInt("targetDurationSec")
+                            targetDurationSec = o.optInt("targetDurationSec"),
+                            notificationTime = if (o.isNull("notificationTime")) null else o.optString("notificationTime")
                         )
                     )
                 }
@@ -138,6 +140,14 @@ class TaskWidgetService : RemoteViewsService() {
                         rv.setViewVisibility(R.id.task_item_status_badge, View.GONE)
                     }
 
+                    // Notification time display
+                    if (item.notificationTime != null) {
+                        rv.setTextViewText(R.id.task_item_notification_time, "🔔 ${item.notificationTime}")
+                        rv.setViewVisibility(R.id.task_item_notification_time, View.VISIBLE)
+                    } else {
+                        rv.setViewVisibility(R.id.task_item_notification_time, View.GONE)
+                    }
+
                     // Progress subtitle for counter/timer tasks
                     var sub = ""
                     when (item.type) {
@@ -146,11 +156,12 @@ class TaskWidgetService : RemoteViewsService() {
                             sub = "${item.currentCount}/$tgt"
                         }
                         "TIMER" -> {
-                            val mm = (item.currentDurationSec / 60) % 60
-                            val hh = item.currentDurationSec / 3600
-                            val tgtMm = (item.targetDurationSec / 60) % 60
-                            val tgtHh = item.targetDurationSec / 3600
-                            sub = String.format("%d:%02d / %d:%02d", hh, mm, tgtHh, tgtMm)
+                            fun formatDuration(totalSec: Int): String {
+                                val h = totalSec / 3600
+                                val m = (totalSec % 3600) / 60
+                                return if (h > 0) "${h}sa ${m}dk" else "${m}dk"
+                            }
+                            sub = "${formatDuration(item.currentDurationSec)} / ${formatDuration(item.targetDurationSec)}"
                         }
                     }
                     if (sub.isNotEmpty()) {

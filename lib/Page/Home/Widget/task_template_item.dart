@@ -43,6 +43,7 @@ class _TaskTemplateItemState extends State<TaskTemplateItem> {
                 widget.onEditPressed?.call();
               },
               backgroundColor: AppColors.main,
+              borderRadius: BorderRadius.circular(12),
               icon: Icons.edit,
               foregroundColor: AppColors.white,
               padding: actionItemPadding,
@@ -61,6 +62,7 @@ class _TaskTemplateItemState extends State<TaskTemplateItem> {
                 await _deleteTemplate();
               },
               backgroundColor: AppColors.red,
+              borderRadius: BorderRadius.circular(12),
               icon: Icons.delete,
               foregroundColor: AppColors.white,
               padding: actionItemPadding,

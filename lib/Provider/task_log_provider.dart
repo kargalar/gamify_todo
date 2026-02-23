@@ -153,7 +153,7 @@ class TaskLogProvider with ChangeNotifier {
     if (dpChange != 0) {
       UserProvider().updateDisciplinePoints(dpChange);
     }
-    taskProvider.checkDailyDPBonuses(logDate);
+    await taskProvider.checkDailyDPBonuses(logDate);
 
     await _repository.addTaskLog(taskLog);
     taskLogList.add(taskLog);

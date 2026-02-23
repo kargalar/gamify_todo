@@ -141,22 +141,16 @@ class _ProjectsPageState extends State<ProjectsPage> {
             LogService.debug('📦 Archive filter toggled: ${provider.showArchivedOnly}');
           },
         ),
-        body: Consumer<ProjectsProvider>(
-          builder: (context, provider, _) {
+        body: Builder(
+          builder: (context) {
             // Task count version değiştiğinde task count'larını yeniden yükle
             if (provider.taskCountVersion != _previousTaskCountVersion) {
               _previousTaskCountVersion = provider.taskCountVersion;
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                _loadProjectTaskCounts();
+                if (mounted) _loadProjectTaskCounts();
               });
             }
 
-            // Projeler değiştiğinde task count'larını yeniden yükle
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (provider.projects.isNotEmpty && _projectTaskCounts.isEmpty) {
-                _loadProjectTaskCounts();
-              }
-            });
             // Yükleniyor
             if (provider.isLoading) {
               return const Center(

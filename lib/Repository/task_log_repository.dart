@@ -40,16 +40,27 @@ class TaskLogRepository {
     await _hiveService.deleteTaskLog(id);
   }
 
+  /// Hive integer keys must be in range 0 - 0xFFFFFFFF
+  static const int _maxHiveKey = 0xFFFFFFFF;
+
   /// Helper to get the next valid ID using SharedPreferences
   /// This encapsulates the logic previously in Provider
   Future<int> generateNextId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int lastLogId = prefs.getInt("last_task_log_id") ?? 0;
+    int lastLogId = prefs.getInt("last_task_log_id") ?? 0;
+
+    // Safety: if stored value exceeds Hive key range, reset it
+    if (lastLogId > _maxHiveKey || lastLogId < 0) {
+      LogService.error('⚠️ TaskLogRepository: last_task_log_id ($lastLogId) out of Hive range, resetting');
+      lastLogId = 0;
+    }
 
     // We should also check Hive to be safe, but adhering to legacy logic of using Prefs + Hive
     final logs = await getTaskLogs();
     int highestLogId = lastLogId;
     for (final log in logs) {
+      // Skip IDs outside valid Hive key range (e.g. old system logs with millisecondsSinceEpoch)
+      if (log.id > _maxHiveKey || log.id < 0) continue;
       if (log.id > highestLogId) {
         highestLogId = log.id;
       }
@@ -57,6 +68,7 @@ class TaskLogRepository {
 
     final nextId = highestLogId + 1;
     await prefs.setInt("last_task_log_id", nextId);
+    LogService.debug('📊 TaskLogRepository: Generated next log ID: $nextId');
     return nextId;
   }
 }

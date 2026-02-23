@@ -23,7 +23,18 @@
         android:maxLines="1"
         android:ellipsize="end" />
 
-    <!-- Progress text (counter: 3/10, timer: 00:15:30) -->
+    <!-- Notification time -->
+    <TextView
+        android:id="@+id/task_item_notification_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFAB40"
+        android:textSize="10sp"
+        android:layout_marginStart="6dp"
+        android:text=""
+        android:visibility="gone" />
+
+    <!-- Progress text (counter: 3/10, timer: 15dk / 1sa) -->
     <TextView
         android:id="@+id/task_item_sub"
         android:layout_width="wrap_content"

@@ -11,6 +11,9 @@ import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Enum/task_type_enum.dart';
+import 'package:next_level/Widgets/Common/log_bottom_sheet.dart';
+import 'package:next_level/Provider/task_log_provider.dart';
 
 class TaskSlideActions extends StatefulWidget {
   const TaskSlideActions({
@@ -48,9 +51,14 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
     // Ghost routine task kontrolü (taskDate gelecekte ise)
     final bool isGhostRoutine = widget.taskModel.routineID != null && widget.taskModel.taskDate != null && widget.taskModel.taskDate!.isAfterDay(DateTime.now());
 
-    // Ghost routine harici tüm tasklarda (Routine dahil) Edit + Fail göster (0.4)
-    // Ghost routinelerde sadece Edit göster (0.2)
-    final double extentRatio = isGhostRoutine ? 0.2 : 0.4;
+    // Counter ve Timer tasklarda log ekleme butonu göster
+    final bool canAddLog = widget.taskModel.type == TaskTypeEnum.COUNTER || widget.taskModel.type == TaskTypeEnum.TIMER;
+
+    // Buton sayısına göre extentRatio hesapla (her buton ~0.2)
+    int buttonCount = 1; // edit her zaman var
+    if (!isGhostRoutine) buttonCount++; // failed
+    if (canAddLog) buttonCount++; // add log
+    final double extentRatio = buttonCount * 0.2;
 
     return ActionPane(
       motion: const ScrollMotion(),
@@ -90,6 +98,7 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       ),
       children: [
         editAction(),
+        if (canAddLog) addLogAction(),
         if (!isGhostRoutine) failedAction(),
         // Cancel seçeneği - Disiplin sistemi gelene kadar devre dışı
         // cancelAction(),
@@ -262,6 +271,58 @@ class _TaskSlideActionsState extends State<TaskSlideActions> {
       icon: Icons.edit,
       foregroundColor: AppColors.white,
       // label: LocaleKeys.Edit.tr(),
+      padding: actionItemPadding,
+    );
+  }
+
+  SlidableAction addLogAction() {
+    return SlidableAction(
+      onPressed: (context) async {
+        LogService.debug('📝 Task ${widget.taskModel.id} - Add log action started');
+        final result = await showModalBottomSheet<dynamic>(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (context) => LogBottomSheet(
+            type: widget.taskModel.type,
+            isEdit: false,
+          ),
+        );
+
+        if (result != null) {
+          try {
+            Duration? customDuration;
+            int? customCount;
+
+            if (widget.taskModel.type == TaskTypeEnum.TIMER && result is Duration) {
+              customDuration = result;
+            } else if (widget.taskModel.type == TaskTypeEnum.COUNTER && result is int) {
+              customCount = result;
+            }
+
+            await TaskLogProvider().addTaskLog(
+              widget.taskModel,
+              customDuration: customDuration,
+              customCount: customCount,
+              customLogDate: DateTime.now(),
+            );
+
+            LogService.debug('✅ Task ${widget.taskModel.id} - Log added successfully');
+            taskProvider.updateItems();
+          } catch (e) {
+            LogService.error('❌ Task ${widget.taskModel.id} - Failed to add log: $e');
+          }
+        } else {
+          LogService.debug('⚠️ Task ${widget.taskModel.id} - Add log cancelled');
+        }
+      },
+      backgroundColor: AppColors.matteGreen,
+      borderRadius: BorderRadius.circular(12),
+      icon: Icons.add_chart,
+      foregroundColor: AppColors.white,
       padding: actionItemPadding,
     );
   }

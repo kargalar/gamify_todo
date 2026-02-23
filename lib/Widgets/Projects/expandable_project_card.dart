@@ -14,10 +14,10 @@ import '../../Model/project_model.dart';
 import '../../Model/project_subtask_model.dart';
 import '../../Provider/projects_provider.dart';
 import '../../Service/logging_service.dart';
+import '../../Service/locale_keys.g.dart';
 import '../Common/add_item_dialog.dart';
 import '../Common/linkify_text.dart';
 import './project_tasks_section.dart';
-import 'dart:ui';
 
 class ExpandableProjectCard extends StatefulWidget {
   final ProjectModel project;
@@ -203,67 +203,35 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.background.withValues(alpha: 0.9),
-            AppColors.panelBackground.withValues(alpha: 0.8),
-          ],
-        ),
+        color: AppColors.panelBackground,
         border: Border.all(
           color: categoryColor.withValues(alpha: 0.15),
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: categoryColor.withValues(alpha: 0.08),
-            blurRadius: 15,
-            spreadRadius: 2,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Material(
-            color: Colors.transparent,
-            child: Column(
-              children: [
-                // Highlight Strip
-                Container(
-                  height: 4,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        categoryColor.withValues(alpha: 0.8),
-                        categoryColor.withValues(alpha: 0.3),
-                      ],
+        child: Material(
+          color: Colors.transparent,
+          child: Column(
+            children: [
+        
+              _buildHeader(context, categoryColor),
+
+              // Expanded content (tasks)
+              AnimatedBuilder(
+                animation: _expandAnimation,
+                builder: (context, child) {
+                  return ClipRect(
+                    child: Align(
+                      heightFactor: _expandAnimation.value,
+                      child: child,
                     ),
-                  ),
-                ),
-
-                // Header
-                _buildHeader(context, categoryColor),
-
-                // Expanded content (tasks)
-                AnimatedBuilder(
-                  animation: _expandAnimation,
-                  builder: (context, child) {
-                    return ClipRect(
-                      child: Align(
-                        heightFactor: _expandAnimation.value,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: _buildExpandedContent(categoryColor),
-                ),
-              ],
-            ),
+                  );
+                },
+                child: _buildExpandedContent(categoryColor),
+              ),
+            ],
           ),
         ),
       ),
@@ -386,7 +354,6 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
                   ),
 
                   // Task Actions Menu
-                  if (widget.isExpanded)
                     PopupMenuButton<String>(
                       icon: Icon(Icons.more_vert, size: 18, color: AppColors.text.withValues(alpha: 0.6)),
                       onSelected: (value) async {
@@ -463,26 +430,7 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
                     ),
 
                   // Expand Icon
-                  AnimatedBuilder(
-                    animation: _expandAnimation,
-                    builder: (context, child) {
-                      return Transform.rotate(
-                        angle: _expandAnimation.value * 3.14159,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.panelBackground,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: AppColors.text.withValues(alpha: 0.6),
-                            size: 20,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+             
                 ],
               ),
 
@@ -557,6 +505,44 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
                       child: const Icon(Icons.archive_rounded, size: 14, color: AppColors.orange),
                     ),
 
+                  const SizedBox(width: 8),
+
+                  // Add Task Button
+                  InkWell(
+                    onTap: () => _showAddTaskDialog(categoryColor),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: categoryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: categoryColor.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.add_circle_outline_rounded,
+                            size: 14,
+                            color: categoryColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Add New Task',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: categoryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   const Spacer(),
 
                   // Date
@@ -590,101 +576,73 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
       ),
       child: Column(
         children: [
-          // Tasks section
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: ProjectTasksSection(
-              project: widget.project,
-              tasks: _subtasks,
-              onTasksChanged: _loadDetails,
-            ),
-          ),
-
-          // Enhanced "Add Task" Button at the bottom
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: InkWell(
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => AddItemDialog(
-                    title: 'add_task'.tr(),
-                    icon: Icons.add_task,
-                    titleLabel: 'task_title'.tr(),
-                    titleHint: 'enter_task_title'.tr(),
-                    titleRequired: true,
-                    descriptionLabel: 'description'.tr(),
-                    descriptionHint: 'enter_task_description'.tr(),
-                    descriptionRequired: false,
-                    descriptionMaxLines: 3,
-                    descriptionMinLines: 1,
-                    showCancelButton: true,
-                    onSave: (title, description) async {
-                      if (title != null && title.isNotEmpty) {
-                        final provider = Provider.of<ProjectsProvider>(context, listen: false);
-                        final subtask = ProjectSubtaskModel(
-                          id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
-                          projectId: widget.project.id,
-                          title: title,
-                          description: description,
-                          createdAt: DateTime.now(),
-                        );
-                        await provider.addSubtask(subtask);
-                        await _loadDetails();
-                        Helper().getMessage(
-                          message: 'Task added successfully',
-                          status: StatusEnum.SUCCESS,
-                        );
-                        LogService.debug('✅ Quick task added: $title');
-                      }
-                    },
-                    isEditing: false,
+          if (_subtasks.isEmpty && !_isLoadingDetails)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+              child: Center(
+                child: Text(
+                  LocaleKeys.NoTasksYet.tr(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.text.withValues(alpha: 0.4),
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      categoryColor.withValues(alpha: 0.15),
-                      categoryColor.withValues(alpha: 0.05),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: categoryColor.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.add_circle_outline_rounded,
-                      size: 18,
-                      color: categoryColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Add New Task',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: categoryColor,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ],
                 ),
               ),
+            )
+          else
+            // Tasks section
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: ProjectTasksSection(
+                project: widget.project,
+                tasks: _subtasks,
+                onTasksChanged: _loadDetails,
+              ),
             ),
-          ),
         ],
+      ),
+    );
+  }
+
+  void _showAddTaskDialog(Color categoryColor) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddItemDialog(
+        title: 'add_task'.tr(),
+        icon: Icons.add_task,
+        titleLabel: 'task_title'.tr(),
+        titleHint: 'enter_task_title'.tr(),
+        titleRequired: true,
+        descriptionLabel: 'description'.tr(),
+        descriptionHint: 'enter_task_description'.tr(),
+        descriptionRequired: false,
+        descriptionMaxLines: 3,
+        descriptionMinLines: 1,
+        showCancelButton: true,
+        onSave: (title, description) async {
+          if (title != null && title.isNotEmpty) {
+            final provider = Provider.of<ProjectsProvider>(context, listen: false);
+            final subtask = ProjectSubtaskModel(
+              id: 'subtask_${DateTime.now().millisecondsSinceEpoch}',
+              projectId: widget.project.id,
+              title: title,
+              description: description,
+              createdAt: DateTime.now(),
+            );
+            await provider.addSubtask(subtask);
+            await _loadDetails();
+            Helper().getMessage(
+              message: 'Task added successfully',
+              status: StatusEnum.SUCCESS,
+            );
+            LogService.debug('✅ Quick task added: $title');
+          }
+        },
+        isEditing: false,
       ),
     );
   }

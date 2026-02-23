@@ -9,6 +9,7 @@ import 'package:next_level/Service/app_helper.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/notification_services.dart';
 import 'package:next_level/Repository/task_repository.dart';
+import 'package:next_level/Repository/task_log_repository.dart';
 import 'package:next_level/Repository/routine_repository.dart';
 import 'package:next_level/Repository/category_repository.dart';
 import 'package:next_level/Service/home_widget_service.dart';
@@ -1392,8 +1393,9 @@ class TaskProvider with ChangeNotifier {
         await userProvider.setLastRoutineBonusDate(date);
         LogService.debug('Granted daily routine DP bonus! (+5)');
 
+        final routineBonusId = await TaskLogRepository().generateNextId();
         await TaskLogProvider().addSystemLog(TaskLogModel(
-          id: DateTime.now().millisecondsSinceEpoch,
+          id: routineBonusId,
           taskId: -10, // Daily Routine Bonus
           logDate: date,
           taskTitle: 'Daily Routine Bonus',
@@ -1415,8 +1417,9 @@ class TaskProvider with ChangeNotifier {
         await userProvider.setLastRoutinePenaltyDate(date);
         LogService.debug('Applied daily routine DP penalty! (-5)');
 
+        final routinePenaltyId = await TaskLogRepository().generateNextId();
         await TaskLogProvider().addSystemLog(TaskLogModel(
-          id: DateTime.now().millisecondsSinceEpoch + 1,
+          id: routinePenaltyId,
           taskId: -11, // Daily Routine Penalty
           logDate: date,
           taskTitle: 'Daily Routine Penalty',
@@ -1446,8 +1449,9 @@ class TaskProvider with ChangeNotifier {
         await userProvider.setLastTaskBonusDate(date);
         LogService.debug('Granted daily task DP bonus! (+2)');
 
+        final taskBonusId = await TaskLogRepository().generateNextId();
         await TaskLogProvider().addSystemLog(TaskLogModel(
-          id: DateTime.now().millisecondsSinceEpoch,
+          id: taskBonusId,
           taskId: -20, // Daily Task Bonus
           logDate: date,
           taskTitle: 'Daily Task Bonus',
@@ -1469,8 +1473,9 @@ class TaskProvider with ChangeNotifier {
         await userProvider.setLastTaskPenaltyDate(date);
         LogService.debug('Applied daily task DP penalty! (-2)');
 
+        final taskPenaltyId = await TaskLogRepository().generateNextId();
         await TaskLogProvider().addSystemLog(TaskLogModel(
-          id: DateTime.now().millisecondsSinceEpoch + 1,
+          id: taskPenaltyId,
           taskId: -21, // Daily Task Penalty
           logDate: date,
           taskTitle: 'Daily Task Penalty',
