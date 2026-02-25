@@ -41,14 +41,27 @@ class FilterMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.filter_list,
-        size: 20,
-        color: AppColors.text,
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.hardEdge,
+      child: Tooltip(
+        message: LocaleKeys.Filters.tr(),
+        child: InkWell(
+          onTap: () => _showFilterDialog(context),
+          onLongPress: () {
+            context.read<HomeViewModel>().toggleDoneFilter();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.filter_list,
+              size: 20,
+              color: AppColors.text,
+            ),
+          ),
+        ),
       ),
-      tooltip: LocaleKeys.Filters.tr(),
-      onPressed: () => _showFilterDialog(context),
     );
   }
 }

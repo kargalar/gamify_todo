@@ -467,6 +467,18 @@ class HomeViewModel extends ChangeNotifier {
     await prefs.setBool('home_show_empty_status', _showEmptyStatus);
   }
 
+  Future<void> toggleDoneFilter() async {
+    if (_selectedStatuses.contains(TaskStatusEnum.DONE)) {
+      _selectedStatuses.remove(TaskStatusEnum.DONE);
+      LogService.debug('🔄 Home: DONE filter removed via long press');
+    } else {
+      _selectedStatuses.add(TaskStatusEnum.DONE);
+      LogService.debug('🔄 Home: DONE filter added via long press');
+    }
+    await _saveFilterPreferences();
+    notifyListeners();
+  }
+
   // Update filters
   Future<void> updateFilters(
     bool showRoutines,

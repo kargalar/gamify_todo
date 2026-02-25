@@ -54,14 +54,7 @@ class _StoreItemState extends State<StoreItem> {
             onTap: _handleItemAction,
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.panelBackground.withValues(alpha: 0.85),
-                    AppColors.panelBackground2.withValues(alpha: 0.5),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: AppColors.panelBackground.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: _isTimerActive ? AppColors.main.withValues(alpha: 0.4) : AppColors.panelBackground2.withValues(alpha: 0.5),
