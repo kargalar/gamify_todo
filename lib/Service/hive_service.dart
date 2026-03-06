@@ -39,6 +39,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:next_level/Service/logging_service.dart';
 import 'package:next_level/Model/daily_streak_model.dart';
+import 'package:next_level/Model/task_template_model.dart';
+import 'package:next_level/Model/vacation_date_model.dart';
+import 'package:next_level/Model/store_item_log_model.dart';
+import 'package:next_level/Service/task_template_service.dart';
+import 'package:next_level/Provider/vacation_date_provider.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as path;
 
@@ -53,6 +58,9 @@ class HiveService {
   static const String _taskLogBoxName = 'taskLogBox';
   static const String _categoryBoxName = 'categoryBox_v2';
   static const String _dailyStreakBoxName = 'dailyStreakBox';
+  static const String _taskTemplateBoxName = 'task_templates';
+  static const String _vacationDateBoxName = 'vacation_dates';
+  static const String _storeItemLogBoxName = 'storeItemLogBox';
 
   Future<Box<UserModel>> get _userBox async => await Hive.openBox<UserModel>(_userBoxName);
   Future<Box<ItemModel>> get _itemBox async => await Hive.openBox<ItemModel>(_itemBoxName);
@@ -62,6 +70,9 @@ class HiveService {
   Future<Box<TaskLogModel>> get _taskLogBox async => await Hive.openBox<TaskLogModel>(_taskLogBoxName);
   Future<Box<CategoryModel>> get _categoryBox async => await Hive.openBox<CategoryModel>(_categoryBoxName);
   Future<Box<DailyStreakModel>> get _dailyStreakBox async => await Hive.openBox<DailyStreakModel>(_dailyStreakBoxName);
+  Future<Box<TaskTemplateModel>> get _taskTemplateBox async => await Hive.openBox<TaskTemplateModel>(_taskTemplateBoxName);
+  Future<Box<VacationDateModel>> get _vacationDateBox async => await Hive.openBox<VacationDateModel>(_vacationDateBoxName);
+  Future<Box<StoreItemLog>> get _storeItemLogBox async => await Hive.openBox<StoreItemLog>(_storeItemLogBoxName);
 
   // User methods
   Future<void> addUser(UserModel userModel) async {
@@ -502,6 +513,30 @@ class HiveService {
       final box8 = await _dailyStreakBox;
       await box8.clear();
 
+      // Clear Task Templates
+      try {
+        final taskTemplateBox = await _taskTemplateBox;
+        await taskTemplateBox.clear();
+      } catch (e) {
+        LogService.error('Error clearing task templates: $e');
+      }
+
+      // Clear Vacation Dates
+      try {
+        final vacationDateBox = await _vacationDateBox;
+        await vacationDateBox.clear();
+      } catch (e) {
+        LogService.error('Error clearing vacation dates: $e');
+      }
+
+      // Clear Store Item Logs
+      try {
+        final storeItemLogBox = await _storeItemLogBox;
+        await storeItemLogBox.clear();
+      } catch (e) {
+        LogService.error('Error clearing store item logs: $e');
+      }
+
       // Clear SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
@@ -657,6 +692,36 @@ class HiveService {
       }
       allData["notes"] = noteMap;
 
+      // Export Task Templates
+      final taskTemplateBox = await _taskTemplateBox;
+      final templateMap = {};
+      for (var key in taskTemplateBox.keys) {
+        final template = taskTemplateBox.get(key);
+        if (template != null) templateMap[key.toString()] = template.toJson();
+      }
+      allData[_taskTemplateBoxName] = templateMap;
+      LogService.debug('✅ Exported ${templateMap.length} task templates');
+
+      // Export Vacation Dates
+      final vacationDateBox = await _vacationDateBox;
+      final vacationDateMap = {};
+      for (var key in vacationDateBox.keys) {
+        final vacationDate = vacationDateBox.get(key);
+        if (vacationDate != null) vacationDateMap[key.toString()] = vacationDate.toJson();
+      }
+      allData[_vacationDateBoxName] = vacationDateMap;
+      LogService.debug('✅ Exported ${vacationDateMap.length} vacation dates');
+
+      // Export Store Item Logs
+      final storeItemLogBox = await _storeItemLogBox;
+      final storeItemLogMap = {};
+      for (var key in storeItemLogBox.keys) {
+        final log = storeItemLogBox.get(key);
+        if (log != null) storeItemLogMap[key.toString()] = log.toJson();
+      }
+      allData[_storeItemLogBoxName] = storeItemLogMap;
+      LogService.debug('✅ Exported ${storeItemLogMap.length} store item logs');
+
       // Export SharedPrefs
       final prefs = await SharedPreferences.getInstance();
       final sharedPrefsMap = {};
@@ -698,6 +763,13 @@ class HiveService {
 
       // Export language setting
       sharedPrefsMap["selected_language"] = prefs.getString('selected_language') ?? 'en';
+
+      // Export vacation mode setting
+      sharedPrefsMap["vacation_mode_enabled"] = prefs.getBool('vacation_mode_enabled') ?? false;
+
+      // Export streak settings
+      sharedPrefsMap["streak_minimum_hours"] = prefs.getDouble('streak_minimum_hours') ?? 1.0;
+      sharedPrefsMap["vacation_weekdays"] = prefs.getStringList('vacation_weekdays') ?? [];
 
       allData["SharedPreferances"] = sharedPrefsMap;
 
@@ -933,6 +1005,39 @@ class HiveService {
             await NotesProvider().loadNotes();
           }
 
+          // Import Task Templates if they exist
+          if (allData.containsKey(_taskTemplateBoxName)) {
+            final taskTemplateBox = await _taskTemplateBox;
+            final templateData = allData[_taskTemplateBoxName] as Map<String, dynamic>;
+            for (var entry in templateData.entries) {
+              final template = TaskTemplateModel.fromJson(entry.value);
+              await taskTemplateBox.put(entry.key, template);
+            }
+            LogService.debug('✅ Imported ${templateData.length} task templates');
+          }
+
+          // Import Vacation Dates if they exist
+          if (allData.containsKey(_vacationDateBoxName)) {
+            final vacationDateBox = await _vacationDateBox;
+            final vacationData = allData[_vacationDateBoxName] as Map<String, dynamic>;
+            for (var entry in vacationData.entries) {
+              final vacationDate = VacationDateModel.fromJson(entry.value);
+              await vacationDateBox.put(entry.key, vacationDate);
+            }
+            LogService.debug('✅ Imported ${vacationData.length} vacation dates');
+          }
+
+          // Import Store Item Logs if they exist
+          if (allData.containsKey(_storeItemLogBoxName)) {
+            final storeItemLogBox = await _storeItemLogBox;
+            final storeItemLogData = allData[_storeItemLogBoxName] as Map<String, dynamic>;
+            for (var entry in storeItemLogData.entries) {
+              final log = StoreItemLog.fromJson(entry.value);
+              await storeItemLogBox.put(int.parse(entry.key), log);
+            }
+            LogService.debug('✅ Imported ${storeItemLogData.length} store item logs');
+          }
+
           // Import SharedPrefs
           final prefs = await SharedPreferences.getInstance();
           final sharedPrefsMap = allData["SharedPreferances"] as Map<String, dynamic>;
@@ -976,6 +1081,17 @@ class HiveService {
           // Import language setting
           await prefs.setString('selected_language', sharedPrefsMap["selected_language"] ?? 'en');
 
+          // Import vacation mode setting
+          await prefs.setBool('vacation_mode_enabled', (sharedPrefsMap["vacation_mode_enabled"] is bool) ? sharedPrefsMap["vacation_mode_enabled"] : false);
+
+          // Import streak settings
+          if (sharedPrefsMap["streak_minimum_hours"] != null) {
+            await prefs.setDouble('streak_minimum_hours', (sharedPrefsMap["streak_minimum_hours"] is num) ? (sharedPrefsMap["streak_minimum_hours"] as num).toDouble() : 1.0);
+          }
+          if (sharedPrefsMap["vacation_weekdays"] != null) {
+            await prefs.setStringList('vacation_weekdays', (sharedPrefsMap["vacation_weekdays"] as List).map((e) => e.toString()).toList());
+          }
+
           // Mark first launch as done to prevent sample data dialog after restore
           await prefs.setBool('is_first_launch', false);
           await prefs.setBool('is_default_data_loaded', true);
@@ -1014,6 +1130,9 @@ class HiveService {
             taskBox.flush(),
             taskLogBox.flush(),
             categoryBox.flush(),
+            if (allData.containsKey(_taskTemplateBoxName)) (await _taskTemplateBox).flush(),
+            if (allData.containsKey(_vacationDateBoxName)) (await _vacationDateBox).flush(),
+            if (allData.containsKey(_storeItemLogBoxName)) (await _storeItemLogBox).flush(),
           ]);
 
           LogService.debug('✅ All data flushed to disk');

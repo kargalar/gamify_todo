@@ -40,4 +40,22 @@ class VacationDateModel extends HiveObject {
   String toString() {
     return 'VacationDateModel(date: $dateString, isVacation: $isVacation)';
   }
+
+  /// JSON'a dönüştür (export/import için)
+  Map<String, dynamic> toJson() {
+    return {
+      'date_string': dateString,
+      'is_vacation': isVacation,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  /// JSON'dan oluştur (export/import için)
+  factory VacationDateModel.fromJson(Map<String, dynamic> json) {
+    return VacationDateModel(
+      dateString: json['date_string'],
+      isVacation: json['is_vacation'] ?? true,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+    );
+  }
 }

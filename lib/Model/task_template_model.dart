@@ -117,4 +117,62 @@ class TaskTemplateModel extends HiveObject {
       order: order ?? this.order,
     );
   }
+
+  /// JSON'a dönüştür (export/import için)
+  Map<String, dynamic> toJson() {
+    String durationToString(Duration duration) {
+      final hours = duration.inHours;
+      final minutes = duration.inMinutes.remainder(60);
+      final seconds = duration.inSeconds.remainder(60);
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'type': type.toString().split('.').last,
+      'priority': priority,
+      'remaining_duration': remainingDuration != null ? durationToString(remainingDuration!) : null,
+      'target_count': targetCount,
+      'attribute_id_list': attributeIDList,
+      'skill_id_list': skillIDList,
+      'subtasks': subtasks?.map((subtask) => subtask.toJson()).toList(),
+      'location': location,
+      'category_id': categoryId,
+      'early_reminder_minutes': earlyReminderMinutes,
+      'is_notification_on': isNotificationOn,
+      'is_alarm_on': isAlarmOn,
+      'created_at': createdAt.toIso8601String(),
+      'order': order,
+    };
+  }
+
+  /// JSON'dan oluştur (export/import için)
+  factory TaskTemplateModel.fromJson(Map<String, dynamic> json) {
+    Duration stringToDuration(String timeString) {
+      List<String> split = timeString.split(':');
+      return Duration(hours: int.parse(split[0]), minutes: int.parse(split[1]), seconds: int.parse(split[2]));
+    }
+
+    return TaskTemplateModel(
+      id: json['id'] ?? 0,
+      title: json['title'],
+      description: json['description'],
+      type: TaskTypeEnum.values.firstWhere((e) => e.toString().split('.').last == json['type']),
+      priority: json['priority'] ?? 3,
+      remainingDuration: json['remaining_duration'] != null ? stringToDuration(json['remaining_duration']) : null,
+      targetCount: json['target_count'],
+      attributeIDList: json['attribute_id_list'] != null ? (json['attribute_id_list'] as List).map((i) => i as int).toList() : null,
+      skillIDList: json['skill_id_list'] != null ? (json['skill_id_list'] as List).map((i) => i as int).toList() : null,
+      subtasks: json['subtasks'] != null ? SubTaskModel.fromJsonList(json['subtasks']) : null,
+      location: json['location'],
+      categoryId: json['category_id'],
+      earlyReminderMinutes: json['early_reminder_minutes'],
+      isNotificationOn: json['is_notification_on'] ?? false,
+      isAlarmOn: json['is_alarm_on'] ?? false,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      order: json['order'] ?? 0,
+    );
+  }
 }

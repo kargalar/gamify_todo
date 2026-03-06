@@ -106,4 +106,56 @@ class StoreItemLog extends HiveObject {
   String get formattedDate {
     return "${logDate.day}/${logDate.month}/${logDate.year} ${logDate.hour.toString().padLeft(2, '0')}:${logDate.minute.toString().padLeft(2, '0')}:${logDate.second.toString().padLeft(2, '0')}";
   }
+
+  /// JSON'a dönüştür (export/import için)
+  Map<String, dynamic> toJson() {
+    dynamic serializedValue;
+    if (type == TaskTypeEnum.TIMER && value is Duration) {
+      final duration = value as Duration;
+      final hours = duration.inHours;
+      final minutes = duration.inMinutes.remainder(60);
+      final seconds = duration.inSeconds.remainder(60);
+      serializedValue = '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else {
+      serializedValue = value;
+    }
+
+    return {
+      'item_id': itemId,
+      'log_date': logDate.toIso8601String(),
+      'action': action,
+      'value': serializedValue,
+      'type_value': typeValue,
+      'affects_progress': affectsProgress,
+      'is_purchase': isPurchase,
+    };
+  }
+
+  /// JSON'dan oluştur (export/import için)
+  factory StoreItemLog.fromJson(Map<String, dynamic> json) {
+    final int typeVal = json['type_value'] ?? 0;
+    dynamic parsedValue;
+
+    if (typeVal == 1 && json['value'] is String) {
+      // Timer type - parse duration string
+      final parts = (json['value'] as String).split(':');
+      parsedValue = Duration(
+        hours: int.parse(parts[0]),
+        minutes: int.parse(parts[1]),
+        seconds: int.parse(parts[2]),
+      );
+    } else {
+      parsedValue = json['value'];
+    }
+
+    return StoreItemLog(
+      itemId: json['item_id'],
+      logDate: DateTime.parse(json['log_date']),
+      action: json['action'],
+      value: parsedValue,
+      typeValue: typeVal,
+      affectsProgress: json['affects_progress'] ?? false,
+      isPurchase: json['is_purchase'] ?? false,
+    );
+  }
 }
