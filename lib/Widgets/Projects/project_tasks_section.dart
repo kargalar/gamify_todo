@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
-import '../../General/app_colors.dart';
-import '../../Core/helper.dart';
-import '../../Model/project_model.dart';
-import '../../Model/project_subtask_model.dart';
-import '../../Provider/projects_provider.dart';
-import '../../Service/logging_service.dart';
-import '../Common/add_item_dialog.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Model/project_model.dart';
+import 'package:next_level/Model/project_subtask_model.dart';
+import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Widgets/Common/add_item_dialog.dart';
 
 class ProjectTasksSection extends StatefulWidget {
   final ProjectModel project;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../General/app_colors.dart';
-import '../../Service/logging_service.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// Reusable linkified text widget that makes URLs clickable
 /// Can be used across the app for any text that might contain links

@@ -7,17 +7,17 @@ import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
 import 'package:provider/provider.dart';
-import '../../General/app_colors.dart';
-import '../../General/category_icons.dart';
-import '../../Model/category_model.dart';
-import '../../Model/project_model.dart';
-import '../../Model/project_subtask_model.dart';
-import '../../Provider/projects_provider.dart';
-import '../../Service/logging_service.dart';
-import '../../Service/locale_keys.g.dart';
-import '../Common/add_item_dialog.dart';
-import '../Common/linkify_text.dart';
-import './project_tasks_section.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/category_icons.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Model/project_model.dart';
+import 'package:next_level/Model/project_subtask_model.dart';
+import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Widgets/Common/add_item_dialog.dart';
+import 'package:next_level/Widgets/Common/linkify_text.dart';
+import 'package:next_level/Widgets/Projects/project_tasks_section.dart';
 
 class ExpandableProjectCard extends StatefulWidget {
   final ProjectModel project;
@@ -215,7 +215,6 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
           color: Colors.transparent,
           child: Column(
             children: [
-        
               _buildHeader(context, categoryColor),
 
               // Expanded content (tasks)
@@ -354,83 +353,82 @@ class _ExpandableProjectCardState extends State<ExpandableProjectCard> with Sing
                   ),
 
                   // Task Actions Menu
-                    PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert, size: 18, color: AppColors.text.withValues(alpha: 0.6)),
-                      onSelected: (value) async {
-                        switch (value) {
-                          case 'copy_all':
-                            _copyAllTasks();
-                            break;
-                          case 'copy_incomplete':
-                            _copyIncompleteTasks();
-                            break;
-                          case 'toggle_completed':
-                            _toggleShowCompletedTasks();
-                            break;
-                          case 'complete_all':
-                            await _completeAllTasks();
-                            break;
-                          case 'clear_all':
-                            await _clearAllTasks();
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'copy_all',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.content_copy, size: 18),
-                              const SizedBox(width: 8),
-                              Text('Copy All'.tr()),
-                            ],
-                          ),
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, size: 18, color: AppColors.text.withValues(alpha: 0.6)),
+                    onSelected: (value) async {
+                      switch (value) {
+                        case 'copy_all':
+                          _copyAllTasks();
+                          break;
+                        case 'copy_incomplete':
+                          _copyIncompleteTasks();
+                          break;
+                        case 'toggle_completed':
+                          _toggleShowCompletedTasks();
+                          break;
+                        case 'complete_all':
+                          await _completeAllTasks();
+                          break;
+                        case 'clear_all':
+                          await _clearAllTasks();
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'copy_all',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.content_copy, size: 18),
+                            const SizedBox(width: 8),
+                            Text('Copy All'.tr()),
+                          ],
                         ),
-                        PopupMenuItem(
-                          value: 'copy_incomplete',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.content_copy, size: 18),
-                              const SizedBox(width: 8),
-                              Text('Copy Incomplete'.tr()),
-                            ],
-                          ),
+                      ),
+                      PopupMenuItem(
+                        value: 'copy_incomplete',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.content_copy, size: 18),
+                            const SizedBox(width: 8),
+                            Text('Copy Incomplete'.tr()),
+                          ],
                         ),
-                        PopupMenuItem(
-                          value: 'toggle_completed',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.visibility, size: 18),
-                              const SizedBox(width: 8),
-                              Text('Hide Completed'.tr()),
-                            ],
-                          ),
+                      ),
+                      PopupMenuItem(
+                        value: 'toggle_completed',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.visibility, size: 18),
+                            const SizedBox(width: 8),
+                            Text('Hide Completed'.tr()),
+                          ],
                         ),
-                        PopupMenuItem(
-                          value: 'complete_all',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.done_all, size: 18),
-                              const SizedBox(width: 8),
-                              Text('Complete All'.tr()),
-                            ],
-                          ),
+                      ),
+                      PopupMenuItem(
+                        value: 'complete_all',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.done_all, size: 18),
+                            const SizedBox(width: 8),
+                            Text('Complete All'.tr()),
+                          ],
                         ),
-                        PopupMenuItem(
-                          value: 'clear_all',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.clear_all, size: 18, color: Colors.red),
-                              const SizedBox(width: 8),
-                              Text('Clear All'.tr(), style: const TextStyle(color: Colors.red)),
-                            ],
-                          ),
+                      ),
+                      PopupMenuItem(
+                        value: 'clear_all',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.clear_all, size: 18, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Text('Clear All'.tr(), style: const TextStyle(color: Colors.red)),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
 
                   // Expand Icon
-             
                 ],
               ),
 

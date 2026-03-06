@@ -10,10 +10,10 @@ import 'package:next_level/Service/logging_service.dart';
 import 'package:provider/provider.dart';
 
 // Field components
-import 'quick_add_task_name_field.dart';
-import 'quick_add_date_time_field.dart';
-import 'quick_add_priority_field.dart';
-import 'quick_add_task_type_field.dart';
+import 'package:next_level/Page/Home/Widget/QuickAddTask/quick_add_task_name_field.dart';
+import 'package:next_level/Page/Home/Widget/QuickAddTask/quick_add_date_time_field.dart';
+import 'package:next_level/Page/Home/Widget/QuickAddTask/quick_add_priority_field.dart';
+import 'package:next_level/Page/Home/Widget/QuickAddTask/quick_add_task_type_field.dart';
 
 class QuickAddTaskBottomSheet extends StatefulWidget {
   const QuickAddTaskBottomSheet({super.key});

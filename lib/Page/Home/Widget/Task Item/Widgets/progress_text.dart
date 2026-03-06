@@ -31,18 +31,14 @@ class ProgressText extends StatelessWidget {
             ),
             child: taskModel.type == TaskTypeEnum.COUNTER
                 ? Text(
-                    (taskModel.targetCount ?? 0) == 0
-                        ? "${displayCount ?? taskModel.currentCount ?? 0}"
-                        : "${displayCount ?? taskModel.currentCount ?? 0}/${taskModel.targetCount ?? 0}",
+                    (taskModel.targetCount ?? 0) == 0 ? "${displayCount ?? taskModel.currentCount ?? 0}" : "${displayCount ?? taskModel.currentCount ?? 0}/${taskModel.targetCount ?? 0}",
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   )
                 : Text(
-                    (taskModel.remainingDuration == null || taskModel.remainingDuration!.inSeconds == 0)
-                        ? "${taskModel.currentDuration?.textShortDynamic() ?? '0:00'}"
-                        : "${taskModel.currentDuration?.textShortDynamic() ?? '0:00'}/${taskModel.remainingDuration?.textShortDynamic() ?? '0:00'}",
+                    (taskModel.remainingDuration == null || taskModel.remainingDuration!.inSeconds == 0) ? taskModel.currentDuration?.textShortDynamic() ?? '0:00' : "${taskModel.currentDuration?.textShortDynamic() ?? '0:00'}/${taskModel.remainingDuration?.textShortDynamic() ?? '0:00'}",
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

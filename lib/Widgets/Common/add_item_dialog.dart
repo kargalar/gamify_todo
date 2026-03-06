@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import '../../Core/Enums/status_enum.dart';
-import '../../Core/helper.dart';
-import '../../General/app_colors.dart';
-import '../../Service/locale_keys.g.dart';
-import 'description_editor.dart';
-import '../../Service/logging_service.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Widgets/Common/description_editor.dart';
+import 'package:next_level/Service/logging_service.dart';
 
 /// Generic dialog for adding/editing items with title and description
 /// Can be used for subtasks, notes, projects, etc.

@@ -4,16 +4,16 @@ import 'package:next_level/Core/Enums/status_enum.dart';
 import 'package:provider/provider.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Service/logging_service.dart';
-import '../Model/project_model.dart';
-import '../Model/note_model.dart';
-import '../Model/category_model.dart';
-import '../Provider/projects_provider.dart';
-import '../Provider/notes_provider.dart';
-import '../Service/locale_keys.g.dart';
-import '../General/app_colors.dart';
-import '../General/category_icons.dart';
-import 'Notes/category_selector_bottom_sheet.dart';
-import 'Common/description_editor.dart';
+import 'package:next_level/Model/project_model.dart';
+import 'package:next_level/Model/note_model.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Provider/projects_provider.dart';
+import 'package:next_level/Provider/notes_provider.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/General/category_icons.dart';
+import 'package:next_level/Widgets/Notes/category_selector_bottom_sheet.dart';
+import 'package:next_level/Widgets/Common/description_editor.dart';
 
 /// Item türleri
 enum ItemType {

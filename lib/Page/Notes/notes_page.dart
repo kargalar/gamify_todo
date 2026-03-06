@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
-import '../../Core/helper.dart';
-import '../../Core/Enums/status_enum.dart';
-import '../../Provider/notes_provider.dart';
-import '../../Provider/navbar_provider.dart';
-import '../../Widgets/Notes/note_card.dart';
-import '../../General/app_colors.dart';
-import '../../Model/category_model.dart';
-import '../../Model/note_model.dart';
-import '../../Widgets/add_edit_item_bottom_sheet.dart';
-import '../../Widgets/Common/category_filter_widget.dart';
-import '../../Service/locale_keys.g.dart';
-import '../../Service/logging_service.dart';
-import '../../Widgets/Common/standard_app_bar.dart';
-import '../Home/Widget/create_category_bottom_sheet.dart';
-import 'note_description_editor.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/Core/Enums/status_enum.dart';
+import 'package:next_level/Provider/notes_provider.dart';
+import 'package:next_level/Provider/navbar_provider.dart';
+import 'package:next_level/Widgets/Notes/note_card.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Model/note_model.dart';
+import 'package:next_level/Widgets/add_edit_item_bottom_sheet.dart';
+import 'package:next_level/Widgets/Common/category_filter_widget.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Widgets/Common/standard_app_bar.dart';
+import 'package:next_level/Page/Home/Widget/create_category_bottom_sheet.dart';
+import 'package:next_level/Page/Notes/note_description_editor.dart';
 
 /// Notlar ana sayfası
 class NotesPage extends StatefulWidget {

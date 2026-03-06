@@ -5,11 +5,11 @@ import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:linkify/linkify.dart';
 import 'package:next_level/Core/Enums/status_enum.dart';
-import '../../Core/helper.dart';
-import '../../General/app_colors.dart';
-import '../../Service/locale_keys.g.dart';
-import '../../Service/logging_service.dart';
-import 'linkify_text.dart';
+import 'package:next_level/Core/helper.dart';
+import 'package:next_level/General/app_colors.dart';
+import 'package:next_level/Service/locale_keys.g.dart';
+import 'package:next_level/Service/logging_service.dart';
+import 'package:next_level/Widgets/Common/linkify_text.dart';
 
 /// Reusable description editor component
 /// Can be used for tasks, notes, projects, subtasks, etc.
