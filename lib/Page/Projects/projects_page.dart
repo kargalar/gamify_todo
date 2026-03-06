@@ -44,10 +44,18 @@ class _ProjectsPageState extends State<ProjectsPage> {
     super.initState();
     // Sayfa açıldığında projeleri yükle
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) {
+        return;
+      }
+
       final provider = context.read<ProjectsProvider>();
       _previousTaskCountVersion = provider.taskCountVersion;
       await provider.loadProjects();
-      await _loadProjectTaskCounts();
+      if (!mounted) {
+        return;
+      }
+
+      await _loadProjectTaskCounts(provider: provider);
       await _loadExpandedState();
     });
   }
@@ -83,13 +91,17 @@ class _ProjectsPageState extends State<ProjectsPage> {
     }
   }
 
-  Future<void> _loadProjectTaskCounts() async {
-    final provider = context.read<ProjectsProvider>();
+  Future<void> _loadProjectTaskCounts({ProjectsProvider? provider}) async {
+    final projectsProvider = provider ?? context.read<ProjectsProvider>();
     final newCounts = <String, Map<String, int>>{};
 
-    for (final project in provider.projects) {
+    for (final project in projectsProvider.projects) {
       // Sadece subtask'ları say (projelerle ilişkili görevler)
-      final subtasks = await provider.getProjectSubtasks(project.id);
+      final subtasks = await projectsProvider.getProjectSubtasks(project.id);
+      if (!mounted) {
+        return;
+      }
+
       final subtaskCount = subtasks.length;
       final subtaskCompletedCount = subtasks.where((subtask) => subtask.isCompleted).length;
 

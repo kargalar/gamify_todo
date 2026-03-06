@@ -6,6 +6,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:next_level/Core/extensions.dart';
 import 'package:next_level/Core/helper.dart';
 import 'package:next_level/Model/category_model.dart';
+import 'package:next_level/Service/backup_archive_service.dart';
 import 'package:next_level/Service/file_storage_service.dart';
 import 'package:next_level/Service/locale_keys.g.dart';
 import 'package:next_level/Service/navigator_service.dart';
@@ -73,6 +74,88 @@ class HiveService {
   Future<Box<TaskTemplateModel>> get _taskTemplateBox async => await Hive.openBox<TaskTemplateModel>(_taskTemplateBoxName);
   Future<Box<VacationDateModel>> get _vacationDateBox async => await Hive.openBox<VacationDateModel>(_vacationDateBoxName);
   Future<Box<StoreItemLog>> get _storeItemLogBox async => await Hive.openBox<StoreItemLog>(_storeItemLogBoxName);
+
+  final BackupArchiveService _backupArchiveService = BackupArchiveService();
+
+  Future<void> _copyAttachmentFileToBackup({
+    required File sourceFile,
+    required Directory tempAttachmentsDir,
+    required Set<String> copiedSourcePaths,
+  }) async {
+    if (copiedSourcePaths.contains(sourceFile.path)) {
+      return;
+    }
+
+    if (!await sourceFile.exists()) {
+      LogService.error('⚠️ HiveService: Skipping missing attachment during backup: ${sourceFile.path}');
+      return;
+    }
+
+    final fileName = path.basename(sourceFile.path);
+    final targetPath = path.join(tempAttachmentsDir.path, fileName);
+    await sourceFile.copy(targetPath);
+    copiedSourcePaths.add(sourceFile.path);
+  }
+
+  Future<void> _copyReferencedTaskAttachmentsToBackup({
+    required Map<dynamic, dynamic> taskMap,
+    required Directory tempAttachmentsDir,
+    required Set<String> copiedSourcePaths,
+  }) async {
+    for (final taskData in taskMap.values) {
+      if (taskData is! Map) {
+        continue;
+      }
+
+      final attachmentPaths = taskData['attachment_paths'];
+      if (attachmentPaths is! List) {
+        continue;
+      }
+
+      for (final attachmentPath in attachmentPaths) {
+        final rawPath = attachmentPath?.toString();
+        if (rawPath == null || rawPath.isEmpty) {
+          continue;
+        }
+
+        await _copyAttachmentFileToBackup(
+          sourceFile: File(rawPath),
+          tempAttachmentsDir: tempAttachmentsDir,
+          copiedSourcePaths: copiedSourcePaths,
+        );
+      }
+    }
+  }
+
+  List<String>? _normalizeImportedAttachmentPaths(
+    List<String>? attachmentPaths,
+    Map<String, String> restoredAttachmentPaths,
+  ) {
+    if (attachmentPaths == null || attachmentPaths.isEmpty) {
+      return null;
+    }
+
+    final normalizedPaths = <String>[];
+
+    for (final originalPath in attachmentPaths) {
+      final fileName = path.basename(originalPath);
+      final restoredPath = restoredAttachmentPaths[fileName];
+
+      if (restoredPath != null) {
+        normalizedPaths.add(restoredPath);
+        continue;
+      }
+
+      if (File(originalPath).existsSync()) {
+        normalizedPaths.add(originalPath);
+        continue;
+      }
+
+      LogService.error('⚠️ HiveService: Imported attachment could not be restored: $originalPath');
+    }
+
+    return normalizedPaths.isEmpty ? null : normalizedPaths;
+  }
 
   // User methods
   Future<void> addUser(UserModel userModel) async {
@@ -805,26 +888,38 @@ class HiveService {
       final tempAttachmentsDir = Directory('${tempDir.path}/attachments');
       await tempAttachmentsDir.create();
       final actualAttachmentsDir = await FileStorageService.instance.getAttachmentsDirectory();
+      final copiedAttachmentPaths = <String>{};
 
       if (await actualAttachmentsDir.exists()) {
         final attachmentFiles = actualAttachmentsDir.listSync();
         for (var fileEntity in attachmentFiles) {
           if (fileEntity is File) {
-            String fileName = path.basename(fileEntity.path);
-            await fileEntity.copy('${tempAttachmentsDir.path}/$fileName');
+            await _copyAttachmentFileToBackup(
+              sourceFile: fileEntity,
+              tempAttachmentsDir: tempAttachmentsDir,
+              copiedSourcePaths: copiedAttachmentPaths,
+            );
           }
         }
       }
 
-      // Encode the directory into a zip file
-      var encoder = ZipFileEncoder();
-      filePath = '${directory.path}/$fileName.zip';
-      encoder.create(filePath);
-      encoder.addDirectory(tempDir);
-      encoder.close();
+      await _copyReferencedTaskAttachmentsToBackup(
+        taskMap: taskMap,
+        tempAttachmentsDir: tempAttachmentsDir,
+        copiedSourcePaths: copiedAttachmentPaths,
+      );
 
-      // Clean up the temporary directory
-      await tempDir.delete(recursive: true);
+      filePath = '${directory.path}/$fileName.zip';
+      try {
+        await _backupArchiveService.createZipFromDirectory(
+          sourceDirectory: tempDir,
+          zipFilePath: filePath,
+        );
+      } finally {
+        if (await tempDir.exists()) {
+          await tempDir.delete(recursive: true);
+        }
+      }
 
       await SharePlus.instance.share(
         ShareParams(
@@ -890,11 +985,13 @@ class HiveService {
           }
 
           // Locate the JSON backup file
-          final jsonFile = File('${tempExtractDir.path}/gamify_todo_backup.json');
-          if (!await jsonFile.exists()) {
+          final jsonFile = await _backupArchiveService.findBackupJsonFile(tempExtractDir);
+          if (jsonFile == null || !await jsonFile.exists()) {
             await tempExtractDir.delete(recursive: true);
             throw Exception('Backup JSON file not found in the archive.');
           }
+
+          final archiveRootDir = jsonFile.parent;
 
           final content = await jsonFile.readAsString();
           final Map<String, dynamic> allData = jsonDecode(content);
@@ -903,20 +1000,19 @@ class HiveService {
           await deleteAllData(isImport: true);
 
           // Restore attachments
-          final tempAttachmentsDir = Directory('${tempExtractDir.path}/attachments');
-          if (await tempAttachmentsDir.exists()) {
+          final restoredAttachmentPaths = <String, String>{};
+          final tempAttachmentsDir = await _backupArchiveService.findAttachmentsDirectory(
+            extractedRoot: tempExtractDir,
+            preferredRoot: archiveRootDir,
+          );
+          if (tempAttachmentsDir != null) {
             final actualAttachmentsDir = await FileStorageService.instance.getAttachmentsDirectory();
-            if (!await actualAttachmentsDir.exists()) {
-              await actualAttachmentsDir.create(recursive: true);
-            }
-
-            final attachmentFiles = tempAttachmentsDir.listSync();
-            for (var fileEntity in attachmentFiles) {
-              if (fileEntity is File) {
-                String fileName = path.basename(fileEntity.path);
-                await fileEntity.copy('${actualAttachmentsDir.path}/$fileName');
-              }
-            }
+            restoredAttachmentPaths.addAll(
+              await _backupArchiveService.restoreAttachments(
+                sourceDirectory: tempAttachmentsDir,
+                destinationDirectory: actualAttachmentsDir,
+              ),
+            );
           }
 
           // Cleanup temp extraction directory
@@ -964,6 +1060,10 @@ class HiveService {
           final taskData = allData[_taskBoxName] as Map<String, dynamic>;
           for (var entry in taskData.entries) {
             final task = TaskModel.fromJson(entry.value);
+            task.attachmentPaths = _normalizeImportedAttachmentPaths(
+              task.attachmentPaths,
+              restoredAttachmentPaths,
+            );
             await taskBox.put(int.parse(entry.key), task);
             TaskProvider().taskList.add(task);
           }
