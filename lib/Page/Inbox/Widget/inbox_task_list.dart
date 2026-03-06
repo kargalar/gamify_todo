@@ -60,8 +60,20 @@ class _InboxTaskListState extends State<InboxTaskList> {
 
     // Exclude archived routines from all tasks (they have their own page)
     final allTasksWithoutArchived = allTasks.where((task) {
-      bool isArchived = task.status == TaskStatusEnum.ARCHIVED;
-      return !isArchived;
+      if (task.status == TaskStatusEnum.ARCHIVED) {
+        return false;
+      }
+
+      if (task.routineID == null) {
+        return true;
+      }
+
+      try {
+        final routine = taskProvider.routineList.firstWhere((routine) => routine.id == task.routineID);
+        return !routine.isArchived;
+      } catch (_) {
+        return true;
+      }
     }).toList();
 
     // Check if there are no tasks at all (before any filters)

@@ -250,7 +250,7 @@ class _StoreItemState extends State<StoreItem> {
       value = _item.addCount;
     }
 
-    TaskProgressViewModel.addStoreItemLog(
+    await TaskProgressViewModel.addStoreItemLog(
       itemId: _item.id,
       action: 'Purchase',
       value: value,
@@ -327,7 +327,7 @@ class _StoreItemState extends State<StoreItem> {
     }
 
     if (_item.type == TaskTypeEnum.COUNTER || (_item.type == TaskTypeEnum.TIMER && action == 'Timer Stopped')) {
-      TaskProgressViewModel.addStoreItemLog(
+      await TaskProgressViewModel.addStoreItemLog(
         itemId: _item.id,
         action: action,
         value: value,

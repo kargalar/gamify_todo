@@ -158,20 +158,29 @@ class StreakStatusWidget extends StatelessWidget {
               final dayName = status['dayName'] as String;
               final isFuture = status['isFuture'] as bool;
               final isVacation = status['isVacation'] as bool? ?? false;
+              final showVacationAsHoliday = status['showVacationAsHoliday'] as bool? ?? isVacation;
               final isToday = dayName == 'Today'.tr();
               final isTomorrow = dayName == 'Tomorrow'.tr();
+              final isReachedVacation = isVacation && isMet == true;
 
               // Renk mantığı:
-              // 1. Vacation günleri: turuncu
-              // 2. Tomorrow: mavi
-              // 3. Diğer future günler: mavi
-              // 4. Bugün ve henüz tamamlanmamış: mavi (In Progress)
-              // 5. Geçmiş günler: yeşil (başarılı) veya kırmızı (başarısız)
-              final color = isVacation
-                  ? Colors.orange
-                  : (isTomorrow || isFuture || (isToday && isMet != true))
-                      ? Colors.blue
-                      : (isMet == true ? Colors.green : Colors.red);
+              // 1. Vacation + streak tamamlandı: yeşil şemsiye
+              // 2. Vacation günleri: turuncu şemsiye
+              // 3. Tomorrow / future / in-progress today: mavi
+              // 4. Geçmiş günler: yeşil (başarılı) veya kırmızı (başarısız)
+              final color = isReachedVacation
+                  ? Colors.green
+                  : showVacationAsHoliday
+                      ? Colors.orange
+                      : (isTomorrow || isFuture || (isToday && isMet != true))
+                          ? Colors.blue
+                          : (isMet == true ? Colors.green : Colors.red);
+
+              final icon = isVacation
+                  ? Icons.beach_access
+                  : (isFuture || (isToday && isMet != true))
+                      ? Icons.schedule
+                      : (isMet == null ? Icons.help_outline : (isMet == true ? Icons.check : Icons.close));
 
               return Column(
                 children: [
@@ -186,15 +195,7 @@ class StreakStatusWidget extends StatelessWidget {
                         width: isToday ? 3 : 2,
                       ),
                     ),
-                    child: Icon(
-                      isVacation
-                          ? Icons.beach_access
-                          : (isFuture || (isToday && isMet != true))
-                              ? Icons.schedule
-                              : (isMet == null ? Icons.help_outline : (isMet == true ? Icons.check : Icons.close)),
-                      size: 16,
-                      color: color,
-                    ),
+                    child: Icon(icon, size: 16, color: color),
                   ),
                   const SizedBox(height: 4),
                   Text(

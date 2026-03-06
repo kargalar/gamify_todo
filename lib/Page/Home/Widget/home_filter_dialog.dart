@@ -11,17 +11,19 @@ class HomeFilterDialog extends StatefulWidget {
   final bool showRoutines;
   final bool showTasks;
   final bool showTodayTasks;
+  final bool showRoutineStreakIcon;
   final DateFilterState dateFilterState;
   final Set<TaskTypeEnum> selectedTaskTypes;
   final Set<TaskStatusEnum> selectedStatuses;
   final bool showEmptyStatus;
-  final Function(bool, bool, bool, DateFilterState, Set<TaskTypeEnum>, Set<TaskStatusEnum>, bool) onFiltersChanged;
+  final Function(bool, bool, bool, bool, DateFilterState, Set<TaskTypeEnum>, Set<TaskStatusEnum>, bool) onFiltersChanged;
 
   const HomeFilterDialog({
     super.key,
     required this.showRoutines,
     required this.showTasks,
     required this.showTodayTasks,
+    required this.showRoutineStreakIcon,
     required this.dateFilterState,
     required this.selectedTaskTypes,
     required this.selectedStatuses,
@@ -37,6 +39,7 @@ class _HomeFilterDialogState extends State<HomeFilterDialog> {
   late bool _showRoutines;
   late bool _showTasks;
   late bool _showTodayTasks;
+  late bool _showRoutineStreakIcon;
   late DateFilterState _dateFilterState;
   late Set<TaskTypeEnum> _selectedTaskTypes;
   late Set<TaskStatusEnum> _selectedStatuses;
@@ -48,6 +51,7 @@ class _HomeFilterDialogState extends State<HomeFilterDialog> {
     _showRoutines = widget.showRoutines;
     _showTasks = widget.showTasks;
     _showTodayTasks = widget.showTodayTasks;
+    _showRoutineStreakIcon = widget.showRoutineStreakIcon;
     _dateFilterState = widget.dateFilterState;
     _selectedTaskTypes = Set.from(widget.selectedTaskTypes);
     _selectedStatuses = Set.from(widget.selectedStatuses);
@@ -106,6 +110,7 @@ class _HomeFilterDialogState extends State<HomeFilterDialog> {
       _showRoutines,
       _showTasks,
       _showTodayTasks,
+      _showRoutineStreakIcon,
       _dateFilterState,
       _selectedTaskTypes,
       _selectedStatuses,
@@ -272,6 +277,16 @@ class _HomeFilterDialogState extends State<HomeFilterDialog> {
                 selectedColor: AppColors.blue,
                 onTap: () {
                   setState(() => _showTodayTasks = !_showTodayTasks);
+                  _updateFilters();
+                },
+              ),
+              FilterChipWidget(
+                label: LocaleKeys.CurrentStreak.tr(),
+                icon: Icons.local_fire_department_rounded,
+                isSelected: _showRoutineStreakIcon,
+                selectedColor: AppColors.orange,
+                onTap: () {
+                  setState(() => _showRoutineStreakIcon = !_showRoutineStreakIcon);
                   _updateFilters();
                 },
               ),

@@ -190,19 +190,23 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
         final checkDate = DateTime(date.year, date.month, date.day);
         final isFuture = checkDate.isAfter(today);
         final isVacation = VacationDateProvider().isVacationDay(checkDate, includeFutureVacationMode: false);
+        final isMet = isFuture ? null : DurationCalculator.calculateStreakStatusForDate(checkDate);
+        final showVacationAsHoliday = isVacation && isMet != true;
         final isToday = checkDate.isAtSameMomentAs(today);
         final isBeforeMinDate = checkDate.isBefore(_minDate);
 
         if (isToday) {
-          LogService.debug('🏖️ StreakCalendar TODAY: checkDate=$checkDate, isFuture=$isFuture, isVacation=$isVacation, isBeforeMinDate=$isBeforeMinDate');
+          LogService.debug(
+            '🏖️ StreakCalendar TODAY: checkDate=$checkDate, isFuture=$isFuture, isVacation=$isVacation, isMet=$isMet, showVacationAsHoliday=$showVacationAsHoliday, isBeforeMinDate=$isBeforeMinDate',
+          );
         }
 
         Color statusColor;
 
         if (isBeforeMinDate && !isToday) {
           statusColor = const Color.fromARGB(255, 129, 129, 129);
-        } else if (isVacation) {
-          // Vacation günleri (geçmiş, bugün, gelecek) - öncelik vacation'da
+        } else if (showVacationAsHoliday) {
+          // Sadece streak tamamlanmamış tatil günlerini tatil rengiyle göster
           statusColor = Colors.orange;
           if (isToday) {
             LogService.debug('✅ StreakCalendar: Today is vacation (orange)');
@@ -212,8 +216,6 @@ class _StreakCalendarDialogState extends State<StreakCalendarDialog> {
           statusColor = const Color.fromARGB(255, 60, 135, 197);
         } else {
           try {
-            final isMet = DurationCalculator.calculateStreakStatusForDate(checkDate); // checkDate kullan
-
             if (isToday && (isMet == null || isMet == false)) {
               // Bugün ve henüz tamamlanmamış -> In Progress (Mavi)
               statusColor = const Color.fromARGB(255, 60, 135, 197);

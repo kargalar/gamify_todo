@@ -128,9 +128,9 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future<void> addTask(TaskModel taskModel) async {
-    // En yüksek sortOrder değerini bul ve 1 ekle (yeni task en üstte olacak)
+    // Routine task'lerde routine'in sırasını koru, diğerlerinde yeni task en üste gelsin
     if (taskModel.sortOrder == 0) {
-      taskModel.sortOrder = _getNextSortOrder();
+      taskModel.sortOrder = _getDefaultSortOrderForTask(taskModel);
     }
 
     final int taskId = await _taskRepository.addTask(taskModel);
@@ -196,6 +196,10 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future addRoutine(RoutineModel routineModel) async {
+    if (routineModel.sortOrder <= 0) {
+      routineModel.sortOrder = _getNextRoutineSortOrder();
+    }
+
     final int routineId = await _routineRepository.addRoutine(routineModel);
     routineModel.id = routineId;
 
@@ -207,6 +211,51 @@ class TaskProvider with ChangeNotifier {
     if (taskList.isEmpty) return 1;
     final maxSortOrder = taskList.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b);
     return maxSortOrder + 1;
+  }
+
+  int _getNextRoutineSortOrder() {
+    final maxTaskSortOrder = taskList.isEmpty ? 0 : taskList.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b);
+    final maxRoutineSortOrder = routineList.isEmpty ? 0 : routineList.map((r) => r.sortOrder).reduce((a, b) => a > b ? a : b);
+    return (maxTaskSortOrder > maxRoutineSortOrder ? maxTaskSortOrder : maxRoutineSortOrder) + 1;
+  }
+
+  int _getDefaultSortOrderForTask(TaskModel taskModel) {
+    if (taskModel.routineID == null) {
+      return _getNextSortOrder();
+    }
+
+    try {
+      final routine = routineList.firstWhere((r) => r.id == taskModel.routineID);
+      return _resolveRoutineSortOrder(routine);
+    } catch (_) {
+      return _getNextSortOrder();
+    }
+  }
+
+  int _resolveRoutineSortOrder(RoutineModel routine) {
+    if (routine.sortOrder > 0) {
+      return routine.sortOrder;
+    }
+
+    final existingRoutineTasks = taskList.where((task) => task.routineID == routine.id && task.sortOrder > 0).toList();
+    if (existingRoutineTasks.isNotEmpty) {
+      return existingRoutineTasks.map((task) => task.sortOrder).reduce((a, b) => a > b ? a : b);
+    }
+
+    return _getNextRoutineSortOrder();
+  }
+
+  Future<int> _ensureRoutineSortOrder(RoutineModel routine) async {
+    final resolvedSortOrder = _resolveRoutineSortOrder(routine);
+
+    if (routine.sortOrder != resolvedSortOrder) {
+      routine.sortOrder = resolvedSortOrder;
+      await routine.save();
+      await _routineRepository.updateRoutine(routine);
+      LogService.debug('✅ TaskProvider: Persisted routine ${routine.id} sortOrder = $resolvedSortOrder');
+    }
+
+    return resolvedSortOrder;
   }
 
   Future<void> editTask({
@@ -411,6 +460,7 @@ class TaskProvider with ChangeNotifier {
             priority: taskModel.priority,
             categoryId: taskModel.categoryId,
             earlyReminderMinutes: taskModel.earlyReminderMinutes,
+            sortOrder: existingTask.sortOrder,
             subtasks: taskModel.subtasks
                 ?.map((s) => SubTaskModel(
                       id: s.id,
@@ -449,6 +499,7 @@ class TaskProvider with ChangeNotifier {
             showSubtasks: existingTask.showSubtasks,
             earlyReminderMinutes: taskModel.earlyReminderMinutes,
             attachmentPaths: taskModel.attachmentPaths,
+            sortOrder: existingTask.sortOrder,
           );
 
           // Replace in list to preserve ordering
@@ -2218,7 +2269,7 @@ class TaskProvider with ChangeNotifier {
     }
 
     List<TaskModel> tasks = routineList
-        .where((routine) => routine.isActiveForThisDate(date))
+        .where((routine) => !routine.isArchived && routine.isActiveForThisDate(date))
         .map((routine) => TaskModel(
               routineID: routine.id,
               title: routine.title,
@@ -2558,6 +2609,36 @@ class TaskProvider with ChangeNotifier {
     }
   }
 
+  Future<void> archiveRoutine(int routineID) async {
+    LogService.debug('Archiving routine: ID=$routineID');
+
+    final routineModel = routineList.firstWhere((element) => element.id == routineID);
+
+    routineModel.isArchived = true;
+    await _routineRepository.updateRoutine(routineModel);
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final associatedTasks = taskList.where((task) => task.routineID == routineID).toList();
+
+    for (final task in associatedTasks) {
+      final taskDate = task.taskDate;
+      final isTodayOrFuture = taskDate == null || !taskDate.isBefore(today);
+      final hasFinalStatus = task.status == TaskStatusEnum.DONE || task.status == TaskStatusEnum.FAILED || task.status == TaskStatusEnum.CANCEL || task.status == TaskStatusEnum.OVERDUE || task.status == TaskStatusEnum.ARCHIVED;
+
+      if (isTodayOrFuture && !hasFinalStatus) {
+        task.status = TaskStatusEnum.ARCHIVED;
+        await _taskRepository.updateTask(task);
+        LogService.debug('Archived active routine instance: ID=${task.id}, Date=${task.taskDate}');
+      } else {
+        LogService.debug('Preserved routine history while archiving: ID=${task.id}, Status=${task.status}, Date=${task.taskDate}');
+      }
+    }
+
+    await _homeWidgetHelper.updateAllWidgets();
+    notifyListeners();
+  }
+
   // Unarchive routine
   Future<void> unarchiveRoutine(int routineID) async {
     LogService.debug('Unarchiving routine: ID=$routineID');
@@ -2669,6 +2750,7 @@ class TaskProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final int lastTaskId = prefs.getInt("last_task_id") ?? 0;
     final int newTaskId = lastTaskId + 1;
+    final int routineSortOrder = await _ensureRoutineSortOrder(routine);
 
     final TaskModel task = TaskModel(
       id: newTaskId,
@@ -2696,7 +2778,7 @@ class TaskProvider with ChangeNotifier {
               ))
           .toList(),
       earlyReminderMinutes: routine.earlyReminderMinutes,
-      sortOrder: _getNextSortOrder(), // Assign sortOrder to ensure correct ordering
+      sortOrder: routineSortOrder,
     );
 
     // Add to task list and save

@@ -282,6 +282,8 @@ class DayDetailBottomSheet extends StatelessWidget {
         ? AppColors.green
         : task.status == TaskStatusEnum.FAILED
             ? AppColors.red
+        : task.status == TaskStatusEnum.ARCHIVED
+          ? AppColors.blue
             : task.status == TaskStatusEnum.CANCEL
                 ? AppColors.orange
                 : AppColors.text;
@@ -290,6 +292,8 @@ class DayDetailBottomSheet extends StatelessWidget {
         ? Icons.check_circle_rounded
         : task.status == TaskStatusEnum.FAILED
             ? Icons.cancel_rounded
+        : task.status == TaskStatusEnum.ARCHIVED
+          ? Icons.archive_rounded
             : task.status == TaskStatusEnum.CANCEL
                 ? Icons.do_not_disturb_on_rounded
                 : Icons.circle_outlined;
@@ -446,6 +450,23 @@ class DayDetailBottomSheet extends StatelessWidget {
           ),
         ),
       );
+    } else if (task.status == TaskStatusEnum.ARCHIVED) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.blue.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.blue.withValues(alpha: 0.3)),
+        ),
+        child: Text(
+          LocaleKeys.Archived.tr(),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: AppColors.blue,
+          ),
+        ),
+      );
     } else {
       return const SizedBox();
     }
@@ -489,8 +510,16 @@ class DayDetailBottomSheet extends StatelessWidget {
     } else {
       // Checkbox
       return Icon(
-        task.status == TaskStatusEnum.DONE ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-        color: task.status == TaskStatusEnum.DONE ? AppColors.green : AppColors.grey.withValues(alpha: 0.5),
+        task.status == TaskStatusEnum.DONE
+            ? Icons.check_circle_rounded
+            : task.status == TaskStatusEnum.ARCHIVED
+                ? Icons.archive_rounded
+                : Icons.radio_button_unchecked_rounded,
+        color: task.status == TaskStatusEnum.DONE
+            ? AppColors.green
+            : task.status == TaskStatusEnum.ARCHIVED
+                ? AppColors.blue
+                : AppColors.grey.withValues(alpha: 0.5),
         size: 24,
       );
     }
@@ -502,7 +531,8 @@ class DayDetailBottomSheet extends StatelessWidget {
 
     final logs = TaskLogProvider().taskLogList.where((log) {
       return log.logDate.isAfter(startOfDay.subtract(const Duration(seconds: 1))) && log.logDate.isBefore(endOfDay.add(const Duration(seconds: 1)));
-    }).toList();
+    }).toList()
+      ..sort((a, b) => a.logDate.compareTo(b.logDate));
 
     Duration totalDuration = Duration.zero;
     int doneCount = 0;
@@ -510,6 +540,7 @@ class DayDetailBottomSheet extends StatelessWidget {
     int dpGained = 0;
     int dpLost = 0;
     final Map<int, _TaskDetailData> taskMap = {};
+    final Set<int> archivedFallbackTaskIds = {};
 
     for (var log in logs) {
       if (log.taskId == -10) {
@@ -522,6 +553,7 @@ class DayDetailBottomSheet extends StatelessWidget {
           duration: Duration.zero,
           count: 0,
           status: TaskStatusEnum.DONE,
+          lastActivityAt: log.logDate,
         );
         continue;
       } else if (log.taskId == -20) {
@@ -534,6 +566,7 @@ class DayDetailBottomSheet extends StatelessWidget {
           duration: Duration.zero,
           count: 0,
           status: TaskStatusEnum.DONE,
+          lastActivityAt: log.logDate,
         );
         continue;
       }
@@ -563,10 +596,12 @@ class DayDetailBottomSheet extends StatelessWidget {
           duration: Duration.zero,
           count: 0,
           status: null,
+          lastActivityAt: log.logDate,
         );
       }
 
       final taskDetail = taskMap[log.taskId]!;
+      taskDetail.lastActivityAt = log.logDate;
 
       // Update duration
       if (log.duration != null) {
@@ -601,14 +636,80 @@ class DayDetailBottomSheet extends StatelessWidget {
       }
     }
 
-    // Filter out tasks that have no meaningful data (no status, no duration, no count)
-    // These are "status reset" logs (e.g. task set to in-progress) that shouldn't be displayed
+    if (!isDp) {
+      final archivedTasksForSelectedDay = TaskProvider().taskList.where((task) {
+        return task.routineID != null &&
+            task.status == TaskStatusEnum.ARCHIVED &&
+            task.taskDate != null &&
+            DateTime(task.taskDate!.year, task.taskDate!.month, task.taskDate!.day) == startOfDay;
+      });
+
+      for (final task in archivedTasksForSelectedDay) {
+        final existingDetail = taskMap[task.id];
+        if (existingDetail?.status != null) {
+          continue;
+        }
+
+        String? categoryName;
+        if (task.categoryId != null) {
+          try {
+            final category = CategoryProvider().categoryList.firstWhere((c) => c.id == task.categoryId);
+            categoryName = category.name;
+          } catch (_) {}
+        }
+
+        final detail = existingDetail ??
+            _TaskDetailData(
+              taskId: task.id,
+              title: task.title,
+              type: task.type,
+              category: categoryName,
+              duration: Duration.zero,
+              count: 0,
+              status: null,
+              lastActivityAt: task.taskDate ?? startOfDay,
+            );
+
+        detail.status = TaskStatusEnum.FAILED;
+        detail.lastActivityAt = task.taskDate ?? detail.lastActivityAt;
+        taskMap[task.id] = detail;
+
+        if (!archivedFallbackTaskIds.contains(task.id)) {
+          archivedFallbackTaskIds.add(task.id);
+          failedCount++;
+        }
+      }
+    }
+
+    // The day detail list should only show explicit result entries.
+    // Statusless/in-progress timer-counter logs can contribute to totals,
+    // but they should not appear as standalone rows in the popup.
     final meaningfulTasks = taskMap.values.where((task) {
-      // Always keep special bonus entries
-      if (task.taskId == -10 || task.taskId == -20) return true;
-      // Keep if task has any meaningful data
-      return task.status != null || task.duration > Duration.zero || task.count > 0;
-    }).toList();
+      final isSystemBonus = task.taskId == -10 || task.taskId == -20;
+      if (isDp) {
+        return isSystemBonus || task.status != null;
+      }
+
+      if (isSystemBonus) {
+        return false;
+      }
+
+      return task.status != null;
+    }).toList()
+      ..sort((a, b) {
+        final aIsSystemBonus = a.taskId == -10 || a.taskId == -20;
+        final bIsSystemBonus = b.taskId == -10 || b.taskId == -20;
+        if (aIsSystemBonus != bIsSystemBonus) {
+          return aIsSystemBonus ? 1 : -1;
+        }
+
+        final byActivity = b.lastActivityAt.compareTo(a.lastActivityAt);
+        if (byActivity != 0) {
+          return byActivity;
+        }
+
+        return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+      });
 
     return _DaySummaryData(
       totalDuration: totalDuration,
@@ -649,6 +750,7 @@ class _TaskDetailData {
   Duration duration;
   int count;
   TaskStatusEnum? status;
+  DateTime lastActivityAt;
 
   _TaskDetailData({
     required this.taskId,
@@ -658,5 +760,6 @@ class _TaskDetailData {
     required this.duration,
     required this.count,
     this.status,
+    required this.lastActivityAt,
   });
 }

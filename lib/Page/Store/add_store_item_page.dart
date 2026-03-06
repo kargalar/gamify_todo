@@ -40,28 +40,47 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
 
   bool isLoading = false;
   List<LogDisplayModel> _logs = [];
+  ItemModel? _currentItemModel;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _currentItemModel = widget.editItemModel;
+    storeProvider.addListener(_handleStoreProviderChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        addStoreItemProvider.setEditItem(widget.editItemModel);
-        if (widget.editItemModel != null) {
+        addStoreItemProvider.setEditItem(_currentItemModel);
+        if (_currentItemModel != null) {
           _loadLogs();
         }
       }
     });
   }
 
-  Future<void> _loadLogs() async {
-    if (widget.editItemModel == null) return;
+  void _handleStoreProviderChange() {
+    final currentItem = _currentItemModel;
+    if (currentItem == null || !mounted) return;
 
-    final storeLogs = await TaskProgressViewModel.getStoreItemLogs(widget.editItemModel!.id);
+    final itemIndex = storeProvider.storeItemList.indexWhere((item) => item.id == currentItem.id);
+    if (itemIndex == -1) return;
+
+    final updatedItem = storeProvider.storeItemList[itemIndex];
+    if (!identical(updatedItem, _currentItemModel)) {
+      setState(() {
+        _currentItemModel = updatedItem;
+      });
+    }
+  }
+
+  Future<void> _loadLogs() async {
+    final currentItem = _currentItemModel;
+    if (currentItem == null) return;
+
+    final storeLogs = await TaskProgressViewModel.getStoreItemLogs(currentItem.id);
     final List<LogDisplayModel> displayLogs = [];
 
-    for (var log in storeLogs) {
+    for (var log in storeLogs.where((log) => log.itemId == currentItem.id)) {
       DateTime now = DateTime.now();
       DateTime today = DateTime(now.year, now.month, now.day);
       DateTime yesterday = today.subtract(const Duration(days: 1));
@@ -85,7 +104,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
         type: log.type,
         isPurchase: log.isPurchase,
         datePart: datePart,
-        canEdit: !log.isPurchase, // Don't allow editing purchase logs perhaps? Or maybe yes.
+        canEdit: true,
       ));
     }
 
@@ -100,9 +119,10 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
   void didUpdateWidget(covariant AddStoreItemPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.editItemModel != oldWidget.editItemModel) {
+      _currentItemModel = widget.editItemModel;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          addStoreItemProvider.setEditItem(widget.editItemModel);
+          addStoreItemProvider.setEditItem(_currentItemModel);
           _loadLogs();
         }
       });
@@ -112,6 +132,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    storeProvider.removeListener(_handleStoreProviderChange);
     super.dispose();
   }
 
@@ -131,7 +152,8 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
   }
 
   void _showAddLogDialog() async {
-    if (widget.editItemModel == null) return;
+    final currentItem = _currentItemModel;
+    if (currentItem == null) return;
 
     final result = await showModalBottomSheet<dynamic>(
       context: context,
@@ -141,20 +163,20 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => LogBottomSheet(
-        type: widget.editItemModel!.type,
+        type: currentItem.type,
         isEdit: false,
       ),
     );
 
     if (result != null) {
-      TaskProgressViewModel.addStoreItemLog(
-        itemId: widget.editItemModel!.id,
+      await TaskProgressViewModel.addStoreItemLog(
+        itemId: currentItem.id,
         action: "Manual Entry",
         value: result,
-        type: widget.editItemModel!.type,
+        type: currentItem.type,
         affectsProgress: true,
       );
-      _loadLogs();
+      await _loadLogs();
       Helper().getMessage(
         message: LocaleKeys.Success.tr(),
         status: StatusEnum.SUCCESS,
@@ -176,7 +198,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
         },
         child: Scaffold(
           appBar: AppBar(
-            title: Text(widget.editItemModel != null ? LocaleKeys.EditItem.tr() : LocaleKeys.AddItem.tr()),
+            title: Text(_currentItemModel != null ? LocaleKeys.EditItem.tr() : LocaleKeys.AddItem.tr()),
             leading: InkWell(
               borderRadius: AppColors.borderRadiusAll,
               onTap: () {
@@ -187,7 +209,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
               child: const Icon(Icons.arrow_back_ios),
             ),
             actions: [
-              if (widget.editItemModel == null)
+              if (_currentItemModel == null)
                 TextButton(
                   onPressed: () {
                     addStoreItemProvider.unfocusAll();
@@ -201,7 +223,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     ),
                   ),
                 ),
-              if (widget.editItemModel != null) ...[
+              if (_currentItemModel != null) ...[
                 IconButton(
                   onPressed: _showAddLogDialog,
                   icon: const Icon(Icons.post_add),
@@ -218,7 +240,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                       Helper().getDialog(
                         message: "Are you sure you want to delete this item?",
                         onAccept: () {
-                          storeProvider.deleteItem(widget.editItemModel!.id);
+                          storeProvider.deleteItem(_currentItemModel!.id);
                           NavigatorService().goBackNavbar();
                         },
                       );
@@ -267,7 +289,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
 
                   TaskName(
                     isStore: true,
-                    autoFocus: widget.editItemModel == null,
+                    autoFocus: _currentItemModel == null,
                     onTaskSubmit: null,
                   ),
                   const SizedBox(height: 10),
@@ -300,7 +322,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     ),
                   ),
 
-                  if (widget.editItemModel == null) ...[
+                  if (_currentItemModel == null) ...[
                     const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
@@ -352,28 +374,28 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
                     RecentLogsWidget(
                       logs: _logs,
                       showAddButton: true,
-                      defaultType: widget.editItemModel!.type, // Reverted to original logic for defaultType
+                      defaultType: _currentItemModel!.type,
                       onAddLogSubmit: (value) async {
-                        TaskProgressViewModel.addStoreItemLog(
-                          itemId: widget.editItemModel!.id,
+                        await TaskProgressViewModel.addStoreItemLog(
+                          itemId: _currentItemModel!.id,
                           action: "Manual Entry",
                           value: value,
-                          type: widget.editItemModel!.type,
+                          type: _currentItemModel!.type,
                           affectsProgress: true,
                         );
-                        _loadLogs();
+                        await _loadLogs();
                       },
                       onEditLog: (log, newValue) async {
                         await TaskProgressViewModel.editStoreItemLogByKey(log.id, newValue);
-                        _loadLogs();
+                        await _loadLogs();
                       },
                       onDeleteLog: (log) async {
                         await TaskProgressViewModel.deleteStoreItemLogByKey(log.id);
-                        _loadLogs();
+                        await _loadLogs();
                       },
                       onClearAll: () async {
-                        await TaskProgressViewModel.clearStoreItemLogs(widget.editItemModel!.id); // Used editItemModel!.id
-                        _loadLogs();
+                        await TaskProgressViewModel.clearStoreItemLogs(_currentItemModel!.id);
+                        await _loadLogs();
                       },
                     ),
                   ],
@@ -405,7 +427,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
   }
 
   void goBackCheck() {
-    if (widget.editItemModel != null) {
+    if (_currentItemModel != null) {
       if (addStoreItemProvider.taskNameController.text.trim().isEmpty) {
         addStoreItemProvider.taskNameController.clear();
         Helper().getMessage(
@@ -418,7 +440,7 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
       if (isLoading) return;
       isLoading = true;
 
-      addStoreItemProvider.updateItem(widget.editItemModel!);
+      addStoreItemProvider.updateItem(_currentItemModel!);
       NavigatorService().back();
     } else {
       NavigatorService().back();
@@ -454,9 +476,9 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
 
   Future<void> _resetSingleItemProgress() async {
     try {
-      if (widget.editItemModel == null) return;
+      if (_currentItemModel == null) return;
 
-      final item = widget.editItemModel!;
+      final item = _currentItemModel!;
 
       if (item.type == TaskTypeEnum.COUNTER) {
         item.currentCount = 0;
@@ -477,8 +499,9 @@ class _AddStoreItemPageState extends State<AddStoreItemPage> with WidgetsBinding
 
       if (mounted) {
         setState(() {
-          _loadLogs(); // Reload logs instead of empty setState
+          _currentItemModel = item;
         });
+        await _loadLogs();
       }
     } catch (e) {
       Helper().getMessage(message: "Hata: $e");

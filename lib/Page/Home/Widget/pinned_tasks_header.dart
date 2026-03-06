@@ -13,10 +13,12 @@ import 'package:next_level/Enum/task_status_enum.dart';
 
 class PinnedTasksHeader extends StatefulWidget {
   final List<TaskModel> pinnedTasks;
+  final bool showRoutineStreakBadge;
 
   const PinnedTasksHeader({
     super.key,
     required this.pinnedTasks,
+    this.showRoutineStreakBadge = true,
   });
 
   @override
@@ -310,6 +312,7 @@ class _PinnedTasksHeaderState extends State<PinnedTasksHeader> with SingleTicker
                       child: TaskItem(
                         taskModel: task,
                         showDate: true, // Show date for pinned tasks
+                        showRoutineStreakBadge: widget.showRoutineStreakBadge,
                       ),
                     );
                   },

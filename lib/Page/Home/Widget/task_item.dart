@@ -9,6 +9,7 @@ import 'package:next_level/Core/helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Home/Add%20Task/Widget/description_editor.dart';
 import 'package:next_level/Page/Home/Widget/subtasks_sheet.dart';
+import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/routine_streak_badge.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_location.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/task_time.dart';
 import 'package:next_level/Page/Home/Widget/Task%20Item/Widgets/title_and_decription.dart';
@@ -33,11 +34,13 @@ class TaskItem extends StatefulWidget {
     required this.taskModel,
     this.isRoutine = false,
     this.showDate = false,
+    this.showRoutineStreakBadge = true,
   });
 
   final TaskModel taskModel;
   final bool isRoutine;
   final bool showDate;
+  final bool showRoutineStreakBadge;
 
   @override
   State<TaskItem> createState() => _TaskItemState();
@@ -221,6 +224,7 @@ class _TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     if (widget.showDate && widget.taskModel.taskDate != null) _buildDateLabel(),
+                                    if (widget.showRoutineStreakBadge && widget.taskModel.routineID != null) RoutineStreakBadge(taskModel: widget.taskModel),
                                     TaskTime(taskModel: widget.taskModel),
                                     if (widget.taskModel.location != null && widget.taskModel.location!.isNotEmpty) TaskLocation(taskModel: widget.taskModel),
                                   ],

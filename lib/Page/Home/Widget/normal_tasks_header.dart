@@ -14,11 +14,13 @@ import 'package:next_level/Enum/task_status_enum.dart';
 class NormalTasksHeader extends StatefulWidget {
   final List<dynamic> tasks;
   final DateTime selectedDate;
+  final bool showRoutineStreakBadge;
 
   const NormalTasksHeader({
     super.key,
     required this.tasks,
     required this.selectedDate,
+    this.showRoutineStreakBadge = true,
   });
 
   @override
@@ -308,7 +310,10 @@ class _NormalTasksHeaderState extends State<NormalTasksHeader> with SingleTicker
                 return ReorderableDelayedDragStartListener(
                   key: ValueKey('normal_${task.id}'),
                   index: index,
-                  child: TaskItem(taskModel: task),
+                  child: TaskItem(
+                    taskModel: task,
+                    showRoutineStreakBadge: widget.showRoutineStreakBadge,
+                  ),
                 );
               },
             ),

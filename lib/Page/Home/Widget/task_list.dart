@@ -190,17 +190,27 @@ class _TaskListState extends State<TaskList> {
               children: [
                 // Overdue tasks section (only on today's view) - minimalist spacing
                 if (isToday && overdueTasks.isNotEmpty) ...[
-                  OverdueTasksHeader(overdueTasks: overdueTasks),
+                  OverdueTasksHeader(
+                    overdueTasks: overdueTasks,
+                    showRoutineStreakBadge: vm.showRoutineStreakIcon,
+                  ),
                 ],
 
                 // Pinned tasks section (only on today's view) - collapsible like overdue
                 if (isToday && pinnedTasks.isNotEmpty) ...[
-                  PinnedTasksHeader(pinnedTasks: pinnedTasks),
+                  PinnedTasksHeader(
+                    pinnedTasks: pinnedTasks,
+                    showRoutineStreakBadge: vm.showRoutineStreakIcon,
+                  ),
                 ],
 
                 // Normal tasks (including active timer tasks) - now collapsible
                 if (allTasksWithTimers.isNotEmpty) ...[
-                  NormalTasksHeader(tasks: allTasksWithTimers, selectedDate: pageDate),
+                  NormalTasksHeader(
+                    tasks: allTasksWithTimers,
+                    selectedDate: pageDate,
+                    showRoutineStreakBadge: vm.showRoutineStreakIcon,
+                  ),
                 ],
 
                 // Routine Tasks - now collapsible (includes both regular and ghost routines)
@@ -209,6 +219,7 @@ class _TaskListState extends State<TaskList> {
                     routineTasks: selectedDateRutinTaskList,
                     ghostRoutineTasks: selectedDateGhostRutinTaskList,
                     selectedDate: pageDate,
+                    showRoutineStreakBadge: vm.showRoutineStreakIcon,
                   ),
                 ],
 
@@ -242,12 +253,17 @@ class _TaskListState extends State<TaskList> {
                     routineTasks: archivedRoutines,
                     ghostRoutineTasks: const [],
                     selectedDate: DateTime.now(),
+                    showRoutineStreakBadge: context.read<HomeViewModel>().showRoutineStreakIcon,
                   ),
                 ],
 
                 // Archived tasks section
                 if (archivedTasks.isNotEmpty) ...[
-                  NormalTasksHeader(tasks: archivedTasks, selectedDate: DateTime.now()),
+                  NormalTasksHeader(
+                    tasks: archivedTasks,
+                    selectedDate: DateTime.now(),
+                    showRoutineStreakBadge: context.read<HomeViewModel>().showRoutineStreakIcon,
+                  ),
                 ],
 
                 // navbar space

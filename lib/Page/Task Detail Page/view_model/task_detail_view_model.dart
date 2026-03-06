@@ -75,6 +75,7 @@ class TaskDetailViewModel with ChangeNotifier {
   void calculateStatistics() {
     // Log verilerine göre istatistikleri hesapla
     List<TaskLogModel> logs = [];
+    List<TaskModel> relatedTasks = [];
 
     // İstatistikleri sıfırla
     allTimeDuration = Duration.zero;
@@ -88,11 +89,13 @@ class TaskDetailViewModel with ChangeNotifier {
       // Rutin için TÜM RUTIN TASKLAR'ın loglarını al (tarihten bağımsız)
       logs = TaskLogProvider().getLogsByRoutineId(taskModel.routineID!);
       // Rutin içindeki tüm taskları bul
-      allRoutineTaskIds = TaskProvider().taskList.where((t) => t.routineID == taskModel.routineID).map((t) => t.id).toSet();
+      relatedTasks = TaskProvider().taskList.where((t) => t.routineID == taskModel.routineID).toList();
+      allRoutineTaskIds = relatedTasks.where((t) => t.status != TaskStatusEnum.ARCHIVED).map((t) => t.id).toSet();
       LogService.debug('✅ Statistics: Rutin için ${logs.length} log bulundu, ${allRoutineTaskIds.length} task bulundu');
     } else {
       // Tek task için logları al
       logs = TaskLogProvider().getLogsByTaskId(taskModel.id);
+      relatedTasks = [taskModel];
       allRoutineTaskIds.add(taskModel.id);
       LogService.debug('✅ Statistics: Task için ${logs.length} log bulundu');
     }
@@ -108,6 +111,10 @@ class TaskDetailViewModel with ChangeNotifier {
         allTimeCount += log.count!;
       }
 
+      if (log.status == TaskStatusEnum.ARCHIVED) {
+        continue;
+      }
+
       // Her task için en son log'u tut
       if (!lastLogPerTask.containsKey(log.taskId) || log.logDate.isAfter(lastLogPerTask[log.taskId]!.logDate)) {
         lastLogPerTask[log.taskId] = log;
@@ -115,19 +122,25 @@ class TaskDetailViewModel with ChangeNotifier {
     }
 
     // Her task'ın son durumuna göre başarı/başarısızlık say
-    for (var lastLog in lastLogPerTask.values) {
-      if (lastLog.status == TaskStatusEnum.DONE) {
+    final Set<int> resolvedTaskIds = {};
+
+    for (final task in relatedTasks.where((task) => allRoutineTaskIds.contains(task.id))) {
+      final lastLog = lastLogPerTask[task.id];
+      final effectiveStatus = lastLog?.status ?? task.status;
+
+      if (effectiveStatus == TaskStatusEnum.DONE) {
         completedTaskCount++;
-        LogService.debug('✅ Task ${lastLog.taskId} son durumu: DONE');
-      } else if (lastLog.status == TaskStatusEnum.FAILED) {
+        resolvedTaskIds.add(task.id);
+        LogService.debug('✅ Task ${task.id} son durumu: DONE');
+      } else if (effectiveStatus == TaskStatusEnum.FAILED) {
         failedTaskCount++;
-        LogService.debug('❌ Task ${lastLog.taskId} son durumu: FAILED');
+        resolvedTaskIds.add(task.id);
+        LogService.debug('❌ Task ${task.id} son durumu: FAILED');
       }
     }
 
     // Hiç log kaydı olmayan taskları FAIL olarak say
-    final loggedTaskIds = lastLogPerTask.keys.toSet();
-    final unloggedTaskIds = allRoutineTaskIds.difference(loggedTaskIds);
+    final unloggedTaskIds = allRoutineTaskIds.difference(resolvedTaskIds);
     failedTaskCount += unloggedTaskIds.length;
     for (var taskId in unloggedTaskIds) {
       LogService.debug('❌ Task $taskId hiç loglanmadığı için FAILED olarak sayıldı');

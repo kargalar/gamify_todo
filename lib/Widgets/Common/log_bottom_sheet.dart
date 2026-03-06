@@ -27,11 +27,20 @@ class _LogBottomSheetState extends State<LogBottomSheet> {
   late dynamic _value;
   late TextEditingController _counterController;
 
+  int _parseCounterValue(dynamic rawValue) {
+    if (rawValue is int) return rawValue;
+    if (rawValue is num) return rawValue.toInt();
+    if (rawValue is String) {
+      return int.tryParse(rawValue.replaceAll('+', '').trim()) ?? 0;
+    }
+    return 0;
+  }
+
   @override
   void initState() {
     super.initState();
     if (widget.type == TaskTypeEnum.COUNTER) {
-      _value = widget.initialValue ?? 0;
+      _value = _parseCounterValue(widget.initialValue);
       _counterController = TextEditingController(text: _value == 0 && !widget.isEdit ? '' : _value.toString());
       if (_value > 0 && !widget.isEdit) {
         _counterController.text = "+$_value";
@@ -130,7 +139,7 @@ class _LogBottomSheetState extends State<LogBottomSheet> {
       children: [
         TextField(
           controller: _counterController,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(signed: true),
           autofocus: true,
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -169,7 +178,7 @@ class _LogBottomSheetState extends State<LogBottomSheet> {
     return ActionChip(
       label: Text(label),
       onPressed: () {
-        int current = int.tryParse(_counterController.text.replaceAll('+', '')) ?? 0;
+        int current = _parseCounterValue(_counterController.text);
         int newVal = current + change;
         String text = newVal > 0 ? '+$newVal' : '$newVal';
         _counterController.text = text;

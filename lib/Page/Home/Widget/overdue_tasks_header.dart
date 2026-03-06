@@ -13,10 +13,12 @@ import 'package:next_level/Enum/task_status_enum.dart';
 
 class OverdueTasksHeader extends StatefulWidget {
   final List<TaskModel> overdueTasks;
+  final bool showRoutineStreakBadge;
 
   const OverdueTasksHeader({
     super.key,
     required this.overdueTasks,
+    this.showRoutineStreakBadge = true,
   });
 
   @override
@@ -273,7 +275,11 @@ class _OverdueTasksHeaderState extends State<OverdueTasksHeader> with SingleTick
                     return ReorderableDelayedDragStartListener(
                       key: ValueKey('overdue_${task.id}'),
                       index: index,
-                      child: TaskItem(taskModel: task, showDate: true),
+                      child: TaskItem(
+                        taskModel: task,
+                        showDate: true,
+                        showRoutineStreakBadge: widget.showRoutineStreakBadge,
+                      ),
                     );
                   },
                 ),

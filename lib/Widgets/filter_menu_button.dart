@@ -20,15 +20,17 @@ class FilterMenuButton extends StatelessWidget {
         showRoutines: homeViewModel.showRoutines,
         showTasks: homeViewModel.showTasks,
         showTodayTasks: homeViewModel.showTodayTasks,
+        showRoutineStreakIcon: homeViewModel.showRoutineStreakIcon,
         dateFilterState: homeViewModel.dateFilterState,
         selectedTaskTypes: homeViewModel.selectedTaskTypes,
         selectedStatuses: homeViewModel.selectedStatuses,
         showEmptyStatus: homeViewModel.showEmptyStatus,
-        onFiltersChanged: (showRoutines, showTasks, showTodayTasks, dateFilterState, taskTypes, statuses, showEmpty) {
+        onFiltersChanged: (showRoutines, showTasks, showTodayTasks, showRoutineStreakIcon, dateFilterState, taskTypes, statuses, showEmpty) {
           homeViewModel.updateFilters(
             showRoutines,
             showTasks,
             showTodayTasks,
+            showRoutineStreakIcon,
             dateFilterState,
             taskTypes,
             statuses,

@@ -278,14 +278,18 @@ class DurationCalculator {
         date,
         includeFutureVacationMode: !isFuture,
       );
-      final isMet = isFuture || isVacation ? null : calculateStreakStatusForDate(date);
-      LogService.debug('DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet');
+      final isMet = isFuture ? null : calculateStreakStatusForDate(date);
+      final showVacationAsHoliday = isVacation && isMet != true;
+      LogService.debug(
+        'DurationCalculator: Date ${date.toIso8601String()}, isFuture: $isFuture, isVacation: $isVacation, isMet: $isMet, showVacationAsHoliday: $showVacationAsHoliday',
+      );
       return {
         'date': date,
         'isMet': isMet,
         'dayName': _getDayName(date),
         'isFuture': isFuture,
         'isVacation': isVacation,
+        'showVacationAsHoliday': showVacationAsHoliday,
       };
     }).toList();
   }

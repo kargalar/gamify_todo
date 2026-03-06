@@ -20,8 +20,6 @@ import 'package:next_level/Service/global_timer.dart';
 import 'package:next_level/Enum/task_status_enum.dart';
 import 'package:next_level/Enum/task_type_enum.dart';
 import 'package:next_level/Model/task_model.dart';
-import 'package:next_level/Repository/routine_repository.dart';
-import 'package:next_level/Repository/task_repository.dart';
 import 'package:next_level/Service/hive_service.dart';
 import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
@@ -496,29 +494,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
         return;
       }
 
-      // Mark routine as archived
-      routine.isArchived = true;
-
-      // Update the routine
-      await RoutineRepository().updateRoutine(routine);
-
-      // Mark all related tasks as archived
-      final tasks = TaskProvider().taskList.where((t) => t.routineID == widget.taskModel.routineID);
-      for (var task in tasks) {
-        // Only archive tasks that are not already archived to preserve existing status
-        if (task.status != TaskStatusEnum.ARCHIVED) {
-          task.status = TaskStatusEnum.ARCHIVED;
-          await TaskRepository().updateTask(task);
-
-          // Create log for the archiving action to maintain history
-          TaskLogProvider().addTaskLog(
-            task,
-            customStatus: TaskStatusEnum.ARCHIVED,
-          );
-        }
-      }
-
-      TaskProvider().updateItems();
+      await TaskProvider().archiveRoutine(widget.taskModel.routineID!);
       Helper().getMessage(message: "Rutin başarıyla arşivlendi.");
 
       // Sayfayı yenile

@@ -15,12 +15,14 @@ class RoutineTasksHeader extends StatefulWidget {
   final List<dynamic> routineTasks;
   final List<dynamic> ghostRoutineTasks;
   final DateTime selectedDate;
+  final bool showRoutineStreakBadge;
 
   const RoutineTasksHeader({
     super.key,
     required this.routineTasks,
     required this.ghostRoutineTasks,
     required this.selectedDate,
+    this.showRoutineStreakBadge = true,
   });
 
   @override
@@ -334,6 +336,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                         child: TaskItem(
                           taskModel: task,
                           isRoutine: true,
+                          showRoutineStreakBadge: widget.showRoutineStreakBadge,
                         ),
                       );
                     },
@@ -386,6 +389,7 @@ class _RoutineTasksHeaderState extends State<RoutineTasksHeader> with SingleTick
                         child: TaskItem(
                           taskModel: task,
                           isRoutine: true,
+                          showRoutineStreakBadge: widget.showRoutineStreakBadge,
                         ),
                       );
                     },

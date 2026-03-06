@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:next_level/Core/task_streak_helper.dart';
 import 'package:next_level/General/app_colors.dart';
 import 'package:next_level/Page/Task%20Detail%20Page/view_model/task_detail_view_model.dart';
 import 'package:next_level/Provider/task_log_provider.dart';
@@ -14,89 +15,20 @@ class CompletionRateWidget extends StatelessWidget {
     required this.viewModel,
   });
 
-  Map<String, dynamic> _calculateCompletionStats() {
+  TaskStreakStats _calculateCompletionStats() {
     final logs = viewModel.taskModel.routineID != null ? TaskLogProvider().getLogsByRoutineId(viewModel.taskModel.routineID!) : TaskLogProvider().getLogsByTaskId(viewModel.taskModel.id);
 
-    if (logs.isEmpty) {
-      return {
-        'totalDays': 0,
-        'completedDays': 0,
-        'percentage': 0.0,
-        'currentStreak': 0,
-        'longestStreak': 0,
-      };
-    }
-
-    // Group logs by date
-    final Map<DateTime, bool> dailyCompletion = {};
-    for (final log in logs) {
-      final date = DateTime(log.logDate.year, log.logDate.month, log.logDate.day);
-      dailyCompletion[date] = true;
-    }
-
-    // Calculate date range
-    final sortedDates = dailyCompletion.keys.toList()..sort();
-    if (sortedDates.isEmpty) {
-      return {
-        'totalDays': 0,
-        'completedDays': 0,
-        'percentage': 0.0,
-        'currentStreak': 0,
-        'longestStreak': 0,
-      };
-    }
-
-    final firstDate = sortedDates.first;
-    final lastDate = sortedDates.last;
-    final totalDays = lastDate.difference(firstDate).inDays + 1;
-    final completedDays = dailyCompletion.length;
-    final percentage = (completedDays / totalDays * 100).clamp(0, 100);
-
-    // Calculate streaks
-    int currentStreak = 0;
-    int longestStreak = 0;
-    int tempStreak = 0;
-
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    // Calculate current streak (from today backwards)
-    DateTime checkDate = today;
-    while (dailyCompletion.containsKey(checkDate)) {
-      currentStreak++;
-      checkDate = checkDate.subtract(const Duration(days: 1));
-    }
-
-    // Calculate longest streak
-    for (int i = 0; i < totalDays; i++) {
-      final date = firstDate.add(Duration(days: i));
-      if (dailyCompletion.containsKey(date)) {
-        tempStreak++;
-        if (tempStreak > longestStreak) {
-          longestStreak = tempStreak;
-        }
-      } else {
-        tempStreak = 0;
-      }
-    }
-
-    return {
-      'totalDays': totalDays,
-      'completedDays': completedDays,
-      'percentage': percentage,
-      'currentStreak': currentStreak,
-      'longestStreak': longestStreak,
-    };
+    return TaskStreakHelper.calculateStats(logs);
   }
 
   @override
   Widget build(BuildContext context) {
     final stats = _calculateCompletionStats();
-    final percentage = stats['percentage'] as double;
-    final completedDays = stats['completedDays'] as int;
-    final totalDays = stats['totalDays'] as int;
-    final currentStreak = stats['currentStreak'] as int;
-    final longestStreak = stats['longestStreak'] as int;
+    final percentage = stats.completionPercentage;
+    final completedDays = stats.completedDays;
+    final totalDays = stats.totalDays;
+    final currentStreak = stats.currentStreak;
+    final longestStreak = stats.longestStreak;
 
     return Column(
       children: [

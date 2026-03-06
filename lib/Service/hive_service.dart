@@ -338,6 +338,14 @@ class HiveService {
     final String? lastLoginDateString = prefs.getString('lastLoginDate');
     final DateTime lastLoginDate = lastLoginDateString != null ? DateTime.parse(lastLoginDateString) : today;
 
+    int getNextRoutineSortOrder() {
+      final taskList = TaskProvider().taskList;
+      final routineList = TaskProvider().routineList;
+      final maxTaskSortOrder = taskList.isEmpty ? 0 : taskList.map((task) => task.sortOrder).reduce((a, b) => a > b ? a : b);
+      final maxRoutineSortOrder = routineList.isEmpty ? 0 : routineList.map((routine) => routine.sortOrder).reduce((a, b) => a > b ? a : b);
+      return (maxTaskSortOrder > maxRoutineSortOrder ? maxTaskSortOrder : maxRoutineSortOrder) + 1;
+    }
+
     LogService.debug('=== createTasksFromRoutines Debug ===');
     LogService.debug('Today: $today');
     LogService.debug('Last login date: $lastLoginDate');
@@ -369,6 +377,15 @@ class HiveService {
           LogService.debug('    Date weekday-1: ${date.weekday - 1}');
           LogService.debug('    Contains weekday: ${routine.repeatDays.contains(date.weekday - 1)}');
 
+          if (routine.sortOrder <= 0) {
+            final existingRoutineTasks = TaskProvider().taskList.where((task) => task.routineID == routine.id && task.sortOrder > 0).toList();
+            final resolvedSortOrder = existingRoutineTasks.isNotEmpty ? existingRoutineTasks.map((task) => task.sortOrder).reduce((a, b) => a > b ? a : b) : getNextRoutineSortOrder();
+
+            routine.sortOrder = resolvedSortOrder;
+            await updateRoutine(routine);
+            LogService.debug('    ✅ Persisted routine ${routine.id} sortOrder: $resolvedSortOrder');
+          }
+
           if (routine.isActiveForThisDate(date)) {
             // Check if a task for this routine on this date already exists (e.g., from import)
             final bool taskAlreadyExists = TaskProvider().taskList.any((existingTask) => existingTask.routineID == routine.id && existingTask.taskDate != null && existingTask.taskDate!.year == date.year && existingTask.taskDate!.month == date.month && existingTask.taskDate!.day == date.day);
@@ -399,6 +416,7 @@ class HiveService {
                 currentDuration: routine.type == TaskTypeEnum.TIMER ? Duration.zero : null,
                 remainingDuration: routine.remainingDuration,
                 isTimerActive: routine.type == TaskTypeEnum.TIMER ? false : null,
+                sortOrder: routine.sortOrder,
               );
 
               await addTask(task);

@@ -36,8 +36,60 @@ class TaskProgressViewModel extends ChangeNotifier {
     return _storeItemLogBox!;
   }
 
+  static Future<ItemModel?> _getStoreItemById(int itemId) async {
+    final storeProvider = StoreProvider();
+    int index = storeProvider.storeItemList.indexWhere((item) => item.id == itemId);
+
+    if (index == -1) {
+      await storeProvider.loadItems();
+      index = storeProvider.storeItemList.indexWhere((item) => item.id == itemId);
+    }
+
+    if (index == -1) {
+      debugPrint('[Store Item Log Error] Store item not found for id: $itemId');
+      return null;
+    }
+
+    return storeProvider.storeItemList[index];
+  }
+
+  static Future<void> _recalculateStoreItemProgress(int itemId) async {
+    try {
+      final item = await _getStoreItemById(itemId);
+      if (item == null) return;
+
+      final box = await _getStoreItemLogBox();
+      final logs = box.values.where((log) => log.itemId == itemId).toList()..sort((a, b) => a.logDate.compareTo(b.logDate));
+
+      if (item.type == TaskTypeEnum.COUNTER) {
+        int totalCount = 0;
+        for (final log in logs) {
+          if (log.value is int) {
+            totalCount += log.value as int;
+          }
+        }
+        item.currentCount = totalCount;
+      } else {
+        Duration totalDuration = Duration.zero;
+        for (final log in logs) {
+          if (log.value is Duration) {
+            totalDuration += log.value as Duration;
+          }
+        }
+        item.currentDuration = totalDuration;
+      }
+
+      await StoreRepository().updateItem(item);
+      StoreProvider().setStateItems();
+
+      debugPrint('[Store Item Log] Recalculated progress for item $itemId with ${logs.length} logs');
+    } catch (e) {
+      debugPrint('[Store Item Log Error] Failed to recalculate progress: $e');
+    }
+  }
+
   // Store item log ekleme metodu (public static)
-  static void addStoreItemLog({
+  static Future<void> addStoreItemLog({
     required int itemId,
     required String action,
     required dynamic value,
@@ -45,7 +97,7 @@ class TaskProgressViewModel extends ChangeNotifier {
     bool affectsProgress = false,
     bool isPurchase = false,
   }) {
-    _addStoreItemLog(
+    return _addStoreItemLog(
       itemId: itemId,
       action: action,
       value: value,
@@ -56,7 +108,7 @@ class TaskProgressViewModel extends ChangeNotifier {
   }
 
   // Store item log ekleme metodu (private)
-  static void _addStoreItemLog({
+  static Future<void> _addStoreItemLog({
     required int itemId,
     required String action,
     required dynamic value,
@@ -81,24 +133,7 @@ class TaskProgressViewModel extends ChangeNotifier {
       debugPrint('[Store Item Log] Added log for item $itemId');
       debugPrint('');
 
-      // If this manual log should affect item's progress, update and persist the item
-      if (affectsProgress) {
-        try {
-          // Load item and mutate
-          final item = StoreProvider().storeItemList.firstWhere((e) => e.id == itemId);
-          if (type == TaskTypeEnum.COUNTER) {
-            final delta = (value as int);
-            item.currentCount = (item.currentCount ?? 0) + delta;
-          } else if (type == TaskTypeEnum.TIMER) {
-            final delta = (value as Duration);
-            item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
-          }
-          await StoreRepository().updateItem(item);
-          StoreProvider().setStateItems();
-        } catch (e) {
-          debugPrint('[Store Item Log Error] Failed to affect progress: $e');
-        }
-      }
+      await _recalculateStoreItemProgress(itemId);
     } catch (e) {
       debugPrint('[Store Item Log Error] Failed to add log: $e');
     }
@@ -110,12 +145,12 @@ class TaskProgressViewModel extends ChangeNotifier {
       final box = await _getStoreItemLogBox();
 
       // itemId = -1 ise tüm logları getir, değilse sadece o item'a ait logları filtrele
-      List<StoreItemLog> logs = box.values.toList();
+      List<StoreItemLog> logs = box.values.toList()..sort((a, b) => b.logDate.compareTo(a.logDate));
 
       if (itemId == -1) {
-        return logs.reversed.toList(); // Tüm loglar (en yeni ilk)
+        return logs; // Tüm loglar (en yeni ilk)
       }
-      return logs.where((log) => log.itemId == itemId).toList().reversed.toList(); // En yeni log en üstte
+      return logs.where((log) => log.itemId == itemId).toList(); // En yeni log en üstte
     } catch (e) {
       debugPrint('[Store Item Log Error] Failed to get logs: $e');
       return [];
@@ -146,27 +181,7 @@ class TaskProgressViewModel extends ChangeNotifier {
 
       debugPrint('[Store Item Log] Edited log for item ${oldLog.itemId} (Key: $key)');
 
-      // If this log affects progress, adjust the item by the delta between new and old
-      if (oldLog.affectsProgress) {
-        try {
-          final item = StoreProvider().storeItemList.firstWhere((e) => e.id == oldLog.itemId);
-          if (oldLog.type == TaskTypeEnum.COUNTER) {
-            final oldVal = oldLog.value as int;
-            final newVal = newValue as int;
-            final delta = newVal - oldVal;
-            item.currentCount = (item.currentCount ?? 0) + delta;
-          } else {
-            final oldVal = oldLog.value as Duration;
-            final newVal = newValue as Duration;
-            final delta = newVal - oldVal;
-            item.currentDuration = (item.currentDuration ?? Duration.zero) + delta;
-          }
-          await StoreRepository().updateItem(item);
-          StoreProvider().setStateItems();
-        } catch (e) {
-          debugPrint('[Store Item Log Error] Failed to affect progress on edit: $e');
-        }
-      }
+      await _recalculateStoreItemProgress(oldLog.itemId);
     } catch (e) {
       debugPrint('[Store Item Log Error] Failed to edit log: $e');
     }
@@ -184,21 +199,7 @@ class TaskProgressViewModel extends ChangeNotifier {
 
       debugPrint('[Store Item Log] Deleted log for item ${removed.itemId} (Key: $key)');
 
-      // If log affected progress, roll it back from the item
-      if (removed.affectsProgress) {
-        try {
-          final item = StoreProvider().storeItemList.firstWhere((e) => e.id == removed.itemId);
-          if (removed.type == TaskTypeEnum.COUNTER) {
-            item.currentCount = (item.currentCount ?? 0) - (removed.value as int);
-          } else {
-            item.currentDuration = (item.currentDuration ?? Duration.zero) - (removed.value as Duration);
-          }
-          await StoreRepository().updateItem(item);
-          StoreProvider().setStateItems();
-        } catch (e) {
-          debugPrint('[Store Item Log Error] Failed to rollback progress: $e');
-        }
-      }
+      await _recalculateStoreItemProgress(removed.itemId);
     } catch (e) {
       debugPrint('[Store Item Log Error] Failed to delete log: $e');
     }
@@ -209,25 +210,20 @@ class TaskProgressViewModel extends ChangeNotifier {
     try {
       final box = await _getStoreItemLogBox();
 
-      // Itege logs and delete them
-      // We need keys to delete.
       final keysToDelete = <dynamic>[];
-      final logsToDelete = <StoreItemLog>[];
 
       for (var key in box.keys) {
         final log = box.get(key);
         if (log != null && log.itemId == itemId) {
           keysToDelete.add(key);
-          logsToDelete.add(log);
         }
       }
 
-      // Delete one by one to handle logic? Or batch?
-      // Since deleteStoreItemLogByKey handles logic, calling it one by one is safest but might be slow if many.
-      // But typically not that many.
       for (var key in keysToDelete) {
-        await deleteStoreItemLogByKey(key);
+        await box.delete(key);
       }
+
+      await _recalculateStoreItemProgress(itemId);
 
       debugPrint('[Store Item Log] Cleared logs for item $itemId');
     } catch (e) {

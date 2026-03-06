@@ -34,6 +34,14 @@ class RecentLogsWidget extends StatefulWidget {
 }
 
 class _RecentLogsWidgetState extends State<RecentLogsWidget> {
+  bool _isSameDate(DateTime first, DateTime second) {
+    return first.year == second.year && first.month == second.month && first.day == second.day;
+  }
+
+  String _getDateHeaderLabel(LogDisplayModel log) {
+    return log.datePart?.tr() ?? DateFormat('d MMM yyyy').format(log.dateTime);
+  }
+
   void _showAddLogDialog() async {
     if (widget.defaultType == null) return;
 
@@ -117,15 +125,40 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
               ),
             )
           else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: widget.logs.length,
-              itemBuilder: (context, index) {
-                final log = widget.logs[index];
-                return _buildLogItem(log);
-              },
+            Column(
+              children: [
+                for (int index = 0; index < widget.logs.length; index++) ...[
+                  if (index == 0 || !_isSameDate(widget.logs[index - 1].dateTime, widget.logs[index].dateTime)) _buildDateHeader(widget.logs[index]),
+                  _buildLogItem(widget.logs[index]),
+                ],
+              ],
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateHeader(LogDisplayModel log) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 10),
+      child: Row(
+        children: [
+          Text(
+            _getDateHeaderLabel(log),
+            style: TextStyle(
+              color: AppColors.main,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Divider(
+              color: Colors.grey.withValues(alpha: 0.15),
+              thickness: 1,
+              height: 1,
+            ),
+          ),
         ],
       ),
     );
@@ -227,17 +260,6 @@ class _RecentLogsWidgetState extends State<RecentLogsWidget> {
                         RichText(
                           text: TextSpan(
                             children: [
-                              if (log.datePart != null) ...[
-                                TextSpan(
-                                  text: log.datePart!.tr(),
-                                  style: TextStyle(
-                                    color: AppColors.main,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const TextSpan(text: ' '),
-                              ],
                               TextSpan(
                                 text: DateFormat('HH:mm').format(log.dateTime),
                                 style: TextStyle(

@@ -28,6 +28,7 @@ class HomeViewModel extends ChangeNotifier {
   bool _showRoutines = true;
   bool _showTasks = true;
   bool _showTodayTasks = true;
+  bool _showRoutineStreakIcon = true;
   DateFilterState _dateFilterState = DateFilterState.all;
   final Set<TaskTypeEnum> _selectedTaskTypes = {
     TaskTypeEnum.CHECKBOX,
@@ -387,6 +388,7 @@ class HomeViewModel extends ChangeNotifier {
   bool get showRoutines => _showRoutines;
   bool get showTasks => _showTasks;
   bool get showTodayTasks => _showTodayTasks;
+  bool get showRoutineStreakIcon => _showRoutineStreakIcon;
   DateFilterState get dateFilterState => _dateFilterState;
   Set<TaskTypeEnum> get selectedTaskTypes => _selectedTaskTypes;
   Set<TaskStatusEnum> get selectedStatuses => _selectedStatuses;
@@ -399,6 +401,7 @@ class HomeViewModel extends ChangeNotifier {
     _showTasks = prefs.getBool('home_show_tasks') ?? true;
     _showRoutines = prefs.getBool('home_show_routines') ?? true;
     _showTodayTasks = prefs.getBool('home_show_today_tasks') ?? true;
+    _showRoutineStreakIcon = prefs.getBool('home_show_routine_streak_icon') ?? true;
     LogService.debug('✅ Home: Loaded filters - Tasks: $_showTasks, Routines: $_showRoutines, TodayTasks: $_showTodayTasks');
 
     // Load date filter preference
@@ -447,6 +450,7 @@ class HomeViewModel extends ChangeNotifier {
     await prefs.setBool('home_show_tasks', _showTasks);
     await prefs.setBool('home_show_routines', _showRoutines);
     await prefs.setBool('home_show_today_tasks', _showTodayTasks);
+    await prefs.setBool('home_show_routine_streak_icon', _showRoutineStreakIcon);
     LogService.debug('✅ Home: Saved showTodayTasks filter: $_showTodayTasks');
 
     await prefs.setInt('home_date_filter', _dateFilterState.index);
@@ -484,6 +488,7 @@ class HomeViewModel extends ChangeNotifier {
     bool showRoutines,
     bool showTasks,
     bool showTodayTasks,
+    bool showRoutineStreakIcon,
     DateFilterState dateFilterState,
     Set<TaskTypeEnum> selectedTaskTypes,
     Set<TaskStatusEnum> selectedStatuses,
@@ -492,6 +497,7 @@ class HomeViewModel extends ChangeNotifier {
     _showRoutines = showRoutines;
     _showTasks = showTasks;
     _showTodayTasks = showTodayTasks;
+    _showRoutineStreakIcon = showRoutineStreakIcon;
     _dateFilterState = dateFilterState;
     _selectedTaskTypes.clear();
     _selectedTaskTypes.addAll(selectedTaskTypes);
