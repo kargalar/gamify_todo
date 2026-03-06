@@ -1,13 +1,12 @@
 name: next_level
 description: "Gamify your todo list"
 
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.0+30
+version: 1.2.1+31
 
 environment:
   sdk: ^3.5.3
-
 
 dependencies:
   flutter:
@@ -129,8 +128,6 @@ dependencies:
   wakelock_plus: ^1.2.8
   collection: ^1.19.1
   archive: ^4.0.9
-  
-
 
 dev_dependencies:
   flutter_test:
@@ -148,8 +145,6 @@ dev_dependencies:
 
   flutter_launcher_icons: ^0.14.2
   mockito: ^5.4.4
-
-
 
 # Splash Screen Settings
 flutter_native_splash:
@@ -183,7 +178,6 @@ flutter:
   #   - family: FacelogIcon
   #     fonts:
   #       - asset: assets\icons\FacelogIcon.ttf
-
 
   # New logo & splash command
   # flutter pub run flutter_launcher_icons;
